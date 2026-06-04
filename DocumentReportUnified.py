@@ -1257,76 +1257,82 @@ else:
 
     /* ── SIDEBAR ── */
     [data-testid="stSidebar"] {
-        background: #0f172a !important;
-        border-right: 1px solid rgba(255,255,255,0.06) !important;
-        box-shadow: 4px 0 24px rgba(0,0,0,0.25) !important;
+        background: linear-gradient(180deg, #e0f2fe 0%, #f0e7fe 50%, #ede9fe 100%) !important;
+        border-right: 1px solid rgba(148,163,184,0.15) !important;
+        box-shadow: 4px 0 24px rgba(56,189,248,0.08) !important;
 }
-    [data-testid="stSidebarContent"] { padding: 0 !important; }
-    [data-testid="stSidebar"] * { color: #cbd5e1 !important; font-family: 'IBM Plex Sans Thai', sans-serif !important; }
+    [data-testid="stSidebarContent"] { padding: 16px !important; }
+    [data-testid="stSidebar"] * { color: #1e293b !important; font-family: 'IBM Plex Sans Thai', sans-serif !important; }
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 { color: #f1f5f9 !important; }
+    [data-testid="stSidebar"] h3 { color: #0f172a !important; }
     [data-testid="stSidebar"] label { color: #64748b !important; font-size: 0.72rem !important; font-weight: 600 !important; letter-spacing: 0.8px !important; text-transform: uppercase !important; }
-    [data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.07) !important; margin: 0.5rem 0 !important; }
+    [data-testid="stSidebar"] hr { border-color: rgba(100,116,139,0.2) !important; margin: 12px 0 !important; }
     [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.10) !important;
-        border-radius: 10px !important; color: #e2e8f0 !important;
+        background: rgba(255,255,255,0.7) !important;
+        border: 1px solid rgba(100,116,139,0.2) !important;
+        border-radius: 12px !important; color: #0f172a !important;
 }
     [data-testid="stSidebar"] [data-baseweb="select"] svg { fill: #64748b !important; }
     [data-testid="stSidebar"] .sidebar-card {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.10) !important;
+        background: rgba(255,255,255,0.6) !important;
+        border: 1px solid rgba(100,116,139,0.15) !important;
         border-radius: 18px !important;
         padding: 16px !important;
-        margin-bottom: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 4px 12px rgba(56,189,248,0.08) !important;
     }
     [data-testid="stSidebar"] .sidebar-section-title {
         display: block !important;
-        margin: 0 0 10px !important;
+        margin: 16px 0 12px !important;
         font-size: 0.78rem !important;
-        color: #94a3b8 !important;
+        color: #475569 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.08em !important;
         font-weight: 700 !important;
+        padding: 0 2px !important;
     }
     [data-testid="stSidebar"] .sidebar-submenu {
-        padding-left: 10px !important;
+        padding-left: 16px !important;
         margin-top: 6px !important;
     }
     [data-testid="stSidebar"] .sidebar-label {
         font-size: 0.82rem !important;
-        color: #94a3b8 !important;
-        margin-bottom: 6px !important;
+        color: #64748b !important;
+        margin: 14px 0 10px !important;
+        padding: 0 2px !important;
+        font-weight: 600 !important;
     }
     /* sidebar buttons */
     [data-testid="stSidebar"] .stButton > button {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.12) !important;
-        border-radius: 14px !important; color: #cbd5e1 !important;
+        background: rgba(255,255,255,0.7) !important;
+        border: 1px solid rgba(100,116,139,0.15) !important;
+        border-radius: 14px !important; color: #475569 !important;
         font-size: 0.9rem !important; font-weight: 500 !important;
         transition: all .2s !important; width: 100% !important;
         padding: 12px 16px !important;
         text-align: left !important;
+        margin-bottom: 6px !important;
 }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(99,102,241,0.22) !important;
-        border-color: rgba(99,102,241,0.45) !important;
-        color: #fff !important;
+        background: rgba(99,102,241,0.15) !important;
+        border-color: rgba(99,102,241,0.3) !important;
+        color: #0f172a !important;
 }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
         background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
         color: #fff !important;
         border-color: transparent !important;
-        box-shadow: 0 8px 20px rgba(99,102,241,0.18) !important;
+        box-shadow: 0 8px 20px rgba(99,102,241,0.22) !important;
 }
     [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
         background: linear-gradient(135deg,#4f46e5,#7c3aed) !important;
+        box-shadow: 0 12px 28px rgba(99,102,241,0.28) !important;
 }
     [data-testid="stSidebar"] .sidebar-footer {
         margin-top: 18px !important;
-        padding-top: 12px !important;
-        border-top: 1px solid rgba(255,255,255,0.08) !important;
+        padding-top: 14px !important;
+        border-top: 1px solid rgba(100,116,139,0.15) !important;
     }
     /* admin alert in sidebar */
     [data-testid="stSidebar"] [data-testid="stAlert"] {
