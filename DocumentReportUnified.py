@@ -1261,7 +1261,7 @@ else:
         border-right: 1px solid rgba(148,163,184,0.15) !important;
         box-shadow: 4px 0 24px rgba(56,189,248,0.08) !important;
 }
-    [data-testid="stSidebarContent"] { padding: 16px 12px 16px 8px !important; }
+    [data-testid="stSidebarContent"] { padding: 12px 8px 12px 8px !important; }
     [data-testid="stSidebar"] * { color: #1e293b !important; font-family: 'IBM Plex Sans Thai', sans-serif !important; }
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
@@ -1294,7 +1294,8 @@ else:
         text-align: left !important;
     }
     [data-testid="stSidebar"] .sidebar-submenu {
-        padding-left: 12px !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
         margin-top: 6px !important;
         text-align: left !important;
     }
@@ -1307,16 +1308,23 @@ else:
         text-align: left !important;
     }
     /* sidebar buttons */
+    [data-testid="stSidebar"] .stButton {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
     [data-testid="stSidebar"] .stButton > button {
         background: rgba(255,255,255,0.7) !important;
         border: 1px solid rgba(100,116,139,0.15) !important;
         border-radius: 14px !important; color: #475569 !important;
         font-size: 0.9rem !important; font-weight: 500 !important;
-        transition: all .2s !important; width: 100% !important;
-        padding: 10px 12px !important;
+        transition: all .2s !important; width: calc(100% + 16px) !important;
+        padding: 10px 10px 10px 12px !important;
         text-align: left !important;
         margin-bottom: 6px !important;
-        margin-left: -4px !important;
+        margin-left: -8px !important;
+    }
 }
     [data-testid="stSidebar"] .stButton > button:hover {
         background: rgba(99,102,241,0.15) !important;
