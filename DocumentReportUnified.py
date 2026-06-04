@@ -1825,7 +1825,8 @@ else:
 
     if st.sidebar.button("⬅ ออกจากระบบ", use_container_width=True, key="logout_btn"):
         for cookie_key in ("user_name", "user_email"):
-            cookie_manager.delete(cookie_key)
+            if cookie_manager.get(cookie_key) is not None:
+                cookie_manager.delete(cookie_key)
             cookie_manager.set(cookie_key, "", max_age=0)
 
         if "cookie_manager" in st.session_state:
