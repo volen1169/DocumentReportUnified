@@ -1534,17 +1534,22 @@ else:
         color: #0f172a !important;
         font-size: 0.95rem !important;
         font-weight: 600 !important;
-        padding: 6px 0 6px 0 !important;
+        padding: 6px 0 6px 8px !important;
         transition: background .15s, color .15s !important;
         box-shadow: none !important;
         width: 100% !important;
-        margin-left: 0 !important;
-        margin-bottom: 4px !important;
-        display: inline-flex !important;
+        margin: 0 !important;
+        display: flex !important;
         align-items: center !important;
     }
+    [data-testid="stSidebar"] .stButton > button > * {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(255,255,255,0.35) !important;
+        background: rgba(255,255,255,0.15) !important;
         color: #0f172a !important;
         border: none !important;
         box-shadow: none !important;
@@ -1556,7 +1561,7 @@ else:
         box-shadow: none !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
-        background: rgba(255,255,255,0.35) !important;
+        background: rgba(255,255,255,0.15) !important;
         box-shadow: none !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
