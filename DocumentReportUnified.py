@@ -1290,18 +1290,21 @@ else:
         text-transform: uppercase !important;
         letter-spacing: 0.08em !important;
         font-weight: 700 !important;
-        padding: 0 2px !important;
+        padding: 0 !important;
+        text-align: left !important;
     }
     [data-testid="stSidebar"] .sidebar-submenu {
         padding-left: 16px !important;
         margin-top: 6px !important;
+        text-align: left !important;
     }
     [data-testid="stSidebar"] .sidebar-label {
         font-size: 0.82rem !important;
         color: #64748b !important;
         margin: 14px 0 10px !important;
-        padding: 0 2px !important;
+        padding: 0 !important;
         font-weight: 600 !important;
+        text-align: left !important;
     }
     /* sidebar buttons */
     [data-testid="stSidebar"] .stButton > button {
