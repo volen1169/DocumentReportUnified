@@ -1830,12 +1830,12 @@ else:
         expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
         for cookie_key in ("user_name", "user_email"):
             try:
-                cookie_manager.delete(cookie_key)
+                cookie_manager.delete(cookie_key, key=f"logout_delete_{cookie_key}")
             except Exception:
                 pass
-            cookie_manager.set(cookie_key, "", expires_at=expire_time, max_age=0)
+            cookie_manager.set(cookie_key, "", expires_at=expire_time, max_age=0, key=f"logout_set_{cookie_key}")
 
-        cookie_manager.get_all()
+        cookie_manager.get_all(key="logout_get_all")
 
         if "cookie_manager" in st.session_state:
             del st.session_state["cookie_manager"]
