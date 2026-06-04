@@ -1261,7 +1261,7 @@ else:
         border-right: 1px solid rgba(148,163,184,0.15) !important;
         box-shadow: 4px 0 24px rgba(56,189,248,0.08) !important;
 }
-    [data-testid="stSidebarContent"] { padding: 16px !important; }
+    [data-testid="stSidebarContent"] { padding: 16px 12px 16px 8px !important; }
     [data-testid="stSidebar"] * { color: #1e293b !important; font-family: 'IBM Plex Sans Thai', sans-serif !important; }
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
@@ -1278,31 +1278,31 @@ else:
         background: rgba(255,255,255,0.6) !important;
         border: 1px solid rgba(100,116,139,0.15) !important;
         border-radius: 18px !important;
-        padding: 16px !important;
-        margin-bottom: 16px !important;
+        padding: 16px 12px !important;
+        margin: 0 -8px 16px -8px !important;
         box-shadow: 0 4px 12px rgba(56,189,248,0.08) !important;
     }
     [data-testid="stSidebar"] .sidebar-section-title {
         display: block !important;
-        margin: 16px 0 12px !important;
+        margin: 16px -8px 12px -8px !important;
         font-size: 0.78rem !important;
         color: #475569 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.08em !important;
         font-weight: 700 !important;
-        padding: 0 !important;
+        padding: 0 8px !important;
         text-align: left !important;
     }
     [data-testid="stSidebar"] .sidebar-submenu {
-        padding-left: 16px !important;
+        padding-left: 12px !important;
         margin-top: 6px !important;
         text-align: left !important;
     }
     [data-testid="stSidebar"] .sidebar-label {
         font-size: 0.82rem !important;
         color: #64748b !important;
-        margin: 14px 0 10px !important;
-        padding: 0 !important;
+        margin: 14px -8px 10px -8px !important;
+        padding: 0 8px !important;
         font-weight: 600 !important;
         text-align: left !important;
     }
@@ -1313,9 +1313,10 @@ else:
         border-radius: 14px !important; color: #475569 !important;
         font-size: 0.9rem !important; font-weight: 500 !important;
         transition: all .2s !important; width: 100% !important;
-        padding: 12px 16px !important;
+        padding: 10px 12px !important;
         text-align: left !important;
         margin-bottom: 6px !important;
+        margin-left: -4px !important;
 }
     [data-testid="stSidebar"] .stButton > button:hover {
         background: rgba(99,102,241,0.15) !important;
@@ -1333,8 +1334,8 @@ else:
         box-shadow: 0 12px 28px rgba(99,102,241,0.28) !important;
 }
     [data-testid="stSidebar"] .sidebar-footer {
-        margin-top: 18px !important;
-        padding-top: 14px !important;
+        margin: 18px -8px 0 -8px !important;
+        padding: 14px 8px 0 8px !important;
         border-top: 1px solid rgba(100,116,139,0.15) !important;
     }
     /* admin alert in sidebar */
