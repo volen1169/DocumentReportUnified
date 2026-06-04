@@ -1029,11 +1029,12 @@ saved_user  = cookie_manager.get(cookie="user_name")
 saved_email = cookie_manager.get(cookie="user_email")
 
 if 'is_auth' not in st.session_state:
-    st.session_state.is_auth  = bool(saved_user)
-    st.session_state.user_name  = saved_user or ""
-    st.session_state.user_email = saved_email or ""
+    st.session_state.is_auth  = False
+    st.session_state.user_name  = ""
+    st.session_state.user_email = ""
+    st.session_state.skip_cookie_login = False
 
-if saved_user and not st.session_state.get('is_auth'):
+if saved_user and not st.session_state.get('is_auth') and not st.session_state.get('skip_cookie_login'):
     st.session_state.is_auth  = True
     st.session_state.user_name  = saved_user
     st.session_state.user_email = saved_email or ""
@@ -1219,6 +1220,7 @@ if not st.session_state.is_auth:
                         success, name, email = check_ms_login(u, p)
                     if success:
                         st.session_state.is_auth  = True
+                        st.session_state.skip_cookie_login = False
                         st.session_state.user_name  = name
                         st.session_state.user_email = email
                         cookie_manager.set("user_name",  name,  key="auth_token")
@@ -1839,6 +1841,7 @@ else:
             del st.session_state["cookie_manager"]
 
         st.session_state.is_auth = False
+        st.session_state.skip_cookie_login = True
         st.session_state.user_name = ""
         st.session_state.user_email = ""
 
