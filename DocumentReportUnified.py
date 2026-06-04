@@ -1274,19 +1274,60 @@ else:
         border-radius: 10px !important; color: #e2e8f0 !important;
 }
     [data-testid="stSidebar"] [data-baseweb="select"] svg { fill: #64748b !important; }
+    [data-testid="stSidebar"] .sidebar-card {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        border-radius: 18px !important;
+        padding: 16px !important;
+        margin-bottom: 14px !important;
+    }
+    [data-testid="stSidebar"] .sidebar-section-title {
+        display: block !important;
+        margin: 0 0 10px !important;
+        font-size: 0.78rem !important;
+        color: #94a3b8 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        font-weight: 700 !important;
+    }
+    [data-testid="stSidebar"] .sidebar-submenu {
+        padding-left: 10px !important;
+        margin-top: 6px !important;
+    }
+    [data-testid="stSidebar"] .sidebar-label {
+        font-size: 0.82rem !important;
+        color: #94a3b8 !important;
+        margin-bottom: 6px !important;
+    }
     /* sidebar buttons */
     [data-testid="stSidebar"] .stButton > button {
-        background: rgba(255,255,255,0.06) !important;
-        border: 1px solid rgba(255,255,255,0.10) !important;
-        border-radius: 10px !important; color: #94a3b8 !important;
-        font-size: 0.85rem !important; font-weight: 500 !important;
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 14px !important; color: #cbd5e1 !important;
+        font-size: 0.9rem !important; font-weight: 500 !important;
         transition: all .2s !important; width: 100% !important;
+        padding: 12px 16px !important;
+        text-align: left !important;
 }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(99,102,241,0.18) !important;
-        border-color: rgba(99,102,241,0.4) !important;
-        color: #a5b4fc !important;
+        background: rgba(99,102,241,0.22) !important;
+        border-color: rgba(99,102,241,0.45) !important;
+        color: #fff !important;
 }
+    [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
+        color: #fff !important;
+        border-color: transparent !important;
+        box-shadow: 0 8px 20px rgba(99,102,241,0.18) !important;
+}
+    [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg,#4f46e5,#7c3aed) !important;
+}
+    [data-testid="stSidebar"] .sidebar-footer {
+        margin-top: 18px !important;
+        padding-top: 12px !important;
+        border-top: 1px solid rgba(255,255,255,0.08) !important;
+    }
     /* admin alert in sidebar */
     [data-testid="stSidebar"] [data-testid="stAlert"] {
         background: rgba(16,185,129,0.12) !important;
@@ -1605,7 +1646,7 @@ else:
     initials = "".join([w[0].upper() for w in name.split()[:2]])
 
     st.sidebar.markdown(f"""
-    <div style="padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);">
+    <div class="sidebar-card">
         <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 14px;">
             <div style="width:42px; height:42px; border-radius:12px; flex-shrink:0;
                         background: linear-gradient(135deg,#6366f1,#8b5cf6);
@@ -1614,26 +1655,27 @@ else:
                 {initials}
             </div>
             <div>
-                <div style="font-size:0.88rem; font-weight:600; color:#f1f5f9; line-height:1.2;">{name}</div>
-                <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">
+                <div style="font-size:0.88rem; font-weight:700; color:#f1f5f9; line-height:1.2;">{name}</div>
+                <div style="font-size:0.74rem; color:#94a3b8; margin-top:2px;">
                     {'🔑 Administrator' if admin_mode else '👤 User'}
                 </div>
             </div>
         </div>
-        {'<div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:6px 12px;font-size:0.75rem;font-weight:600;color:#6ee7b7;text-align:center;">✅ Admin Mode</div>' if admin_mode else ''}
+        {'<div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:8px 12px;font-size:0.78rem;font-weight:700;color:#6ee7b7;text-align:center;">Admin Mode</div>' if admin_mode else ''}
     </div>
     """, unsafe_allow_html=True)
 
     # ── Brand / Logo ──────────────────────────────────────────
     st.sidebar.markdown("""
-    <div style="padding:18px 16px 12px; display:flex; align-items:center; gap:10px;
-                border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:4px;">
-        <div style="width:38px;height:38px;border-radius:10px;flex-shrink:0;
-                    background:linear-gradient(135deg,#6366f1,#8b5cf6);
-                    display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📊</div>
-        <div>
-            <div style="font-size:0.88rem;font-weight:700;color:#f1f5f9;line-height:1.2;">IT Asset Overview</div>
-            <div style="font-size:0.68rem;color:#475569;margin-top:1px;">Optimal IT Management</div>
+    <div class="sidebar-card">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:38px;height:38px;border-radius:12px;flex-shrink:0;
+                        background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                        display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📊</div>
+            <div>
+                <div style="font-size:0.88rem;font-weight:700;color:#f1f5f9;line-height:1.2;">IT Asset Overview</div>
+                <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">Optimal IT Management</div>
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1660,7 +1702,7 @@ else:
         st.session_state.active_nav = "computers"
 
     # ── SIDEBAR NAVIGATION ─────────────────────────────────────
-    st.sidebar.markdown("### 🏠 เมนูหลัก")
+    st.sidebar.markdown("<div class=\"sidebar-section-title\">🏠 เมนูหลัก</div>", unsafe_allow_html=True)
 
     if admin_mode:
         if st.sidebar.button(
@@ -1673,6 +1715,7 @@ else:
             st.rerun()
 
     # ===== HARDWARE =====
+    st.sidebar.markdown("<div class='sidebar-label'>Hardware</div>", unsafe_allow_html=True)
     if st.sidebar.button(
         f"{'▾' if st.session_state.open_hw else '▸'} 🖥️ Hardware",
         use_container_width=True,
@@ -1682,6 +1725,7 @@ else:
         st.rerun()
 
     if st.session_state.open_hw:
+        st.sidebar.markdown("<div class='sidebar-submenu'>", unsafe_allow_html=True)
 
         if st.sidebar.button(
             "💻 Computers",
@@ -1737,7 +1781,10 @@ else:
             set_nav("misc")
             st.rerun()
 
+        st.sidebar.markdown("</div>", unsafe_allow_html=True)
+
     if admin_mode:
+        st.sidebar.markdown("<div class='sidebar-label'>Software</div>", unsafe_allow_html=True)
         if st.sidebar.button(
             f"{'▾' if st.session_state.open_sw else '▸'} 💿 Software",
             use_container_width=True,
@@ -1747,6 +1794,7 @@ else:
             st.rerun()
 
         if st.session_state.open_sw:
+            st.sidebar.markdown("<div class='sidebar-submenu'>", unsafe_allow_html=True)
 
             if st.sidebar.button(
                 "📧 Email",
@@ -1823,6 +1871,8 @@ else:
             ):
                 set_nav("ink_history")
                 st.rerun()
+
+            st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     st.sidebar.markdown("---")
 
