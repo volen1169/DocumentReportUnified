@@ -39,9 +39,7 @@ PASSWORD_FILE_NAME = "Password.xlsx"
 
 # ✅ Admin List — เพิ่ม/ลด email ได้ที่นี่
 ADMIN_EMAILS = [
-    "it@optimal.co.th",
     "itsupport@poonyaruk.co.th",
-    "IT_Network@poonyaruk.co.th",
 ]
 
 # Field mapping สำหรับ Computer Asset
@@ -424,14 +422,13 @@ def render_card_computer(row, key, admin_mode):
             c1, c2 = st.columns(2)
             with c1:
                 if st.button("🔍 ดูข้อมูล", key=f"comp_view_{key}", use_container_width=True):
-                    show_pop_computer(row.to_dict())
+                    show_pop_computer(row.to_dict(), admin_mode=True)
             with c2:
                 if st.button("✏️ แก้ไข", key=f"comp_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_computer_{key}"] = True
                     st.rerun()
         else:
-            if st.button("🔍 ดูข้อมูล", key=f"comp_view_{key}", use_container_width=True):
-                show_pop_computer(row.to_dict())
+            st.caption("🔒 ข้อมูลเพิ่มเติมและการแก้ไขเฉพาะผู้ดูแลระบบ")
 
 def render_card_monitor(row, key, admin_mode):
     status = row.get('Status', '')
@@ -445,20 +442,19 @@ def render_card_monitor(row, key, admin_mode):
             {_hw_badge(status)}
         </div>
         <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        <div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;{row.get('field_4','-')}</div>
+        {f"<div class=\"hw-field\"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;{row.get('field_4','-')}</div>" if admin_mode else ""}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
                 if st.button("🔍 ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
-                    show_pop_monitor(row.to_dict())
+                    show_pop_monitor(row.to_dict(), admin_mode=True)
             with c2:
                 if st.button("✏️ แก้ไข", key=f"mon_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_monitor_{key}"] = True
                     st.rerun()
         else:
-            if st.button("🔍 ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
-                show_pop_monitor(row.to_dict())
+            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
 def render_card_printer(row, key, admin_mode):
     with st.container():
@@ -468,25 +464,24 @@ def render_card_printer(row, key, admin_mode):
             <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
         </div>
         <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        <div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;{row.get('S_x002f_N_x0020_No_x002e_','-')}</div>
-        <div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;{row.get('field_3','-')}</div>
+        {f"<div class=\"hw-field\"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;{row.get('S_x002f_N_x0020_No_x002e_','-')}</div>" if admin_mode else ""}
+        {f"<div class=\"hw-field\"><strong>🌐 IP</strong>&nbsp;&nbsp;{row.get('field_3','-')}</div>" if admin_mode else ""}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
                 if st.button("🔍 ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
-                    show_pop_printer(row.to_dict())
+                    show_pop_printer(row.to_dict(), admin_mode=True)
             with c2:
                 if st.button("✏️ แก้ไข", key=f"prn_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_printer_{key}"] = True
                     st.rerun()
         else:
-            if st.button("🔍 ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
-                show_pop_printer(row.to_dict())
+            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
 # --- 7. DIALOG: VIEW ---
 @st.dialog("📋 รายละเอียด Computer")
-def show_pop_computer(data):
+def show_pop_computer(data, admin_mode=False):
     st.markdown(f"### 💻 {data.get('field_7', 'Computer')}")
     c1, c2 = st.columns(2)
     with c1:
@@ -494,7 +489,10 @@ def show_pop_computer(data):
         st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
         st.write(f"**💻 Hostname:** {data.get('field_6', '-')}")
     with c2:
-        st.write(f"**🔢 Serial No:** {data.get('field_8', '-')}")
+        if admin_mode:
+            st.write(f"**🔢 Serial No:** {data.get('field_8', '-')}")
+        else:
+            st.write("**🔢 Serial No:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
         st.write(f"**✳️ สถานะ:** {data.get('Status', '-')}")
         st.write(f"**💾 RAM:** {data.get('field_13', '-')}")
         st.write(f"**💿 Storage C:** {data.get('field_15', '-')}  D: {data.get('field_16', '-')}")
@@ -502,21 +500,29 @@ def show_pop_computer(data):
         st.json(data)
 
 @st.dialog("📋 รายละเอียด Monitor")
-def show_pop_monitor(data):
+def show_pop_monitor(data, admin_mode=False):
     st.markdown(f"### 🖥️ {data.get('field_2', 'Monitor')}")
     st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
     st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
-    st.write(f"**🔢 Serial No.:** {data.get('field_4', '-')}")
+    if admin_mode:
+        st.write(f"**🔢 Serial No.:** {data.get('field_4', '-')}")
+    else:
+        st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
     st.write(f"**✅ สถานะ:** {data.get('Status', '-')}")
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
 @st.dialog("📋 รายละเอียด Printer")
-def show_pop_printer(data):
+def show_pop_printer(data, admin_mode=False):
     st.markdown(f"### 🖨️ {data.get('field_2', 'Printer')}")
     st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
     st.write(f"**👤 User:** {data.get('User', '-')}")
-    st.write(f"**🔢 Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
+    if admin_mode:
+        st.write(f"**🔢 Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
+        st.write(f"**🌐 IP Address:** {data.get('field_3', '-')}")
+    else:
+        st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+        st.write("**🌐 IP Address:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
@@ -1646,17 +1652,22 @@ else:
     def set_nav(nav_key):
         st.session_state.active_nav = nav_key
 
+    allowed_hw_navs = {"computers", "monitors", "projector", "printers", "ups", "misc"}
+    if not admin_mode and st.session_state.active_nav not in allowed_hw_navs:
+        st.session_state.active_nav = "computers"
+
     # ── SIDEBAR NAVIGATION ─────────────────────────────────────
     st.sidebar.markdown("### 🏠 เมนูหลัก")
 
-    if st.sidebar.button(
-        "📊 Overview Dashboard",
-        use_container_width=True,
-        type="primary" if st.session_state.active_nav == "overview" else "secondary",
-        key="nav_overview"
-    ):
-        set_nav("overview")
-        st.rerun()
+    if admin_mode:
+        if st.sidebar.button(
+            "📊 Overview Dashboard",
+            use_container_width=True,
+            type="primary" if st.session_state.active_nav == "overview" else "secondary",
+            key="nav_overview"
+        ):
+            set_nav("overview")
+            st.rerun()
 
     # ===== HARDWARE =====
     if st.sidebar.button(
@@ -1723,92 +1734,92 @@ else:
             set_nav("misc")
             st.rerun()
 
-    # ===== SOFTWARE =====
-    if st.sidebar.button(
-        f"{'▾' if st.session_state.open_sw else '▸'} 💿 Software",
-        use_container_width=True,
-        key="toggle_sw_btn"
-    ):
-        st.session_state.open_sw = not st.session_state.open_sw
-        st.rerun()
+    if admin_mode:
+        if st.sidebar.button(
+            f"{'▾' if st.session_state.open_sw else '▸'} 💿 Software",
+            use_container_width=True,
+            key="toggle_sw_btn"
+        ):
+            st.session_state.open_sw = not st.session_state.open_sw
+            st.rerun()
 
-    if st.session_state.open_sw:
+        if st.session_state.open_sw:
+
+            if st.sidebar.button(
+                "📧 Email",
+                use_container_width=True,
+                type="primary" if st.session_state.active_nav == "email" else "secondary",
+                key="nav_email"
+            ):
+                set_nav("email")
+                st.rerun()
+
+            if st.sidebar.button(
+                "🌐 Domain",
+                use_container_width=True,
+                type="primary" if st.session_state.active_nav == "domain" else "secondary",
+                key="nav_domain"
+            ):
+                set_nav("domain")
+                st.rerun()
+
+            if st.sidebar.button(
+                "📋 Vendor",
+                use_container_width=True,
+                type="primary" if st.session_state.active_nav == "vendor" else "secondary",
+                key="nav_vendor"
+            ):
+                set_nav("vendor")
+                st.rerun()
+
+        st.sidebar.markdown("### ⚙️ ระบบอื่นๆ")
 
         if st.sidebar.button(
-            "📧 Email",
+            "🔐 User Permission",
             use_container_width=True,
-            type="primary" if st.session_state.active_nav == "email" else "secondary",
-            key="nav_email"
+            type="primary" if st.session_state.active_nav == "user_perm" else "secondary",
+            key="nav_user_perm"
         ):
-            set_nav("email")
+            set_nav("user_perm")
             st.rerun()
 
         if st.sidebar.button(
-            "🌐 Domain",
+            "🔑 Password",
             use_container_width=True,
-            type="primary" if st.session_state.active_nav == "domain" else "secondary",
-            key="nav_domain"
+            type="primary" if st.session_state.active_nav == "password" else "secondary",
+            key="nav_password"
         ):
-            set_nav("domain")
+            set_nav("password")
             st.rerun()
 
+        # ===== INK =====
         if st.sidebar.button(
-            "📋 Vendor",
+            f"{'▾' if st.session_state.open_ink else '▸'} 🖊️ Ink",
             use_container_width=True,
-            type="primary" if st.session_state.active_nav == "vendor" else "secondary",
-            key="nav_vendor"
+            key="toggle_ink_btn"
         ):
-            set_nav("vendor")
+            st.session_state.open_ink = not st.session_state.open_ink
             st.rerun()
 
-    st.sidebar.markdown("### ⚙️ ระบบอื่นๆ")
+        if st.session_state.open_ink:
 
-    if st.sidebar.button(
-        "🔐 User Permission",
-        use_container_width=True,
-        type="primary" if st.session_state.active_nav == "user_perm" else "secondary",
-        key="nav_user_perm"
-    ):
-        set_nav("user_perm")
-        st.rerun()
+            if st.sidebar.button(
+                "📦 Ink Stock",
+                use_container_width=True,
+                type="primary" if st.session_state.active_nav == "ink_stock" else "secondary",
+                key="nav_ink_stock"
+            ):
+                set_nav("ink_stock")
+                st.rerun()
 
-    if st.sidebar.button(
-        "🔑 Password",
-        use_container_width=True,
-        type="primary" if st.session_state.active_nav == "password" else "secondary",
-        key="nav_password"
-    ):
-        set_nav("password")
-        st.rerun()
-
-    # ===== INK =====
-    if st.sidebar.button(
-        f"{'▾' if st.session_state.open_ink else '▸'} 🖊️ Ink",
-        use_container_width=True,
-        key="toggle_ink_btn"
-    ):
-        st.session_state.open_ink = not st.session_state.open_ink
-        st.rerun()
-
-    if st.session_state.open_ink:
-
-        if st.sidebar.button(
-            "📦 Ink Stock",
-            use_container_width=True,
-            type="primary" if st.session_state.active_nav == "ink_stock" else "secondary",
-            key="nav_ink_stock"
-        ):
-            set_nav("ink_stock")
-            st.rerun()
-
-        if st.sidebar.button(
-            "📜 Ink History",
-            use_container_width=True,
-            type="primary" if st.session_state.active_nav == "ink_history" else "secondary",
-            key="nav_ink_history"
-        ):
-            set_nav("ink_history")
-            st.rerun()
+            if st.sidebar.button(
+                "📜 Ink History",
+                use_container_width=True,
+                type="primary" if st.session_state.active_nav == "ink_history" else "secondary",
+                key="nav_ink_history"
+            ):
+                set_nav("ink_history")
+                st.rerun()
 
     st.sidebar.markdown("---")
 
@@ -1843,6 +1854,13 @@ else:
 }
     main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav == "ink_history")
+
+    if not admin_mode and main_menu != "💻 Hardware Asset":
+        st.session_state.active_nav = "computers"
+        _nav = "computers"
+        main_menu, _hw_sub_override = _ROUTE["computers"]
+        show_ink_history_only = False
+        st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Hardware Asset เท่านั้น")
 
     # -------------------------------------------------------
     # 📊 Overview Dashboard
@@ -2151,14 +2169,15 @@ else:
         </style>
         """, unsafe_allow_html=True)
 
-        sub = "Computer Asset"
+        sub = _hw_sub_override or "Computer Asset"
+        hardware_name = sub.replace("Asset ", "")
         df_hw = load_sp_data(sub)
 
         st.markdown(f"""
         <div class="asset-hero">
-            <div class="asset-title">💻 Computer Asset</div>
+            <div class="asset-title">💻 {hardware_name}</div>
             <div class="asset-sub">
-                ระบบจัดการคอมพิวเตอร์และทรัพย์สิน IT ทั้งหมด
+                ระบบจัดการ{hardware_name}และทรัพย์สิน IT ทั้งหมด
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -2222,16 +2241,18 @@ else:
                     st.write(f"💾 RAM: {row.get('field_13','-')}")
                     st.write(f"🔢 Serial: {row.get('field_8','-')}")
 
-                b1, b2 = st.columns(2)
+                if admin_mode:
+                    b1, b2 = st.columns(2)
 
-                with b1:
-                    if st.button("🔍 ดูข้อมูล", key=f"view_{idx}", use_container_width=True):
-                        show_pop_computer(row.to_dict())
+                    with b1:
+                        if st.button("🔍 ดูข้อมูล", key=f"view_{idx}", use_container_width=True):
+                            show_pop_computer(row.to_dict())
 
-                with b2:
-                    if admin_mode:
+                    with b2:
                         if st.button("✏️ แก้ไข", key=f"edit_{idx}", use_container_width=True):
                             edit_computer_dialog(row.to_dict(), sub)
+                else:
+                    st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
 
 
 
@@ -2684,27 +2705,29 @@ else:
                 ws.freeze_panes = 'A2'
                 ws.auto_filter.ref = ws.dimensions
 
-            st.divider()
+            if admin_mode:
+                st.divider()
 
-            ex1, ex2 = st.columns(2)
+                ex1, ex2 = st.columns(2)
 
-            with ex1:
-                st.download_button(
-                    "📥 Export CSV",
-                    csv_buf.getvalue(),
-                    "nas_acl_report.csv",
-                    "text/csv",
-                    use_container_width=True
-                )
+                with ex1:
+                    st.download_button(
+                        "📥 Export CSV",
+                        csv_buf.getvalue(),
+                        "nas_acl_report.csv",
+                        "text/csv",
+                        use_container_width=True
+                    )
 
-            with ex2:
-                st.download_button(
-                    "📊 Export Excel",
-                    excel_buf.getvalue(),
-                    "nas_acl_report.xlsx",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
+                with ex2:
+                    st.download_button(
+                        "📊 Export Excel",
+                        excel_buf.getvalue(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True
+                    )
+            else:
+                st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
 
 
     # -------------------------------------------------------
