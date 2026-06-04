@@ -41,6 +41,9 @@ PASSWORD_FILE_NAME = "Password.xlsx"
 # ✅ Admin List — เพิ่ม/ลด email ได้ที่นี่
 ADMIN_EMAILS = [
     "itsupport@poonyaruk.co.th",
+    "IT_Network@poonyaruk.co.th",
+    "Teerapat.Po@optimal.co.th",
+
 ]
 
 # Field mapping สำหรับ Computer Asset
