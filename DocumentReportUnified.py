@@ -1320,7 +1320,7 @@ else:
         border: none !important;
         height: 1px !important;
         background: #E2E8F0 !important;
-        margin: 18px 0 !important;
+        margin: 12px 0 !important;
     }
     [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div {
         background: #FFFFFF !important;
@@ -1349,7 +1349,7 @@ else:
     }
     /* Profile card — reference layout */
     [data-testid="stSidebar"] .ref-profile {
-        padding: 18px 2px 16px 2px;
+        padding: 0 2px 14px 2px;
         border-bottom: 1px solid #E2E8F0;
         margin-bottom: 0;
     }
@@ -1395,21 +1395,13 @@ else:
     [data-testid="stSidebar"] .nav-section-label {
         font-size: 0.625rem; font-weight: 600; letter-spacing: 0.12em;
         text-transform: uppercase; color: #94A3B8;
-        padding: 16px 4px 10px 4px; margin: 0;
-    }
-    [data-testid="stSidebar"] .nav-submenu-wrap {
-        margin: 4px 0 8px 0;
-        padding: 0 0 0 22px;
-    }
-    [data-testid="stSidebar"] .nav-badge-col {
-        display: flex; align-items: center; justify-content: flex-end;
-        min-height: 40px;
+        padding: 10px 4px 6px 4px; margin: 0;
     }
     [data-testid="stSidebar"] .nav-badge-pill {
         display: inline-flex; align-items: center; justify-content: center;
-        min-width: 36px; height: 24px; padding: 0 10px;
-        border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-        line-height: 1;
+        min-width: 32px; height: 22px; padding: 0 8px;
+        border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+        line-height: 1; flex-shrink: 0;
     }
     [data-testid="stSidebar"] .nav-badge-blue {
         background: #EFF6FF; color: #2563EB; border: none;
@@ -1420,22 +1412,52 @@ else:
     [data-testid="stSidebar"] .nav-badge-red {
         background: #FEF2F2; color: #DC2626; border: none;
     }
-    [data-testid="stSidebar"] div[data-testid="column"] {
+    /* ── Tight vertical rhythm (fix Streamlit default gaps) ── */
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        gap: 0.2rem !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div {
+        gap: 0.2rem !important;
+    }
+    [data-testid="stSidebar"] .element-container {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+        gap: 6px !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        align-items: center !important;
+        min-height: 0 !important;
+        flex-wrap: nowrap !important;
+    }
+    [data-testid="stSidebar"] [data-testid="column"] {
         gap: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        min-height: 0 !important;
     }
     [data-testid="stSidebar"] div[data-testid="column"] .stButton {
-        margin-bottom: 2px !important;
+        margin-bottom: 0 !important;
+    }
+    [data-testid="stSidebar"] .nav-row-h {
+        margin-bottom: 0 !important;
     }
     [data-testid="stSidebar"] .stButton {
-        margin: 0 0 2px 0 !important;
+        margin: 0 !important;
         padding: 0 !important;
     }
     [data-testid="stSidebar"] .stButton > button {
         width: 100% !important;
-        min-height: 40px !important;
-        padding: 9px 12px !important;
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 0 10px !important;
         margin: 0 !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         border: 1px solid transparent !important;
         background: transparent !important;
         color: #0F172A !important;
@@ -1470,10 +1492,28 @@ else:
         background: transparent !important;
         color: #0F172A !important;
     }
-    [data-testid="stSidebar"] .nav-group-btn > button {
+    [data-testid="stSidebar"] .nav-group-btn > button,
+    [data-testid="stSidebar"] button.nav-group-toggle-el {
         font-weight: 600 !important;
         color: #0F172A !important;
-        min-height: 42px !important;
+        min-height: 36px !important;
+        height: 36px !important;
+    }
+    [data-testid="stSidebar"] .nav-toolbar-row .stButton > button {
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 0 8px !important;
+        font-size: 0.75rem !important;
+        border: 1px solid #E2E8F0 !important;
+        background: #FFFFFF !important;
+        color: #64748B !important;
+        border-radius: 8px !important;
+    }
+    [data-testid="stSidebar"] .nav-toolbar-row {
+        margin-bottom: 4px !important;
+    }
+    [data-testid="stSidebar"] .nav-toolbar-row [data-testid="stHorizontalBlock"] {
+        margin-bottom: 0 !important;
     }
     [data-testid="stSidebar"] .nav-group-btn > button:hover {
         background: #F8FAFC !important;
@@ -1776,22 +1816,19 @@ else:
     st.sidebar.markdown("""
     <style>
     [data-testid="stSidebar"],
-    [data-testid="stSidebar"] > div:first-child {
-        background: #F8FAFC !important;
-    }
+    [data-testid="stSidebar"] > div:first-child { background: #F8FAFC !important; }
     [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
         background: #FFFFFF !important;
         border: 1px solid #E2E8F0 !important;
         border-radius: 16px !important;
-        margin: 12px !important;
-        padding: 16px !important;
-        box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06) !important;
+        margin: 10px !important;
+        padding: 14px 12px !important;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
     }
-    [data-testid="stSidebar"] .stButton > button,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] span {
-        color: #0F172A !important;
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.2rem !important; }
+    [data-testid="stSidebar"] .element-container { margin-bottom: 0 !important; }
+    [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+        gap: 6px !important; margin-bottom: 0 !important; align-items: center !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -1803,68 +1840,58 @@ else:
             unsafe_allow_html=True,
         )
 
-    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue"):
+    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         active = st.session_state.active_nav == nav_key
-        label = icon if compact else f"   {icon}   {text}"
+        prefix = "      " if sub and not compact else ""
+        label = icon if compact else f"{prefix}{icon}  {text}"
         if compact:
             if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
                 st.session_state.active_nav = nav_key
                 st.rerun()
             return
-        ncol, bcol = st.sidebar.columns([0.72, 0.28], gap="small")
-        with ncol:
+        val = nav_badges.get(badge_key, 0) if badge_key else None
+        if val is None:
             if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
                 st.session_state.active_nav = nav_key
                 st.rerun()
-        with bcol:
-            if badge_key:
-                val = nav_badges.get(badge_key, 0)
-                st.sidebar.markdown(
-                    f'<div class="nav-badge-col"><span class="nav-badge-pill nav-badge-{badge_tone}">{val}</span></div>',
-                    unsafe_allow_html=True,
-                )
+            return
+        c_btn, c_badge = st.sidebar.columns([0.76, 0.24], gap="small")
+        with c_btn:
+            if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
+                st.session_state.active_nav = nav_key
+                st.rerun()
+        with c_badge:
+            st.markdown(
+                f'<div style="display:flex;align-items:center;justify-content:flex-end;height:32px;margin:0;">'
+                f'<span class="nav-badge-pill nav-badge-{badge_tone}">{val}</span></div>',
+                unsafe_allow_html=True,
+            )
 
     def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
         if compact:
             label = "▾" if open_ else icon
         elif open_:
-            label = f"▾   {icon}   {text}"
+            label = f"▾  {icon}  {text}"
         else:
-            label = f"   {icon}   {text}   ›"
-        st.sidebar.markdown('<div class="nav-group-btn">', unsafe_allow_html=True)
+            label = f"{icon}  {text}  ›"
         if st.sidebar.button(label, use_container_width=True, key=f"tog_{state_key}"):
             st.session_state[state_key] = not open_
             st.rerun()
-        st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     def _nav_leaf(nav_key: str, icon: str, text: str):
-        """Top-level item (Dashboard, Reports) — chevron › when inactive."""
         active = st.session_state.active_nav == nav_key
         if compact:
             label = icon
         elif active:
-            label = f"   {icon}   {text}"
+            label = f"{icon}  {text}"
         else:
-            label = f"   {icon}   {text}   ›"
+            label = f"{icon}  {text}  ›"
         if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
             st.session_state.active_nav = nav_key
             st.rerun()
 
-    # ── Brand header (top) ───────────────────────────────────
-    st.sidebar.markdown(f"""
-    <div class="ref-brand hide-when-compact">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div class="ref-logo" style="background:#2563EB;color:#fff;">DR</div>
-            <div>
-                <div class="ref-brand-title" style="color:#0F172A !important;">DocumentReportUnified</div>
-                <div class="ref-brand-sub" style="color:#64748B !important;">Enterprise IT Platform</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── User profile (reference layout) ───────────────────────
+    # ── User profile first (reference image) ────────────────
     st.sidebar.markdown(f"""
     <div class="ref-profile hide-when-compact">
         <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -1881,22 +1908,36 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
+    st.sidebar.markdown(f"""
+    <div class="ref-brand hide-when-compact" style="padding:12px 2px 14px;border-bottom:1px solid #E2E8F0;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div class="ref-logo" style="background:#2563EB;color:#fff;width:32px;height:32px;font-size:0.65rem;">DR</div>
+            <div>
+                <div class="ref-brand-title" style="color:#0F172A !important;font-size:0.82rem;">DocumentReportUnified</div>
+                <div class="ref-brand-sub" style="color:#64748B !important;font-size:0.68rem;">Enterprise IT Platform</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     if compact:
         st.sidebar.markdown(
-            f'<div style="text-align:center;padding:12px 0;border-bottom:1px solid #E2E8F0;">'
+            f'<div style="text-align:center;padding:8px 0;border-bottom:1px solid #E2E8F0;">'
             f'<div class="ref-avatar" style="margin:0 auto;">{initials}</div></div>',
             unsafe_allow_html=True,
         )
 
+    st.sidebar.markdown('<div class="nav-toolbar-row">', unsafe_allow_html=True)
     rt1, rt2 = st.sidebar.columns(2, gap="small")
     with rt1:
-        if st.sidebar.button("◀" if not compact else "▶", use_container_width=True, key="nav_toggle_compact", help="Collapse sidebar"):
+        if st.button("◀", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
             st.session_state.sidebar_compact = not compact
             st.rerun()
     with rt2:
-        if st.sidebar.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh counts"):
+        if st.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
             get_sidebar_nav_badges.clear()
             st.rerun()
+    st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
@@ -1917,38 +1958,30 @@ else:
 
     _group_toggle("open_grp_assets", "📦", "Asset Management")
     if st.session_state.open_grp_assets:
-        st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-        _nav_item("computers", "🖥", "Computers", "computers", "blue")
-        _nav_item("monitors", "🖵", "Monitors", "monitors", "blue")
-        _nav_item("printers", "🖨", "Printers", "printers", "blue")
-        _nav_item("projector", "📽", "Projectors", "projector", "blue")
-        _nav_item("ups", "🔋", "UPS", "ups", "blue")
-        _nav_item("misc", "📦", "Miscellaneous", "misc", "blue")
-        st.sidebar.markdown("</div>", unsafe_allow_html=True)
+        _nav_item("computers", "🖥", "Computers", "computers", "blue", sub=True)
+        _nav_item("monitors", "🖵", "Monitors", "monitors", "blue", sub=True)
+        _nav_item("printers", "🖨", "Printers", "printers", "blue", sub=True)
+        _nav_item("projector", "📽", "Projectors", "projector", "blue", sub=True)
+        _nav_item("ups", "🔋", "UPS", "ups", "blue", sub=True)
+        _nav_item("misc", "📦", "Miscellaneous", "misc", "blue", sub=True)
 
     if admin_mode:
         _group_toggle("open_grp_security", "🔒", "Security")
         if st.session_state.open_grp_security:
-            st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_item("password", "🔑", "Password Manager", "password", "blue")
-            _nav_item("user_perm", "📂", "NAS Permission Analyzer", "user_perm", "blue")
-            st.sidebar.markdown("</div>", unsafe_allow_html=True)
+            _nav_item("password", "🔑", "Password Manager", "password", "blue", sub=True)
+            _nav_item("user_perm", "📂", "NAS Permission Analyzer", "user_perm", "blue", sub=True)
 
         _group_toggle("open_grp_inventory", "📁", "Inventory")
         if st.session_state.open_grp_inventory:
-            st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "blue")
-            st.sidebar.markdown("</div>", unsafe_allow_html=True)
+            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "blue", sub=True)
 
         _nav_leaf("reports", "📊", "Reports & Analytics")
 
         _group_toggle("open_grp_admin", "⚙", "Administration")
         if st.session_state.open_grp_admin:
-            st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_item("admin_users", "👥", "Users")
-            _nav_item("admin_settings", "⚙", "Settings")
-            _nav_item("admin_logs", "📜", "Activity Logs")
-            st.sidebar.markdown("</div>", unsafe_allow_html=True)
+            _nav_item("admin_users", "👥", "Users", sub=True)
+            _nav_item("admin_settings", "⚙", "Settings", sub=True)
+            _nav_item("admin_logs", "📜", "Activity Logs", sub=True)
 
     st.sidebar.markdown("---")
 
