@@ -3,6 +3,7 @@ import pandas as pd
 import paramiko
 import re
 import textwrap
+import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -1824,10 +1825,15 @@ else:
     st.sidebar.markdown("---")
 
     if st.sidebar.button("⬅ ออกจากระบบ", use_container_width=True, key="logout_btn"):
+        expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
         for cookie_key in ("user_name", "user_email"):
-            if cookie_manager.get(cookie_key) is not None:
+            try:
                 cookie_manager.delete(cookie_key)
-            cookie_manager.set(cookie_key, "", max_age=0)
+            except Exception:
+                pass
+            cookie_manager.set(cookie_key, "", expires_at=expire_time, max_age=0)
+
+        cookie_manager.get_all()
 
         if "cookie_manager" in st.session_state:
             del st.session_state["cookie_manager"]
