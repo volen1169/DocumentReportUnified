@@ -1279,153 +1279,211 @@ else:
 }
 
     /* ── APP BG ── */
-    [data-testid="stAppViewContainer"] { background: #f0f2f8 !important; }
-    section[data-testid="stMain"]      { background: #f0f2f8 !important; }
+    [data-testid="stAppViewContainer"] { background: #F8FAFC !important; }
+    section[data-testid="stMain"]      { background: #F8FAFC !important; }
     [data-testid="stMainBlockContainer"] {
         padding: 1.8rem 2rem 3rem !important;
         max-width: 1400px !important;
 }
     [data-testid="stHeader"] { background: transparent !important; box-shadow: none !important; }
 
-    /* ── SIDEBAR — Microsoft Fluent / M365 Admin Center ── */
+    /* ── SIDEBAR — Premium Enterprise (Linear / Azure / M365) ── */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     [data-testid="stSidebar"] {
-        background: linear-gradient(165deg, #ffffff 0%, #f8faff 42%, #f3f0ff 100%) !important;
-        border-right: 1px solid rgba(99, 102, 241, 0.12) !important;
-        box-shadow: 4px 0 32px rgba(15, 23, 42, 0.06) !important;
-        min-width: 280px !important;
+        background: #F8FAFC !important;
+        border-right: none !important;
+        min-width: 292px !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        background: #F8FAFC !important;
     }
     [data-testid="stSidebarContent"] {
-        padding: 10px 10px 16px 10px !important;
+        background: #FFFFFF !important;
+        margin: 12px 8px 12px 12px !important;
+        padding: 16px 12px 18px 12px !important;
+        border-radius: 16px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+        font-family: 'Inter', 'Segoe UI', 'IBM Plex Sans Thai', sans-serif !important;
     }
     [data-testid="stSidebar"] * {
-        font-family: 'Segoe UI', 'IBM Plex Sans Thai', -apple-system, sans-serif !important;
+        font-family: 'Inter', 'Segoe UI', 'IBM Plex Sans Thai', sans-serif !important;
     }
     [data-testid="stSidebar"] label {
-        color: #605e5c !important;
-        font-size: 0.68rem !important;
+        color: #64748B !important;
+        font-size: 0.65rem !important;
         font-weight: 600 !important;
-        letter-spacing: 0.06em !important;
+        letter-spacing: 0.08em !important;
         text-transform: uppercase !important;
     }
     [data-testid="stSidebar"] hr {
         border: none !important;
         height: 1px !important;
-        background: linear-gradient(90deg, transparent, rgba(99,102,241,.18), transparent) !important;
-        margin: 14px 4px !important;
+        background: #E2E8F0 !important;
+        margin: 16px 0 !important;
     }
     [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div {
-        background: rgba(255,255,255,0.92) !important;
-        border: 1px solid #edebe9 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
         border-radius: 16px !important;
-        color: #323130 !important;
-        backdrop-filter: blur(12px) !important;
+        color: #0F172A !important;
     }
-    [data-testid="stSidebar"] .fluent-brand-card,
-    [data-testid="stSidebar"] .fluent-user-card {
-        background: rgba(255, 255, 255, 0.72) !important;
-        backdrop-filter: blur(20px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.9) !important;
-        border-radius: 16px !important;
-        padding: 14px 12px !important;
-        margin-bottom: 10px !important;
-        box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08), inset 0 1px 0 rgba(255,255,255,.9) !important;
+    [data-testid="stSidebar"] .ent-brand-block {
+        padding: 4px 4px 16px 4px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #E2E8F0;
     }
-    [data-testid="stSidebar"] .fluent-toolbar {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 8px;
+    [data-testid="stSidebar"] .ent-logo-box {
+        width: 40px; height: 40px; border-radius: 16px;
+        background: #2563EB; color: #FFFFFF;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.72rem; font-weight: 700; letter-spacing: -0.5px;
+        flex-shrink: 0;
     }
-    [data-testid="stSidebar"] .nav-group-header {
-        font-size: 0.68rem !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.07em !important;
-        text-transform: uppercase !important;
-        color: #605e5c !important;
-        padding: 14px 10px 6px 10px !important;
-        margin: 0 !important;
+    [data-testid="stSidebar"] .ent-brand-title {
+        font-size: 0.92rem; font-weight: 700; color: #0F172A;
+        line-height: 1.25; letter-spacing: -0.02em;
+    }
+    [data-testid="stSidebar"] .ent-brand-sub {
+        font-size: 0.72rem; color: #64748B; margin-top: 2px; font-weight: 500;
+    }
+    [data-testid="stSidebar"] .ent-profile-card {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 14px;
+        margin: 14px 0 16px 0;
+    }
+    [data-testid="stSidebar"] .ent-avatar {
+        width: 40px; height: 40px; border-radius: 16px;
+        background: #EFF6FF; color: #2563EB;
+        border: 1px solid #BFDBFE;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+    }
+    [data-testid="stSidebar"] .ent-profile-name {
+        font-size: 0.86rem; font-weight: 600; color: #0F172A;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    [data-testid="stSidebar"] .ent-profile-dept {
+        font-size: 0.72rem; color: #64748B; margin-top: 2px;
+    }
+    [data-testid="stSidebar"] .ent-status-row {
+        display: flex; align-items: center; gap: 6px;
+        margin-top: 12px; padding-top: 12px;
+        border-top: 1px solid #E2E8F0;
+        font-size: 0.72rem; font-weight: 500; color: #64748B;
+    }
+    [data-testid="stSidebar"] .ent-status-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #22C55E; box-shadow: 0 0 0 3px #DCFCE7;
+    }
+    [data-testid="stSidebar"] .ent-admin-tag {
+        display: inline-block; margin-top: 10px; padding: 4px 10px;
+        border-radius: 8px; font-size: 0.65rem; font-weight: 600;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE;
+    }
+    [data-testid="stSidebar"] .nav-section-label {
+        font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em;
+        text-transform: uppercase; color: #94A3B8;
+        padding: 12px 8px 6px 8px; margin: 0;
+    }
+    [data-testid="stSidebar"] .nav-section-sep {
+        height: 1px; background: #E2E8F0; margin: 10px 4px;
     }
     [data-testid="stSidebar"] .nav-submenu-wrap {
-        margin: 2px 0 8px 0 !important;
-        padding: 4px 0 4px 8px !important;
-        border-left: 2px solid rgba(99, 102, 241, 0.15) !important;
-        margin-left: 12px !important;
+        margin: 2px 0 6px 0;
+        padding-left: 8px;
+        border-left: 2px solid #E2E8F0;
+        margin-left: 14px;
+    }
+    [data-testid="stSidebar"] .nav-badge-pill {
+        display: flex; align-items: center; justify-content: center;
+        min-width: 28px; height: 22px; padding: 0 7px;
+        border-radius: 8px; font-size: 0.7rem; font-weight: 600;
+        margin-top: 7px;
+    }
+    [data-testid="stSidebar"] .nav-badge-blue {
+        background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE;
+    }
+    [data-testid="stSidebar"] .nav-badge-green {
+        background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0;
+    }
+    [data-testid="stSidebar"] .nav-badge-red {
+        background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;
+    }
+    [data-testid="stSidebar"] div[data-testid="column"] .stButton {
+        margin-bottom: 0 !important;
     }
     [data-testid="stSidebar"] .stButton {
-        margin: 0 0 2px 0 !important;
+        margin: 0 0 1px 0 !important;
         padding: 0 !important;
     }
     [data-testid="stSidebar"] .stButton > button {
         width: 100% !important;
-        min-height: 40px !important;
+        min-height: 38px !important;
         padding: 8px 12px !important;
         margin: 0 !important;
         border-radius: 16px !important;
         border: 1px solid transparent !important;
         background: transparent !important;
-        color: #323130 !important;
-        font-size: 0.84rem !important;
+        color: #475569 !important;
+        font-size: 0.8125rem !important;
         font-weight: 500 !important;
         text-align: left !important;
         justify-content: flex-start !important;
         box-shadow: none !important;
-        transition: background .18s ease, border-color .18s ease, transform .15s ease, box-shadow .18s ease !important;
-        position: relative !important;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(99, 102, 241, 0.08) !important;
-        border-color: rgba(99, 102, 241, 0.12) !important;
-        color: #201f1e !important;
-        transform: translateX(3px) !important;
-        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.1) !important;
+        background: #F8FAFC !important;
+        color: #0F172A !important;
+        border-color: #E2E8F0 !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, rgba(0, 120, 212, 0.12), rgba(99, 102, 241, 0.14)) !important;
-        border: 1px solid rgba(99, 102, 241, 0.22) !important;
-        color: #4f46e5 !important;
+        background: #EFF6FF !important;
+        color: #2563EB !important;
+        border: 1px solid #BFDBFE !important;
+        border-left: 3px solid #2563EB !important;
+        padding-left: 10px !important;
         font-weight: 600 !important;
-        box-shadow: inset 3px 0 0 #6366f1, 0 4px 16px rgba(99, 102, 241, 0.12) !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(135deg, rgba(0, 120, 212, 0.16), rgba(99, 102, 241, 0.18)) !important;
-        color: #4338ca !important;
-        transform: translateX(4px) !important;
+        background: #DBEAFE !important;
+        color: #1D4ED8 !important;
     }
-    [data-testid="stSidebar"] .stButton > button.nav-group-toggle {
+    [data-testid="stSidebar"] .stButton > button[kind="secondary"] {
+        background: transparent !important;
+    }
+    [data-testid="stSidebar"] [data-testid="column"]:has(button) .stButton > button {
+        min-height: 34px !important;
+        font-size: 0.8rem !important;
+    }
+    [data-testid="stSidebar"] .nav-signout > button {
+        color: #DC2626 !important;
         font-weight: 600 !important;
-        color: #201f1e !important;
-        background: rgba(255, 255, 255, 0.55) !important;
-        border: 1px solid rgba(226, 232, 240, 0.9) !important;
-        margin-top: 4px !important;
+        border: 1px solid #FECACA !important;
+        background: #FFFFFF !important;
     }
-    [data-testid="stSidebar"] .stButton > button.nav-group-toggle:hover {
-        background: rgba(255, 255, 255, 0.95) !important;
-        border-color: rgba(99, 102, 241, 0.2) !important;
+    [data-testid="stSidebar"] .nav-signout > button:hover {
+        background: #FEF2F2 !important;
+        border-color: #FCA5A5 !important;
+        color: #B91C1C !important;
     }
-    [data-testid="stSidebar"] .stButton > button.nav-logout-btn {
-        color: #a4262c !important;
-        font-weight: 600 !important;
-        margin-top: 6px !important;
+    [data-testid="stSidebar"].sidebar-compact {
+        min-width: 80px !important;
     }
-    [data-testid="stSidebar"] .stButton > button.nav-logout-btn:hover {
-        background: rgba(164, 38, 44, 0.08) !important;
-        border-color: rgba(164, 38, 44, 0.15) !important;
-        color: #a4262c !important;
-        transform: none !important;
+    [data-testid="stSidebar"].sidebar-compact [data-testid="stSidebarContent"] {
+        margin: 8px 4px !important;
+        padding: 12px 6px !important;
     }
-    [data-testid="stSidebar"] .stButton > button.nav-compact-btn,
-    [data-testid="stSidebar"] .stButton > button.nav-refresh-badge-btn {
-        min-height: 36px !important;
-        font-size: 0.78rem !important;
-        border-radius: 12px !important;
-        background: rgba(255,255,255,.75) !important;
-        border: 1px solid #edebe9 !important;
-    }
-    [data-testid="stSidebar"].sidebar-compact-mode {
-        min-width: 72px !important;
-    }
+    [data-testid="stSidebar"] .hide-when-compact { display: block; }
+    [data-testid="stSidebar"].sidebar-compact .hide-when-compact { display: none !important; }
     @media (max-width: 768px) {
-        [data-testid="stSidebar"] { min-width: 72px !important; }
+        [data-testid="stSidebar"] { min-width: 80px !important; }
+        [data-testid="stSidebar"] .hide-when-compact { display: none !important; }
     }
 
     /* ── METRIC CARDS ── */
@@ -1686,91 +1744,105 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # ── SIDEBAR ──────────────────────────────────────────────
+    # ── SIDEBAR — Premium Enterprise Navigation ───────────────
     admin_mode = is_admin(st.session_state.user_email)
     name = st.session_state.user_name or "User"
-    initials = "".join([w[0].upper() for w in name.split()[:2]])
+    email = st.session_state.user_email or ""
+    initials = "".join([w[0].upper() for w in name.split()[:2]]) or "U"
     nav_badges = get_sidebar_nav_badges()
     compact = st.session_state.get("sidebar_compact", False)
 
+    if admin_mode:
+        department = "Information Technology"
+    elif email and "@" in email:
+        department = email.split("@")[-1].replace(".co.th", "").replace(".com", "").title()
+    else:
+        department = "Corporate Operations"
+
     if compact:
-        st.markdown("""
-        <style>
-        [data-testid="stSidebar"] { min-width: 76px !important; max-width: 76px !important; }
-        [data-testid="stSidebar"] .fluent-brand-text,
-        [data-testid="stSidebar"] .fluent-user-text,
-        [data-testid="stSidebar"] .nav-badge-pill { display: none !important; }
-        </style>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<style>[data-testid="stSidebar"]{min-width:80px!important;}'
+            '[data-testid="stSidebar"] .hide-when-compact{display:none!important;}</style>',
+            unsafe_allow_html=True,
+        )
 
-    def _nav_label(icon: str, text: str, badge_key: str = None) -> str:
+    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue"):
+        active = st.session_state.active_nav == nav_key
+        label = icon if compact else f"{icon}  {text}"
         if compact:
-            return icon
-        badge_val = nav_badges.get(badge_key, 0) if badge_key else 0
-        if badge_val > 0:
-            return f"{icon}  {text}   ({badge_val})"
-        return f"{icon}  {text}"
+            if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
+                st.session_state.active_nav = nav_key
+                st.rerun()
+            return
+        ncol, bcol = st.sidebar.columns([0.78, 0.22], gap="small")
+        with ncol:
+            if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
+                st.session_state.active_nav = nav_key
+                st.rerun()
+        with bcol:
+            if badge_key:
+                val = nav_badges.get(badge_key, 0)
+                st.markdown(
+                    f'<div class="nav-badge-pill nav-badge-{badge_tone}">{val}</div>',
+                    unsafe_allow_html=True,
+                )
 
-    def _nav_btn(nav_key: str, label: str, *, group_toggle: bool = False):
-        kind = "primary" if st.session_state.active_nav == nav_key else "secondary"
-        if st.sidebar.button(label, use_container_width=True, type=kind, key=f"nav_{nav_key}"):
-            st.session_state.active_nav = nav_key
-            st.rerun()
-
-    def _group_toggle(state_key: str, label: str, btn_key: str):
-        chevron = "▾" if st.session_state.get(state_key, True) else "▸"
-        full_label = f"{chevron}  {label}" if not compact else chevron
-        if st.sidebar.button(full_label, use_container_width=True, key=btn_key):
-            st.session_state[state_key] = not st.session_state.get(state_key, True)
+    def _group_toggle(state_key: str, icon: str, text: str):
+        open_ = st.session_state.get(state_key, True)
+        chevron = "▾" if open_ else "▸"
+        label = chevron if compact else f"{chevron}  {icon}  {text}"
+        if st.sidebar.button(label, use_container_width=True, key=f"tog_{state_key}"):
+            st.session_state[state_key] = not open_
             st.rerun()
 
     # ── Brand ────────────────────────────────────────────────
     st.sidebar.markdown(f"""
-    <div class="fluent-brand-card">
+    <div class="ent-brand-block hide-when-compact">
         <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:40px;height:40px;border-radius:16px;flex-shrink:0;
-                background:linear-gradient(135deg,#0078d4 0%,#6366f1 55%,#8b5cf6 100%);
-                display:flex;align-items:center;justify-content:center;font-size:1.15rem;
-                box-shadow:0 6px 18px rgba(99,102,241,.28);">🛡️</div>
-            <div class="fluent-brand-text">
-                <div style="font-size:0.9rem;font-weight:700;color:#201f1e;line-height:1.2;">
-                    Optimal IT Center</div>
-                <div style="font-size:0.72rem;color:#605e5c;margin-top:3px;">
-                    Microsoft 365 · Enterprise</div>
+            <div class="ent-logo-box">DR</div>
+            <div>
+                <div class="ent-brand-title">DocumentReportUnified</div>
+                <div class="ent-brand-sub">Enterprise IT Platform</div>
             </div>
         </div>
     </div>
+    <div class="ent-brand-block" style="display:{'flex' if compact else 'none'};justify-content:center;padding-bottom:12px;border-bottom:1px solid #E2E8F0;">
+        <div class="ent-logo-box">DR</div>
+    </div>
     """, unsafe_allow_html=True)
 
-    tb1, tb2 = st.sidebar.columns(2)
-    with tb1:
-        if st.sidebar.button("◧" if compact else "◨", use_container_width=True, key="nav_toggle_compact", help="Icon-only sidebar"):
+    t1, t2 = st.sidebar.columns(2, gap="small")
+    with t1:
+        if st.sidebar.button("◀" if not compact else "▶", use_container_width=True, key="nav_toggle_compact", help="Collapse sidebar"):
             st.session_state.sidebar_compact = not compact
             st.rerun()
-    with tb2:
-        if st.sidebar.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh badge counts"):
+    with t2:
+        if st.sidebar.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh counts"):
             get_sidebar_nav_badges.clear()
             st.rerun()
 
+    # ── User profile ─────────────────────────────────────────
     st.sidebar.markdown(f"""
-    <div class="fluent-user-card">
+    <div class="ent-profile-card hide-when-compact">
         <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:40px;height:40px;border-radius:16px;flex-shrink:0;
-                background:linear-gradient(135deg,#6366f1,#8b5cf6);
-                display:flex;align-items:center;justify-content:center;
-                font-size:0.85rem;font-weight:700;color:#fff;">{initials}</div>
-            <div class="fluent-user-text" style="min-width:0;">
-                <div style="font-size:0.86rem;font-weight:700;color:#201f1e;
-                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{name}</div>
-                <div style="font-size:0.72rem;color:#605e5c;margin-top:2px;">
-                    {'Administrator' if admin_mode else 'Standard user'}</div>
+            <div class="ent-avatar">{initials}</div>
+            <div style="min-width:0;flex:1;">
+                <div class="ent-profile-name">{name}</div>
+                <div class="ent-profile-dept">{department}</div>
             </div>
         </div>
-        {'<div style="margin-top:10px;padding:6px 10px;border-radius:12px;background:linear-gradient(135deg,rgba(0,120,212,.1),rgba(99,102,241,.12));border:1px solid rgba(99,102,241,.2);font-size:0.7rem;font-weight:700;color:#4f46e5;text-align:center;">ADMIN MODE</div>' if admin_mode else ''}
+        <div class="ent-status-row">
+            <span class="ent-status-dot"></span>
+            <span style="color:#16A34A;font-weight:600;">Online</span>
+        </div>
+        {'<span class="ent-admin-tag">Administrator</span>' if admin_mode else ''}
     </div>
     """, unsafe_allow_html=True)
 
-    # ── NAVIGATION ───────────────────────────────────────────
+    if compact:
+        st.sidebar.markdown(f'<div style="text-align:center;margin:8px 0;"><div class="ent-avatar" style="margin:0 auto;">{initials}</div></div>', unsafe_allow_html=True)
+
+    # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
         st.session_state.active_nav = "overview" if admin_mode else "computers"
 
@@ -1782,60 +1854,54 @@ else:
     if not admin_mode and st.session_state.active_nav not in allowed_hw_navs:
         st.session_state.active_nav = "computers"
 
-    st.sidebar.markdown('<p class="nav-group-header">Navigation</p>', unsafe_allow_html=True)
+    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">Menu</p>', unsafe_allow_html=True)
 
-    # 🏠 Dashboard
     if admin_mode:
-        _nav_btn("overview", _nav_label("🏠", "Dashboard"))
+        _nav_item("overview", "🏠", "Dashboard")
 
-    # 📦 Asset Management
-    _group_toggle("open_grp_assets", _nav_label("📦", "Asset Management"), "toggle_grp_assets")
+    st.sidebar.markdown('<div class="nav-section-sep hide-when-compact"></div>', unsafe_allow_html=True)
+
+    _group_toggle("open_grp_assets", "📦", "Asset Management")
     if st.session_state.open_grp_assets:
         st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-        _nav_btn("computers", _nav_label("💻", "Computers", "computers"))
-        _nav_btn("monitors", _nav_label("🖥", "Monitors", "monitors"))
-        _nav_btn("printers", _nav_label("🖨", "Printers", "printers"))
-        _nav_btn("projector", _nav_label("📽", "Projectors", "projector"))
-        _nav_btn("ups", _nav_label("🔋", "UPS", "ups"))
-        _nav_btn("misc", _nav_label("📦", "Miscellaneous", "misc"))
+        _nav_item("computers", "💻", "Computers", "computers", "blue")
+        _nav_item("monitors", "🖥", "Monitors", "monitors", "blue")
+        _nav_item("printers", "🖨", "Printers", "printers", "blue")
+        _nav_item("projector", "📽", "Projectors", "projector", "blue")
+        _nav_item("ups", "🔋", "UPS", "ups", "blue")
+        _nav_item("misc", "📦", "Miscellaneous", "misc", "blue")
         st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     if admin_mode:
-        # 🔐 Security
-        _group_toggle("open_grp_security", _nav_label("🔐", "Security"), "toggle_grp_security")
+        st.sidebar.markdown('<div class="nav-section-sep hide-when-compact"></div>', unsafe_allow_html=True)
+        _group_toggle("open_grp_security", "🔐", "Security")
         if st.session_state.open_grp_security:
             st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_btn("password", _nav_label("🔑", "Password Manager", "password"))
-            _nav_btn("user_perm", _nav_label("📂", "NAS Permission Analyzer", "user_perm"))
+            _nav_item("password", "🔑", "Password Manager", "password", "blue")
+            _nav_item("user_perm", "📂", "NAS Permission Analyzer", "user_perm", "blue")
             st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-        # 📁 Inventory
-        _group_toggle("open_grp_inventory", _nav_label("📁", "Inventory"), "toggle_grp_inventory")
+        _group_toggle("open_grp_inventory", "📁", "Inventory")
         if st.session_state.open_grp_inventory:
             st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_btn("ink_stock", _nav_label("🖊", "Ink Stock", "ink_stock"))
-            _nav_btn("consumables", _nav_label("📋", "Consumables", "consumables"))
+            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "green")
             st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-        # 📊 Reports & Analytics
-        _nav_btn("reports", _nav_label("📊", "Reports & Analytics"))
+        st.sidebar.markdown('<div class="nav-section-sep hide-when-compact"></div>', unsafe_allow_html=True)
+        _nav_item("reports", "📊", "Reports & Analytics")
 
-        # ⚙ Administration
-        _group_toggle("open_grp_admin", _nav_label("⚙", "Administration"), "toggle_grp_admin")
+        _group_toggle("open_grp_admin", "⚙", "Administration")
         if st.session_state.open_grp_admin:
             st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_btn("admin_users", _nav_label("👥", "Users"))
-            _nav_btn("admin_settings", _nav_label("⚙", "Settings"))
-            _nav_btn("admin_logs", _nav_label("📜", "Activity Logs"))
+            _nav_item("admin_users", "👥", "Users")
+            _nav_item("admin_settings", "⚙", "Settings")
+            _nav_item("admin_logs", "📜", "Activity Logs")
             st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     st.sidebar.markdown("---")
 
-    if st.sidebar.button(
-        "⎋  Sign out" if not compact else "⎋",
-        use_container_width=True,
-        key="logout_btn",
-    ):
+    st.sidebar.markdown('<div class="nav-signout">', unsafe_allow_html=True)
+    if st.sidebar.button("Sign out" if not compact else "Exit", use_container_width=True, key="logout_btn"):
         expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
         for cookie_key in ("user_name", "user_email"):
             try:
@@ -1855,6 +1921,7 @@ else:
         st.session_state.user_email = ""
 
         st.rerun()
+    st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     _nav = st.session_state.active_nav
 
