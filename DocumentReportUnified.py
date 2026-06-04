@@ -1516,35 +1516,46 @@ else:
     [data-testid="stCaptionContainer"] p { color: #94a3b8 !important; font-size: 0.78rem !important; }
 
     /* ── SIDEBAR NAV BUTTONS ── */
+    [data-testid="stSidebar"] .stButton {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
     [data-testid="stSidebar"] .stButton > button {
         text-align: left !important;
         justify-content: flex-start !important;
-        background: transparent !important;
-        border: none !important;
-        border-radius: 9px !important;
-        color: #8d98b5 !important;
-        font-size: 0.85rem !important;
+        background: rgba(255,255,255,0.7) !important;
+        border: 1px solid rgba(100,116,139,0.15) !important;
+        border-radius: 14px !important;
+        color: #475569 !important;
+        font-size: 0.9rem !important;
         font-weight: 500 !important;
-        padding: 8px 14px !important;
+        padding: 10px 12px !important;
         transition: background .15s, color .15s !important;
         box-shadow: none !important;
-}
+        width: calc(100% + 16px) !important;
+        margin-left: -8px !important;
+        margin-bottom: 6px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(255,255,255,0.07) !important;
-        color: #c8d0e7 !important;
-        border: none !important;
+        background: rgba(99,102,241,0.15) !important;
+        color: #0f172a !important;
+        border-color: rgba(99,102,241,0.3) !important;
         box-shadow: none !important;
-}
+    }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
-        background: rgba(99,102,241,0.22) !important;
-        color: #a5b4fc !important;
-        border: none !important;
-        box-shadow: none !important;
-}
+        background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
+        color: #fff !important;
+        border-color: transparent !important;
+        box-shadow: 0 8px 20px rgba(99,102,241,0.22) !important;
+    }
     [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
-        background: rgba(99,102,241,0.30) !important;
-        box-shadow: none !important;
-}
+        background: linear-gradient(135deg,#4f46e5,#7c3aed) !important;
+        box-shadow: 0 12px 28px rgba(99,102,241,0.28) !important;
+    }
 
     /* ── SIDEBAR STAT CARDS ── */
     .ov-card {
