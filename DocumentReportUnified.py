@@ -41,7 +41,7 @@ PASSWORD_FILE_NAME = "Password.xlsx"
 ADMIN_EMAILS = [
     "it@optimal.co.th",
     "itsupport@poonyaruk.co.th",
-    "ratchaphruek.r@optimal.co.th",
+    "IT_Network@poonyaruk.co.th",
 ]
 
 # Field mapping สำหรับ Computer Asset
