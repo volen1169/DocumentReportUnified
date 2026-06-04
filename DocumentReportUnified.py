@@ -1053,7 +1053,7 @@ def get_sidebar_nav_badges():
     return badges
 
 # --- 11. STREAMLIT UI ---
-st.set_page_config(layout="wide", page_title="Optimal IT Management", page_icon="🛡️")
+st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon="🛡️")
 cookie_manager = get_manager()
 
 # --- AUTH ---
@@ -1077,8 +1077,6 @@ MODERN_THEME = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
 html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif !important;}
 [data-testid="stAppViewContainer"]{background:radial-gradient(circle at top right, rgba(99,102,241,.10), transparent 22%),radial-gradient(circle at bottom left, rgba(14,165,233,.08), transparent 18%),#eef2ff !important;}
-[data-testid="stSidebar"]{background:linear-gradient(180deg,#0f172a 0%, #111827 100%) !important;border-right:1px solid rgba(255,255,255,.06);}
-[data-testid="stSidebar"] *{color:#e2e8f0 !important;}
 [data-testid="stMetric"]{background:rgba(255,255,255,.84) !important;border:none !important;border-radius:24px !important;padding:1.3rem !important;box-shadow:0 10px 30px rgba(15,23,42,.06) !important;}
 div[data-testid="stVerticalBlockBorderWrapper"] > div{border:none !important;border-radius:24px !important;background:rgba(255,255,255,.86) !important;box-shadow:0 10px 30px rgba(15,23,42,.05) !important;transition:all .2s ease !important;}
 div[data-testid="stVerticalBlockBorderWrapper"] > div:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(99,102,241,.12) !important;}
@@ -1774,10 +1772,34 @@ else:
               else "Corporate Operations")
     )
 
+    # Inject sidebar CSS inside sidebar (wins over global MODERN_THEME)
+    st.sidebar.markdown("""
+    <style>
+    [data-testid="stSidebar"],
+    [data-testid="stSidebar"] > div:first-child {
+        background: #F8FAFC !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 16px !important;
+        margin: 12px !important;
+        padding: 16px !important;
+        box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06) !important;
+    }
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] span {
+        color: #0F172A !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     if compact:
-        st.markdown(
+        st.sidebar.markdown(
             '<style>[data-testid="stSidebar"]{min-width:72px!important;}'
-            '[data-testid="stSidebar"] .hide-when-compact{display:none!important;}</style>',
+            '.hide-when-compact{display:none!important;}</style>',
             unsafe_allow_html=True,
         )
 
@@ -1789,15 +1811,15 @@ else:
                 st.session_state.active_nav = nav_key
                 st.rerun()
             return
-        ncol, bcol = st.sidebar.columns([0.74, 0.26], gap="small")
+        ncol, bcol = st.sidebar.columns([0.72, 0.28], gap="small")
         with ncol:
-            if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
+            if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
                 st.session_state.active_nav = nav_key
                 st.rerun()
         with bcol:
             if badge_key:
                 val = nav_badges.get(badge_key, 0)
-                st.markdown(
+                st.sidebar.markdown(
                     f'<div class="nav-badge-col"><span class="nav-badge-pill nav-badge-{badge_tone}">{val}</span></div>',
                     unsafe_allow_html=True,
                 )
@@ -1829,32 +1851,32 @@ else:
             st.session_state.active_nav = nav_key
             st.rerun()
 
-    # ── User profile first (reference image layout) ───────────
+    # ── Brand header (top) ───────────────────────────────────
     st.sidebar.markdown(f"""
-    <div class="ref-profile hide-when-compact">
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-            <div class="ref-avatar">{initials}</div>
-            <div style="min-width:0;flex:1;">
-                <div class="ref-profile-dept">{profile_dept}</div>
-                <div class="ref-profile-name">{name}</div>
+    <div class="ref-brand hide-when-compact">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="ref-logo" style="background:#2563EB;color:#fff;">DR</div>
+            <div>
+                <div class="ref-brand-title" style="color:#0F172A !important;">DocumentReportUnified</div>
+                <div class="ref-brand-sub" style="color:#64748B !important;">Enterprise IT Platform</div>
             </div>
-        </div>
-        <div class="ref-status-row">
-            <span class="ref-status-dot"></span>
-            <span>Online</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Brand header ─────────────────────────────────────────
+    # ── User profile (reference layout) ───────────────────────
     st.sidebar.markdown(f"""
-    <div class="ref-brand hide-when-compact">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div class="ref-logo">DR</div>
-            <div>
-                <div class="ref-brand-title">DocumentReportUnified</div>
-                <div class="ref-brand-sub">Enterprise IT Platform</div>
+    <div class="ref-profile hide-when-compact">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
+            <div style="min-width:0;flex:1;">
+                <div class="ref-profile-dept" style="color:#0F172A !important;font-weight:700;">{profile_dept}</div>
+                <div class="ref-profile-name" style="color:#64748B !important;">{name}</div>
             </div>
+        </div>
+        <div class="ref-status-row">
+            <span class="ref-status-dot"></span>
+            <span style="color:#64748B !important;">Online</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
