@@ -1,0 +1,9 @@
+streamlit
+pandas
+paramiko
+msal
+requests
+urllib3
+extra-streamlit-components
+plotly
+openpyxl
