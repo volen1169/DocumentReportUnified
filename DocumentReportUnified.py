@@ -1525,25 +1525,35 @@ else:
     [data-testid="stSidebar"] .stButton > button {
         text-align: left !important;
         justify-content: flex-start !important;
-        background: rgba(255,255,255,0.7) !important;
-        border: 1px solid rgba(100,116,139,0.15) !important;
-        border-radius: 14px !important;
-        color: #475569 !important;
-        font-size: 0.9rem !important;
-        font-weight: 500 !important;
-        padding: 10px 12px !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        color: #0f172a !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        padding: 6px 0 6px 0 !important;
         transition: background .15s, color .15s !important;
         box-shadow: none !important;
-        width: calc(100% + 16px) !important;
-        margin-left: -8px !important;
-        margin-bottom: 6px !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-bottom: 4px !important;
         display: inline-flex !important;
         align-items: center !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(99,102,241,0.15) !important;
+        background: rgba(255,255,255,0.35) !important;
         color: #0f172a !important;
-        border-color: rgba(99,102,241,0.3) !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+        background: transparent !important;
+        color: #0f172a !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
+        background: rgba(255,255,255,0.35) !important;
         box-shadow: none !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
