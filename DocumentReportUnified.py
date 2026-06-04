@@ -1287,24 +1287,25 @@ else:
 }
     [data-testid="stHeader"] { background: transparent !important; box-shadow: none !important; }
 
-    /* ── SIDEBAR — Premium Enterprise (Linear / Azure / M365) ── */
+    /* ── SIDEBAR — Reference mockup (M365 / Entra / Azure) ── */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     [data-testid="stSidebar"] {
-        background: #F8FAFC !important;
-        border-right: none !important;
-        min-width: 292px !important;
+        background: #FFFFFF !important;
+        border-right: 1px solid #E2E8F0 !important;
+        min-width: 272px !important;
+        box-shadow: 2px 0 12px rgba(15, 23, 42, 0.04) !important;
     }
     [data-testid="stSidebar"] > div:first-child {
-        background: #F8FAFC !important;
+        background: #FFFFFF !important;
     }
     [data-testid="stSidebarContent"] {
         background: #FFFFFF !important;
-        margin: 12px 8px 12px 12px !important;
-        padding: 16px 12px 18px 12px !important;
-        border-radius: 16px !important;
-        border: 1px solid #E2E8F0 !important;
-        box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+        margin: 0 !important;
+        padding: 20px 16px 24px 16px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
         font-family: 'Inter', 'Segoe UI', 'IBM Plex Sans Thai', sans-serif !important;
     }
     [data-testid="stSidebar"] * {
@@ -1314,175 +1315,190 @@ else:
         color: #64748B !important;
         font-size: 0.65rem !important;
         font-weight: 600 !important;
-        letter-spacing: 0.08em !important;
+        letter-spacing: 0.1em !important;
         text-transform: uppercase !important;
     }
     [data-testid="stSidebar"] hr {
         border: none !important;
         height: 1px !important;
         background: #E2E8F0 !important;
-        margin: 16px 0 !important;
+        margin: 18px 0 !important;
     }
     [data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div {
         background: #FFFFFF !important;
         border: 1px solid #E2E8F0 !important;
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         color: #0F172A !important;
     }
-    [data-testid="stSidebar"] .ent-brand-block {
-        padding: 4px 4px 16px 4px;
-        margin-bottom: 4px;
+    /* Brand header */
+    [data-testid="stSidebar"] .ref-brand {
+        padding: 0 2px 18px 2px;
+        margin-bottom: 0;
         border-bottom: 1px solid #E2E8F0;
     }
-    [data-testid="stSidebar"] .ent-logo-box {
-        width: 40px; height: 40px; border-radius: 16px;
+    [data-testid="stSidebar"] .ref-logo {
+        width: 36px; height: 36px; border-radius: 12px;
         background: #2563EB; color: #FFFFFF;
         display: flex; align-items: center; justify-content: center;
-        font-size: 0.72rem; font-weight: 700; letter-spacing: -0.5px;
-        flex-shrink: 0;
+        font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
     }
-    [data-testid="stSidebar"] .ent-brand-title {
-        font-size: 0.92rem; font-weight: 700; color: #0F172A;
-        line-height: 1.25; letter-spacing: -0.02em;
+    [data-testid="stSidebar"] .ref-brand-title {
+        font-size: 0.875rem; font-weight: 700; color: #0F172A;
+        line-height: 1.3; letter-spacing: -0.02em;
     }
-    [data-testid="stSidebar"] .ent-brand-sub {
-        font-size: 0.72rem; color: #64748B; margin-top: 2px; font-weight: 500;
+    [data-testid="stSidebar"] .ref-brand-sub {
+        font-size: 0.7rem; color: #64748B; margin-top: 1px; font-weight: 500;
     }
-    [data-testid="stSidebar"] .ent-profile-card {
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 14px;
-        margin: 14px 0 16px 0;
+    /* Profile card — reference layout */
+    [data-testid="stSidebar"] .ref-profile {
+        padding: 18px 2px 16px 2px;
+        border-bottom: 1px solid #E2E8F0;
+        margin-bottom: 0;
     }
-    [data-testid="stSidebar"] .ent-avatar {
-        width: 40px; height: 40px; border-radius: 16px;
-        background: #EFF6FF; color: #2563EB;
-        border: 1px solid #BFDBFE;
+    [data-testid="stSidebar"] .ref-avatar {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: #2563EB; color: #FFFFFF;
         display: flex; align-items: center; justify-content: center;
         font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
     }
-    [data-testid="stSidebar"] .ent-profile-name {
-        font-size: 0.86rem; font-weight: 600; color: #0F172A;
+    [data-testid="stSidebar"] .ref-profile-dept {
+        font-size: 0.875rem; font-weight: 700; color: #0F172A;
+        line-height: 1.3;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    [data-testid="stSidebar"] .ent-profile-dept {
-        font-size: 0.72rem; color: #64748B; margin-top: 2px;
+    [data-testid="stSidebar"] .ref-profile-name {
+        font-size: 0.8125rem; font-weight: 400; color: #64748B;
+        margin-top: 2px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    [data-testid="stSidebar"] .ent-status-row {
-        display: flex; align-items: center; gap: 6px;
-        margin-top: 12px; padding-top: 12px;
+    [data-testid="stSidebar"] .ref-status-row {
+        display: flex; align-items: center; gap: 8px;
+        margin-top: 14px; padding-top: 14px;
         border-top: 1px solid #E2E8F0;
-        font-size: 0.72rem; font-weight: 500; color: #64748B;
+        font-size: 0.8125rem; font-weight: 500; color: #64748B;
     }
-    [data-testid="stSidebar"] .ent-status-dot {
+    [data-testid="stSidebar"] .ref-status-dot {
         width: 8px; height: 8px; border-radius: 50%;
-        background: #22C55E; box-shadow: 0 0 0 3px #DCFCE7;
+        background: #22C55E; flex-shrink: 0;
     }
-    [data-testid="stSidebar"] .ent-admin-tag {
-        display: inline-block; margin-top: 10px; padding: 4px 10px;
-        border-radius: 8px; font-size: 0.65rem; font-weight: 600;
-        letter-spacing: 0.04em; text-transform: uppercase;
-        background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE;
+    [data-testid="stSidebar"] .ref-toolbar {
+        display: flex; justify-content: flex-end; gap: 4px;
+        margin: -4px 0 8px 0;
+    }
+    [data-testid="stSidebar"] .ref-toolbar button {
+        min-height: 28px !important;
+        padding: 2px 8px !important;
+        font-size: 0.75rem !important;
+        color: #94A3B8 !important;
+        border: 1px solid #E2E8F0 !important;
+        background: #FFFFFF !important;
+        border-radius: 8px !important;
     }
     [data-testid="stSidebar"] .nav-section-label {
-        font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em;
+        font-size: 0.625rem; font-weight: 600; letter-spacing: 0.12em;
         text-transform: uppercase; color: #94A3B8;
-        padding: 12px 8px 6px 8px; margin: 0;
-    }
-    [data-testid="stSidebar"] .nav-section-sep {
-        height: 1px; background: #E2E8F0; margin: 10px 4px;
+        padding: 16px 4px 10px 4px; margin: 0;
     }
     [data-testid="stSidebar"] .nav-submenu-wrap {
-        margin: 2px 0 6px 0;
-        padding-left: 8px;
-        border-left: 2px solid #E2E8F0;
-        margin-left: 14px;
+        margin: 4px 0 8px 0;
+        padding: 0 0 0 22px;
+    }
+    [data-testid="stSidebar"] .nav-badge-col {
+        display: flex; align-items: center; justify-content: flex-end;
+        min-height: 40px;
     }
     [data-testid="stSidebar"] .nav-badge-pill {
-        display: flex; align-items: center; justify-content: center;
-        min-width: 28px; height: 22px; padding: 0 7px;
-        border-radius: 8px; font-size: 0.7rem; font-weight: 600;
-        margin-top: 7px;
+        display: inline-flex; align-items: center; justify-content: center;
+        min-width: 36px; height: 24px; padding: 0 10px;
+        border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+        line-height: 1;
     }
     [data-testid="stSidebar"] .nav-badge-blue {
-        background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE;
+        background: #EFF6FF; color: #2563EB; border: none;
     }
     [data-testid="stSidebar"] .nav-badge-green {
-        background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0;
+        background: #F0FDF4; color: #16A34A; border: none;
     }
     [data-testid="stSidebar"] .nav-badge-red {
-        background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;
+        background: #FEF2F2; color: #DC2626; border: none;
+    }
+    [data-testid="stSidebar"] div[data-testid="column"] {
+        gap: 0 !important;
     }
     [data-testid="stSidebar"] div[data-testid="column"] .stButton {
-        margin-bottom: 0 !important;
+        margin-bottom: 2px !important;
     }
     [data-testid="stSidebar"] .stButton {
-        margin: 0 0 1px 0 !important;
+        margin: 0 0 2px 0 !important;
         padding: 0 !important;
     }
     [data-testid="stSidebar"] .stButton > button {
         width: 100% !important;
-        min-height: 38px !important;
-        padding: 8px 12px !important;
+        min-height: 40px !important;
+        padding: 9px 12px !important;
         margin: 0 !important;
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         border: 1px solid transparent !important;
         background: transparent !important;
-        color: #475569 !important;
+        color: #0F172A !important;
         font-size: 0.8125rem !important;
         font-weight: 500 !important;
         text-align: left !important;
         justify-content: flex-start !important;
         box-shadow: none !important;
-        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+        cursor: pointer !important;
+        transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover {
         background: #F8FAFC !important;
         color: #0F172A !important;
-        border-color: #E2E8F0 !important;
+        border-color: transparent !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
         background: #EFF6FF !important;
         color: #2563EB !important;
-        border: 1px solid #BFDBFE !important;
-        border-left: 3px solid #2563EB !important;
-        padding-left: 10px !important;
+        border: 1px solid #DBEAFE !important;
+        border-left: 4px solid #2563EB !important;
+        padding-left: 9px !important;
         font-weight: 600 !important;
+        box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12) !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
         background: #DBEAFE !important;
         color: #1D4ED8 !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.16) !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="secondary"] {
         background: transparent !important;
+        color: #0F172A !important;
     }
-    [data-testid="stSidebar"] [data-testid="column"]:has(button) .stButton > button {
-        min-height: 34px !important;
-        font-size: 0.8rem !important;
-    }
-    [data-testid="stSidebar"] .nav-signout > button {
-        color: #DC2626 !important;
+    [data-testid="stSidebar"] .nav-group-btn > button {
         font-weight: 600 !important;
-        border: 1px solid #FECACA !important;
-        background: #FFFFFF !important;
+        color: #0F172A !important;
+        min-height: 42px !important;
     }
-    [data-testid="stSidebar"] .nav-signout > button:hover {
+    [data-testid="stSidebar"] .nav-group-btn > button:hover {
+        background: #F8FAFC !important;
+    }
+    [data-testid="stSidebar"] .nav-signout .stButton > button {
+        color: #EF4444 !important;
+        font-weight: 500 !important;
+        border: none !important;
+        background: transparent !important;
+        min-height: 44px !important;
+        margin-top: 4px !important;
+    }
+    [data-testid="stSidebar"] .nav-signout .stButton > button:hover {
         background: #FEF2F2 !important;
-        border-color: #FCA5A5 !important;
-        color: #B91C1C !important;
+        color: #DC2626 !important;
     }
     [data-testid="stSidebar"].sidebar-compact {
-        min-width: 80px !important;
-    }
-    [data-testid="stSidebar"].sidebar-compact [data-testid="stSidebarContent"] {
-        margin: 8px 4px !important;
-        padding: 12px 6px !important;
+        min-width: 72px !important;
     }
     [data-testid="stSidebar"] .hide-when-compact { display: block; }
     [data-testid="stSidebar"].sidebar-compact .hide-when-compact { display: none !important; }
     @media (max-width: 768px) {
-        [data-testid="stSidebar"] { min-width: 80px !important; }
+        [data-testid="stSidebar"] { min-width: 72px !important; }
         [data-testid="stSidebar"] .hide-when-compact { display: none !important; }
     }
 
@@ -1744,7 +1760,7 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # ── SIDEBAR — Premium Enterprise Navigation ───────────────
+    # ── SIDEBAR — Reference-aligned navigation (UI only) ──────
     admin_mode = is_admin(st.session_state.user_email)
     name = st.session_state.user_name or "User"
     email = st.session_state.user_email or ""
@@ -1752,29 +1768,28 @@ else:
     nav_badges = get_sidebar_nav_badges()
     compact = st.session_state.get("sidebar_compact", False)
 
-    if admin_mode:
-        department = "Information Technology"
-    elif email and "@" in email:
-        department = email.split("@")[-1].replace(".co.th", "").replace(".com", "").title()
-    else:
-        department = "Corporate Operations"
+    profile_dept = "OPG Human Resource" if admin_mode else (
+        "Information Technology" if email and "optimal" in email.lower()
+        else (email.split("@")[-1].replace(".co.th", "").replace(".com", "").title() if email and "@" in email
+              else "Corporate Operations")
+    )
 
     if compact:
         st.markdown(
-            '<style>[data-testid="stSidebar"]{min-width:80px!important;}'
+            '<style>[data-testid="stSidebar"]{min-width:72px!important;}'
             '[data-testid="stSidebar"] .hide-when-compact{display:none!important;}</style>',
             unsafe_allow_html=True,
         )
 
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue"):
         active = st.session_state.active_nav == nav_key
-        label = icon if compact else f"{icon}  {text}"
+        label = icon if compact else f"   {icon}   {text}"
         if compact:
             if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
                 st.session_state.active_nav = nav_key
                 st.rerun()
             return
-        ncol, bcol = st.sidebar.columns([0.78, 0.22], gap="small")
+        ncol, bcol = st.sidebar.columns([0.74, 0.26], gap="small")
         with ncol:
             if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
                 st.session_state.active_nav = nav_key
@@ -1783,64 +1798,83 @@ else:
             if badge_key:
                 val = nav_badges.get(badge_key, 0)
                 st.markdown(
-                    f'<div class="nav-badge-pill nav-badge-{badge_tone}">{val}</div>',
+                    f'<div class="nav-badge-col"><span class="nav-badge-pill nav-badge-{badge_tone}">{val}</span></div>',
                     unsafe_allow_html=True,
                 )
 
     def _group_toggle(state_key: str, icon: str, text: str):
-        open_ = st.session_state.get(state_key, True)
-        chevron = "▾" if open_ else "▸"
-        label = chevron if compact else f"{chevron}  {icon}  {text}"
+        open_ = st.session_state.get(state_key, False)
+        if compact:
+            label = "▾" if open_ else icon
+        elif open_:
+            label = f"▾   {icon}   {text}"
+        else:
+            label = f"   {icon}   {text}   ›"
+        st.sidebar.markdown('<div class="nav-group-btn">', unsafe_allow_html=True)
         if st.sidebar.button(label, use_container_width=True, key=f"tog_{state_key}"):
             st.session_state[state_key] = not open_
             st.rerun()
+        st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Brand ────────────────────────────────────────────────
+    def _nav_leaf(nav_key: str, icon: str, text: str):
+        """Top-level item (Dashboard, Reports) — chevron › when inactive."""
+        active = st.session_state.active_nav == nav_key
+        if compact:
+            label = icon
+        elif active:
+            label = f"   {icon}   {text}"
+        else:
+            label = f"   {icon}   {text}   ›"
+        if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
+            st.session_state.active_nav = nav_key
+            st.rerun()
+
+    # ── User profile first (reference image layout) ───────────
     st.sidebar.markdown(f"""
-    <div class="ent-brand-block hide-when-compact">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div class="ent-logo-box">DR</div>
-            <div>
-                <div class="ent-brand-title">DocumentReportUnified</div>
-                <div class="ent-brand-sub">Enterprise IT Platform</div>
+    <div class="ref-profile hide-when-compact">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div class="ref-avatar">{initials}</div>
+            <div style="min-width:0;flex:1;">
+                <div class="ref-profile-dept">{profile_dept}</div>
+                <div class="ref-profile-name">{name}</div>
             </div>
         </div>
-    </div>
-    <div class="ent-brand-block" style="display:{'flex' if compact else 'none'};justify-content:center;padding-bottom:12px;border-bottom:1px solid #E2E8F0;">
-        <div class="ent-logo-box">DR</div>
+        <div class="ref-status-row">
+            <span class="ref-status-dot"></span>
+            <span>Online</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    t1, t2 = st.sidebar.columns(2, gap="small")
-    with t1:
-        if st.sidebar.button("◀" if not compact else "▶", use_container_width=True, key="nav_toggle_compact", help="Collapse sidebar"):
-            st.session_state.sidebar_compact = not compact
-            st.rerun()
-    with t2:
-        if st.sidebar.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh counts"):
-            get_sidebar_nav_badges.clear()
-            st.rerun()
-
-    # ── User profile ─────────────────────────────────────────
+    # ── Brand header ─────────────────────────────────────────
     st.sidebar.markdown(f"""
-    <div class="ent-profile-card hide-when-compact">
+    <div class="ref-brand hide-when-compact">
         <div style="display:flex;align-items:center;gap:12px;">
-            <div class="ent-avatar">{initials}</div>
-            <div style="min-width:0;flex:1;">
-                <div class="ent-profile-name">{name}</div>
-                <div class="ent-profile-dept">{department}</div>
+            <div class="ref-logo">DR</div>
+            <div>
+                <div class="ref-brand-title">DocumentReportUnified</div>
+                <div class="ref-brand-sub">Enterprise IT Platform</div>
             </div>
         </div>
-        <div class="ent-status-row">
-            <span class="ent-status-dot"></span>
-            <span style="color:#16A34A;font-weight:600;">Online</span>
-        </div>
-        {'<span class="ent-admin-tag">Administrator</span>' if admin_mode else ''}
     </div>
     """, unsafe_allow_html=True)
 
     if compact:
-        st.sidebar.markdown(f'<div style="text-align:center;margin:8px 0;"><div class="ent-avatar" style="margin:0 auto;">{initials}</div></div>', unsafe_allow_html=True)
+        st.sidebar.markdown(
+            f'<div style="text-align:center;padding:12px 0;border-bottom:1px solid #E2E8F0;">'
+            f'<div class="ref-avatar" style="margin:0 auto;">{initials}</div></div>',
+            unsafe_allow_html=True,
+        )
+
+    rt1, rt2 = st.sidebar.columns(2, gap="small")
+    with rt1:
+        if st.sidebar.button("◀" if not compact else "▶", use_container_width=True, key="nav_toggle_compact", help="Collapse sidebar"):
+            st.session_state.sidebar_compact = not compact
+            st.rerun()
+    with rt2:
+        if st.sidebar.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh counts"):
+            get_sidebar_nav_badges.clear()
+            st.rerun()
 
     # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
@@ -1854,18 +1888,16 @@ else:
     if not admin_mode and st.session_state.active_nav not in allowed_hw_navs:
         st.session_state.active_nav = "computers"
 
-    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">Menu</p>', unsafe_allow_html=True)
+    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">MENU</p>', unsafe_allow_html=True)
 
     if admin_mode:
-        _nav_item("overview", "🏠", "Dashboard")
-
-    st.sidebar.markdown('<div class="nav-section-sep hide-when-compact"></div>', unsafe_allow_html=True)
+        _nav_leaf("overview", "⌂", "Dashboard")
 
     _group_toggle("open_grp_assets", "📦", "Asset Management")
     if st.session_state.open_grp_assets:
         st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-        _nav_item("computers", "💻", "Computers", "computers", "blue")
-        _nav_item("monitors", "🖥", "Monitors", "monitors", "blue")
+        _nav_item("computers", "🖥", "Computers", "computers", "blue")
+        _nav_item("monitors", "🖵", "Monitors", "monitors", "blue")
         _nav_item("printers", "🖨", "Printers", "printers", "blue")
         _nav_item("projector", "📽", "Projectors", "projector", "blue")
         _nav_item("ups", "🔋", "UPS", "ups", "blue")
@@ -1873,8 +1905,7 @@ else:
         st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     if admin_mode:
-        st.sidebar.markdown('<div class="nav-section-sep hide-when-compact"></div>', unsafe_allow_html=True)
-        _group_toggle("open_grp_security", "🔐", "Security")
+        _group_toggle("open_grp_security", "🔒", "Security")
         if st.session_state.open_grp_security:
             st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
             _nav_item("password", "🔑", "Password Manager", "password", "blue")
@@ -1884,11 +1915,10 @@ else:
         _group_toggle("open_grp_inventory", "📁", "Inventory")
         if st.session_state.open_grp_inventory:
             st.sidebar.markdown('<div class="nav-submenu-wrap">', unsafe_allow_html=True)
-            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "green")
+            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "blue")
             st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-        st.sidebar.markdown('<div class="nav-section-sep hide-when-compact"></div>', unsafe_allow_html=True)
-        _nav_item("reports", "📊", "Reports & Analytics")
+        _nav_leaf("reports", "📊", "Reports & Analytics")
 
         _group_toggle("open_grp_admin", "⚙", "Administration")
         if st.session_state.open_grp_admin:
@@ -1901,7 +1931,7 @@ else:
     st.sidebar.markdown("---")
 
     st.sidebar.markdown('<div class="nav-signout">', unsafe_allow_html=True)
-    if st.sidebar.button("Sign out" if not compact else "Exit", use_container_width=True, key="logout_btn"):
+    if st.sidebar.button("↪   Sign out" if not compact else "↪", use_container_width=True, key="logout_btn"):
         expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
         for cookie_key in ("user_name", "user_email"):
             try:
