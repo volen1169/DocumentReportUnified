@@ -2219,7 +2219,7 @@ else:
 #   - รองรับ Sub Menu
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
-def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
+    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         active = st.session_state.active_nav == nav_key
         prefix = "      " if sub and not compact else ""
         label = icon if compact else f"{prefix}{icon}  {text}"
@@ -2260,7 +2260,7 @@ def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_t
 # STATE
 #   เก็บสถานะเปิด/ปิดใน st.session_state
 # =============================================================================
-def _group_toggle(state_key: str, icon: str, text: str):
+    def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
         if compact:
             label = "▾" if open_ else icon
@@ -2272,7 +2272,7 @@ def _group_toggle(state_key: str, icon: str, text: str):
             st.session_state[state_key] = not open_
             st.rerun()
 
-def _nav_leaf(nav_key: str, icon: str, text: str):
+    def _nav_leaf(nav_key: str, icon: str, text: str):
         active = st.session_state.active_nav == nav_key
         if compact:
             label = icon
@@ -2285,7 +2285,7 @@ def _nav_leaf(nav_key: str, icon: str, text: str):
             st.rerun()
 
     # ── User profile first (reference image) ────────────────
-        st.sidebar.markdown(f"""
+    st.sidebar.markdown(f"""
     <div class="ref-profile hide-when-compact">
         <div style="display:flex;align-items:flex-start;gap:12px;">
             <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
