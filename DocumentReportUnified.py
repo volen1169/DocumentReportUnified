@@ -1288,11 +1288,20 @@ else:
     /* ── SIDEBAR — Reference mockup (M365 / Entra / Azure) ── */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    [data-testid="stSidebar"] {
-        background: #FFFFFF !important;
-        border-right: 1px solid #E2E8F0 !important;
-        min-width: 272px !important;
-        box-shadow: 2px 0 12px rgba(15, 23, 42, 0.04) !important;
+    [data-testid="stSidebar"]{
+    background:
+        radial-gradient(circle at top left,
+            rgba(56,189,248,.25),
+            transparent 30%),
+        radial-gradient(circle at bottom right,
+            rgba(139,92,246,.20),
+            transparent 35%),
+        linear-gradient(
+            135deg,
+            #e0f2fe 0%,
+            #dbeafe 35%,
+            #ede9fe 100%
+        ) !important;
     }
     [data-testid="stSidebar"] > div:first-child {
         background: #FFFFFF !important;
