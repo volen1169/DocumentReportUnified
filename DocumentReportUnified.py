@@ -1981,7 +1981,7 @@ else:
         margin-bottom: 0 !important;
     }
     [data-testid="stSidebar"] .nav-group-btn > button:hover {
-        background: #F8FAFC !important;
+        background: #f8fa64 !important;
     }
     [data-testid="stSidebar"] .nav-signout .stButton > button {
         color: #EF4444 !important;
