@@ -2332,18 +2332,15 @@ else:
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         active = st.session_state.active_nav == nav_key
         prefix = "      " if sub and not compact else ""
-        label = icon if compact else f"{prefix}{icon}  {text}"
-        if compact:
-            if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
-                st.session_state.active_nav = nav_key
-                st.rerun()
-            return
+
         val = nav_badges.get(badge_key, 0) if badge_key else None
-        if val is None:
-            if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
-                st.session_state.active_nav = nav_key
-                st.rerun()
-            return
+
+        if compact:
+            label = icon
+        else:
+            label = f"{prefix}{icon}  {text}"
+            if val is not None:
+                label += f" ({val})"
 
         if st.sidebar.button(
             label,
@@ -2353,23 +2350,6 @@ else:
         ):
             st.session_state.active_nav = nav_key
             st.rerun()
-
-        st.sidebar.markdown(
-            f"""
-            <div style="
-                text-align:right;
-                margin-top:-34px;
-                margin-right:8px;
-                margin-bottom:6px;
-                pointer-events:none;
-            ">
-                <span class="nav-badge-pill nav-badge-{badge_tone}">
-                    {val}
-                </span>
-            </div>
-            """,
-        unsafe_allow_html=True
-        )
 
     # =============================================================================
 # FUNCTION : _group_toggle
