@@ -248,19 +248,6 @@ div[data-testid="stVerticalBlock"]{
 
 
 
-
-
-[data-testid="stSidebar"] button span{
-    background:red !important;
-    border:2px solid yellow !important;
-}
-
-[data-testid="stSidebar"] button p{
-    background:lime !important;
-    border:2px solid blue !important;
-}
-
-
 [data-testid="stSidebar"] button > div > div{
     background: lime !important;
     border: 2px solid blue !important;
