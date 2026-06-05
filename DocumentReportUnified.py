@@ -2332,6 +2332,7 @@ else:
 # =============================================================================
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         
+        st.sidebar.write(nav_key, active)
         
         active = st.session_state.active_nav == nav_key
         prefix = "      " if sub and not compact else ""
@@ -2348,7 +2349,7 @@ else:
         if st.sidebar.button(
             label,
             use_container_width=True,
-            type="primary" if active else "secondary",
+            type="secondary",
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
