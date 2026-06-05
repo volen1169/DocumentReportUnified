@@ -1403,8 +1403,9 @@ MODERN_THEME = """
 html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif !important;}
 [data-testid="stAppViewContainer"]{background:radial-gradient(circle at top right, rgba(99,102,241,.10), transparent 22%),radial-gradient(circle at bottom left, rgba(14,165,233,.08), transparent 18%),#eef2ff !important;}
 [data-testid="stMetric"]{background:rgba(255,255,255,.84) !important;border:none !important;border-radius:24px !important;padding:1.3rem !important;box-shadow:0 10px 30px rgba(15,23,42,.06) !important;}
-div[data-testid="stVerticalBlockBorderWrapper"] > div{border:none !important;border-radius:24px !important;background:rgba(255,255,255,.86) !important;box-shadow:0 10px 30px rgba(15,23,42,.05) !important;transition:all .2s ease !important;}
-div[data-testid="stVerticalBlockBorderWrapper"] > div:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(99,102,241,.12) !important;}
+[data-testid="stMain"] div[data-testid="stVerticalBlockBorderWrapper"] > div{border:none !important;border-radius:24px !important;background:rgba(255,255,255,.86) !important;box-shadow:0 10px 30px rgba(15,23,42,.05) !important;transition:all .2s ease !important;}
+[data-testid="stMain"] div[data-testid="stVerticalBlockBorderWrapper"] > div:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(99,102,241,.12) !important;}
+[data-testid="stSidebar"] div[data-testid="stVerticalBlockBorderWrapper"] > div{background:transparent !important;border:none !important;box-shadow:none !important;}
 .stButton button{border-radius:14px !important;font-weight:700 !important;}
 .stTextInput input,.stSelectbox div[data-baseweb="select"] > div{border-radius:14px !important;}
 [data-testid="stDataFrame"]{border-radius:22px !important;overflow:hidden !important;}
@@ -1919,13 +1920,13 @@ else:
     [data-testid="stMetricValue"] { font-size: 2.1rem !important; font-weight: 700 !important; color: #0f172a !important; letter-spacing: -1px !important; font-family: 'IBM Plex Mono', monospace !important; }
 
     /* ── CONTENT CARDS ── */
-    /* div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stElementContainer"]) > div {
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stElementContainer"]) > div {
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
         border-radius: 14px !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.03) !important;
         transition: box-shadow .2s, transform .2s !important;
-} */
+}
     div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stElementContainer"]) > div:hover {
         box-shadow: 0 4px 20px rgba(99,102,241,0.12), 0 1px 3px rgba(0,0,0,0.06) !important;
         transform: translateY(-1px) !important;
