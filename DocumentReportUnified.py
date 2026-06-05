@@ -2323,7 +2323,7 @@ else:
                 st.session_state.active_nav = nav_key
                 st.rerun()
             return
-        c_btn, c_badge = st.sidebar.columns([0.1, 0.15], gap="small")
+        c_btn, c_badge = st.sidebar.columns([0.1, 0.85], gap="small")
         with c_btn:
             if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
                 st.session_state.active_nav = nav_key
