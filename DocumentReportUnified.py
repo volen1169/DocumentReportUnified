@@ -195,6 +195,38 @@ div[data-testid="stVerticalBlock"]{
     box-shadow:none !important;
 }
 
+/* ========================================================================= */
+/* DEBUG REMOVE NAVIGATION WHITE BOX                                         */
+/* ใช้ตรวจว่ากล่องขาวมาจากปุ่ม Secondary หรือไม่                          */
+/* ========================================================================= */
+
+[data-testid="stSidebar"] .stButton > button[kind="secondary"]{
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+[data-testid="stSidebar"] .stButton > button[kind="secondary"]:hover{
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: none !important;
+}
+
+/* ล้าง wrapper รอบปุ่ม */
+[data-testid="stSidebar"] .stButton{
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* ล้าง element-container ที่ Streamlit สร้าง */
+[data-testid="stSidebar"] div[data-testid="stElementContainer"]{
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
 </style>
 """
 
@@ -1895,7 +1927,7 @@ else:
         color: #1D4ED8 !important;
         box-shadow: 0 2px 6px rgba(37, 99, 235, 0.16) !important;
     }
-    [data-testid="stSidebar"] .stButton > button[kind="secondary"] {
+    [data-testid="stSidebar"] .stButton > .stButton > button {
         background: transparent !important;
         color: #0F172A !important;
     }
