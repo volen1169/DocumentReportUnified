@@ -1303,8 +1303,14 @@ else:
             #ede9fe 100%
         ) !important;
     }
-    [data-testid="stSidebar"] > div:first-child {
-        background: #FFFFFF !important;
+    [data-testid="stSidebar"] {
+    background:
+        linear-gradient(
+            180deg,
+            #e0f2fe 0%,
+            #dbeafe 40%,
+            #ede9fe 100%
+        ) !important;
     }
     [data-testid="stSidebarContent"] {
         background: #FFFFFF !important;
