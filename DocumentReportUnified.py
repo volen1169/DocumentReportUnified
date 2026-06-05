@@ -1134,6 +1134,15 @@ def get_sidebar_nav_badges():
         pass
     return badges
 
+
+# =============================================================================
+# THEME LOADER (SAFE REFACTOR)
+# ใช้โหลด Theme หลายชุดพร้อมกัน
+# =============================================================================
+def load_theme(*themes):
+    st.markdown("\n".join(themes), unsafe_allow_html=True)
+
+
 # =============================================================================
 # SECTION 14 : MAIN UI
 # Theme / Sidebar / Dashboard / Navigation
@@ -1176,7 +1185,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] > div:hover{transform:translateY
 """
 
 # ── BASE CSS (always) ──────────────────────────────────────────────────────────
-st.markdown(MODERN_THEME, unsafe_allow_html=True)
+load_theme(MODERN_THEME)
 
 st.markdown("""
 <style>
