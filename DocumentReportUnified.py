@@ -259,6 +259,10 @@ div[data-testid="stVerticalBlock"]{
     outline: 1px solid red !important;
 }
 
+[data-testid="stSidebar"] button{
+    background: yellow !important;
+}
+
 </style>
 """
 
