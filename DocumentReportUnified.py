@@ -255,6 +255,20 @@ div[data-testid="stVerticalBlock"]{
     background: yellow !important;
 }
 
+/* ===== DEBUG STBUTTON ===== */
+
+[data-testid="stSidebar"] [data-testid="stButton"]{
+    background: lime !important;
+    border: 2px solid red !important;
+}
+
+/* ===== DEBUG ELEMENT CONTAINER ===== */
+
+[data-testid="stSidebar"] div[data-testid="stElementContainer"]{
+    background: cyan !important;
+    border: 2px solid blue !important;
+}
+
 </style>
 """
 
