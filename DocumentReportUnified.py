@@ -14,7 +14,10 @@ import plotly.express as px
 from openpyxl import load_workbook
 from copy import copy
 
-# --- 1. CONFIGURATION ---
+# =============================================================================
+# SECTION 01 : CONFIGURATION
+# ค่าตั้งต้นระบบ / SharePoint / NAS / Admin / Dropdown ต่างๆ
+# =============================================================================
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # SharePoint Config
@@ -106,7 +109,10 @@ INK_HISTORY_FIELDS = {
     "Timestamp":     "วันเวลา",
 }
 
-# --- 2. AUTH HELPERS ---
+# =============================================================================
+# SECTION 02 : AUTHENTICATION
+# ระบบ Login Microsoft 365 / Cookie / ตรวจสอบสิทธิ์ Admin
+# =============================================================================
 def get_manager():
     if "cookie_manager" not in st.session_state:
         st.session_state["cookie_manager"] = stx.CookieManager(key="cookie_mgr_singleton")
@@ -134,7 +140,10 @@ def check_ms_login(username, password):
         return True, name, email
     return False, result.get("error_description", "ล็อกอินไม่สำเร็จ"), ""
 
-# --- 3. SHAREPOINT LIST CRUD ---
+# =============================================================================
+# SECTION 03 : SHAREPOINT CRUD
+# โหลดข้อมูล / เพิ่ม / แก้ไข / ลบ ข้อมูลจาก SharePoint
+# =============================================================================
 @st.cache_data(ttl=3600)
 def get_sp_site_id():
     token = get_access_token()
@@ -211,7 +220,10 @@ def sp_delete_item(list_name, item_id):
 def clear_sp_cache():
     load_sp_data.clear()
 
-# --- 3b. INK STOCK HELPERS ---
+# =============================================================================
+# SECTION 04 : INK STOCK HELPERS
+# ฟังก์ชันจัดการสต็อกหมึกและประวัติการเบิก
+# =============================================================================
 def ink_create(fields_dict):
     return sp_create_item(INK_STOCK_LIST, fields_dict)
 
@@ -241,7 +253,10 @@ def ink_adjust_quantity(item_id, current_qty, delta, title, color,
         load_sp_data.clear()
     return ok, new_qty
 
-# --- 4. PASSWORD EXCEL CRUD ---
+# =============================================================================
+# SECTION 05 : PASSWORD EXCEL
+# อ่าน/เขียนไฟล์ Password.xlsx บน SharePoint
+# =============================================================================
 def parse_password_sheet(ws):
     all_rows = list(ws.iter_rows(values_only=True))
     if not all_rows:
@@ -323,7 +338,10 @@ def upload_password_excel(drive_id, sheets_dict):
     )
     return upload_res.status_code in (200, 201)
 
-# --- 5. SSH / NAS ---
+# =============================================================================
+# SECTION 06 : NAS & SSH
+# เชื่อมต่อ Synology NAS และตรวจสอบสิทธิ์ Folder
+# =============================================================================
 def create_ssh():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -402,7 +420,10 @@ def load_nas_data():
             data.append({"Share": share, "ACL Tags (Raw)": ", ".join(sorted(tags)), "Matched Employees": ", ".join(sorted(matched_emps))})
     return pd.DataFrame(data).sort_values("Share")
 
-# --- 6. CARD RENDER ---
+# =============================================================================
+# SECTION 07 : CARD RENDER
+# หน้าตาการ์ด Computers / Monitors / Printers
+# =============================================================================
 def _hw_badge(status):
     cls = {"Active":"badge-active","Inactive":"badge-inactive","Spare":"badge-spare","Repair":"badge-repair"}.get(status,"badge-default")
     return f'<span class="badge {cls}">{status or "—"}</span>' if status else ''
@@ -483,7 +504,10 @@ def render_card_printer(row, key, admin_mode):
         else:
             st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
-# --- 7. DIALOG: VIEW ---
+# =============================================================================
+# SECTION 08 : VIEW DIALOGS
+# Popup แสดงรายละเอียด Asset
+# =============================================================================
 @st.dialog("📋 รายละเอียด Computer")
 def show_pop_computer(data, admin_mode=False):
     st.markdown(f"### 💻 {data.get('field_7', 'Computer')}")
@@ -530,7 +554,10 @@ def show_pop_printer(data, admin_mode=False):
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
-# --- 8. DIALOG: EDIT HARDWARE ---
+# =============================================================================
+# SECTION 09 : EDIT DIALOGS
+# Popup แก้ไขข้อมูล Asset
+# =============================================================================
 @st.dialog("✏️ แก้ไข Computer Asset")
 def edit_computer_dialog(row, list_name):
     st.markdown(f"### ✏️ แก้ไข: {row.get('field_3', '')}")
@@ -649,7 +676,10 @@ def edit_printer_dialog(row, list_name):
             else:
                 st.error("❌ ลบไม่สำเร็จ")
 
-# --- 9. DIALOG: ADD HARDWARE ---
+# =============================================================================
+# SECTION 10 : ADD DIALOGS
+# Popup เพิ่มข้อมูล Asset
+# =============================================================================
 @st.dialog("➕ เพิ่ม Computer Asset")
 def add_computer_dialog(list_name):
     st.markdown("### ➕ เพิ่มอุปกรณ์ใหม่")
@@ -717,7 +747,10 @@ def add_printer_dialog(list_name):
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
             st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-# --- 10. PASSWORD CARD + EDIT ---
+# =============================================================================
+# SECTION 11 : PASSWORD MANAGER
+# แสดง Password Card / เพิ่ม / แก้ไข / ลบ
+# =============================================================================
 def get_sheet_icon(sheet_name):
     icon_map = {"server": "🖥️", "network": "🌐", "sql": "🗄️",
                 "software": "📦", "license": "📦", "domain": "🌍",
@@ -839,7 +872,10 @@ def add_password_dialog(sheet_name, df_pw, drive_id, pw_sheets):
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
             st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-# --- 10b. INK STOCK CARD + DIALOGS ---
+# =============================================================================
+# SECTION 12 : INK STOCK UI
+# Card และ Dialog ของระบบหมึกพิมพ์
+# =============================================================================
 def ink_stock_color_badge(color):
     color_map = {
         "Black":      ("#222", "#fff"),
@@ -1023,7 +1059,10 @@ def add_ink_dialog():
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
             st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-# --- 10b. SIDEBAR NAV BADGES (UI only) ---
+# =============================================================================
+# SECTION 13 : SIDEBAR BADGES
+# ตัวเลขนับรายการใน Sidebar
+# =============================================================================
 @st.cache_data(ttl=300, show_spinner=False)
 def get_sidebar_nav_badges():
     """Cached counts for sidebar badges — display only."""
@@ -1052,7 +1091,10 @@ def get_sidebar_nav_badges():
         pass
     return badges
 
-# --- 11. STREAMLIT UI ---
+# =============================================================================
+# SECTION 14 : MAIN UI
+# Theme / Sidebar / Dashboard / Navigation
+# =============================================================================
 st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon="🛡️")
 cookie_manager = get_manager()
 
