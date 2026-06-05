@@ -2323,17 +2323,33 @@ else:
                 st.session_state.active_nav = nav_key
                 st.rerun()
             return
-        c_btn, c_badge = st.sidebar.columns([0.1, 0.15], gap="small")
-        with c_btn:
-            if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
-                st.session_state.active_nav = nav_key
-                st.rerun()
-        with c_badge:
-            st.markdown(
-                f'<div style="display:flex;align-items:center;justify-content:flex-end;height:32px;margin:0;">'
-                f'<span class="nav-badge-pill nav-badge-{badge_tone}">{val}</span></div>',
-                unsafe_allow_html=True,
-            )
+        ___________________________
+        
+        if st.sidebar.button(
+            label,
+            use_container_width=True,
+            type="primary" if active else "secondary",
+            key=f"nav_{nav_key}"
+        ):
+            st.session_state.active_nav = nav_key
+            st.rerun()
+
+        st.sidebar.markdown(
+            f"""
+            <div style="
+                text-align:right;
+                margin-top:-34px;
+                margin-right:8px;
+                margin-bottom:8px;
+                pointer-events:none;
+            ">
+                <span class="nav-badge-pill nav-badge-{badge_tone}">
+                    {val}
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True
+)
 
     # =============================================================================
 # FUNCTION : _group_toggle
