@@ -1490,7 +1490,7 @@ else:
         border-color: transparent !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
-        background: #EFF6FF !important;
+        background: transparent !important;
         color: #2563EB !important;
         border: 1px solid #DBEAFE !important;
         border-left: 4px solid #2563EB !important;
