@@ -246,18 +246,10 @@ div[data-testid="stVerticalBlock"]{
     box-shadow: none !important;
 }
 
-/* DEBUG INNER ELEMENT */
-
 [data-testid="stSidebar"] button > div{
-    background:red !important;
-}
-
-[data-testid="stSidebar"] button p{
-    background:lime !important;
-}
-
-[data-testid="stSidebar"] button span{
-    background:blue !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 </style>
