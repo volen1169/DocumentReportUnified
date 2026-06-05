@@ -150,6 +150,51 @@ section[data-testid="stSidebar"],
     border:1px solid rgba(255,255,255,.45);
     border-radius:20px;
 }
+
+/* ==========================================================
+   FIX STREAMLIT SIDEBAR WHITE BOX
+   ========================================================== */
+
+[data-testid="stSidebar"]
+[data-testid="stVerticalBlockBorderWrapper"]{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+}
+
+[data-testid="stSidebar"]
+[data-testid="stVerticalBlockBorderWrapper"] > div{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    backdrop-filter:none !important;
+}
+
+[data-testid="stSidebar"]
+[data-testid="stHorizontalBlock"]{
+    background:transparent !important;
+}
+
+[data-testid="stSidebar"]
+[data-testid="stHorizontalBlock"] > div{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+}
+
+[data-testid="stSidebar"]
+div[data-testid="stVerticalBlock"]{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+}
+
+[data-testid="stSidebar"] .stButton{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+}
+
 </style>
 """
 
