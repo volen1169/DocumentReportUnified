@@ -246,14 +246,18 @@ div[data-testid="stVerticalBlock"]{
     box-shadow: none !important;
 }
 
-[data-testid="stSidebar"] button > div{
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+
+
+
+
+[data-testid="stSidebar"] button span{
+    background:red !important;
+    border:2px solid yellow !important;
 }
 
-[data-testid="stSidebar"] button > div{
-    background: transparent !important;
+[data-testid="stSidebar"] button p{
+    background:lime !important;
+    border:2px solid blue !important;
 }
 
 </style>
