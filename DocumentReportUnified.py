@@ -2272,7 +2272,7 @@ def _group_toggle(state_key: str, icon: str, text: str):
             st.session_state[state_key] = not open_
             st.rerun()
 
-    def _nav_leaf(nav_key: str, icon: str, text: str):
+def _nav_leaf(nav_key: str, icon: str, text: str):
         active = st.session_state.active_nav == nav_key
         if compact:
             label = icon
