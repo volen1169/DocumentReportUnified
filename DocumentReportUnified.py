@@ -241,13 +241,7 @@ div[data-testid="stVerticalBlock"]{
 
 /* DEBUG COLUMN KILL */
 
-[data-testid="stSidebar"] [data-testid="column"]{
-    background:red !important;
-}
 
-[data-testid="stSidebar"] [data-testid="column"] > div{
-    background:lime !important;
-}
 
 [data-testid="stSidebar"] [data-testid="column"] .stButton{
     background:yellow !important;
@@ -255,9 +249,7 @@ div[data-testid="stVerticalBlock"]{
 
 /* ===== FIND REAL WRAPPER ===== */
 
-[data-testid="stSidebar"] *{
-    outline: 1px solid red !important;
-}
+
 
 [data-testid="stSidebar"] button{
     background: yellow !important;
