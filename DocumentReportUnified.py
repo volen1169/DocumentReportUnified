@@ -1941,15 +1941,13 @@ else:
 
     # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
-        st.session_state.active_nav = "overview" if admin_mode else "computers"
+        st.session_state.active_nav = "overview"
 
     for _gk in ("open_grp_assets", "open_grp_security", "open_grp_inventory", "open_grp_admin"):
         if _gk not in st.session_state:
-            st.session_state[_gk] = _gk == "open_grp_assets"
+            st.session_state[_gk] = False
 
-    allowed_hw_navs = {"computers", "monitors", "projector", "printers", "ups", "misc"}
-    if not admin_mode and st.session_state.active_nav not in allowed_hw_navs:
-        st.session_state.active_nav = "computers"
+    # removed force redirect to computers
 
     st.sidebar.markdown('<p class="nav-section-label hide-when-compact">NAVIGATION</p>', unsafe_allow_html=True)
 
@@ -1962,7 +1960,7 @@ else:
     # Asset modules moved to Dashboard cards
     if False:
         _group_toggle("open_grp_assets", "📦", "Asset Management")
-    if st.session_state.open_grp_assets:
+    if False and st.session_state.open_grp_assets:
         _nav_item("computers", "🖥", "Computers", "computers", "blue", sub=True)
         _nav_item("monitors", "🖵", "Monitors", "monitors", "blue", sub=True)
         _nav_item("printers", "🖨", "Printers", "printers", "blue", sub=True)
