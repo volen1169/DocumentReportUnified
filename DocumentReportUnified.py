@@ -2359,6 +2359,7 @@ else:
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
+            st.sidebar.error("NAV ITEM V4.6")
             st.rerun()
 
     # =============================================================================
