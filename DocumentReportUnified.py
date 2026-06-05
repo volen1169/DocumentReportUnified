@@ -2340,6 +2340,8 @@ else:
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
+        st.sidebar.write(f"RUNNING: {nav_key}")
+        
         active = st.session_state.active_nav == nav_key
         prefix = "      " if sub and not compact else ""
 
@@ -2359,7 +2361,7 @@ else:
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
-            st.sidebar.error("NAV ITEM V4.6")
+            
             st.rerun()
 
     # =============================================================================
