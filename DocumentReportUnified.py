@@ -2242,7 +2242,7 @@ def _nav_leaf(nav_key: str, icon: str, text: str):
             st.rerun()
 
     # ── User profile first (reference image) ────────────────
-    st.sidebar.markdown(f"""
+        st.sidebar.markdown(f"""
     <div class="ref-profile hide-when-compact">
         <div style="display:flex;align-items:flex-start;gap:12px;">
             <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
