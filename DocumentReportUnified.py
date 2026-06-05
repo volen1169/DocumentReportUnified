@@ -275,7 +275,7 @@ div[data-testid="stVerticalBlock"]{
     background: magenta !important;
     color: black !important;
 }
-
+[data-testid="stSidebar"] button p{
 </style>
 """
 
