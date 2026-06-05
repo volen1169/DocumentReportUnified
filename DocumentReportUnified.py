@@ -238,6 +238,21 @@ div[data-testid="stVerticalBlock"]{
     box-shadow: none !important;
 }
 
+
+/* DEBUG COLUMN KILL */
+
+[data-testid="stSidebar"] [data-testid="column"]{
+    background:red !important;
+}
+
+[data-testid="stSidebar"] [data-testid="column"] > div{
+    background:lime !important;
+}
+
+[data-testid="stSidebar"] [data-testid="column"] .stButton{
+    background:yellow !important;
+}
+
 </style>
 """
 
