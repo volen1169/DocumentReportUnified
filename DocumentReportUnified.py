@@ -239,48 +239,25 @@ div[data-testid="stVerticalBlock"]{
 }
 
 
-/* DEBUG COLUMN KILL */
-
-
-
-[data-testid="stSidebar"] [data-testid="column"] .stButton{
-    background:yellow !important;
-}
-
-/* ===== FIND REAL WRAPPER ===== */
-
-
-
-[data-testid="stSidebar"] button{
-    background: yellow !important;
-}
-
-/* ===== DEBUG STBUTTON ===== */
-
-[data-testid="stSidebar"] [data-testid="stButton"]{
-    background: lime !important;
-    border: 2px solid red !important;
-}
-
-/* ===== DEBUG ELEMENT CONTAINER ===== */
-
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]{
-    background: cyan !important;
-    border: 2px solid blue !important;
-}
-
-/* DEBUG BUTTON CONTENT */
-
-[data-testid="stSidebar"] button *{
-    background: magenta !important;
-    color: black !important;
-}
-
 [data-testid="stSidebar"] button p,
 [data-testid="stSidebar"] button span{
     background: transparent !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+}
+
+/* DEBUG INNER ELEMENT */
+
+[data-testid="stSidebar"] button > div{
+    background:red !important;
+}
+
+[data-testid="stSidebar"] button p{
+    background:lime !important;
+}
+
+[data-testid="stSidebar"] button span{
+    background:blue !important;
 }
 
 </style>
@@ -2354,7 +2331,7 @@ else:
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
-        st.sidebar.write(f"RUNNING: {nav_key}")
+        
         
         active = st.session_state.active_nav == nav_key
         prefix = "      " if sub and not compact else ""
