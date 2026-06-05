@@ -1254,7 +1254,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] > div:hover{transform:translateY
 """
 
 # ── BASE CSS (always) ──────────────────────────────────────────────────────────
-load_theme(MODERN_THEME)
+load_theme(MODERN_THEME,SIDEBAR_V32_THEME)
 
 st.markdown("""
 <style>
