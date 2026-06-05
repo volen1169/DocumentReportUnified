@@ -2323,7 +2323,6 @@ else:
                 st.session_state.active_nav = nav_key
                 st.rerun()
             return
-        ___________________________
         
         if st.sidebar.button(
             label,
