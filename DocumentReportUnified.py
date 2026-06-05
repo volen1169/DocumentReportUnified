@@ -1,5 +1,17 @@
 
 # =============================================================================
+# V4.3 DEEP COMMENT EDITION
+#
+# COMMENT STANDARD
+#   PURPOSE      = ทำหน้าที่อะไร
+#   USED BY      = ถูกเรียกจากส่วนไหน
+#   DEPENDENCY   = พึ่งพาอะไร
+#   UI OWNER     = หน้าจอที่เกี่ยวข้อง
+#   CSS OWNER    = CSS ที่เกี่ยวข้อง
+# =============================================================================
+
+
+# =============================================================================
 # DOCUMENT REPORT UNIFIED
 # VERSION : V4.1 COMMENTED EDITION
 # =============================================================================
@@ -8,7 +20,11 @@
 # SECTION 01 : CONFIGURATION
 # SECTION 02 : AUTHENTICATION
 # SECTION 03 : SHAREPOINT
+# START SECTION 04 : THEME SYSTEM
 # SECTION 04 : THEME SYSTEM
+# END SECTION 04 : THEME SYSTEM
+
+# START SECTION 05 : SIDEBAR
 # SECTION 05 : SIDEBAR
 # SECTION 06 : DASHBOARD
 # SECTION 07 : ASSET MANAGEMENT
@@ -18,7 +34,23 @@
 #
 # QUICK SEARCH TAGS
 #   # THEME : LOGIN
-#   # THEME : SIDEBAR
+#   # =============================================================================
+# THEME : SIDEBAR
+#
+# PURPOSE
+#   ควบคุมหน้าตา Sidebar ทั้งหมด
+#
+# COMPONENTS
+#   - Background
+#   - Navigation Button
+#   - Active Menu
+#   - Badge Counter
+#   - Profile Card
+#
+# SEARCH TAG
+#   SIDEBAR_THEME
+# =============================================================================
+# THEME : SIDEBAR
 #   # THEME : DASHBOARD
 #   # THEME : HARDWARE
 #   # THEME : PASSWORD
@@ -1251,11 +1283,47 @@ def get_sidebar_nav_badges():
 # THEME LOADER (SAFE REFACTOR)
 # ใช้โหลด Theme หลายชุดพร้อมกัน
 # =============================================================================
+# =============================================================================
+# FUNCTION : load_theme
+#
+# PURPOSE
+#   โหลด CSS Theme หลายชุดพร้อมกัน
+#
+# EXAMPLE
+#   load_theme(MODERN_THEME, SIDEBAR_V32_THEME)
+# =============================================================================
 def load_theme(*themes):
     st.markdown("\n".join(themes), unsafe_allow_html=True)
 
 
 # =============================================================================
+
+# =============================================================================
+# SIDEBAR NAVIGATION TREE
+#
+# Dashboard
+#
+# Reports & Analytics
+#
+# Administration
+# ├─ Asset Management
+# │  ├─ Computers
+# │  ├─ Monitors
+# │  ├─ Printers
+# │  ├─ Projectors
+# │  ├─ UPS
+# │  └─ Miscellaneous
+# │
+# ├─ Security
+# │  ├─ Password Manager
+# │  └─ NAS Permission Analyzer
+# │
+# └─ Inventory
+#    ├─ Ink Stock
+#    └─ Consumables
+#
+# =============================================================================
+
 # SECTION 14 : MAIN UI
 # Theme / Sidebar / Dashboard / Navigation
 # =============================================================================
@@ -2090,7 +2158,25 @@ else:
             unsafe_allow_html=True,
         )
 
-    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
+    # =============================================================================
+# FUNCTION : _nav_item
+#
+# PURPOSE
+#   สร้างเมนู Sidebar 1 รายการ
+#
+# USED BY
+#   Asset Management / Security / Inventory / Dashboard
+#
+# VISUAL
+#   💻 Computers        [154]
+#
+# NOTES
+#   - รองรับ Badge
+#   - รองรับ Active Menu
+#   - รองรับ Sub Menu
+#   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
+# =============================================================================
+def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         active = st.session_state.active_nav == nav_key
         prefix = "      " if sub and not compact else ""
         label = icon if compact else f"{prefix}{icon}  {text}"
@@ -2117,7 +2203,21 @@ else:
                 unsafe_allow_html=True,
             )
 
-    def _group_toggle(state_key: str, icon: str, text: str):
+    # =============================================================================
+# FUNCTION : _group_toggle
+#
+# PURPOSE
+#   สร้างหัวข้อเมนูแบบพับ/ขยาย
+#
+# EXAMPLE
+#   Asset Management
+#   Security
+#   Inventory
+#
+# STATE
+#   เก็บสถานะเปิด/ปิดใน st.session_state
+# =============================================================================
+def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
         if compact:
             label = "▾" if open_ else icon
