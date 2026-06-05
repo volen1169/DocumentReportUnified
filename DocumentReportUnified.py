@@ -22,39 +22,52 @@ COLORS = {
 # =============================================================================
 SIDEBAR_V32_THEME = """
 <style>
-/* Sidebar Gradient */
+/* LOGIN STYLE SIDEBAR */
+section[data-testid="stSidebar"],
 [data-testid="stSidebar"]{
-    background: linear-gradient(180deg,#6366F1 0%,#8B5CF6 100%) !important;
+    background:
+        radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(139,92,246,.15), transparent 30%),
+        linear-gradient(135deg,#e0f2fe 0%,#dbeafe 35%,#ede9fe 100%) !important;
 }
 
-/* Sidebar Text */
+/* Sidebar inner container */
+[data-testid="stSidebar"] > div:first-child{
+    background:transparent !important;
+}
+
+/* Default text */
 [data-testid="stSidebar"] *{
     color:#334155 !important;
 }
 
-/* Active Menu */
+/* Navigation buttons */
+[data-testid="stSidebar"] .stButton > button{
+    border-radius:16px !important;
+}
+
+/* Active menu */
 [data-testid="stSidebar"] .stButton > button[kind="primary"]{
-    background: linear-gradient(135deg,#38BDF8,#6366F1,#8B5CF6) !important;
-    color:white !important;
-    border:none !important;
-    border-radius:14px !important;
-    font-weight:700 !important;
-    box-shadow:0 8px 20px rgba(99,102,241,.35) !important;
+    background:#EFF6FF !important;
+    color:#2563EB !important;
+    border:1px solid #DBEAFE !important;
+    border-left:4px solid #2563EB !important;
+    box-shadow:0 4px 12px rgba(37,99,235,.12) !important;
 }
 
-/* Hover Menu */
-[data-testid="stSidebar"] .stButton > button:hover{
-    transform:translateY(-1px);
+/* Badge */
+.sidebar-badge{
+    background:rgba(255,255,255,.65);
+    backdrop-filter:blur(8px);
+    border-radius:999px;
 }
 
-/* Profile Card */
+/* Profile card glass */
 .profile-card{
-    background:rgba(255,255,255,.12);
-    border:1px solid rgba(255,255,255,.18);
-    backdrop-filter:blur(12px);
-    border-radius:18px;
-    padding:12px;
-    color:white;
+    background:rgba(255,255,255,.30);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.45);
+    border-radius:20px;
 }
 </style>
 """
