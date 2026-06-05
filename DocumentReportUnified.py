@@ -2346,7 +2346,7 @@ else:
             return
 
         st.sidebar.write("TEST")
-            return
+        return
 
     # =============================================================================
 # FUNCTION : _group_toggle
