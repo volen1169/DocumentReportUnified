@@ -579,7 +579,7 @@ def render_card_monitor(row, key, admin_mode):
             {_hw_badge(status)}
         </div>
         <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        {f"<div class=\"hw-field\"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;{row.get('field_4','-')}</div>" if admin_mode else ""}
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
@@ -601,8 +601,8 @@ def render_card_printer(row, key, admin_mode):
             <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
         </div>
         <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        {f"<div class=\"hw-field\"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;{row.get('S_x002f_N_x0020_No_x002e_','-')}</div>" if admin_mode else ""}
-        {f"<div class=\"hw-field\"><strong>🌐 IP</strong>&nbsp;&nbsp;{row.get('field_3','-')}</div>" if admin_mode else ""}
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
+        {'<div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
