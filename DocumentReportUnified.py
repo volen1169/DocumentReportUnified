@@ -1,3 +1,16 @@
+
+# =============================================================================
+# THEME ARCHITECTURE (PHASE 2A)
+# =============================================================================
+# GLOBAL_THEME      -> CSS ใช้ทั้งระบบ
+# LOGIN_THEME       -> หน้า Login
+# SIDEBAR_THEME     -> Sidebar และ Navigation
+# DASHBOARD_THEME   -> Dashboard Cards / Metrics
+# HARDWARE_THEME    -> Asset Cards
+# PASSWORD_THEME    -> Password Manager
+# COMMON_THEME      -> Utility Classes
+# =============================================================================
+
 import streamlit as st
 import pandas as pd
 import paramiko
@@ -114,11 +127,30 @@ INK_HISTORY_FIELDS = {
 # ระบบ Login Microsoft 365 / Cookie / ตรวจสอบสิทธิ์ Admin
 # =============================================================================
 def get_manager():
+    """
+    Singleton Cookie Manager
+
+    Returns
+    -------
+    CookieManager
+        ใช้จัดการ Login Cookie และ Session Persistence
+    """
     if "cookie_manager" not in st.session_state:
         st.session_state["cookie_manager"] = stx.CookieManager(key="cookie_mgr_singleton")
     return st.session_state["cookie_manager"]
 
 def is_admin(username: str) -> bool:
+    """
+    ตรวจสอบสิทธิ์ Admin จาก Email
+
+    Parameters
+    ----------
+    username : str
+
+    Returns
+    -------
+    bool
+    """
     if not username:
         return False
     return any(username.lower() in email.lower() or email.lower() in username.lower()
@@ -162,6 +194,17 @@ def get_sp_list_id(list_name):
 
 @st.cache_data(ttl=3600)
 def load_sp_data(target_display_name):
+    """
+    โหลดข้อมูลจาก SharePoint List
+
+    Parameters
+    ----------
+    target_display_name : str
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
     token = get_access_token()
     headers = {'Authorization': f'Bearer {token}'}
     try:
@@ -1113,6 +1156,10 @@ if saved_user and not st.session_state.get('is_auth') and not st.session_state.g
     st.session_state.user_name  = saved_user
     st.session_state.user_email = saved_email or ""
 
+# =============================================================================
+# THEME : GLOBAL
+# ใช้กับทั้งระบบ
+# =============================================================================
 # ===== MODERN UI THEME =====
 MODERN_THEME = """
 <style>
@@ -1139,11 +1186,24 @@ footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
+# =============================================================================
+# THEME : LOGIN
+# CSS สำหรับหน้า Login เท่านั้น
+# =============================================================================
+
 # ══════════════════════════════════════════════════════════════════════════════
+# # THEME BLOCK : LOGIN
+# แก้ UI Login ทั้งหมดในช่วงด้านล่างนี้
+
 # LOGIN PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 if not st.session_state.is_auth:
-    st.markdown("""
+    # -----------------------------------------------------------------------------
+# CSS THEME BLOCK
+# ถ้าต้องการแยกเป็น LOGIN_THEME/SIDEBAR_THEME ในอนาคต
+# ให้เริ่มจาก Style Block นี้
+# -----------------------------------------------------------------------------
+st.markdown("""
     <style>
     /* ===== AURORA GLASS LOGIN ===== */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -1305,6 +1365,14 @@ if not st.session_state.is_auth:
         <p style="color:rgba(255,255,255,.25);font-size:.75rem;text-align:center;margin-top:20px;">
             ☁️ Secure Microsoft 365 Access &nbsp;·&nbsp; Optimal Group © 2025</p>
         """, unsafe_allow_html=True)
+
+# =============================================================================
+# THEME : SIDEBAR / # THEME BLOCK : SIDEBAR / DASHBOARD
+# แก้ UI หลัง Login ทั้งหมดในช่วงด้านล่างนี้
+
+# MAIN APP
+# CSS หลัง Login สำเร็จ
+# =============================================================================
 
 # ══════════════════════════════════════════════════════════════════════════════
 # MAIN APP
