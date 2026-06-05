@@ -1,5 +1,74 @@
 
 # =============================================================================
+# V3.1 DESIGN SYSTEM
+# ใช้รวมสีหลักของระบบให้ Sidebar และ Login ใช้ Theme เดียวกัน
+# =============================================================================
+COLORS = {
+    "primary": "#6366F1",     # Indigo
+    "secondary": "#8B5CF6",   # Purple
+    "accent": "#38BDF8",      # Sky
+    "success": "#10B981",
+    "warning": "#F59E0B",
+    "danger": "#EF4444",
+    "bg": "#F8FAFC",
+    "card": "#FFFFFF",
+}
+
+
+
+# =============================================================================
+# V3.2 SIDEBAR MODERN THEME
+# Login Theme Inspired Sidebar
+# =============================================================================
+SIDEBAR_V32_THEME = """
+<style>
+/* Sidebar Gradient */
+[data-testid="stSidebar"]{
+    background: linear-gradient(180deg,#6366F1 0%,#8B5CF6 100%) !important;
+}
+
+/* Sidebar Text */
+[data-testid="stSidebar"] *{
+    color:white !important;
+}
+
+/* Active Menu */
+[data-testid="stSidebar"] .stButton > button[kind="primary"]{
+    background: linear-gradient(135deg,#38BDF8,#6366F1,#8B5CF6) !important;
+    color:white !important;
+    border:none !important;
+    border-radius:14px !important;
+    font-weight:700 !important;
+    box-shadow:0 8px 20px rgba(99,102,241,.35) !important;
+}
+
+/* Hover Menu */
+[data-testid="stSidebar"] .stButton > button:hover{
+    transform:translateY(-1px);
+}
+
+/* Profile Card */
+.profile-card{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.18);
+    backdrop-filter:blur(12px);
+    border-radius:18px;
+    padding:12px;
+    color:white;
+}
+</style>
+"""
+
+# =============================================================================
+# SIDEBAR V3.1 ROADMAP
+# 1. ปรับ Sidebar ให้ใช้โทนเดียวกับ Login
+# 2. ปรับ Active Menu เป็น Gradient
+# 3. ปรับ Badge Counter
+# 4. ปรับ Profile Card
+# =============================================================================
+
+
+# =============================================================================
 # THEME ARCHITECTURE (PHASE 2A)
 # =============================================================================
 # GLOBAL_THEME      -> CSS ใช้ทั้งระบบ
