@@ -275,7 +275,14 @@ div[data-testid="stVerticalBlock"]{
     background: magenta !important;
     color: black !important;
 }
-[data-testid="stSidebar"] button p{
+
+[data-testid="stSidebar"] button p,
+[data-testid="stSidebar"] button span{
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
 </style>
 """
 
