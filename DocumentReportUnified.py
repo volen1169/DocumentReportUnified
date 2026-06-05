@@ -269,6 +269,13 @@ div[data-testid="stVerticalBlock"]{
     border: 2px solid blue !important;
 }
 
+/* DEBUG BUTTON CONTENT */
+
+[data-testid="stSidebar"] button *{
+    background: magenta !important;
+    color: black !important;
+}
+
 </style>
 """
 
