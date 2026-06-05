@@ -1,5 +1,24 @@
 
 # =============================================================================
+# V4.4 FUNCTION DOCUMENTATION EDITION
+#
+# GOAL
+#   ทำให้ค้นหาและแก้ไขโค้ดได้ง่ายที่สุดสำหรับมนุษย์และ AI
+#
+# SEARCH TAGS
+#   FUNCTION :
+#   CSS OWNER :
+#   UI OWNER :
+#   DATA FLOW :
+#   SHAREPOINT :
+#   SIDEBAR :
+#   DASHBOARD :
+#   HARDWARE :
+#   REPORTS :
+# =============================================================================
+
+
+# =============================================================================
 # V4.3 DEEP COMMENT EDITION
 #
 # COMMENT STANDARD
@@ -615,6 +634,14 @@ def _hw_badge(status):
     cls = {"Active":"badge-active","Inactive":"badge-inactive","Spare":"badge-spare","Repair":"badge-repair"}.get(status,"badge-default")
     return f'<span class="badge {cls}">{status or "—"}</span>' if status else ''
 
+
+# =============================================================================
+# FUNCTION : render_card_computer
+# UI OWNER   : Asset Management > Computers
+# PURPOSE    : สร้างการ์ดแสดงข้อมูล Computer 1 รายการ
+# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
+# CSS OWNER  : HARDWARE_THEME / Card CSS
+# =============================================================================
 def render_card_computer(row, key, admin_mode):
     status = row.get('Status', '')
     with st.container():
@@ -642,6 +669,14 @@ def render_card_computer(row, key, admin_mode):
         else:
             st.caption("🔒 ข้อมูลเพิ่มเติมและการแก้ไขเฉพาะผู้ดูแลระบบ")
 
+
+# =============================================================================
+# FUNCTION : render_card_monitor
+# UI OWNER   : Asset Management > Monitors
+# PURPOSE    : สร้างการ์ดแสดงข้อมูล Monitor 1 รายการ
+# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
+# CSS OWNER  : HARDWARE_THEME / Card CSS
+# =============================================================================
 def render_card_monitor(row, key, admin_mode):
     status = row.get('Status', '')
     with st.container():
@@ -668,6 +703,14 @@ def render_card_monitor(row, key, admin_mode):
         else:
             st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
+
+# =============================================================================
+# FUNCTION : render_card_printer
+# UI OWNER   : Asset Management > Printers
+# PURPOSE    : สร้างการ์ดแสดงข้อมูล Printer 1 รายการ
+# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
+# CSS OWNER  : HARDWARE_THEME / Card CSS
+# =============================================================================
 def render_card_printer(row, key, admin_mode):
     with st.container():
         st.markdown(f"""
@@ -2229,7 +2272,7 @@ def _group_toggle(state_key: str, icon: str, text: str):
             st.session_state[state_key] = not open_
             st.rerun()
 
-def _nav_leaf(nav_key: str, icon: str, text: str):
+    def _nav_leaf(nav_key: str, icon: str, text: str):
         active = st.session_state.active_nav == nav_key
         if compact:
             label = icon
@@ -2242,7 +2285,7 @@ def _nav_leaf(nav_key: str, icon: str, text: str):
             st.rerun()
 
     # ── User profile first (reference image) ────────────────
-        st.sidebar.markdown(f"""
+    st.sidebar.markdown(f"""
     <div class="ref-profile hide-when-compact">
         <div style="display:flex;align-items:flex-start;gap:12px;">
             <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
