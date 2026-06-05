@@ -1951,12 +1951,17 @@ else:
     if not admin_mode and st.session_state.active_nav not in allowed_hw_navs:
         st.session_state.active_nav = "computers"
 
-    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">MENU</p>', unsafe_allow_html=True)
+    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">NAVIGATION</p>', unsafe_allow_html=True)
 
+    # Card Navigation Style (Option B)
+    _nav_leaf("overview", "⌂", "Dashboard")
     if admin_mode:
-        _nav_leaf("overview", "⌂", "Dashboard")
+        _nav_leaf("reports", "📊", "Reports & Analytics")
+        _nav_leaf("admin_settings", "⚙", "Administration")
 
-    _group_toggle("open_grp_assets", "📦", "Asset Management")
+    # Asset modules moved to Dashboard cards
+    if False:
+        _group_toggle("open_grp_assets", "📦", "Asset Management")
     if st.session_state.open_grp_assets:
         _nav_item("computers", "🖥", "Computers", "computers", "blue", sub=True)
         _nav_item("monitors", "🖵", "Monitors", "monitors", "blue", sub=True)
