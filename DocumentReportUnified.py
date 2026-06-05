@@ -252,6 +252,10 @@ div[data-testid="stVerticalBlock"]{
     box-shadow: none !important;
 }
 
+[data-testid="stSidebar"] button > div{
+    background: transparent !important;
+}
+
 </style>
 """
 
