@@ -129,11 +129,11 @@ section[data-testid="stSidebar"],
 
 /* Active menu */
 [data-testid="stSidebar"] .stButton > button[kind="primary"]{
-    background:#EFF6FF !important;
+    background:transparent !important;
     color:#2563EB !important;
-    border:1px solid #DBEAFE !important;
+    border:none !important;
     border-left:4px solid #2563EB !important;
-    box-shadow:0 4px 12px rgba(37,99,235,.12) !important;
+    box-shadow:none !important;
 }
 
 /* Badge */
