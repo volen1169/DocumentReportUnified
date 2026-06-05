@@ -1980,7 +1980,8 @@ else:
         if st.session_state.open_grp_inventory:
             _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "blue", sub=True)
 
-        _nav_leaf("reports", "📊", "Reports & Analytics")
+        # removed duplicate reports menu
+
 
         _group_toggle("open_grp_admin", "⚙", "Administration")
         if st.session_state.open_grp_admin:
