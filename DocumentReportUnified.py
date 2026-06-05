@@ -260,6 +260,17 @@ div[data-testid="stVerticalBlock"]{
     border:2px solid blue !important;
 }
 
+
+[data-testid="stSidebar"] button > div > div{
+    background: lime !important;
+    border: 2px solid blue !important;
+}
+
+[data-testid="stSidebar"] button > div > div > div{
+    background: cyan !important;
+    border: 2px solid black !important;
+}
+
 </style>
 """
 
