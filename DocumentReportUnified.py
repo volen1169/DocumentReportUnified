@@ -1403,7 +1403,7 @@ MODERN_THEME = """
 html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif !important;}
 [data-testid="stAppViewContainer"]{background:radial-gradient(circle at top right, rgba(99,102,241,.10), transparent 22%),radial-gradient(circle at bottom left, rgba(14,165,233,.08), transparent 18%),#eef2ff !important;}
 [data-testid="stMetric"]{background:rgba(255,255,255,.84) !important;border:none !important;border-radius:24px !important;padding:1.3rem !important;box-shadow:0 10px 30px rgba(15,23,42,.06) !important;}
-div[data-testid="stVerticalBlockBorderWrapper"] > div{border:none !important;border-radius:24px !important;background:rgba(255,255,255,.86) !important;box-shadow:0 10px 30px rgba(15,23,42,.05) !important;transition:all .2s ease !important;}
+/* div[data-testid="stVerticalBlockBorderWrapper"] > div{border:none !important;border-radius:24px !important;background:rgba(255,255,255,.86) !important;box-shadow:0 10px 30px rgba(15,23,42,.05) !important;transition:all .2s ease !important;} */
 div[data-testid="stVerticalBlockBorderWrapper"] > div:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(99,102,241,.12) !important;}
 .stButton button{border-radius:14px !important;font-weight:700 !important;}
 .stTextInput input,.stSelectbox div[data-baseweb="select"] > div{border-radius:14px !important;}
