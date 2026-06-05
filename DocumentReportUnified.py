@@ -1958,9 +1958,8 @@ else:
         _nav_leaf("admin_settings", "⚙", "Administration")
 
     # Asset modules moved to Dashboard cards
-    if False:
-        _group_toggle("open_grp_assets", "📦", "Asset Management")
-    if False and st.session_state.open_grp_assets:
+    _group_toggle("open_grp_assets", "📦", "Asset Management")
+    if st.session_state.open_grp_assets:
         _nav_item("computers", "🖥", "Computers", "computers", "blue", sub=True)
         _nav_item("monitors", "🖵", "Monitors", "monitors", "blue", sub=True)
         _nav_item("printers", "🖨", "Printers", "printers", "blue", sub=True)
