@@ -227,6 +227,17 @@ div[data-testid="stVerticalBlock"]{
     box-shadow: none !important;
 }
 
+/* FORCE KILL ALL SIDEBAR BUTTON BACKGROUND */
+
+[data-testid="stSidebar"] .stButton > button{
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+[data-testid="stSidebar"] .stButton > button:hover{
+    box-shadow: none !important;
+}
+
 </style>
 """
 
