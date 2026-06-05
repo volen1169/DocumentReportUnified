@@ -2345,18 +2345,8 @@ else:
                 st.rerun()
             return
 
-        c_btn, c_badge = st.sidebar.columns([0.82, 0.18], gap="small")
-        with c_btn:
-            if st.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
-                st.session_state.active_nav = nav_key
-                st.rerun()
-
-        with c_badge:
-            st.markdown(
-                f'<div style="display:flex;justify-content:flex-end;align-items:center;height:38px;">'
-                f'<span class="nav-badge-pill nav-badge-{badge_tone}">{val}</span></div>',
-                unsafe_allow_html=True,
-            )
+        st.sidebar.write("TEST")
+            return
 
     # =============================================================================
 # FUNCTION : _group_toggle
