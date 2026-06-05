@@ -29,7 +29,7 @@ SIDEBAR_V32_THEME = """
 
 /* Sidebar Text */
 [data-testid="stSidebar"] *{
-    color:white !important;
+    color:#334155 !important;
 }
 
 /* Active Menu */
