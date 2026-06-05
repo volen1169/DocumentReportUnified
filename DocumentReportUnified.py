@@ -253,6 +253,12 @@ div[data-testid="stVerticalBlock"]{
     background:yellow !important;
 }
 
+/* ===== FIND REAL WRAPPER ===== */
+
+[data-testid="stSidebar"] *{
+    outline: 1px solid red !important;
+}
+
 </style>
 """
 
