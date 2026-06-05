@@ -1,5 +1,31 @@
 
 # =============================================================================
+# DOCUMENT REPORT UNIFIED
+# VERSION : V4.1 COMMENTED EDITION
+# =============================================================================
+# TABLE OF CONTENTS
+#
+# SECTION 01 : CONFIGURATION
+# SECTION 02 : AUTHENTICATION
+# SECTION 03 : SHAREPOINT
+# SECTION 04 : THEME SYSTEM
+# SECTION 05 : SIDEBAR
+# SECTION 06 : DASHBOARD
+# SECTION 07 : ASSET MANAGEMENT
+# SECTION 08 : PASSWORD MANAGER
+# SECTION 09 : REPORTS & ANALYTICS
+# SECTION 10 : ADMINISTRATION
+#
+# QUICK SEARCH TAGS
+#   # THEME : LOGIN
+#   # THEME : SIDEBAR
+#   # THEME : DASHBOARD
+#   # THEME : HARDWARE
+#   # THEME : PASSWORD
+# =============================================================================
+
+
+# =============================================================================
 # V3.1 DESIGN SYSTEM
 # ใช้รวมสีหลักของระบบให้ Sidebar และ Login ใช้ Theme เดียวกัน
 # =============================================================================
@@ -19,6 +45,10 @@ COLORS = {
 # =============================================================================
 # V3.2 SIDEBAR MODERN THEME
 # Login Theme Inspired Sidebar
+# =============================================================================
+# =============================================================================
+# THEME : SIDEBAR
+# พื้นหลัง Sidebar / Active Menu / Profile Card / Badge
 # =============================================================================
 SIDEBAR_V32_THEME = """
 <style>
@@ -1252,6 +1282,10 @@ if saved_user and not st.session_state.get('is_auth') and not st.session_state.g
 # ใช้กับทั้งระบบ
 # =============================================================================
 # ===== MODERN UI THEME =====
+# =============================================================================
+# THEME : GLOBAL
+# ใช้กับทั้งระบบ
+# =============================================================================
 MODERN_THEME = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
