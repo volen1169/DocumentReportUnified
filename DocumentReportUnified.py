@@ -2332,9 +2332,10 @@ else:
 # =============================================================================
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         
-        st.sidebar.write(nav_key, active)
+       
         
         active = st.session_state.active_nav == nav_key
+        st.sidebar.write(nav_key, active)
         prefix = "      " if sub and not compact else ""
 
         val = nav_badges.get(badge_key, 0) if badge_key else None
