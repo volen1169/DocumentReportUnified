@@ -2328,12 +2328,18 @@ else:
 #   - รองรับ Sub Menu
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
-    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
-        
-       
-        
+    def _nav_item(
+        nav_key: str,
+        icon: str,
+        text: str,
+        badge_key: str = None,
+        badge_tone: str = "blue",
+        *,
+        sub: bool = False
+    ):
+
         active = st.session_state.active_nav == nav_key
-        st.sidebar.write(nav_key, active)
+
         prefix = "      " if sub and not compact else ""
 
         val = nav_badges.get(badge_key, 0) if badge_key else None
@@ -2347,12 +2353,11 @@ else:
 
         if st.sidebar.button(
             label,
-            use_container_width=False,
+            use_container_width=True,
             type="secondary",
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
-            
             st.rerun()
 
     # =============================================================================
