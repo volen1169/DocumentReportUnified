@@ -2347,7 +2347,7 @@ else:
 
         if st.sidebar.button(
             label,
-            use_container_width=True,
+            use_container_width=False,
             type="secondary",
             key=f"nav_{nav_key}"
         ):
