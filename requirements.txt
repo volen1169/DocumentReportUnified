@@ -7,3 +7,5 @@ urllib3
 extra-streamlit-components
 plotly
 openpyxl
+fastapi
+uvicorn
