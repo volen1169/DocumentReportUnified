@@ -844,57 +844,109 @@ def nas_agent_health():
     return data
 
 
-def nas_agent_get_acl_raw(share):
-    """ดึง Raw ACL จาก NAS Agent SSH ซึ่งสั่ง synoacltool บน NAS Host"""
+def nas_agent_get_acl_payload(share):
+    """ดึง Permission จาก NAS Agent
+
+    รองรับ Agent เวอร์ชันใหม่ที่มี /share-permissions ก่อน
+    ถ้า Agent ยังไม่มี endpoint นี้ จะ fallback เป็น /acl แบบเดิม
+    """
     if not NAS_AGENT_URL:
         raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
     if not NAS_AGENT_TOKEN:
         raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_TOKEN ใน Streamlit secrets")
 
+    headers = {"X-API-Token": NAS_AGENT_TOKEN}
+
+    # Agent ใหม่: คืน permissions ที่แยก Read/Write จาก Synology share privilege แล้ว
+    for endpoint in ("share-permissions", "permissions"):
+        try:
+            resp = requests.get(
+                f"{NAS_AGENT_URL}/{endpoint}",
+                params={"share": share},
+                headers=headers,
+                timeout=NAS_TIMEOUT,
+            )
+            if resp.status_code == 404:
+                continue
+            data = _safe_json_response(resp, f"NAS Agent /{endpoint} share={share}")
+            if resp.status_code != 200:
+                raise Exception(f"NAS Agent /{endpoint} HTTP {resp.status_code}: {data}")
+            return data
+        except requests.exceptions.HTTPError:
+            continue
+        except Exception:
+            # ถ้า endpoint ใหม่ยังไม่พร้อม ให้ลอง /acl ต่อ
+            pass
+
+    # Agent เดิม: คืน raw synoacltool
     resp = requests.get(
         f"{NAS_AGENT_URL}/acl",
-        params={
-            "share": share,
-            "_": datetime.datetime.now().timestamp(),  # กัน cache ระหว่างแก้ Agent
-        },
-        headers={
-            "X-API-Token": NAS_AGENT_TOKEN,
-            "Cache-Control": "no-cache",
-        },
+        params={"share": share},
+        headers=headers,
         timeout=NAS_TIMEOUT,
     )
-
     data = _safe_json_response(resp, f"NAS Agent /acl share={share}")
 
     if resp.status_code != 200:
-        detail = data.get("detail", data) if isinstance(data, dict) else data
-
-        if isinstance(detail, str) and "libsynocore.so" in detail:
-            raise Exception(
-                "NAS Agent ตัวที่ถูกเรียกยังเป็นเวอร์ชันเก่าที่รัน synoacltool ใน Docker โดยตรง "
-                "ให้ตรวจ /health ต้องได้ service=nas-agent-ssh และกด Refresh/Clear cache ใน Streamlit"
-            )
-
-        raise Exception(f"NAS Agent /acl HTTP {resp.status_code}: {detail}")
+        raise Exception(f"NAS Agent /acl HTTP {resp.status_code}: {data}")
 
     if data.get("returncode", 0) not in (0, None):
-        raise Exception(
-            f"synoacltool failed for {share}: "
-            f"{data.get('stderr', '') or data.get('stdout', '') or data}"
-        )
+        raise Exception(f"synoacltool failed for {share}: {data.get('stderr', '')}")
 
+    return data
+
+
+def nas_agent_get_acl_raw(share):
+    """ดึง Raw ACL จาก NAS Agent ซึ่งรัน synoacltool บน NAS"""
+    data = nas_agent_get_acl_payload(share)
     return data.get("stdout") or data.get("acl") or ""
 
 
-def _clean_nas_principal(entity):
-    """ล้างชื่อ user/group จาก synoacltool เช่น [0] user:OPTIMALGROUP\\IT"""
-    entity = str(entity or "").strip()
-    entity = re.sub(r'^\[\d+\]\s*', '', entity)
-    entity = re.sub(r'^(user|group):\s*', '', entity, flags=re.I)
-    entity = entity.replace('OPTIMALGROUP\\\\', '')
-    entity = entity.replace('OPTIMALGROUP\\', '')
-    entity = entity.strip()
-    return entity
+def parse_nas_agent_permissions_payload(payload, employee_list=None):
+    """แปลง payload จาก Agent เวอร์ชันใหม่เป็น ACL Tags และ Matched Employees
+
+    payload ที่รองรับ:
+    {
+      "permissions": [
+        {"entity": "User", "type": "user", "permission": "Read"},
+        {"entity": "Group", "type": "group", "permission": "Read/Write"}
+      ]
+    }
+    """
+    employee_list = employee_list or []
+    rows = payload.get("permissions") or payload.get("data") or []
+    if not isinstance(rows, list) or not rows:
+        return [], []
+
+    acl_entries = []
+    matched_employees = []
+
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        entity = _clean_nas_principal(item.get("entity") or item.get("name") or item.get("principal") or "")
+        if not entity:
+            continue
+        ptype = str(item.get("type") or item.get("kind") or "user").lower()
+        perm_raw = str(item.get("permission") or item.get("access") or item.get("perm") or "").strip().lower()
+
+        if perm_raw in ("rw", "readwrite", "read/write", "write", "read-write", "read_write"):
+            permission = "Read/Write"
+        elif perm_raw in ("ro", "read", "readonly", "read-only", "read_only"):
+            permission = "Read"
+        elif perm_raw in ("deny", "no", "na", "noaccess", "no access"):
+            permission = "Deny"
+        else:
+            permission = "Read/Write" if "write" in perm_raw or perm_raw == "rw" else "Read"
+
+        acl_entries.append(f"{ptype}:{entity} ({permission})")
+
+        for emp in employee_list:
+            emp_text = str(emp).strip()
+            if emp_text and (entity.lower() in emp_text.lower() or emp_text.lower() in entity.lower()):
+                matched_employees.append(f"{emp_text} ({permission})")
+
+    return sorted(set(acl_entries), key=lambda x: x.lower()), sorted(set(matched_employees))
 
 
 def parse_synoacl_output(raw, employee_list=None):
@@ -967,10 +1019,17 @@ def parse_synoacl_output(raw, employee_list=None):
 
 
 def fetch_acl_agent(share, employee_list):
-    """อ่าน ACL ของ Share ผ่าน NAS Agent"""
+    """อ่าน Permission ของ Share ผ่าน NAS Agent"""
     try:
-        raw = nas_agent_get_acl_raw(share)
-        tags, matched = parse_synoacl_output(raw, employee_list)
+        payload = nas_agent_get_acl_payload(share)
+
+        # ถ้า Agent ใหม่ส่ง permissions มา ให้ใช้ผลนี้ก่อน เพราะแยก Read/Write จาก Synology share privilege ได้ตรงกว่า ACL ดิบ
+        if isinstance(payload, dict) and (payload.get("permissions") or payload.get("data")):
+            tags, matched = parse_nas_agent_permissions_payload(payload, employee_list)
+        else:
+            raw = payload.get("stdout") or payload.get("acl") or ""
+            tags, matched = parse_synoacl_output(raw, employee_list)
+
         return share, tags, matched
     except Exception as e:
         # เก็บ error ลง raw เพื่อให้ดูรายละเอียดใน Popup ได้ ไม่ทำให้ทั้งหน้าล่ม
