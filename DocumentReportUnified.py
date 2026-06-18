@@ -315,10 +315,11 @@ GRAPH_URL = "https://graph.microsoft.com/v1.0"
 
 # NAS Config
 NAS_IP = st.secrets.get("NAS_IP", "")
-NAS_PORT = 22        # SSH port (ปกติคือ 22 หรือ 2222 — ตรวจสอบใน DSM > Terminal & SNMP)
+NAS_PORT = int(st.secrets.get("NAS_PORT", 22))        # รองรับ SSH port custom เช่น 2222
 SSH_USER = st.secrets.get("SSH_USER", "")
 SSH_PWD = st.secrets.get("SSH_PWD", "")
 MAX_THREADS = 6
+NAS_TIMEOUT = int(st.secrets.get("NAS_TIMEOUT", 30))
 SYNOACL_PATH = "/usr/syno/bin/synoacltool"
 
 # Password File Config
@@ -657,10 +658,39 @@ def upload_password_excel(drive_id, sheets_dict):
 # เชื่อมต่อ Synology NAS และตรวจสอบสิทธิ์ Folder
 # =============================================================================
 def create_ssh():
+    """
+    สร้าง SSH Connection ไปยัง Synology NAS
+
+    รองรับ:
+    - Custom SSH Port
+    - Timeout จาก secrets.toml
+    - แสดง Error ที่อ่านง่ายสำหรับ Streamlit Cloud
+
+    ใช้งาน:
+    Streamlit Cloud -> NAS SSH
+    """
+
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(NAS_IP, port=NAS_PORT, username=SSH_USER, password=SSH_PWD, timeout=10)
-    return ssh
+
+    try:
+        ssh.connect(
+            hostname=NAS_IP,
+            port=NAS_PORT,
+            username=SSH_USER,
+            password=SSH_PWD,
+            timeout=NAS_TIMEOUT,
+            banner_timeout=NAS_TIMEOUT,
+            auth_timeout=NAS_TIMEOUT
+        )
+
+        return ssh
+
+    except Exception as e:
+        raise Exception(
+            f"NAS SSH Connection Failed | "
+            f"Host={NAS_IP} Port={NAS_PORT} | {str(e)}"
+        )
 
 def run_command(ssh, cmd):
     full_cmd = f"sudo -S {cmd}"
@@ -2328,18 +2358,12 @@ else:
 #   - รองรับ Sub Menu
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
-    def _nav_item(
-        nav_key: str,
-        icon: str,
-        text: str,
-        badge_key: str = None,
-        badge_tone: str = "blue",
-        *,
-        sub: bool = False
-    ):
-
+    def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
+        
+       
+        
         active = st.session_state.active_nav == nav_key
-
+        st.sidebar.write(nav_key, active)
         prefix = "      " if sub and not compact else ""
 
         val = nav_badges.get(badge_key, 0) if badge_key else None
@@ -2358,6 +2382,7 @@ else:
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
+            
             st.rerun()
 
     # =============================================================================
