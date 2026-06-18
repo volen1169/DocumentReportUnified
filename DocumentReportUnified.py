@@ -334,6 +334,15 @@ NAS_USER = st.secrets.get("NAS_USER", SSH_USER)
 NAS_PASSWORD = st.secrets.get("NAS_PASSWORD", SSH_PWD)
 NAS_MODE = st.secrets.get("NAS_MODE", "api" if NAS_BASE_URL else "ssh").lower().strip()
 
+# NAS Local API Agent Config
+# ใช้สำหรับอ่าน ACL จริงจาก synoacltool ผ่าน Agent ที่รันอยู่บน NAS
+# Streamlit Secrets ตัวอย่าง:
+# NAS_AGENT_URL   = "https://nas-agent.poonyaruk.co.th"
+# NAS_AGENT_TOKEN = "รหัสเดียวกับ NAS_AGENT_TOKEN ใน Docker"
+NAS_AGENT_URL = st.secrets.get("NAS_AGENT_URL", "").rstrip("/")
+NAS_AGENT_TOKEN = st.secrets.get("NAS_AGENT_TOKEN", "")
+NAS_AGENT_MODE = st.secrets.get("NAS_AGENT_MODE", "agent" if NAS_AGENT_URL else "").lower().strip()
+
 MAX_THREADS = 6
 NAS_TIMEOUT = int(st.secrets.get("NAS_TIMEOUT", 30))
 SYNOACL_PATH = "/usr/syno/bin/synoacltool"
@@ -681,6 +690,11 @@ def _nas_api_enabled():
     return NAS_MODE == "api" or bool(NAS_BASE_URL)
 
 
+def _nas_agent_enabled():
+    """คืนค่า True เมื่อกำหนด NAS_AGENT_URL เพื่ออ่าน ACL จริงผ่าน NAS Local API Agent"""
+    return NAS_AGENT_MODE == "agent" or bool(NAS_AGENT_URL)
+
+
 def _safe_json_response(resp, context="NAS API"):
     """แปลง Response เป็น JSON พร้อม Error ที่อ่านง่าย"""
     try:
@@ -787,13 +801,8 @@ def synology_get_shares_api():
 
 def load_nas_data_api():
     """
-    โหลดข้อมูล NAS ผ่าน DSM API สำหรับ Streamlit Cloud
-
-    หมายเหตุ:
-    - DSM API อ่านรายชื่อ Shared Folder ได้ผ่าน FileStation API
-    - สิทธิ์ ACL แบบละเอียดจาก synoacltool ยังเป็นคำสั่งระดับระบบของ Synology
-      จึงต้องใช้ SSH ถ้าต้องการ Raw ACL ราย user/group แบบเดิม
-    - โหมด API นี้ทำให้หน้า NAS ไม่ timeout บน Streamlit Cloud และพร้อมต่อยอด API อื่น ๆ
+    โหลดรายชื่อ Share ผ่าน DSM API เท่านั้น
+    ใช้เป็น fallback เมื่อยังไม่ได้ตั้งค่า NAS Agent
     """
     synology_api_info()
     shares = synology_get_shares_api()
@@ -802,11 +811,146 @@ def load_nas_data_api():
     for share in shares:
         rows.append({
             "Share": share,
-            "ACL Tags (Raw)": "เชื่อมต่อผ่าน DSM API สำเร็จ — อ่าน Raw ACL ต้องใช้ SSH/synoacltool",
+            "ACL Tags (Raw)": "เชื่อมต่อผ่าน DSM API สำเร็จ — อ่าน Raw ACL ต้องใช้ NAS Agent หรือ SSH/synoacltool",
             "Matched Employees": "",
         })
 
     return pd.DataFrame(rows, columns=["Share", "ACL Tags (Raw)", "Matched Employees"]).sort_values("Share")
+
+
+def nas_agent_health():
+    """ตรวจสอบ NAS Local API Agent"""
+    if not NAS_AGENT_URL:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
+
+    resp = requests.get(f"{NAS_AGENT_URL}/health", timeout=NAS_TIMEOUT)
+    data = _safe_json_response(resp, "NAS Agent /health")
+    if data.get("status") != "ok":
+        raise Exception(f"NAS Agent health failed: {data}")
+    return data
+
+
+def nas_agent_get_acl_raw(share):
+    """ดึง Raw ACL จาก NAS Agent ซึ่งรัน synoacltool บน NAS"""
+    if not NAS_AGENT_URL:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
+    if not NAS_AGENT_TOKEN:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_TOKEN ใน Streamlit secrets")
+
+    resp = requests.get(
+        f"{NAS_AGENT_URL}/acl",
+        params={"share": share},
+        headers={"X-API-Token": NAS_AGENT_TOKEN},
+        timeout=NAS_TIMEOUT,
+    )
+    data = _safe_json_response(resp, f"NAS Agent /acl share={share}")
+
+    if resp.status_code != 200:
+        raise Exception(f"NAS Agent /acl HTTP {resp.status_code}: {data}")
+
+    if data.get("returncode", 0) not in (0, None):
+        raise Exception(f"synoacltool failed for {share}: {data.get('stderr', '')}")
+
+    return data.get("stdout") or data.get("acl") or ""
+
+
+def parse_synoacl_output(raw, employee_list=None):
+    """แปลงผลลัพธ์ synoacltool เป็น ACL Tags และ Matched Employees"""
+    employee_list = employee_list or []
+
+    if not raw:
+        return [], []
+
+    acl_entries = []
+
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        # รองรับรูปแบบ synoacltool เช่น:
+        # [0] user:OPTIMALGROUP\\Name:allow:rwxpdDaARWc--:fd--  หรือ variants อื่น ๆ
+        if "allow" not in line and "deny" not in line:
+            continue
+
+        parts = line.split(":")
+        if len(parts) < 4:
+            continue
+
+        principal = ":".join(parts[:2]).strip()
+        action = parts[2].strip().lower() if len(parts) > 2 else ""
+        perm_blob = parts[3].strip().lower() if len(parts) > 3 else ""
+
+        if action == "deny":
+            permission = "Deny"
+        elif "w" in perm_blob or "d" in perm_blob or "a" in perm_blob:
+            permission = "Read/Write"
+        else:
+            permission = "Read"
+
+        acl_entries.append(f"{principal} ({permission})")
+
+    acl_tags = sorted(set(acl_entries))
+
+    matched_employees = []
+    for entry in acl_tags:
+        match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny)\)", entry)
+        if not match:
+            continue
+
+        clean_entity = re.sub(r'^\[\d+\]\s*(user|group):\s*', '', match.group(1).strip())
+        clean_entity = clean_entity.replace('OPTIMALGROUP\\', '').strip()
+        clean_entity = clean_entity.replace('OPTIMALGROUP\\\\', '').strip()
+
+        if not clean_entity:
+            continue
+
+        for emp in employee_list:
+            emp_text = str(emp).strip()
+            if not emp_text:
+                continue
+            if clean_entity.lower() in emp_text.lower() or emp_text.lower() in clean_entity.lower():
+                matched_employees.append(f"{emp_text} ({match.group(2).strip()})")
+
+    return acl_tags, sorted(set(matched_employees))
+
+
+def fetch_acl_agent(share, employee_list):
+    """อ่าน ACL ของ Share ผ่าน NAS Agent"""
+    try:
+        raw = nas_agent_get_acl_raw(share)
+        tags, matched = parse_synoacl_output(raw, employee_list)
+        return share, tags, matched
+    except Exception as e:
+        # เก็บ error ลง raw เพื่อให้ดูรายละเอียดใน Popup ได้ ไม่ทำให้ทั้งหน้าล่ม
+        return share, [f"NAS Agent Error: {e}"], []
+
+
+def load_nas_data_agent():
+    """โหลด NAS Data แบบสมบูรณ์: Shares จาก DSM API + ACL จาก NAS Agent"""
+    nas_agent_health()
+
+    # ใช้ DSM API ดึงรายชื่อ Share ถ้ามี NAS_BASE_URL, ไม่งั้น fallback เป็น /volume1 จาก SSH เดิม
+    if _nas_api_enabled():
+        shares = synology_get_shares_api()
+    else:
+        shares = get_shares()
+
+    df_emp = load_sp_data("Employees")
+    employees = df_emp['field_3'].dropna().unique().tolist() if not df_emp.empty and 'field_3' in df_emp.columns else []
+
+    data = []
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        futures = [executor.submit(fetch_acl_agent, s, employees) for s in shares]
+        for future in as_completed(futures):
+            share, tags, matched_emps = future.result()
+            data.append({
+                "Share": share,
+                "ACL Tags (Raw)": ", ".join(sorted(tags)),
+                "Matched Employees": ", ".join(sorted(matched_emps)),
+            })
+
+    return pd.DataFrame(data).sort_values("Share")
 
 
 def create_ssh():
@@ -877,34 +1021,29 @@ def fetch_acl(share, employee_list):
         ssh.close()
         if not raw:
             return share, [], []
-        acl_entries = []
-        for line in raw.splitlines():
-            if "allow" in line or "deny" in line:
-                parts = line.split(':')
-                if len(parts) >= 4:
-                    readable_perm = "Read/Write" if 'w' in parts[3] else "Read"
-                    acl_entries.append(f"{parts[0]}:{parts[1]} ({readable_perm})")
-        acl_tags = list(set(acl_entries))
-        matched_employees = []
-        for entry in acl_tags:
-            match = re.search(r"^(.*?)\s*\((Read(?:/Write)?)\)", entry)
-            if not match:
-                continue
-            clean_entity = re.sub(r'^\[\d+\]\s*(user|group):\s*', '', match.group(1).strip())
-            clean_entity = clean_entity.replace('OPTIMALGROUP\\', '').strip()
-            if not clean_entity:
-                continue
-            for emp in employee_list:
-                if clean_entity.lower() in emp.lower() or emp.lower() in clean_entity.lower():
-                    matched_employees.append(f"{emp} ({match.group(2).strip()})")
-        return share, acl_tags, list(set(matched_employees))
+        tags, matched = parse_synoacl_output(raw, employee_list)
+        return share, tags, matched
     except Exception:
         return share, [], []
 
 
 @st.cache_data(ttl=1800)
 def load_nas_data():
-    """โหลดข้อมูล NAS โดยเลือก API ก่อน ถ้ามี NAS_BASE_URL, ไม่งั้นใช้ SSH แบบเดิม"""
+    """โหลดข้อมูล NAS โดยเลือก NAS Agent ก่อน แล้ว fallback เป็น DSM API หรือ SSH"""
+    if _nas_agent_enabled():
+        try:
+            return load_nas_data_agent()
+        except Exception as e:
+            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS Agent ได้: {e}")
+            # ถ้า Agent ล้ม แต่ DSM API ยังใช้ได้ ให้แสดงรายชื่อ Share ก่อน
+            if _nas_api_enabled():
+                try:
+                    return load_nas_data_api()
+                except Exception as api_e:
+                    st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {api_e}")
+                    return None
+            return None
+
     if _nas_api_enabled():
         try:
             return load_nas_data_api()
