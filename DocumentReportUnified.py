@@ -925,14 +925,19 @@ def parse_synoacl_output(raw, employee_list=None):
         kind = m.group(1).lower()
         principal_name = _clean_nas_principal(m.group(2))
         action = m.group(3).lower()
-        perm_blob = m.group(4).lower()
+        # ห้าม lower() permission blob เพราะตัวพิมพ์เล็ก/ใหญ่ของ synoacltool มีความหมายต่างกัน
+        # ตัวอย่าง Read-only มักมี r/x/a/R/c ซึ่งเดิมโดนจับเป็น RW เพราะมีตัว a
+        # จึงนับเป็น Read/Write เฉพาะสิทธิ์ที่เกี่ยวกับการเขียนจริง ๆ เท่านั้น
+        perm_blob = m.group(4).strip()
 
         if not principal_name:
             continue
 
+        writable_flags = set("wpdDWA")
+
         if action == "deny":
             permission = "Deny"
-        elif ("w" in perm_blob) or ("d" in perm_blob) or ("a" in perm_blob):
+        elif any(ch in perm_blob for ch in writable_flags):
             permission = "Read/Write"
         else:
             permission = "Read"
@@ -3817,8 +3822,9 @@ else:
                 with ex2:
                     st.download_button(
                         "📊 Export Excel",
-                        excel_buf.getvalue(),
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        data=excel_buf.getvalue(),
+                        file_name="nas_acl_report.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True
                     )
             else:
