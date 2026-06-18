@@ -345,7 +345,7 @@ NAS_AGENT_MODE = st.secrets.get("NAS_AGENT_MODE", "agent" if NAS_AGENT_URL else 
 
 MAX_THREADS = 6
 NAS_TIMEOUT = int(st.secrets.get("NAS_TIMEOUT", 30))
-SYNOACL_PATH = "/usr/syno/bin/synoacltool"
+SYNOACL_PATH = ""  # Deprecated: Streamlit ไม่เรียก synoacltool เองแล้ว ใช้ NAS Agent แทน
 
 # Password File Config
 SHAREPOINT_FOLDER = "Update IT documents"
@@ -819,19 +819,33 @@ def load_nas_data_api():
 
 
 def nas_agent_health():
-    """ตรวจสอบ NAS Local API Agent"""
+    """ตรวจสอบ NAS Local API Agent และยืนยันว่าเป็นเวอร์ชัน SSH"""
     if not NAS_AGENT_URL:
         raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
 
-    resp = requests.get(f"{NAS_AGENT_URL}/health", timeout=NAS_TIMEOUT)
+    resp = requests.get(
+        f"{NAS_AGENT_URL}/health",
+        timeout=NAS_TIMEOUT,
+        headers={"Cache-Control": "no-cache"},
+        params={"_": datetime.datetime.now().timestamp()},
+    )
     data = _safe_json_response(resp, "NAS Agent /health")
+
     if data.get("status") != "ok":
         raise Exception(f"NAS Agent health failed: {data}")
+
+    service_name = str(data.get("service", ""))
+    if service_name and service_name != "nas-agent-ssh":
+        raise Exception(
+            "NAS Agent ยังเป็นเวอร์ชันเก่า "
+            f"(service={service_name}) — กรุณา restart/recreate container ให้เป็น nas-agent-ssh"
+        )
+
     return data
 
 
 def nas_agent_get_acl_raw(share):
-    """ดึง Raw ACL จาก NAS Agent ซึ่งรัน synoacltool บน NAS"""
+    """ดึง Raw ACL จาก NAS Agent SSH ซึ่งสั่ง synoacltool บน NAS Host"""
     if not NAS_AGENT_URL:
         raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
     if not NAS_AGENT_TOKEN:
@@ -839,19 +853,48 @@ def nas_agent_get_acl_raw(share):
 
     resp = requests.get(
         f"{NAS_AGENT_URL}/acl",
-        params={"share": share},
-        headers={"X-API-Token": NAS_AGENT_TOKEN},
+        params={
+            "share": share,
+            "_": datetime.datetime.now().timestamp(),  # กัน cache ระหว่างแก้ Agent
+        },
+        headers={
+            "X-API-Token": NAS_AGENT_TOKEN,
+            "Cache-Control": "no-cache",
+        },
         timeout=NAS_TIMEOUT,
     )
+
     data = _safe_json_response(resp, f"NAS Agent /acl share={share}")
 
     if resp.status_code != 200:
-        raise Exception(f"NAS Agent /acl HTTP {resp.status_code}: {data}")
+        detail = data.get("detail", data) if isinstance(data, dict) else data
+
+        if isinstance(detail, str) and "libsynocore.so" in detail:
+            raise Exception(
+                "NAS Agent ตัวที่ถูกเรียกยังเป็นเวอร์ชันเก่าที่รัน synoacltool ใน Docker โดยตรง "
+                "ให้ตรวจ /health ต้องได้ service=nas-agent-ssh และกด Refresh/Clear cache ใน Streamlit"
+            )
+
+        raise Exception(f"NAS Agent /acl HTTP {resp.status_code}: {detail}")
 
     if data.get("returncode", 0) not in (0, None):
-        raise Exception(f"synoacltool failed for {share}: {data.get('stderr', '')}")
+        raise Exception(
+            f"synoacltool failed for {share}: "
+            f"{data.get('stderr', '') or data.get('stdout', '') or data}"
+        )
 
     return data.get("stdout") or data.get("acl") or ""
+
+
+def _clean_nas_principal(entity):
+    """ล้างชื่อ user/group จาก synoacltool เช่น [0] user:OPTIMALGROUP\\IT"""
+    entity = str(entity or "").strip()
+    entity = re.sub(r'^\[\d+\]\s*', '', entity)
+    entity = re.sub(r'^(user|group):\s*', '', entity, flags=re.I)
+    entity = entity.replace('OPTIMALGROUP\\\\', '')
+    entity = entity.replace('OPTIMALGROUP\\', '')
+    entity = entity.strip()
+    return entity
 
 
 def parse_synoacl_output(raw, employee_list=None):
@@ -868,29 +911,35 @@ def parse_synoacl_output(raw, employee_list=None):
         if not line:
             continue
 
-        # รองรับรูปแบบ synoacltool เช่น:
-        # [0] user:OPTIMALGROUP\\Name:allow:rwxpdDaARWc--:fd--  หรือ variants อื่น ๆ
-        if "allow" not in line and "deny" not in line:
+        # ตัวอย่าง:
+        # [0] user:ActiveBackup:allow:rwxpdDaARWc--:fd-- (level:0)
+        # [4] group:OPTIMALGROUP\Domain Admins:allow:rwxpdDaARWc--:fd-- (level:0)
+        m = re.search(
+            r'(?:\[\d+\]\s*)?(user|group):(.+?):(allow|deny):([^:\s]+)',
+            line,
+            flags=re.I,
+        )
+        if not m:
             continue
 
-        parts = line.split(":")
-        if len(parts) < 4:
-            continue
+        kind = m.group(1).lower()
+        principal_name = _clean_nas_principal(m.group(2))
+        action = m.group(3).lower()
+        perm_blob = m.group(4).lower()
 
-        principal = ":".join(parts[:2]).strip()
-        action = parts[2].strip().lower() if len(parts) > 2 else ""
-        perm_blob = parts[3].strip().lower() if len(parts) > 3 else ""
+        if not principal_name:
+            continue
 
         if action == "deny":
             permission = "Deny"
-        elif "w" in perm_blob or "d" in perm_blob or "a" in perm_blob:
+        elif ("w" in perm_blob) or ("d" in perm_blob) or ("a" in perm_blob):
             permission = "Read/Write"
         else:
             permission = "Read"
 
-        acl_entries.append(f"{principal} ({permission})")
+        acl_entries.append(f"{kind}:{principal_name} ({permission})")
 
-    acl_tags = sorted(set(acl_entries))
+    acl_tags = sorted(set(acl_entries), key=lambda x: x.lower())
 
     matched_employees = []
     for entry in acl_tags:
@@ -898,10 +947,7 @@ def parse_synoacl_output(raw, employee_list=None):
         if not match:
             continue
 
-        clean_entity = re.sub(r'^\[\d+\]\s*(user|group):\s*', '', match.group(1).strip())
-        clean_entity = clean_entity.replace('OPTIMALGROUP\\', '').strip()
-        clean_entity = clean_entity.replace('OPTIMALGROUP\\\\', '').strip()
-
+        clean_entity = _clean_nas_principal(match.group(1))
         if not clean_entity:
             continue
 
@@ -912,7 +958,7 @@ def parse_synoacl_output(raw, employee_list=None):
             if clean_entity.lower() in emp_text.lower() or emp_text.lower() in clean_entity.lower():
                 matched_employees.append(f"{emp_text} ({match.group(2).strip()})")
 
-    return acl_tags, sorted(set(matched_employees))
+    return acl_tags, sorted(set(matched_employees), key=lambda x: x.lower())
 
 
 def fetch_acl_agent(share, employee_list):
@@ -946,8 +992,8 @@ def load_nas_data_agent():
             share, tags, matched_emps = future.result()
             data.append({
                 "Share": share,
-                "ACL Tags (Raw)": ", ".join(sorted(tags)),
-                "Matched Employees": ", ".join(sorted(matched_emps)),
+                "ACL Tags (Raw)": ", ".join(sorted(tags, key=lambda x: x.lower())),
+                "Matched Employees": ", ".join(sorted(matched_emps, key=lambda x: x.lower())),
             })
 
     return pd.DataFrame(data).sort_values("Share")
@@ -996,9 +1042,9 @@ def run_command(ssh, cmd):
 def check_synoacl():
     try:
         ssh = create_ssh()
-        output, _ = run_command(ssh, f"ls {SYNOACL_PATH}")
+        output, _ = run_command(ssh, "ls /usr/syno/bin/synoacltool")
         ssh.close()
-        return SYNOACL_PATH in output
+        return "/usr/syno/bin/synoacltool" in output
     except Exception as e:
         st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน SSH ได้: {e}")
         return False
@@ -1017,7 +1063,7 @@ def get_shares():
 def fetch_acl(share, employee_list):
     try:
         ssh = create_ssh()
-        raw, _ = run_command(ssh, f"{SYNOACL_PATH} -get /volume1/{share}")
+        raw, _ = run_command(ssh, f"/usr/syno/bin/synoacltool -get /volume1/{share}")
         ssh.close()
         if not raw:
             return share, [], []
@@ -1067,6 +1113,13 @@ def load_nas_data():
 
 def get_nas_connection_status():
     """ใช้แสดงสถานะ NAS แบบสั้น ๆ ใน Dashboard/หน้า NAS"""
+    if _nas_agent_enabled():
+        try:
+            health = nas_agent_health()
+            return True, f"NAS Agent Connected: {NAS_AGENT_URL} ({health.get('service', '-')})"
+        except Exception as e:
+            return False, f"NAS Agent Failed: {e}"
+
     if _nas_api_enabled():
         try:
             synology_api_info()
@@ -2679,7 +2732,6 @@ else:
        
         
         active = st.session_state.active_nav == nav_key
-        st.sidebar.write(nav_key, active)
         prefix = "      " if sub and not compact else ""
 
         val = nav_badges.get(badge_key, 0) if badge_key else None
@@ -3586,13 +3638,7 @@ else:
 
                         if m:
 
-                            entity = re.sub(
-                                r'^\[\d+\]\s*(user|group):',
-                                '',
-                                m.group(1).strip()
-                            )
-
-                            entity = entity.replace('OPTIMALGROUP\\\\', '').strip()
+                            entity = _clean_nas_principal(m.group(1))
 
                             permission = m.group(2)
 
@@ -3628,7 +3674,7 @@ else:
                                 for item in [t.strip() for t in raw.split(',')]:
                                     m = re.search(r"^(.*?)\s*\((Read(?:/Write)?)\)", item)
                                     if m:
-                                        e = re.sub(r'^\[\d+\]\s*(user|group):\s*', '', m.group(1).strip()).replace('OPTIMALGROUP\\', '').strip()
+                                        e = _clean_nas_principal(m.group(1))
                                         if e:
                                             parsed.append({
                                                 "Entity": e,
@@ -3692,13 +3738,7 @@ else:
                     if not m:
                         continue
 
-                    entity = re.sub(
-                        r'^\[\d+\]\s*(user|group):\s*',
-                        '',
-                        m.group(1).strip()
-                    )
-
-                    entity = entity.replace('OPTIMALGROUP\\\\', '').strip()
+                    entity = _clean_nas_principal(m.group(1))
                     permission = m.group(2)
 
                     if search_term:
