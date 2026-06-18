@@ -314,10 +314,26 @@ AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 GRAPH_URL = "https://graph.microsoft.com/v1.0"
 
 # NAS Config
+# -----------------------------------------------------------------------------
+# โหมดเดิม: SSH เข้า NAS โดยตรง (ใช้ได้เฉพาะกรณี NAS เปิด SSH จากภายนอก/VPN)
+# โหมดใหม่: Synology DSM API ผ่าน Cloudflare Tunnel
+#
+# แนะนำสำหรับ Streamlit Cloud:
+# NAS_BASE_URL = "https://nas-api.poonyaruk.co.th"
+# NAS_USER     = "ชื่อผู้ใช้ NAS"
+# NAS_PASSWORD = "รหัสผ่าน NAS"
+# NAS_MODE     = "api"
+# -----------------------------------------------------------------------------
 NAS_IP = st.secrets.get("NAS_IP", "")
 NAS_PORT = int(st.secrets.get("NAS_PORT", 22))        # รองรับ SSH port custom เช่น 2222
 SSH_USER = st.secrets.get("SSH_USER", "")
 SSH_PWD = st.secrets.get("SSH_PWD", "")
+
+NAS_BASE_URL = st.secrets.get("NAS_BASE_URL", st.secrets.get("NAS_URL", "")).rstrip("/")
+NAS_USER = st.secrets.get("NAS_USER", SSH_USER)
+NAS_PASSWORD = st.secrets.get("NAS_PASSWORD", SSH_PWD)
+NAS_MODE = st.secrets.get("NAS_MODE", "api" if NAS_BASE_URL else "ssh").lower().strip()
+
 MAX_THREADS = 6
 NAS_TIMEOUT = int(st.secrets.get("NAS_TIMEOUT", 30))
 SYNOACL_PATH = "/usr/syno/bin/synoacltool"
@@ -654,20 +670,152 @@ def upload_password_excel(drive_id, sheets_dict):
     return upload_res.status_code in (200, 201)
 
 # =============================================================================
-# SECTION 06 : NAS & SSH
-# เชื่อมต่อ Synology NAS และตรวจสอบสิทธิ์ Folder
+# SECTION 06 : NAS CONNECTOR
+# เชื่อมต่อ Synology NAS ได้ 2 แบบ
+#   1) Synology DSM API ผ่าน Cloudflare Tunnel  ← แนะนำสำหรับ Streamlit Cloud
+#   2) SSH แบบเดิม                                ← ใช้เมื่อเปิด SSH/VPN เท่านั้น
 # =============================================================================
+
+def _nas_api_enabled():
+    """คืนค่า True เมื่อกำหนด NAS_BASE_URL หรือ NAS_MODE=api ใน secrets"""
+    return NAS_MODE == "api" or bool(NAS_BASE_URL)
+
+
+def _safe_json_response(resp, context="NAS API"):
+    """แปลง Response เป็น JSON พร้อม Error ที่อ่านง่าย"""
+    try:
+        return resp.json()
+    except Exception:
+        preview = resp.text[:300] if getattr(resp, "text", None) else ""
+        raise Exception(f"{context} ไม่ได้ตอบกลับเป็น JSON | HTTP {resp.status_code} | {preview}")
+
+
+def synology_api_info():
+    """ทดสอบว่า Synology WebAPI ผ่าน Cloudflare Tunnel ใช้งานได้หรือไม่"""
+    if not NAS_BASE_URL:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_BASE_URL ใน Streamlit secrets")
+
+    resp = requests.get(
+        f"{NAS_BASE_URL}/webapi/query.cgi",
+        params={
+            "api": "SYNO.API.Info",
+            "version": "1",
+            "method": "query",
+            "query": "all",
+        },
+        timeout=NAS_TIMEOUT,
+    )
+    data = _safe_json_response(resp, "SYNO.API.Info")
+    if not data.get("success"):
+        raise Exception(f"SYNO.API.Info failed: {data}")
+    return data
+
+
+def synology_login(session="FileStation"):
+    """Login DSM API แล้วคืนค่า SID"""
+    if not NAS_BASE_URL:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_BASE_URL ใน Streamlit secrets")
+    if not NAS_USER or not NAS_PASSWORD:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_USER / NAS_PASSWORD ใน Streamlit secrets")
+
+    resp = requests.get(
+        f"{NAS_BASE_URL}/webapi/auth.cgi",
+        params={
+            "api": "SYNO.API.Auth",
+            "version": "7",
+            "method": "login",
+            "account": NAS_USER,
+            "passwd": NAS_PASSWORD,
+            "session": session,
+            "format": "sid",
+        },
+        timeout=NAS_TIMEOUT,
+    )
+    data = _safe_json_response(resp, "SYNO.API.Auth")
+    if not data.get("success"):
+        raise Exception(f"NAS API Login failed: {data}")
+    return data.get("data", {}).get("sid", "")
+
+
+def synology_logout(sid, session="FileStation"):
+    """Logout DSM API แบบ best-effort"""
+    if not sid or not NAS_BASE_URL:
+        return
+    try:
+        requests.get(
+            f"{NAS_BASE_URL}/webapi/auth.cgi",
+            params={
+                "api": "SYNO.API.Auth",
+                "version": "7",
+                "method": "logout",
+                "session": session,
+                "_sid": sid,
+            },
+            timeout=10,
+        )
+    except Exception:
+        pass
+
+
+def synology_get_shares_api():
+    """ดึงรายชื่อ Shared Folder ผ่าน Synology FileStation API"""
+    sid = synology_login("FileStation")
+    try:
+        resp = requests.get(
+            f"{NAS_BASE_URL}/webapi/entry.cgi",
+            params={
+                "api": "SYNO.FileStation.List",
+                "version": "2",
+                "method": "list_share",
+                "_sid": sid,
+            },
+            timeout=NAS_TIMEOUT,
+        )
+        data = _safe_json_response(resp, "SYNO.FileStation.List")
+        if not data.get("success"):
+            raise Exception(f"list_share failed: {data}")
+
+        shares = []
+        for item in data.get("data", {}).get("shares", []):
+            name = item.get("name") or item.get("path", "").strip("/")
+            if name and not name.startswith("@"):
+                shares.append(name)
+        return sorted(set(shares))
+    finally:
+        synology_logout(sid, "FileStation")
+
+
+def load_nas_data_api():
+    """
+    โหลดข้อมูล NAS ผ่าน DSM API สำหรับ Streamlit Cloud
+
+    หมายเหตุ:
+    - DSM API อ่านรายชื่อ Shared Folder ได้ผ่าน FileStation API
+    - สิทธิ์ ACL แบบละเอียดจาก synoacltool ยังเป็นคำสั่งระดับระบบของ Synology
+      จึงต้องใช้ SSH ถ้าต้องการ Raw ACL ราย user/group แบบเดิม
+    - โหมด API นี้ทำให้หน้า NAS ไม่ timeout บน Streamlit Cloud และพร้อมต่อยอด API อื่น ๆ
+    """
+    synology_api_info()
+    shares = synology_get_shares_api()
+
+    rows = []
+    for share in shares:
+        rows.append({
+            "Share": share,
+            "ACL Tags (Raw)": "เชื่อมต่อผ่าน DSM API สำเร็จ — อ่าน Raw ACL ต้องใช้ SSH/synoacltool",
+            "Matched Employees": "",
+        })
+
+    return pd.DataFrame(rows, columns=["Share", "ACL Tags (Raw)", "Matched Employees"]).sort_values("Share")
+
+
 def create_ssh():
     """
     สร้าง SSH Connection ไปยัง Synology NAS
 
-    รองรับ:
-    - Custom SSH Port
-    - Timeout จาก secrets.toml
-    - แสดง Error ที่อ่านง่ายสำหรับ Streamlit Cloud
-
-    ใช้งาน:
-    Streamlit Cloud -> NAS SSH
+    ใช้เฉพาะกรณี:
+    - NAS เปิด SSH ผ่าน VPN/Port Forward/Cloudflare Access TCP แล้ว
+    - ต้องการอ่าน ACL ผ่าน synoacltool แบบละเอียด
     """
 
     ssh = paramiko.SSHClient()
@@ -692,12 +840,14 @@ def create_ssh():
             f"Host={NAS_IP} Port={NAS_PORT} | {str(e)}"
         )
 
+
 def run_command(ssh, cmd):
     full_cmd = f"sudo -S {cmd}"
     stdin, stdout, stderr = ssh.exec_command(full_cmd)
     stdin.write(SSH_PWD + "\n")
     stdin.flush()
     return stdout.read().decode('utf-8', errors='ignore'), stderr.read().decode('utf-8', errors='ignore')
+
 
 def check_synoacl():
     try:
@@ -706,8 +856,9 @@ def check_synoacl():
         ssh.close()
         return SYNOACL_PATH in output
     except Exception as e:
-        st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ได้: {e}")
+        st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน SSH ได้: {e}")
         return False
+
 
 def get_shares():
     try:
@@ -715,8 +866,9 @@ def get_shares():
         output, _ = run_command(ssh, "ls /volume1")
         ssh.close()
         return [l.strip() for l in output.splitlines() if l.strip() and not l.startswith("@")]
-    except:
+    except Exception:
         return []
+
 
 def fetch_acl(share, employee_list):
     try:
@@ -746,11 +898,20 @@ def fetch_acl(share, employee_list):
                 if clean_entity.lower() in emp.lower() or emp.lower() in clean_entity.lower():
                     matched_employees.append(f"{emp} ({match.group(2).strip()})")
         return share, acl_tags, list(set(matched_employees))
-    except Exception as e:
+    except Exception:
         return share, [], []
+
 
 @st.cache_data(ttl=1800)
 def load_nas_data():
+    """โหลดข้อมูล NAS โดยเลือก API ก่อน ถ้ามี NAS_BASE_URL, ไม่งั้นใช้ SSH แบบเดิม"""
+    if _nas_api_enabled():
+        try:
+            return load_nas_data_api()
+        except Exception as e:
+            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {e}")
+            return None
+
     if not check_synoacl():
         return None
     df_emp = load_sp_data("Employees")
@@ -763,6 +924,22 @@ def load_nas_data():
             share, tags, matched_emps = future.result()
             data.append({"Share": share, "ACL Tags (Raw)": ", ".join(sorted(tags)), "Matched Employees": ", ".join(sorted(matched_emps))})
     return pd.DataFrame(data).sort_values("Share")
+
+
+def get_nas_connection_status():
+    """ใช้แสดงสถานะ NAS แบบสั้น ๆ ใน Dashboard/หน้า NAS"""
+    if _nas_api_enabled():
+        try:
+            synology_api_info()
+            return True, f"DSM API Connected: {NAS_BASE_URL}"
+        except Exception as e:
+            return False, f"DSM API Failed: {e}"
+    try:
+        ssh = create_ssh()
+        ssh.close()
+        return True, f"SSH Connected: {NAS_IP}:{NAS_PORT}"
+    except Exception as e:
+        return False, str(e)
 
 # =============================================================================
 # SECTION 07 : CARD RENDER
