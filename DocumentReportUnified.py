@@ -4585,29 +4585,31 @@ else:
 
         st.markdown("""
         <style>
-        .dash-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;
-            min-height:174px;padding:30px 34px;margin-bottom:20px;border-radius:26px;color:#FFF;
-            background:linear-gradient(125deg,#172554 0%,#3730A3 53%,#7C3AED 100%);
-            box-shadow:0 20px 50px rgba(49,46,129,.20)}
-        .dash-hero:after{content:'';position:absolute;width:330px;height:330px;right:-80px;bottom:-230px;border-radius:50%;background:rgba(56,189,248,.18)}
-        .dash-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#BAE6FD;margin-bottom:10px}
-        .dash-title{font-size:clamp(1.65rem,2.5vw,2.25rem);font-weight:850;letter-spacing:-.045em;line-height:1.12}
-        .dash-subtitle{margin-top:9px;font-size:.9rem;color:rgba(255,255,255,.70)}
-        .dash-date{position:relative;z-index:1;flex:0 0 auto;padding:10px 14px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.09);font-size:.76rem;font-weight:650;color:rgba(255,255,255,.82)}
+        .dash-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;
+            min-height:112px;padding:23px 26px;margin-bottom:20px;border-radius:20px;color:#0F172A;
+            background:linear-gradient(135deg,#FFFFFF 0%,#FBFCFF 72%,#F5F3FF 100%);
+            border:1px solid #E2E8F0;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+        .dash-hero:before{content:'';position:absolute;left:0;top:22px;bottom:22px;width:4px;border-radius:0 6px 6px 0;background:linear-gradient(#6366F1,#8B5CF6)}
+        .dash-eyebrow{font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6366F1;margin-bottom:7px}
+        .dash-title{font-size:clamp(1.35rem,2vw,1.7rem);font-weight:850;letter-spacing:-.04em;line-height:1.15}
+        .dash-subtitle{margin-top:6px;font-size:.82rem;color:#64748B}
+        .dash-date{position:relative;z-index:1;flex:0 0 auto;padding:9px 12px;border:1px solid #DDE3EE;border-radius:999px;background:#FFF;font-size:.72rem;font-weight:700;color:#475569;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+        .dash-date:before{content:'';display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.12)}
         .dash-section{display:flex;align-items:center;justify-content:space-between;margin:24px 0 10px}
         .dash-section-title{font-size:.95rem;font-weight:800;color:#1E293B;letter-spacing:-.01em}
         .dash-section-note{font-size:.72rem;color:#94A3B8}
-        .dash-kpi{min-height:138px;padding:19px;border:1px solid #E2E8F0;border-radius:20px;background:linear-gradient(180deg,#FFF,#FBFCFF);box-shadow:0 10px 28px rgba(15,23,42,.05)}
+        .dash-kpi{min-height:126px;padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045)}
         .dash-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
         .dash-kpi-label{font-size:.69rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#64748B}
         .dash-kpi-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:1rem}
-        .dash-kpi-value{margin-top:14px;font-size:2rem;font-weight:850;letter-spacing:-.055em;color:#0F172A;line-height:1}
+        .dash-kpi-value{margin-top:12px;font-size:1.85rem;font-weight:850;letter-spacing:-.055em;color:#0F172A;line-height:1}
         .dash-kpi-caption{margin-top:8px;font-size:.72rem;color:#94A3B8}
-        .dash-module{min-height:128px;padding:17px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-        .dash-module-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-        .dash-module-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:#EEF2FF;font-size:1.08rem}
-        .dash-module-count{font-size:1.7rem;font-weight:850;letter-spacing:-.04em;color:#0F172A}
-        .dash-module-name{margin-top:14px;font-size:.78rem;font-weight:750;color:#475569}
+        .attention-card{height:100%;min-height:345px;padding:22px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045)}
+        .attention-title{font-size:.92rem;font-weight:850;color:#1E293B}.attention-sub{margin-top:4px;font-size:.72rem;color:#94A3B8}
+        .attention-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid #EEF2F7}
+        .attention-item:last-child{border-bottom:0}.attention-label{font-size:.78rem;font-weight:700;color:#475569}.attention-note{margin-top:3px;font-size:.68rem;color:#94A3B8}
+        .attention-value{min-width:38px;height:30px;display:flex;align-items:center;justify-content:center;padding:0 9px;border-radius:999px;font-size:.78rem;font-weight:850}
+        .attention-ok{margin-top:16px;padding:12px;border-radius:12px;background:#ECFDF5;color:#047857;font-size:.73rem;font-weight:700}
         @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
         </style>
         """, unsafe_allow_html=True)
@@ -4680,35 +4682,9 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # ── Clean Enterprise Module Launcher ──
-        st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">ทางลัดเข้าสู่โมดูลที่ใช้งานบ่อย</div></div>', unsafe_allow_html=True)
-        _launcher = ([
-            ("computers", "💻", "Asset Center", f"ดูแลสินทรัพย์ {_total_assets:,} รายการในระบบ"),
-            ("ad_policy", "🌐", "AD / Firewall", "ค้นหา Internet Policy และ Group Membership"),
-            ("user_perm", "📂", "NAS Permission", f"ตรวจสอบสิทธิ์การเข้าถึง {_nas_count:,} Shares"),
-        ] if admin_mode else [
-            ("computers", "💻", "Computers", "จัดการรายการคอมพิวเตอร์และผู้ใช้งาน"),
-            ("monitors", "🖥️", "Monitors", "ตรวจสอบจอภาพและสถานะการใช้งาน"),
-            ("printers", "🖨️", "Printers", "รายการเครื่องพิมพ์และ IP Address"),
-        ])
-        _launch_cols = st.columns(3, gap="medium")
-        for _i, (_key, _icon, _title, _desc) in enumerate(_launcher):
-            with _launch_cols[_i % 3]:
-                st.markdown(f'''
-                <div class="ov-card" style="min-height:142px;">
-                    <div class="ov-card-top">
-                        <div class="ov-card-icon" style="background:#EEF2FF;">{_icon}</div>
-                        <span class="ov-card-label">MODULE</span>
-                    </div>
-                    <div style="font-size:1.05rem;font-weight:850;color:#0F172A;margin-bottom:6px;">{_title}</div>
-                    <div style="font-size:.82rem;color:#64748B;line-height:1.5;min-height:40px;">{_desc}</div>
-                </div>
-                ''', unsafe_allow_html=True)
-                if st.button(f"เปิด {_title}", key=f"quick_{_key}", use_container_width=True):
-                    st.session_state.active_nav = _key
-                    st.rerun()
-
         # ── Ink low-stock alert ──
+        low_ink = df_ink.iloc[0:0] if df_ink is not None else None
+        low_str = "ไม่มีรายการ"
         if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
             def _toi2(v):
                 try: return int(v)
@@ -4717,10 +4693,11 @@ else:
                 lambda r: _toi2(r.get("Quantity", 0)) <= _toi2(r.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
             )]
             if not low_ink.empty:
-                low_str = "  ·  ".join(f"{r.get('Title','?')} ({r.get('Color','-')})" for _, r in low_ink.iterrows())
-                st.warning(f"⚠️ **หมึกพิมพ์ใกล้หมด/หมด:** {low_str}")
+                low_str = " · ".join(
+                    f"{r.get('Title','?')} ({r.get('Color','-')})" for _, r in low_ink.head(3).iterrows()
+                )
 
-        st.markdown('<div style="font-size:0.8rem;font-weight:700;color:#64748b;letter-spacing:0.5px;text-transform:uppercase;padding:16px 0 8px;border-bottom:1px solid #e8eaf0;margin-bottom:8px;">📈 สถิติการใช้งาน</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Overview & Attention</div><div class="dash-section-note">เฉพาะข้อมูลที่ช่วยตัดสินใจและต้องดำเนินการ</div></div>', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -4761,37 +4738,34 @@ else:
                     st.plotly_chart(fig, use_container_width=True, config= {'displayModeBar': False})
                     st.markdown('<div style="background:#f8f9fc;border-radius:8px;padding:8px 12px;font-size:0.75rem;color:#94a3b8;">ℹ️ แสดงสัดส่วนจำนวนอุปกรณ์ทั้งหมด จำแนกตามบริษัท</div>', unsafe_allow_html=True)
         with col2:
-            with st.container():
-                st.markdown("**🏆 10 อันดับรุ่นคอมพิวเตอร์**")
-                if not df_comp.empty and 'field_7' in df_comp.columns:
-                    mc = df_comp['field_7'].value_counts().head(10).reset_index()
-                    mc.columns = ['Model', 'Count']
-                    fig2 = px.bar(mc, x='Count', y='Model', orientation='h',
-                                  color='Count', color_continuous_scale=[[0,'#c4b5fd'],[0.5,'#8b6cf7'],[1,'#5b7ff5']])
-                    fig2.update_layout(
-                        margin=dict(t=10,b=40,l=10,r=40), height=300,
-                        yaxis= {'categoryorder': 'total ascending', 'title': 'Model',
-                               'title_font': dict(size=11, color='#9ca3af'),
-                               'tickfont': dict(size=11, color='#6b7280')},
-                        xaxis=dict(
-                            title='จำนวน (เครื่อง)',
-                            title_font=dict(size=11, color='#9ca3af'),
-                            tickfont=dict(size=11, color='#9ca3af'),
-                            showgrid=True, gridcolor='#f1f5f9',
-                        ),
-                        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                        coloraxis_showscale=False,
-                        font=dict(family='IBM Plex Sans Thai'),
-                        bargap=0.28,
-                    )
-                    fig2.update_traces(
-                        marker_line_width=0,
-                        text=mc['Count'],
-                        textposition='outside',
-                        textfont=dict(size=11, color='#374151'),
-                    )
-                    st.plotly_chart(fig2, use_container_width=True, config= {'displayModeBar': False})
-                    st.markdown('<div style="background:#f8f9fc;border-radius:8px;padding:8px 12px;font-size:0.75rem;color:#94a3b8;">ℹ️ จัดอันดับตามจำนวนเครื่องมากที่สุด</div>', unsafe_allow_html=True)
+            _active_rate = round((_active_assets / _total_assets) * 100) if _total_assets else 0
+            _health_message = (
+                '<div class="attention-ok">✓ ไม่มีรายการเร่งด่วน ระบบอยู่ในสถานะปกติ</div>'
+                if _attention_assets == 0 and _low_ink_count == 0 else ''
+            )
+            st.markdown(f"""
+            <div class="attention-card">
+                <div class="attention-title">รายการที่ต้องดำเนินการ</div>
+                <div class="attention-sub">สรุปเฉพาะสิ่งที่ควรตรวจสอบในวันนี้</div>
+                <div class="attention-item">
+                    <div><div class="attention-label">อุปกรณ์ผิดปกติ</div><div class="attention-note">Inactive หรืออยู่ระหว่างซ่อม</div></div>
+                    <div class="attention-value" style="background:#FFF7ED;color:#C2410C;">{_attention_assets}</div>
+                </div>
+                <div class="attention-item">
+                    <div><div class="attention-label">หมึกต่ำกว่ากำหนด</div><div class="attention-note">{low_str}</div></div>
+                    <div class="attention-value" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div>
+                </div>
+                <div class="attention-item">
+                    <div><div class="attention-label">Asset Health</div><div class="attention-note">อัตราสินทรัพย์ที่พร้อมใช้งาน</div></div>
+                    <div class="attention-value" style="background:#ECFDF5;color:#047857;">{_active_rate}%</div>
+                </div>
+                <div class="attention-item">
+                    <div><div class="attention-label">NAS Coverage</div><div class="attention-note">Shared folders ที่อยู่ในการติดตาม</div></div>
+                    <div class="attention-value" style="background:#EEF2FF;color:#4F46E5;">{_nas_count}</div>
+                </div>
+                {_health_message}
+            </div>
+            """, unsafe_allow_html=True)
 
     
     # -------------------------------------------------------
