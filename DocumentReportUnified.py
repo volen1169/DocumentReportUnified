@@ -3026,6 +3026,19 @@ if not st.session_state.is_auth:
 </style>
     """, unsafe_allow_html=True)
 
+    # V5 login polish — same indigo / purple / sky palette as the application.
+    st.markdown("""
+    <style>
+    [data-testid="stMainBlockContainer"]{max-width:1160px!important;padding:clamp(2rem,7vh,5rem) 1rem 3rem!important}
+    [data-testid="stAppViewContainer"]{background:radial-gradient(circle at 8% 8%,rgba(56,189,248,.26),transparent 28rem),radial-gradient(circle at 92% 88%,rgba(139,92,246,.23),transparent 31rem),linear-gradient(145deg,#EFF8FF,#EEF2FF 48%,#F5F3FF)!important}
+    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:rgba(255,255,255,.82)!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:28px!important;padding:clamp(1.6rem,4vw,2.8rem)!important;box-shadow:0 28px 80px rgba(79,70,229,.16),0 2px 10px rgba(15,23,42,.05)!important;backdrop-filter:blur(22px) saturate(150%)!important}
+    div[data-testid="column"] .stTextInput input{min-height:52px!important;background:#F8FAFC!important;border:1px solid #DDE4F0!important;border-radius:14px!important;color:#0F172A!important;padding:0 16px!important}
+    div[data-testid="column"] .stTextInput input:focus{background:#FFF!important;border-color:#6366F1!important;box-shadow:0 0 0 4px rgba(99,102,241,.12)!important}
+    div[data-testid="column"] [data-testid="stFormSubmitButton"] button{min-height:52px!important;border-radius:14px!important;background:linear-gradient(135deg,#38BDF8,#6366F1 54%,#8B5CF6)!important;box-shadow:0 12px 28px rgba(99,102,241,.27)!important}
+    @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:1rem .75rem!important}div[data-testid="column"]>div[data-testid="stVerticalBlock"]{padding:1.35rem!important;border-radius:22px!important}}
+    </style>
+    """, unsafe_allow_html=True)
+
     _, center_col, _ = st.columns([1, 1.4, 1])
     with center_col:
         st.markdown("""
@@ -3607,6 +3620,56 @@ else:
     """, unsafe_allow_html=True)
 
     # ── helpers ──────────────────────────────────────────────
+    # V5 UNIFIED UI — final visual layer for all authenticated screens.
+    st.markdown("""
+    <style>
+    :root{--brand:#6366F1;--brand-dark:#4F46E5;--violet:#8B5CF6;--sky:#38BDF8;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;--ink:#0F172A;--muted:#64748B;--line:#E2E8F0;--canvas:#F6F8FC;--card:#FFF;--r:18px;--rl:24px;--shadow:0 10px 30px rgba(15,23,42,.055);--shadow-up:0 18px 48px rgba(79,70,229,.12)}
+    html,body,[class*="css"]{font-family:'Inter','IBM Plex Sans Thai','Segoe UI',sans-serif!important;color:var(--ink)}
+    [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:radial-gradient(circle at 90% 0,rgba(99,102,241,.075),transparent 24rem),var(--canvas)!important}
+    [data-testid="stMainBlockContainer"]{max-width:1480px!important;padding:1.65rem clamp(1rem,3vw,2.75rem) 4rem!important}
+    [data-testid="stHeader"]{height:2.2rem!important;background:rgba(246,248,252,.78)!important;backdrop-filter:blur(14px)}
+    [data-testid="stSidebar"]{background:linear-gradient(180deg,#EEF8FF 0%,#EEF2FF 52%,#F3EFFF 100%)!important}
+    [data-testid="stSidebar"] [data-testid="stSidebarContent"]{background:rgba(255,255,255,.76)!important;border-right:1px solid rgba(148,163,184,.22)!important;padding:22px 14px 18px!important;box-shadow:12px 0 40px rgba(79,70,229,.06)!important;backdrop-filter:blur(20px) saturate(145%)!important}
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"]{gap:.35rem!important}
+    [data-testid="stSidebar"] .ref-brand{padding:2px 4px 18px!important;margin:0 0 12px!important;border-bottom:1px solid rgba(148,163,184,.22)!important}
+    [data-testid="stSidebar"] .ref-logo{width:46px!important;height:46px!important;border-radius:15px!important;background:linear-gradient(135deg,var(--sky),var(--brand) 56%,var(--violet))!important;box-shadow:0 10px 24px rgba(99,102,241,.24)!important}
+    [data-testid="stSidebar"] .ref-profile{padding:14px!important;margin:0 2px 15px!important;border:1px solid rgba(148,163,184,.22)!important;border-radius:18px!important;background:rgba(255,255,255,.72)!important;box-shadow:0 8px 24px rgba(15,23,42,.05)!important}
+    [data-testid="stSidebar"] .ref-avatar{width:48px!important;height:48px!important;border-radius:15px!important;background:linear-gradient(135deg,var(--brand),var(--violet))!important}
+    [data-testid="stSidebar"] .nav-section-label{padding:10px 10px 7px!important;color:#94A3B8!important;font-size:.65rem!important;font-weight:800!important;letter-spacing:.14em!important}
+    [data-testid="stSidebar"] .stButton>button{height:46px!important;min-height:46px!important;border:1px solid transparent!important;border-radius:13px!important;padding:0 13px!important;background:transparent!important;color:#334155!important;font-size:.87rem!important;font-weight:650!important;box-shadow:none!important;justify-content:flex-start!important;transition:.18s ease!important}
+    [data-testid="stSidebar"] .stButton>button:hover{background:rgba(255,255,255,.72)!important;color:var(--brand-dark)!important;border-color:rgba(99,102,241,.14)!important;transform:translateX(2px)!important}
+    [data-testid="stSidebar"] .stButton>button[kind="primary"]{background:linear-gradient(135deg,rgba(219,234,254,.96),rgba(237,233,254,.94))!important;color:#4338CA!important;border:1px solid rgba(99,102,241,.18)!important;border-left:3px solid var(--brand)!important;box-shadow:0 8px 20px rgba(79,70,229,.10)!important}
+    [data-testid="stSidebar"] .nav-signout .stButton>button{margin-top:1.25rem!important;height:44px!important;min-height:44px!important;justify-content:center!important;border:1px solid rgba(239,68,68,.14)!important;background:rgba(255,255,255,.58)!important;color:#64748B!important}
+    .page-header,.asset-hero{min-height:132px!important;padding:26px 30px!important;border-radius:var(--rl)!important;background:linear-gradient(125deg,#172554 0%,#312E81 50%,#6D28D9 100%)!important;box-shadow:0 18px 42px rgba(49,46,129,.20)!important;margin-bottom:1.35rem!important;position:relative;overflow:hidden}
+    .page-header:after,.asset-hero:after{content:'';position:absolute;width:260px;height:260px;right:-65px;bottom:-165px;border-radius:50%;background:rgba(56,189,248,.16)}
+    .page-header-icon{width:52px;height:52px;display:flex;align-items:center;justify-content:center;padding:0!important;border-radius:16px!important;background:rgba(255,255,255,.12)!important}
+    .page-header-text h1,.asset-title{font-size:clamp(1.45rem,2vw,1.9rem)!important;font-weight:800!important;letter-spacing:-.035em!important}
+    .page-header-text p,.asset-sub{color:rgba(255,255,255,.72)!important;font-size:.9rem!important}
+    [data-testid="stMetric"],.ov-card,.asset-stat,.asset-card,.nas-folder-badge{background:rgba(255,255,255,.96)!important;border:1px solid var(--line)!important;border-radius:var(--r)!important;box-shadow:var(--shadow)!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+    [data-testid="stMetric"]{padding:1.2rem 1.25rem!important;min-height:116px}
+    [data-testid="stMetric"]:hover,.ov-card:hover,.asset-card:hover{transform:translateY(-3px)!important;box-shadow:var(--shadow-up)!important;border-color:#C7D2FE!important}
+    [data-testid="stMetricLabel"]{color:var(--muted)!important;font-size:.72rem!important;font-weight:800!important;letter-spacing:.08em!important;text-transform:uppercase}
+    [data-testid="stMetricValue"]{color:var(--ink)!important;font-size:1.85rem!important;font-weight:800!important;letter-spacing:-.04em}
+    [data-testid="stMain"] div[data-testid="stVerticalBlockBorderWrapper"]>div{background:var(--card)!important;border:1px solid var(--line)!important;border-radius:var(--r)!important;box-shadow:var(--shadow)!important}
+    .stTextInput input,.stNumberInput input,.stTextArea textarea,.stDateInput input,.stSelectbox div[data-baseweb="select"]>div,.stMultiSelect div[data-baseweb="select"]>div{min-height:46px!important;background:#FFF!important;border:1px solid #D9E1EC!important;border-radius:12px!important;color:var(--ink)!important;box-shadow:0 1px 2px rgba(15,23,42,.02)!important}
+    .stTextInput input:focus,.stNumberInput input:focus,.stTextArea textarea:focus{border-color:var(--brand)!important;box-shadow:0 0 0 4px rgba(99,102,241,.10)!important}
+    label[data-testid="stWidgetLabel"] p{color:#475569!important;font-size:.8rem!important;font-weight:700!important}
+    .stButton>button,.stDownloadButton>button,[data-testid="stFormSubmitButton"]>button{min-height:44px!important;border-radius:12px!important;border:1px solid #D9E1EC!important;background:#FFF!important;color:#334155!important;font-weight:700!important;box-shadow:0 2px 6px rgba(15,23,42,.035)!important;transition:.18s ease!important}
+    .stButton>button:hover,.stDownloadButton>button:hover{border-color:#A5B4FC!important;color:var(--brand-dark)!important;transform:translateY(-1px)!important;box-shadow:0 8px 18px rgba(79,70,229,.10)!important}
+    .stButton>button[kind="primary"],[data-testid="stFormSubmitButton"]>button{background:linear-gradient(135deg,var(--brand-dark),var(--brand) 55%,var(--violet))!important;border-color:transparent!important;color:#FFF!important;box-shadow:0 8px 18px rgba(99,102,241,.22)!important}
+    .stTabs [data-baseweb="tab-list"]{gap:6px;background:#EEF2FF;border-radius:14px;padding:5px;width:max-content;max-width:100%;overflow-x:auto}
+    .stTabs [data-baseweb="tab"]{height:40px;border-radius:10px;padding:0 16px;color:#64748B;font-weight:700}
+    .stTabs [aria-selected="true"]{background:#FFF!important;color:var(--brand-dark)!important;box-shadow:0 3px 10px rgba(15,23,42,.08)!important}
+    .stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none!important}
+    [data-testid="stAlert"]{border-radius:14px!important;border:1px solid rgba(99,102,241,.14)!important;box-shadow:none!important}
+    [data-testid="stDataFrame"],div[data-testid="stTable"]{border:1px solid var(--line)!important;border-radius:16px!important;overflow:hidden!important;background:#FFF!important;box-shadow:var(--shadow)!important}
+    [data-testid="stPlotlyChart"]{background:#FFF;border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:var(--shadow);overflow:hidden}
+    [data-testid="stDialog"]>div{border-radius:22px!important;border:1px solid var(--line)!important;box-shadow:0 28px 80px rgba(15,23,42,.20)!important}
+    @media(max-width:900px){[data-testid="stMainBlockContainer"]{padding:1rem .85rem 3rem!important}.page-header,.asset-hero{min-height:110px!important;padding:21px!important;border-radius:20px!important}.page-header-icon{width:44px;height:44px}.asset-stat-wrap{grid-template-columns:repeat(2,1fr)!important}[data-testid="stHorizontalBlock"]{gap:.65rem!important}}
+    @media(max-width:640px){.page-header{align-items:flex-start!important}.asset-stat-wrap{grid-template-columns:1fr!important}[data-testid="stMetric"]{min-height:96px;padding:1rem!important}.stTabs [data-baseweb="tab"]{padding:0 11px;font-size:.78rem}}
+    </style>
+    """, unsafe_allow_html=True)
+
     def status_badge(status: str) -> str:
         cls = {"Active": "badge-active", "Inactive": "badge-inactive",
                "Spare": "badge-spare", "Repair": "badge-repair"}.get(status, "badge-default")
@@ -3847,7 +3910,6 @@ else:
 #   เก็บสถานะเปิด/ปิดใน st.session_state
 # =============================================================================
     def _group_toggle(state_key: str, icon: str, text: str):
-        return
         open_ = st.session_state.get(state_key, False)
         if compact:
             label = "▾" if open_ else icon
@@ -3933,7 +3995,6 @@ else:
     for _gk in ("open_grp_assets", "open_grp_security", "open_grp_inventory", "open_grp_admin"):
         if _gk not in st.session_state:
             st.session_state[_gk] = False
-        st.session_state[_gk] = False
 
     # removed force redirect to computers
 
