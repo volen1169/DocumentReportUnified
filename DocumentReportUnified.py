@@ -3844,6 +3844,93 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
+    # V5.1 ICON RAIL — compact by default, expands as an overlay on hover.
+    # Keeping the icon as the first character of every button means the rail
+    # remains usable even when the labels are clipped.
+    st.sidebar.markdown("""
+    <style>
+    section[data-testid="stSidebar"]{
+        width:88px!important;min-width:88px!important;max-width:88px!important;
+        overflow:visible!important;z-index:999!important;
+        transition:width .24s cubic-bezier(.2,.8,.2,1),max-width .24s cubic-bezier(.2,.8,.2,1)!important;
+    }
+    section[data-testid="stSidebar"]:hover,
+    section[data-testid="stSidebar"]:focus-within{
+        width:292px!important;min-width:292px!important;max-width:292px!important;
+    }
+    section[data-testid="stSidebar"]>div:first-child{
+        width:88px!important;min-width:88px!important;overflow:hidden!important;
+        transition:width .24s cubic-bezier(.2,.8,.2,1)!important;
+        box-shadow:14px 0 36px rgba(49,46,129,.10)!important;
+    }
+    section[data-testid="stSidebar"]:hover>div:first-child,
+    section[data-testid="stSidebar"]:focus-within>div:first-child{
+        width:292px!important;min-width:292px!important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{
+        width:292px!important;min-width:292px!important;
+        padding:20px 14px 18px!important;overflow-x:hidden!important;
+    }
+    [data-testid="stSidebarCollapseButton"]{display:none!important}
+    section[data-testid="stSidebar"] .ref-brand,
+    section[data-testid="stSidebar"] .ref-profile{
+        width:260px!important;white-space:nowrap!important;overflow:hidden!important;
+    }
+    section[data-testid="stSidebar"] .ref-brand{padding:3px 7px 17px!important}
+    section[data-testid="stSidebar"] .ref-profile{padding:10px 7px!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+    section[data-testid="stSidebar"] .ref-logo,
+    section[data-testid="stSidebar"] .ref-avatar{
+        width:46px!important;height:46px!important;min-width:46px!important;border-radius:15px!important;
+        transition:transform .2s ease!important;
+    }
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-brand-title,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-brand-sub,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-profile-dept,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-profile-name,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-status-dot,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-status-dot + span,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .nav-section-label{
+        opacity:0!important;pointer-events:none!important;
+    }
+    section[data-testid="stSidebar"] .ref-brand-title,
+    section[data-testid="stSidebar"] .ref-brand-sub,
+    section[data-testid="stSidebar"] .ref-profile-dept,
+    section[data-testid="stSidebar"] .ref-profile-name,
+    section[data-testid="stSidebar"] .nav-section-label{
+        transition:opacity .13s ease .08s!important;
+    }
+    section[data-testid="stSidebar"] .nav-section-label{height:24px!important;margin:0!important;white-space:nowrap!important}
+    section[data-testid="stSidebar"] .stButton{width:260px!important;overflow:hidden!important}
+    section[data-testid="stSidebar"] .stButton>button{
+        width:260px!important;height:50px!important;min-height:50px!important;
+        padding:0 18px!important;border-radius:14px!important;white-space:nowrap!important;
+        overflow:hidden!important;text-overflow:clip!important;justify-content:flex-start!important;
+        font-size:.90rem!important;letter-spacing:.005em!important;
+    }
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button{
+        width:58px!important;color:#475569!important;font-size:0!important;padding:0!important;
+        justify-content:center!important;
+    }
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button p{
+        width:30px!important;max-width:30px!important;overflow:hidden!important;
+        white-space:nowrap!important;font-size:1.15rem!important;line-height:1!important;
+    }
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button[kind="primary"]{
+        border-left:3px solid #6366F1!important;background:linear-gradient(135deg,#DBEAFE,#EDE9FE)!important;
+    }
+    section[data-testid="stSidebar"] .nav-signout .stButton>button{margin-top:1rem!important}
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) hr{width:54px!important}
+    @media(max-width:768px){
+        section[data-testid="stSidebar"]{width:76px!important;min-width:76px!important;max-width:76px!important}
+        section[data-testid="stSidebar"]>div:first-child{width:76px!important;min-width:76px!important}
+        section[data-testid="stSidebar"]:hover,
+        section[data-testid="stSidebar"]:focus-within{width:270px!important;min-width:270px!important;max-width:270px!important}
+        section[data-testid="stSidebar"]:hover>div:first-child,
+        section[data-testid="stSidebar"]:focus-within>div:first-child{width:270px!important;min-width:270px!important}
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     if compact:
         st.sidebar.markdown(
             '<style>[data-testid="stSidebar"]{min-width:72px!important;}'
@@ -3889,6 +3976,7 @@ else:
             label,
             use_container_width=True,
             type="primary" if active else "secondary",
+            help=text,
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
@@ -3917,7 +4005,7 @@ else:
             label = f"▾  {icon}  {text}"
         else:
             label = f"{icon}  {text}  ›"
-        if st.sidebar.button(label, use_container_width=True, type="primary" if open_ else "secondary", key=f"tog_{state_key}"):
+        if st.sidebar.button(label, use_container_width=True, type="primary" if open_ else "secondary", help=text, key=f"tog_{state_key}"):
             st.session_state[state_key] = not open_
             st.rerun()
 
@@ -3935,7 +4023,7 @@ else:
             label = f"{icon}  {text}  ›"
         if badge_suffix and not compact:
             label = f"{icon}  {text}{badge_suffix}"
-        if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
+        if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", help=text, key=f"nav_{nav_key}"):
             st.session_state.active_nav = nav_key
             st.rerun()
 
