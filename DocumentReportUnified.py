@@ -363,6 +363,27 @@ ADMIN_EMAILS = [
 
 ]
 
+# Internet Policy Mapping
+# -----------------------------------------------------------------------------
+# ใช้สำหรับแสดงสิทธิ์ออก Internet จาก AD / Firewall Group
+# แนวคิด: ให้ AD Group เป็น Source of Truth แล้ว Firewall และระบบนี้อ่านจาก Group เดียวกัน
+# ถ้าบริษัทมี Policy เพิ่ม ให้เพิ่มชื่อ Group และคำอธิบายที่นี่ได้เลย
+# -----------------------------------------------------------------------------
+FW_POLICY_PREFIXES = ("FW_", "Firewall_", "Internet_")
+FW_POLICY_MAP = {
+    "FW_Officer_A": "Allow All Website",
+    "FW_Officer_B": "Block Social Media",
+    "FW_Officer_C": "Allow YouTube",
+    "FW_Officer_D": "Allow Facebook",
+    "FW_Officer_E": "Allow YouTube, Facebook",
+    "FW_Manager": "Net True",
+    "FW_IT": "IT Internet Policy",
+    "FW_MD": "Management Internet Policy",
+    "FW_Supervisor_B": "Supervisor Internet Policy",
+    "FW_Conference": "Conference Room Internet Policy",
+}
+
+
 # Field mapping สำหรับ Computer Asset
 COMPUTER_FIELDS = {
     "field_1": "บริษัท",
@@ -472,6 +493,161 @@ def check_ms_login(username, password):
         email = claims.get("preferred_username", username)
         return True, name, email
     return False, result.get("error_description", "ล็อกอินไม่สำเร็จ"), ""
+
+# =============================================================================
+# SECTION 02.1 : AD / FIREWALL INTERNET POLICY
+# ดึง Group Membership จาก Microsoft Entra ID / Active Directory ผ่าน Microsoft Graph
+# แล้วแปลง Group ที่ขึ้นต้นด้วย FW_ เป็น Internet Policy
+# =============================================================================
+def _escape_graph_filter_value(value: str) -> str:
+    """Escape single quote for Microsoft Graph OData filter."""
+    return str(value or "").replace("'", "''").strip()
+
+
+def _graph_get(url, *, headers=None, params=None, timeout=30):
+    """เรียก Microsoft Graph แบบรวม Error ให้ดูง่าย"""
+    token = get_access_token()
+    req_headers = {"Authorization": f"Bearer {token}"}
+    if headers:
+        req_headers.update(headers)
+    res = requests.get(url, headers=req_headers, params=params, timeout=timeout)
+    try:
+        data = res.json()
+    except Exception:
+        data = {"error": {"message": res.text[:300]}}
+    if res.status_code >= 400:
+        msg = data.get("error", {}).get("message", str(data)) if isinstance(data, dict) else str(data)
+        raise Exception(f"Graph HTTP {res.status_code}: {msg}")
+    return data
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def graph_find_user(user_identity: str):
+    """หา User จาก UPN / Email / Display Name / Account name
+
+    คืนค่า dict ที่มี id, displayName, userPrincipalName, mail
+    """
+    ident = str(user_identity or "").strip()
+    if not ident:
+        return None
+
+    select_cols = "id,displayName,userPrincipalName,mail,mailNickname"
+
+    # 1) ถ้าเป็น email/upn ให้เรียกตรงก่อน
+    if "@" in ident:
+        try:
+            return _graph_get(
+                f"{GRAPH_URL}/users/{ident}",
+                params={"$select": select_cols},
+            )
+        except Exception:
+            pass
+
+    # 2) ถ้าเป็น account name เช่น Ratchaphruek.Ro ให้ลองเติม domain ที่ใช้ login อยู่
+    login_email = st.session_state.get("user_email", "") if hasattr(st, "session_state") else ""
+    login_domain = login_email.split("@")[-1] if "@" in login_email else ""
+    if login_domain and "@" not in ident and " " not in ident:
+        try:
+            return _graph_get(
+                f"{GRAPH_URL}/users/{ident}@{login_domain}",
+                params={"$select": select_cols},
+            )
+        except Exception:
+            pass
+
+    # 3) ค้นหาจาก displayName / UPN / mailNickname
+    safe = _escape_graph_filter_value(ident)
+    filters = [
+        f"startswith(displayName,'{safe}')",
+        f"startswith(userPrincipalName,'{safe}')",
+        f"startswith(mailNickname,'{safe}')",
+    ]
+
+    # ถ้าเป็นชื่อแบบมีจุด ให้ลองแปลงจุดเป็นเว้นวรรคด้วย
+    if "." in ident:
+        safe_space = _escape_graph_filter_value(ident.replace(".", " "))
+        filters.append(f"startswith(displayName,'{safe_space}')")
+
+    for flt in filters:
+        try:
+            data = _graph_get(
+                f"{GRAPH_URL}/users",
+                params={"$select": select_cols, "$top": 5, "$filter": flt},
+            )
+            users = data.get("value", []) if isinstance(data, dict) else []
+            if users:
+                return users[0]
+        except Exception:
+            continue
+
+    return None
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def get_ad_group_names_for_user(user_identity: str):
+    """คืนรายชื่อ AD / Entra ID Groups ที่ User เป็นสมาชิกอยู่
+
+    ต้องให้ App Registration มีสิทธิ์ Microsoft Graph อย่างน้อย:
+    - User.Read.All
+    - GroupMember.Read.All หรือ Directory.Read.All
+    และกด Admin consent แล้ว
+    """
+    user_obj = graph_find_user(user_identity)
+    if not user_obj or not user_obj.get("id"):
+        return []
+
+    groups = []
+    url = f"{GRAPH_URL}/users/{user_obj['id']}/transitiveMemberOf/microsoft.graph.group"
+    params = {"$select": "displayName", "$top": 999}
+
+    while url:
+        data = _graph_get(url, params=params)
+        for item in data.get("value", []):
+            name = str(item.get("displayName", "")).strip()
+            if name:
+                groups.append(name)
+        url = data.get("@odata.nextLink")
+        params = None
+
+    return sorted(set(groups), key=lambda x: x.lower())
+
+
+def get_internet_policies_from_groups(group_names):
+    """แปลง AD Groups เป็น Internet Policy rows"""
+    policies = []
+    for group_name in group_names or []:
+        g = str(group_name).strip()
+        if not g:
+            continue
+        if g in FW_POLICY_MAP or any(g.upper().startswith(p.upper()) for p in FW_POLICY_PREFIXES):
+            policies.append({
+                "Policy Internet": g,
+                "Description": FW_POLICY_MAP.get(g, "Firewall / Internet policy group"),
+                "Source": "AD Group",
+            })
+    return policies
+
+
+def get_user_internet_policy_summary(user_identity: str):
+    """คืนสรุป Internet Policy ของ User จาก AD Group"""
+    try:
+        groups = get_ad_group_names_for_user(user_identity)
+        policies = get_internet_policies_from_groups(groups)
+        return {"ok": True, "groups": groups, "policies": policies, "error": ""}
+    except Exception as e:
+        return {"ok": False, "groups": [], "policies": [], "error": str(e)}
+
+
+def format_policy_names(policies):
+    if not policies:
+        return "-"
+    return ", ".join(sorted({p.get("Policy Internet", "") for p in policies if p.get("Policy Internet")}))
+
+
+def format_policy_descriptions(policies):
+    if not policies:
+        return "-"
+    return ", ".join(sorted({p.get("Description", "") for p in policies if p.get("Description")}))
 
 # =============================================================================
 # SECTION 03 : SHAREPOINT CRUD
@@ -3900,6 +4076,23 @@ else:
             
 
             if search_term:
+                # แสดง Internet Policy ของ User ที่ค้นหา จาก AD / Firewall Group
+                # ถ้าค้นหาเป็นชื่อ Share Drive อย่างเดียว อาจไม่พบ User ใน AD ซึ่งระบบจะแจ้งแบบไม่ทำให้หน้าล่ม
+                policy_summary = get_user_internet_policy_summary(search_term)
+                if policy_summary.get("ok") and policy_summary.get("policies"):
+                    st.markdown("### 🌐 Internet Policy จาก AD Group")
+                    st.dataframe(
+                        pd.DataFrame(policy_summary["policies"]),
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                    with st.expander("ดู AD Groups ทั้งหมดของ User นี้"):
+                        st.write(", ".join(policy_summary.get("groups", [])) or "-")
+                elif policy_summary.get("ok"):
+                    st.info("🌐 ไม่พบ AD Group ที่ตรงกับ Internet Policy เช่น FW_Officer_B / FW_IT สำหรับคำค้นหานี้")
+                else:
+                    st.warning(f"🌐 ยังดึง Internet Policy จาก AD ไม่ได้: {policy_summary.get('error', '')}")
+
                 display_df = display_df[
                     display_df["Share"].str.contains(search_term, case=False, na=False) |
                     display_df["Matched Employees"].str.contains(search_term, case=False, na=False) |
@@ -3959,22 +4152,52 @@ else:
                                     if m:
                                         e = _clean_nas_principal(m.group(1))
                                         if e:
+                                            policy_summary = get_user_internet_policy_summary(e)
+                                            policies = policy_summary.get("policies", [])
                                             parsed.append({
                                                 "Entity": e,
-                                                "Permission": m.group(2)
-})
+                                                "Permission": m.group(2),
+                                                "Policy Internet": format_policy_names(policies),
+                                                "Policy Description": format_policy_descriptions(policies),
+                                                "AD Groups": ", ".join(policy_summary.get("groups", [])) if policy_summary.get("ok") else f"Error: {policy_summary.get('error', '')}",
+                                            })
 
                                 if parsed:
                                     parsed_df = pd.DataFrame(parsed)
 
-                                    st.dataframe(
-                                        parsed_df,
-                                        use_container_width=True,
-                                        hide_index=True
-                                    )
+                                    tab_perm, tab_policy, tab_raw = st.tabs([
+                                        "NAS Permission",
+                                        "Internet Policy",
+                                        "Raw ACL",
+                                    ])
 
-                                with st.expander("Raw ACL"):
-                                    st.code(raw)
+                                    with tab_perm:
+                                        st.dataframe(
+                                            parsed_df[["Entity", "Permission"]],
+                                            use_container_width=True,
+                                            hide_index=True
+                                        )
+
+                                    with tab_policy:
+                                        policy_df = parsed_df[[
+                                            "Entity",
+                                            "Policy Internet",
+                                            "Policy Description",
+                                            "AD Groups",
+                                        ]]
+                                        st.dataframe(
+                                            policy_df,
+                                            use_container_width=True,
+                                            hide_index=True
+                                        )
+                                        st.caption("ดึงจาก AD / Entra ID Group ที่ขึ้นต้นด้วย FW_ แล้วเทียบกับ FW_POLICY_MAP ในโค้ด")
+
+                                    with tab_raw:
+                                        st.code(raw)
+                                else:
+                                    st.info("ไม่พบรายการ ACL ที่อ่านได้")
+                                    with st.expander("Raw ACL"):
+                                        st.code(raw)
 
                         show_acl_pop(row['ACL Tags (Raw)'])
 
