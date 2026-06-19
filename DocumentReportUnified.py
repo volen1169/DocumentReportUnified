@@ -2838,42 +2838,65 @@ else:
     [data-testid="stSidebar"],
     [data-testid="stSidebar"] > div:first-child {
         background:
-            radial-gradient(circle at 16% 4%, rgba(56, 189, 248, 0.28), transparent 30%),
-            radial-gradient(circle at 82% 96%, rgba(139, 92, 246, 0.24), transparent 34%),
-            linear-gradient(180deg, #e0f2fe 0%, #dbeafe 42%, #ede9fe 100%) !important;
+            radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 30%),
+            radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.14), transparent 34%),
+            linear-gradient(180deg, #f8fbff 0%, #eff6ff 46%, #f3efff 100%) !important;
     }
     [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-        background: rgba(255, 255, 255, 0.34) !important;
-        border: 1px solid rgba(255, 255, 255, 0.58) !important;
-        border-radius: 22px !important;
-        margin: 10px 8px !important;
-        padding: 16px 12px 18px !important;
-        box-shadow: 0 18px 42px rgba(37, 99, 235, 0.10), inset 0 1px 0 rgba(255,255,255,.50) !important;
-        backdrop-filter: blur(18px) saturate(150%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+        background: rgba(255, 255, 255, 0.84) !important;
+        border-right: 1px solid rgba(148, 163, 184, 0.26) !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 24px 16px 18px !important;
+        box-shadow: 10px 0 34px rgba(37, 99, 235, 0.07) !important;
+        backdrop-filter: blur(20px) saturate(150%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
     }
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.28rem !important; }
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.42rem !important; }
     [data-testid="stSidebar"] .element-container { margin-bottom: 0 !important; }
     [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
         gap: 6px !important; margin-bottom: 0 !important; align-items: center !important;
     }
-    [data-testid="stSidebar"] .ref-profile,
     [data-testid="stSidebar"] .ref-brand {
-        background: rgba(255, 255, 255, 0.36) !important;
-        border: 1px solid rgba(255, 255, 255, 0.58) !important;
-        border-radius: 18px !important;
-        padding: 12px !important;
-        margin-bottom: 10px !important;
-        box-shadow: 0 10px 28px rgba(37, 99, 235, 0.08) !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 4px 4px 18px !important;
+        margin-bottom: 8px !important;
+        box-shadow: none !important;
     }
-    [data-testid="stSidebar"] .ref-brand {
-        margin-top: 0 !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.58) !important;
+    [data-testid="stSidebar"] .ref-profile {
+        background: rgba(255, 255, 255, 0.78) !important;
+        border: 1px solid rgba(148, 163, 184, 0.22) !important;
+        border-radius: 14px !important;
+        padding: 18px 14px !important;
+        margin: 0 2px 22px !important;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07) !important;
+    }
+    [data-testid="stSidebar"] .ref-brand-title {
+        font-size: 0.98rem !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+    }
+    [data-testid="stSidebar"] .ref-brand-sub,
+    [data-testid="stSidebar"] .ref-profile-name {
+        color: #475569 !important;
     }
     [data-testid="stSidebar"] .ref-avatar,
     [data-testid="stSidebar"] .ref-logo {
         background: linear-gradient(135deg, #2563EB 0%, #6366F1 58%, #8B5CF6 100%) !important;
         box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22) !important;
+    }
+    [data-testid="stSidebar"] .ref-logo {
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 12px !important;
+        font-size: 1rem !important;
+    }
+    [data-testid="stSidebar"] .ref-avatar {
+        width: 58px !important;
+        height: 58px !important;
+        border-radius: 999px !important;
+        font-size: 0.98rem !important;
     }
     [data-testid="stSidebar"] .ref-status-row {
         border-top: 1px solid rgba(148, 163, 184, 0.20) !important;
@@ -2881,45 +2904,48 @@ else:
         padding-top: 10px !important;
     }
     [data-testid="stSidebar"] .nav-section-label {
-        color: #475569 !important;
-        font-size: 0.62rem !important;
-        letter-spacing: 0.16em !important;
-        padding: 8px 8px 7px !important;
+        color: #334155 !important;
+        font-size: 0.70rem !important;
+        letter-spacing: 0.14em !important;
+        padding: 8px 10px 10px !important;
     }
     [data-testid="stSidebar"] .stButton > button {
-        min-height: 38px !important;
-        height: 38px !important;
-        border-radius: 13px !important;
+        min-height: 64px !important;
+        height: 64px !important;
+        border-radius: 12px !important;
         border: 1px solid transparent !important;
-        background: rgba(255, 255, 255, 0.20) !important;
+        background: transparent !important;
         color: #1E293B !important;
-        font-size: 0.82rem !important;
+        font-size: 0.94rem !important;
         font-weight: 600 !important;
-        padding: 0 12px !important;
+        padding: 0 18px !important;
         text-align: left !important;
         justify-content: flex-start !important;
         box-shadow: none !important;
         transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background: rgba(255, 255, 255, 0.58) !important;
-        border-color: rgba(96, 165, 250, 0.34) !important;
+        background: rgba(219, 234, 254, 0.68) !important;
+        border-color: rgba(96, 165, 250, 0.22) !important;
         color: #1D4ED8 !important;
-        transform: translateX(2px) !important;
-        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08) !important;
+        transform: translateX(1px) !important;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.09) !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(139, 92, 246, 0.14)) !important;
-        color: #1D4ED8 !important;
-        border: 1px solid rgba(96, 165, 250, 0.46) !important;
+        background: linear-gradient(135deg, rgba(219, 234, 254, 0.96), rgba(237, 233, 254, 0.92)) !important;
+        color: #0B57D0 !important;
+        border: 1px solid rgba(147, 197, 253, 0.42) !important;
         border-left: 4px solid #2563EB !important;
-        padding-left: 10px !important;
+        padding-left: 14px !important;
         font-weight: 700 !important;
-        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12) !important;
+        box-shadow: 0 12px 26px rgba(37, 99, 235, 0.12) !important;
     }
     [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.24), rgba(139, 92, 246, 0.20)) !important;
+        background: linear-gradient(135deg, rgba(191, 219, 254, 0.94), rgba(221, 214, 254, 0.92)) !important;
         color: #1E40AF !important;
+    }
+    [data-testid="stSidebar"] .nav-toolbar-row {
+        display: none !important;
     }
     [data-testid="stSidebar"] .nav-toolbar-row .stButton > button {
         min-height: 32px !important;
@@ -2936,9 +2962,12 @@ else:
     }
     [data-testid="stSidebar"] .nav-signout .stButton > button {
         justify-content: center !important;
-        background: rgba(255, 255, 255, 0.24) !important;
-        color: #334155 !important;
-        min-height: 40px !important;
+        background: rgba(255, 255, 255, 0.64) !important;
+        border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        color: #1E293B !important;
+        min-height: 56px !important;
+        height: 56px !important;
+        margin-top: 34vh !important;
     }
     [data-testid="stSidebar"] .nav-signout .stButton > button:hover {
         background: rgba(254, 242, 242, 0.86) !important;
@@ -3013,6 +3042,7 @@ else:
 #   เก็บสถานะเปิด/ปิดใน st.session_state
 # =============================================================================
     def _group_toggle(state_key: str, icon: str, text: str):
+        return
         open_ = st.session_state.get(state_key, False)
         if compact:
             label = "▾" if open_ else icon
@@ -3024,42 +3054,48 @@ else:
             st.session_state[state_key] = not open_
             st.rerun()
 
-    def _nav_leaf(nav_key: str, icon: str, text: str):
+    def _nav_leaf(nav_key: str, icon: str, text: str, badge_text: str = ""):
         active = st.session_state.active_nav == nav_key
+        icon = {"overview": "⌂", "reports": "▥", "admin_settings": "⚙"}.get(nav_key, icon)
+        if not badge_text:
+            badge_text = {"reports": "12", "admin_settings": "3"}.get(nav_key, "")
+        badge_suffix = f"        {badge_text}" if badge_text and not compact else ""
         if compact:
             label = icon
         elif active:
-            label = f"{icon}  {text}"
+            label = f"{icon}  {text}{badge_suffix}"
         else:
             label = f"{icon}  {text}  ›"
+        if badge_suffix and not compact:
+            label = f"{icon}  {text}{badge_suffix}"
         if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", key=f"nav_{nav_key}"):
             st.session_state.active_nav = nav_key
             st.rerun()
 
     # ── User profile first (reference image) ────────────────
     st.sidebar.markdown(f"""
-    <div class="ref-profile hide-when-compact">
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-            <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
+    <div class="ref-brand hide-when-compact">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div class="ref-logo" style="background:#2563EB;color:#fff;">DR</div>
             <div style="min-width:0;flex:1;">
-                <div class="ref-profile-dept" style="color:#0F172A !important;font-weight:700;">{profile_dept}</div>
-                <div class="ref-profile-name" style="color:#64748B !important;">{name}</div>
+                <div class="ref-brand-title" style="color:#0F172A !important;">DocumentReportUnified</div>
+                <div class="ref-brand-sub" style="color:#475569 !important;font-size:0.82rem;">Enterprise IT Platform</div>
             </div>
-        </div>
-        <div class="ref-status-row">
-            <span class="ref-status-dot"></span>
-            <span style="color:#64748B !important;">Online</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     st.sidebar.markdown(f"""
-    <div class="ref-brand hide-when-compact" style="padding:12px 2px 14px;border-bottom:1px solid #E2E8F0;">
-        <div style="display:flex;align-items:center;gap:10px;">
-            <div class="ref-logo" style="background:#2563EB;color:#fff;width:32px;height:32px;font-size:0.65rem;">DR</div>
-            <div>
-                <div class="ref-brand-title" style="color:#0F172A !important;font-size:0.82rem;">DocumentReportUnified</div>
-                <div class="ref-brand-sub" style="color:#64748B !important;font-size:0.68rem;">Enterprise IT Platform</div>
+    <div class="ref-profile hide-when-compact">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
+            <div style="min-width:0;flex:1;">
+                <div class="ref-profile-dept" style="color:#0F172A !important;font-weight:800;font-size:0.96rem;">{name}</div>
+                <div class="ref-profile-name" style="color:#475569 !important;font-size:0.80rem;">{profile_dept}</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:10px;font-size:0.78rem;color:#475569;">
+                    <span class="ref-status-dot"></span>
+                    <span style="color:#475569 !important;">Online</span>
+                </div>
             </div>
         </div>
     </div>
@@ -3072,17 +3108,18 @@ else:
             unsafe_allow_html=True,
         )
 
-    st.sidebar.markdown('<div class="nav-toolbar-row">', unsafe_allow_html=True)
-    rt1, rt2 = st.sidebar.columns(2, gap="small")
-    with rt1:
-        if st.button("◀", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
-            st.session_state.sidebar_compact = not compact
-            st.rerun()
-    with rt2:
-        if st.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
-            get_sidebar_nav_badges.clear()
-            st.rerun()
-    st.sidebar.markdown("</div>", unsafe_allow_html=True)
+    if False:
+        st.sidebar.markdown('<div class="nav-toolbar-row">', unsafe_allow_html=True)
+        rt1, rt2 = st.sidebar.columns(2, gap="small")
+        with rt1:
+            if st.button("◀", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
+                st.session_state.sidebar_compact = not compact
+                st.rerun()
+        with rt2:
+            if st.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
+                get_sidebar_nav_badges.clear()
+                st.rerun()
+        st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
@@ -3091,6 +3128,7 @@ else:
     for _gk in ("open_grp_assets", "open_grp_security", "open_grp_inventory", "open_grp_admin"):
         if _gk not in st.session_state:
             st.session_state[_gk] = False
+        st.session_state[_gk] = False
 
     # removed force redirect to computers
 
