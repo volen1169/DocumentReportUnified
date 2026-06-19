@@ -319,10 +319,10 @@ GRAPH_URL = "https://graph.microsoft.com/v1.0"
 # โหมดใหม่: Synology DSM API ผ่าน Cloudflare Tunnel
 #
 # แนะนำสำหรับ Streamlit Cloud:
-# NAS_BASE_URL = "https://nas-api.poonyaruk.co.th"
+# NAS_AGENT_URL = "https://nas-agent.poonyaruk.co.th"
 # NAS_USER     = "ชื่อผู้ใช้ NAS"
 # NAS_PASSWORD = "รหัสผ่าน NAS"
-# NAS_MODE     = "api"
+# NAS_MODE     = "agent"
 # -----------------------------------------------------------------------------
 NAS_IP = st.secrets.get("NAS_IP", "")
 NAS_PORT = int(st.secrets.get("NAS_PORT", 22))        # รองรับ SSH port custom เช่น 2222
@@ -342,6 +342,10 @@ NAS_MODE = st.secrets.get("NAS_MODE", "api" if NAS_BASE_URL else "ssh").lower().
 NAS_AGENT_URL = st.secrets.get("NAS_AGENT_URL", "").rstrip("/")
 NAS_AGENT_TOKEN = st.secrets.get("NAS_AGENT_TOKEN", "")
 NAS_AGENT_MODE = st.secrets.get("NAS_AGENT_MODE", "agent" if NAS_AGENT_URL else "").lower().strip()
+
+# Force Agent-first mode: ป้องกัน Streamlit ไปเรียก DSM domain เดิม (nas-api) ตอนใช้ NAS Agent
+AGENT_ONLY_MODE = NAS_MODE in ("agent", "nas_agent", "nas-agent") or NAS_AGENT_MODE == "agent"
+NAS_SHARES_SECRET = st.secrets.get("NAS_SHARES", "")
 
 MAX_THREADS = 6
 NAS_TIMEOUT = int(st.secrets.get("NAS_TIMEOUT", 30))
@@ -686,13 +690,19 @@ def upload_password_excel(drive_id, sheets_dict):
 # =============================================================================
 
 def _nas_api_enabled():
-    """คืนค่า True เมื่อกำหนด NAS_BASE_URL หรือ NAS_MODE=api ใน secrets"""
-    return NAS_MODE == "api" or bool(NAS_BASE_URL)
+    """คืนค่า True เฉพาะเมื่อเลือกใช้ DSM API จริง ๆ
+
+    หมายเหตุ: ถ้า NAS_MODE=agent ให้ปิด DSM API fallback เพื่อไม่ให้ไปเรียก
+    nas-api.poonyaruk.co.th ซึ่งเป็น DSM route และทำให้ timeout บน Streamlit Cloud
+    """
+    if AGENT_ONLY_MODE:
+        return False
+    return NAS_MODE == "api" and bool(NAS_BASE_URL)
 
 
 def _nas_agent_enabled():
     """คืนค่า True เมื่อกำหนด NAS_AGENT_URL เพื่ออ่าน ACL จริงผ่าน NAS Local API Agent"""
-    return NAS_AGENT_MODE == "agent" or bool(NAS_AGENT_URL)
+    return AGENT_ONLY_MODE or bool(NAS_AGENT_URL)
 
 
 def _safe_json_response(resp, context="NAS API"):
@@ -844,6 +854,42 @@ def nas_agent_health():
     return data
 
 
+def nas_agent_get_shares():
+    """ดึงรายชื่อ Shared Folder จาก NAS Agent (/shares)
+
+    ถ้า Agent ยังไม่มี endpoint /shares สามารถใส่ Secrets เพิ่มได้:
+    NAS_SHARES = "Share1,Share2,Share3"
+    """
+    if not NAS_AGENT_URL:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
+    if not NAS_AGENT_TOKEN:
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_TOKEN ใน Streamlit secrets")
+
+    headers = {"X-API-Token": NAS_AGENT_TOKEN}
+    resp = requests.get(
+        f"{NAS_AGENT_URL}/shares",
+        headers=headers,
+        timeout=NAS_TIMEOUT,
+    )
+
+    if resp.status_code == 404:
+        if NAS_SHARES_SECRET:
+            return sorted([x.strip() for x in NAS_SHARES_SECRET.split(",") if x.strip()])
+        raise Exception(
+            "NAS Agent ยังไม่มี endpoint /shares — กรุณาอัปเดต nas_agent.py หรือเพิ่ม NAS_SHARES ใน Secrets"
+        )
+
+    data = _safe_json_response(resp, "NAS Agent /shares")
+    if resp.status_code != 200:
+        raise Exception(f"NAS Agent /shares HTTP {resp.status_code}: {data}")
+
+    shares = data.get("shares") or data.get("data") or []
+    if not isinstance(shares, list):
+        raise Exception(f"NAS Agent /shares รูปแบบข้อมูลไม่ถูกต้อง: {data}")
+
+    return sorted(set(str(x).strip() for x in shares if str(x).strip() and not str(x).strip().startswith("@")))
+
+
 def nas_agent_get_acl_payload(share):
     """ดึง Permission จาก NAS Agent
 
@@ -929,8 +975,16 @@ def parse_nas_agent_permissions_payload(payload, employee_list=None):
             continue
         ptype = str(item.get("type") or item.get("kind") or "user").lower()
         perm_raw = str(item.get("permission") or item.get("access") or item.get("perm") or "").strip().lower()
+        raw_blob = str(item.get("raw_permission") or item.get("permission_blob") or "").strip()
 
-        if perm_raw in ("rw", "readwrite", "read/write", "write", "read-write", "read_write"):
+        # ถ้า Agent ส่ง raw_permission มาด้วย ให้แยก Read/Write จาก permission blob จริง
+        # Read-only ของ Synology มักเป็น r-x---a-R-c-- ซึ่งมี c แต่ไม่ควรนับเป็น Write
+        if raw_blob:
+            if any(ch in raw_blob for ch in set("wpdDWo")):
+                permission = "Read/Write"
+            else:
+                permission = "Read"
+        elif perm_raw in ("rw", "readwrite", "read/write", "write", "read-write", "read_write"):
             permission = "Read/Write"
         elif perm_raw in ("ro", "read", "readonly", "read-only", "read_only"):
             permission = "Read"
@@ -985,7 +1039,7 @@ def parse_synoacl_output(raw, employee_list=None):
         if not principal_name:
             continue
 
-        writable_flags = set("wpdDWA")
+        writable_flags = set("wpdDWo")
 
         if action == "deny":
             permission = "Deny"
@@ -1040,11 +1094,14 @@ def load_nas_data_agent():
     """โหลด NAS Data แบบสมบูรณ์: Shares จาก DSM API + ACL จาก NAS Agent"""
     nas_agent_health()
 
-    # ใช้ DSM API ดึงรายชื่อ Share ถ้ามี NAS_BASE_URL, ไม่งั้น fallback เป็น /volume1 จาก SSH เดิม
-    if _nas_api_enabled():
-        shares = synology_get_shares_api()
-    else:
-        shares = get_shares()
+    # ใช้ NAS Agent ดึงรายชื่อ Share ก่อน เพื่อไม่ต้องพึ่ง DSM route (nas-api)
+    try:
+        shares = nas_agent_get_shares()
+    except Exception as agent_share_e:
+        if _nas_api_enabled():
+            shares = synology_get_shares_api()
+        else:
+            raise Exception(str(agent_share_e))
 
     df_emp = load_sp_data("Employees")
     employees = df_emp['field_3'].dropna().unique().tolist() if not df_emp.empty and 'field_3' in df_emp.columns else []
@@ -1145,7 +1202,9 @@ def load_nas_data():
             return load_nas_data_agent()
         except Exception as e:
             st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS Agent ได้: {e}")
-            # ถ้า Agent ล้ม แต่ DSM API ยังใช้ได้ ให้แสดงรายชื่อ Share ก่อน
+            # ถ้าเลือก NAS_MODE=agent ห้าม fallback ไป DSM API route เดิม เพราะจะทำให้ timeout ซ้ำ
+            if AGENT_ONLY_MODE:
+                return None
             if _nas_api_enabled():
                 try:
                     return load_nas_data_api()
