@@ -4734,6 +4734,7 @@ else:
         .portfolio-card,.action-card{height:100%;min-height:286px;padding:22px;border:1px solid rgba(255,255,255,.94);border-radius:24px;background:rgba(255,255,255,.60);box-shadow:0 16px 40px rgba(51,65,85,.08);backdrop-filter:blur(24px) saturate(145%);-webkit-backdrop-filter:blur(24px) saturate(145%)}
         .portfolio-row{display:grid;grid-template-columns:120px 1fr 48px;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(226,232,240,.78)}.portfolio-row:last-child{border-bottom:0}.portfolio-name{font-size:.76rem;font-weight:750;color:#475569}.portfolio-count{text-align:right;font-size:.76rem;font-weight:850;color:#1E293B}.portfolio-track{height:8px;border-radius:999px;background:#E9EEF7;overflow:hidden}.portfolio-fill{height:100%;border-radius:999px;box-shadow:0 2px 8px rgba(79,70,229,.20)}
         .action-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid rgba(226,232,240,.78)}.action-row:last-of-type{border-bottom:0}.action-main{display:flex;align-items:center;gap:11px}.action-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 34px;border-radius:11px;font-size:.85rem}.action-title{font-size:.77rem;font-weight:800;color:#475569}.action-desc{margin-top:3px;font-size:.66rem;color:#94A3B8}.action-badge{min-width:36px;padding:7px 10px;border-radius:999px;text-align:center;font-size:.7rem;font-weight:850}.action-footer{margin-top:15px;padding:11px 12px;border-radius:12px;background:linear-gradient(135deg,#EEF2FF,#ECFEFF);color:#4338CA;font-size:.69rem;font-weight:750}
+        .asset-portfolio-card{position:relative;overflow:hidden;min-height:105px;padding:16px 17px;border:1px solid rgba(255,255,255,.94);border-radius:20px;box-shadow:0 12px 30px rgba(51,65,85,.075);backdrop-filter:blur(20px) saturate(145%);-webkit-backdrop-filter:blur(20px) saturate(145%);transition:transform .18s ease,box-shadow .18s ease}.asset-portfolio-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(79,70,229,.13)}.asset-portfolio-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.asset-portfolio-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,.68);font-size:.96rem;box-shadow:0 6px 14px rgba(15,23,42,.06)}.asset-portfolio-value{font-size:1.55rem;font-weight:900;letter-spacing:-.05em;color:#0F172A}.asset-portfolio-name{margin-top:10px;font-size:.72rem;font-weight:800;color:#475569}.asset-portfolio-meta{margin-top:3px;font-size:.63rem;color:#94A3B8}
         @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
         </style>
         """, unsafe_allow_html=True)
@@ -4803,7 +4804,6 @@ else:
                 lambda row: _dash_int(row.get("Quantity", 0)) <= _dash_int(row.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
             ).sum())
 
-        st.markdown('<div class="dash-section"><div class="dash-section-title">ภาพรวมวันนี้</div><div class="dash-section-note">สถานะจากข้อมูลล่าสุดในระบบ</div></div>', unsafe_allow_html=True)
         _kpi_cols = st.columns(4, gap="medium")
         _kpis = [
             ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#BFDBFE", "#2563EB", "linear-gradient(145deg,rgba(147,197,253,.76),rgba(255,255,255,.62))"),
@@ -4821,6 +4821,25 @@ else:
                     </div>
                     <div class="dash-kpi-value">{_value:,}</div>
                     <div class="dash-kpi-caption">{_caption}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # ── Asset Portfolio cards ─────────────────────────────────────────
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Asset Portfolio</div><div class="dash-section-note">Managed inventory by category</div></div>', unsafe_allow_html=True)
+        _portfolio_cols = st.columns(4, gap="medium")
+        _portfolio_cards = [
+            ("💻", "Computers", _comp_count, "Assigned endpoints", "linear-gradient(145deg,rgba(147,197,253,.72),rgba(255,255,255,.62))", "#2563EB"),
+            ("🖥️", "Monitors", _mon_count, "Managed displays", "linear-gradient(145deg,rgba(103,232,249,.68),rgba(255,255,255,.62))", "#0891B2"),
+            ("🖨️", "Printers", _prn_count, "Network and local printers", "linear-gradient(145deg,rgba(196,181,253,.72),rgba(255,255,255,.62))", "#7C3AED"),
+            ("📂", "NAS Shares", _nas_count, "Indexed shared folders", "linear-gradient(145deg,rgba(110,231,183,.66),rgba(255,255,255,.62))", "#059669"),
+        ]
+        for _col, (_icon, _label, _value, _meta, _bg, _tone) in zip(_portfolio_cols, _portfolio_cards):
+            with _col:
+                st.markdown(f"""
+                <div class="asset-portfolio-card" style="background:{_bg};box-shadow:inset 0 3px 0 {_tone},0 12px 30px rgba(51,65,85,.08);">
+                    <div class="asset-portfolio-top"><div class="asset-portfolio-icon">{_icon}</div><div class="asset-portfolio-value">{_value:,}</div></div>
+                    <div class="asset-portfolio-name">{_label}</div>
+                    <div class="asset-portfolio-meta">{_meta}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -4869,7 +4888,11 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # ── Asset Portfolio & Action Center ───────────────────────────────
+        # Dashboard is complete after Security Center. The portfolio is now
+        # presented as cards above and Action Center has been intentionally removed.
+        st.stop()
+
+        # ── Legacy operational panels (kept unreachable for safe rollback) ──
         st.markdown('<div class="dash-section"><div class="dash-section-title">Operational Overview</div><div class="dash-section-note">Inventory mix and items requiring action</div></div>', unsafe_allow_html=True)
         _ops_cols = st.columns([1.05, .95], gap="medium")
         _portfolio_total = max(_total_assets, 1)
