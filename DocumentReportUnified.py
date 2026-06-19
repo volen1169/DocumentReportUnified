@@ -3682,7 +3682,9 @@ else:
     email = st.session_state.user_email or ""
     initials = "".join([w[0].upper() for w in name.split()[:2]]) or "U"
     nav_badges = get_sidebar_nav_badges()
-    compact = st.session_state.get("sidebar_compact", False)
+    # Clean Enterprise uses a full-size navigation panel only.
+    compact = False
+    st.session_state.sidebar_compact = False
 
     profile_dept = "OPG Human Resource" if admin_mode else (
         "Information Technology" if email and "optimal" in email.lower()
@@ -4177,6 +4179,17 @@ else:
         if _gk not in st.session_state:
             st.session_state[_gk] = False
 
+    # Keep the group containing the current page visible after reruns.
+    _active_for_group = st.session_state.active_nav
+    if _active_for_group in ("computers", "monitors", "printers", "projector", "ups", "misc"):
+        st.session_state.open_grp_assets = True
+    elif _active_for_group in ("password", "user_perm"):
+        st.session_state.open_grp_security = True
+    elif _active_for_group in ("ink_stock", "ink_history", "consumables"):
+        st.session_state.open_grp_inventory = True
+    elif _active_for_group in ("admin_users", "admin_settings", "admin_logs"):
+        st.session_state.open_grp_admin = True
+
     # removed force redirect to computers
 
     st.sidebar.markdown('<p class="nav-section-label hide-when-compact">NAVIGATION</p>', unsafe_allow_html=True)
@@ -4346,6 +4359,84 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
+    # V7 CLEAN ENTERPRISE SIDEBAR — final navigation layer.
+    st.markdown("""
+    <style>
+    /* Remove the discarded top navigation completely. */
+    .top-appbar,.top-nav-rule,.top-sub-label,
+    [class*="st-key-topnav_"],[class*="st-key-topsub_"],.st-key-top_logout{display:none!important}
+    [data-testid="stHorizontalBlock"]:has([class*="st-key-topnav_"]),
+    [data-testid="stHorizontalBlock"]:has([class*="st-key-topsub_"]){display:none!important}
+
+    /* Stable full-width sidebar; no hover expansion and no icon rail. */
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"]:hover,
+    section[data-testid="stSidebar"]:focus-within{
+        display:flex!important;width:304px!important;min-width:304px!important;max-width:304px!important;
+        overflow:hidden!important;z-index:100!important;background:linear-gradient(180deg,#F4FAFF 0%,#F2F5FF 55%,#F7F4FF 100%)!important;
+    }
+    section[data-testid="stSidebar"]>div:first-child,
+    section[data-testid="stSidebar"]:hover>div:first-child,
+    section[data-testid="stSidebar"]:focus-within>div:first-child{
+        width:304px!important;min-width:304px!important;max-width:304px!important;overflow:hidden!important;
+        border-right:1px solid rgba(148,163,184,.24)!important;background:rgba(255,255,255,.76)!important;
+        box-shadow:10px 0 34px rgba(15,23,42,.055)!important;backdrop-filter:blur(18px)!important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{
+        width:304px!important;min-width:304px!important;padding:20px 16px 18px!important;overflow-x:hidden!important;
+    }
+    [data-testid="stSidebarCollapseButton"]{display:none!important}
+    section[data-testid="stSidebar"] .ref-brand,
+    section[data-testid="stSidebar"] .ref-profile{
+        width:auto!important;overflow:visible!important;white-space:normal!important;opacity:1!important;
+        background:transparent!important;border-radius:0!important;box-shadow:none!important;
+    }
+    section[data-testid="stSidebar"] .ref-brand{padding:3px 3px 18px!important;margin:0 0 12px!important;border-bottom:1px solid #E2E8F0!important}
+    section[data-testid="stSidebar"] .ref-profile{padding:13px!important;margin:0 0 15px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:rgba(255,255,255,.82)!important}
+    section[data-testid="stSidebar"] .ref-logo{width:44px!important;height:44px!important;min-width:44px!important;border-radius:13px!important}
+    section[data-testid="stSidebar"] .ref-avatar{width:44px!important;height:44px!important;min-width:44px!important;border-radius:999px!important}
+    section[data-testid="stSidebar"] .ref-brand-title,
+    section[data-testid="stSidebar"] .ref-brand-sub,
+    section[data-testid="stSidebar"] .ref-profile-dept,
+    section[data-testid="stSidebar"] .ref-profile-name,
+    section[data-testid="stSidebar"] .ref-status-dot,
+    section[data-testid="stSidebar"] .ref-status-dot+span,
+    section[data-testid="stSidebar"] .nav-section-label{opacity:1!important;display:block!important}
+    section[data-testid="stSidebar"] .nav-section-label{width:auto!important;height:auto!important;padding:9px 8px 6px!important;color:#94A3B8!important;font-size:.64rem!important;letter-spacing:.14em!important}
+    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"]{gap:.28rem!important}
+    section[data-testid="stSidebar"] .stButton{width:100%!important;overflow:visible!important}
+    section[data-testid="stSidebar"] .stButton>button,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button{
+        width:100%!important;height:44px!important;min-height:44px!important;padding:0 13px!important;
+        justify-content:flex-start!important;overflow:visible!important;border-radius:11px!important;
+        border:1px solid transparent!important;background:transparent!important;color:#475569!important;
+        font-size:.84rem!important;font-weight:650!important;box-shadow:none!important;transform:none!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button p,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button p{
+        display:block!important;width:auto!important;max-width:none!important;overflow:visible!important;
+        white-space:pre!important;font-size:.84rem!important;line-height:1.25!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button:before{display:none!important;content:none!important}
+    section[data-testid="stSidebar"] .stButton>button:hover{background:#F1F5FF!important;color:#4338CA!important;border-color:#DDE3FF!important;box-shadow:none!important}
+    section[data-testid="stSidebar"] .stButton>button[kind="primary"],
+    section[data-testid="stSidebar"] .stButton>button[data-testid="stBaseButton-primary"]{
+        background:linear-gradient(135deg,#E0EAFF,#EDE9FE)!important;color:#4338CA!important;
+        border:1px solid #D5D9FF!important;border-left:3px solid #6366F1!important;
+        padding-left:11px!important;box-shadow:0 6px 16px rgba(79,70,229,.08)!important;
+    }
+    section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button{margin-top:3px!important;font-weight:750!important;color:#334155!important}
+    section[data-testid="stSidebar"] .nav-signout .stButton>button{margin-top:10px!important;justify-content:center!important;border-color:#E2E8F0!important;background:#FFF!important;color:#64748B!important}
+    section[data-testid="stSidebar"] .nav-signout .stButton>button:hover{background:#FFF5F5!important;color:#DC2626!important;border-color:#FECACA!important}
+    [data-testid="stMainBlockContainer"]{max-width:1500px!important;padding:1.35rem clamp(1rem,2.6vw,2.5rem) 4rem!important}
+    @media(max-width:900px){
+        section[data-testid="stSidebar"],section[data-testid="stSidebar"]:hover,section[data-testid="stSidebar"]:focus-within{width:274px!important;min-width:274px!important;max-width:274px!important}
+        section[data-testid="stSidebar"]>div:first-child,section[data-testid="stSidebar"]:hover>div:first-child{width:274px!important;min-width:274px!important;max-width:274px!important}
+        section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{width:274px!important;min-width:274px!important}
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown(f"""
     <div class="top-appbar">
         <div class="top-brand">
@@ -4471,8 +4562,48 @@ else:
     # -------------------------------------------------------
     if main_menu == "📊 Overview Dashboard":
         _dash_title = "Reports & Analytics" if _nav == "reports" else "IT Asset Overview"
-        _dash_sub = "แดชบอร์ดวิเคราะห์และภาพรวมสินทรัพย์ IT" if _nav == "reports" else "ภาพรวมสินทรัพย์ IT ทั้งหมด"
-        page_header("📊", _dash_title, _dash_sub)
+        _dash_sub = "วิเคราะห์แนวโน้มและภาพรวมข้อมูลสินทรัพย์" if _nav == "reports" else "ศูนย์ควบคุมและติดตามสินทรัพย์ IT"
+
+        st.markdown("""
+        <style>
+        .dash-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;
+            min-height:174px;padding:30px 34px;margin-bottom:20px;border-radius:26px;color:#FFF;
+            background:linear-gradient(125deg,#172554 0%,#3730A3 53%,#7C3AED 100%);
+            box-shadow:0 20px 50px rgba(49,46,129,.20)}
+        .dash-hero:after{content:'';position:absolute;width:330px;height:330px;right:-80px;bottom:-230px;border-radius:50%;background:rgba(56,189,248,.18)}
+        .dash-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#BAE6FD;margin-bottom:10px}
+        .dash-title{font-size:clamp(1.65rem,2.5vw,2.25rem);font-weight:850;letter-spacing:-.045em;line-height:1.12}
+        .dash-subtitle{margin-top:9px;font-size:.9rem;color:rgba(255,255,255,.70)}
+        .dash-date{position:relative;z-index:1;flex:0 0 auto;padding:10px 14px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.09);font-size:.76rem;font-weight:650;color:rgba(255,255,255,.82)}
+        .dash-section{display:flex;align-items:center;justify-content:space-between;margin:24px 0 10px}
+        .dash-section-title{font-size:.95rem;font-weight:800;color:#1E293B;letter-spacing:-.01em}
+        .dash-section-note{font-size:.72rem;color:#94A3B8}
+        .dash-kpi{min-height:138px;padding:19px;border:1px solid #E2E8F0;border-radius:20px;background:linear-gradient(180deg,#FFF,#FBFCFF);box-shadow:0 10px 28px rgba(15,23,42,.05)}
+        .dash-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+        .dash-kpi-label{font-size:.69rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#64748B}
+        .dash-kpi-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:1rem}
+        .dash-kpi-value{margin-top:14px;font-size:2rem;font-weight:850;letter-spacing:-.055em;color:#0F172A;line-height:1}
+        .dash-kpi-caption{margin-top:8px;font-size:.72rem;color:#94A3B8}
+        .dash-module{min-height:128px;padding:17px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+        .dash-module-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+        .dash-module-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:#EEF2FF;font-size:1.08rem}
+        .dash-module-count{font-size:1.7rem;font-weight:850;letter-spacing:-.04em;color:#0F172A}
+        .dash-module-name{margin-top:14px;font-size:.78rem;font-weight:750;color:#475569}
+        @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
+        </style>
+        """, unsafe_allow_html=True)
+
+        _today = datetime.datetime.now().strftime("%d/%m/%Y")
+        st.markdown(f"""
+        <div class="dash-hero">
+            <div style="position:relative;z-index:1;">
+                <div class="dash-eyebrow">Document Report Unified · Command Center</div>
+                <div class="dash-title">{_dash_title}</div>
+                <div class="dash-subtitle">{_dash_sub}</div>
+            </div>
+            <div class="dash-date">อัปเดตล่าสุด · {_today}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
         with st.spinner("กำลังโหลดข้อมูล..."):
             df_comp = load_sp_data("Computer Asset")
@@ -4492,35 +4623,62 @@ else:
         else:
             _co_count = 0
 
-        c1, c2, c3, c4, c5 = st.columns(5)
-        _cards = [
-            (c1, "COMPUTERS",  _comp_count, "#4f8ef7", "#eff4ff", "💻", "computers"),
-            (c2, "MONITORS",   _mon_count,  "#22c55e", "#f0fdf4", "🖥️", "monitors"),
-            (c3, "PRINTERS",   _prn_count,  "#a855f7", "#faf5ff", "🖨️", "printers"),
-            (c4, "NAS SHARES", _nas_count,  "#f59e0b", "#fffbeb", "📁", "user_perm"),
-            (c5, "COMPANIES",  _co_count,   "#06b6d4", "#ecfeff", "🏢", None),
+        def _count_status(frame, values):
+            if frame is None or frame.empty or "Status" not in frame.columns:
+                return 0
+            return int(frame["Status"].astype(str).str.strip().str.lower().isin(values).sum())
+
+        _total_assets = _comp_count + _mon_count + _prn_count
+        _active_assets = sum(_count_status(_df, {"active", "ใช้งาน"}) for _df in (df_comp, df_mon, df_prn))
+        _attention_assets = sum(_count_status(_df, {"inactive", "repair", "เสีย", "ซ่อม"}) for _df in (df_comp, df_mon, df_prn))
+        _low_ink_count = 0
+        if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
+            def _dash_int(value):
+                try: return int(value)
+                except Exception: return 0
+            _low_ink_count = int(df_ink.apply(
+                lambda row: _dash_int(row.get("Quantity", 0)) <= _dash_int(row.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
+            ).sum())
+
+        st.markdown('<div class="dash-section"><div class="dash-section-title">ภาพรวมวันนี้</div><div class="dash-section-note">สถานะจากข้อมูลล่าสุดในระบบ</div></div>', unsafe_allow_html=True)
+        _kpi_cols = st.columns(4, gap="medium")
+        _kpis = [
+            ("สินทรัพย์ทั้งหมด", _total_assets, "รายการในระบบ", "▦", "#EEF2FF", "#4F46E5"),
+            ("พร้อมใช้งาน", _active_assets, "สถานะ Active", "✓", "#ECFDF5", "#059669"),
+            ("ต้องตรวจสอบ", _attention_assets, "Inactive หรือ Repair", "!", "#FFF7ED", "#EA580C"),
+            ("หมึกใกล้หมด", _low_ink_count, "ต่ำกว่าจุดสั่งซื้อ", "↓", "#FEF2F2", "#DC2626"),
         ]
-        for _col, _label, _val, _color, _bg, _icon, _nav_key in _cards:
+        for _col, (_label, _value, _caption, _icon, _bg, _tone) in zip(_kpi_cols, _kpis):
             with _col:
                 st.markdown(f"""
-                <div class="ov-card">
-                    <div class="ov-card-top">
-                        <div class="ov-card-icon" style="background:{_bg};">{_icon}</div>
-                        <span class="ov-card-label">{_label}</span>
+                <div class="dash-kpi">
+                    <div class="dash-kpi-top">
+                        <div class="dash-kpi-label">{_label}</div>
+                        <div class="dash-kpi-icon" style="background:{_bg};color:{_tone};">{_icon}</div>
                     </div>
-                    <div class="ov-card-value" style="color:{_color};">{_val}</div>
-                    <div class="ov-card-link" style="color:{_color};">
-                        {_icon} <span>รายการทั้งหมด</span>
-                        <span style="font-size:1rem;">›</span>
-                    </div>
+                    <div class="dash-kpi-value">{_value:,}</div>
+                    <div class="dash-kpi-caption">{_caption}</div>
                 </div>
                 """, unsafe_allow_html=True)
-                if _nav_key and st.button(f"Open {_label.title()}", key=f"dash_nav_{_nav_key}", use_container_width=True):
-                    st.session_state.active_nav = _nav_key
-                    st.rerun()
+
+        st.markdown('<div class="dash-section"><div class="dash-section-title">สินทรัพย์แยกตามประเภท</div><div class="dash-section-note">เลือกโมดูลจาก Quick Access ด้านล่าง</div></div>', unsafe_allow_html=True)
+        _asset_cols = st.columns(5, gap="small")
+        _asset_summary = [
+            ("คอมพิวเตอร์", _comp_count, "💻"), ("จอภาพ", _mon_count, "🖥️"),
+            ("เครื่องพิมพ์", _prn_count, "🖨️"), ("NAS Shares", _nas_count, "📁"),
+            ("บริษัท", _co_count, "🏢"),
+        ]
+        for _col, (_label, _value, _icon) in zip(_asset_cols, _asset_summary):
+            with _col:
+                st.markdown(f"""
+                <div class="dash-module">
+                    <div class="dash-module-row"><div class="dash-module-icon">{_icon}</div><div class="dash-module-count">{_value:,}</div></div>
+                    <div class="dash-module-name">{_label}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
         # ── Clean Enterprise Module Launcher ──
-        st.markdown('<div class="top-sub-label" style="margin-top:18px;margin-bottom:8px;">Quick Access</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">ทางลัดเข้าสู่โมดูลที่ใช้งานบ่อย</div></div>', unsafe_allow_html=True)
         _launcher = [
             ("computers", "💻", "Computers", "จัดการรายการคอมพิวเตอร์และผู้ใช้งาน"),
             ("monitors", "🖥️", "Monitors", "ตรวจสอบจอภาพและสถานะการใช้งาน"),
