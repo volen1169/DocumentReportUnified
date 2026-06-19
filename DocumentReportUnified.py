@@ -813,14 +813,130 @@ def get_ad_agent_policy_summary(user_identity: str):
         raise Exception("AD Agent response format ไม่ถูกต้อง")
 
     groups = data.get("groups", []) or []
+
+    # รองรับ AD Agent ทั้ง 2 รูปแบบ:
+    # 1) {"user": {...}, "groups": [...], "policies": [...]}
+    # 2) {"displayName": "...", "mail": "...", "groups": [...], "internet_policy": [...]}
+    user_obj = data.get("user") if isinstance(data.get("user"), dict) else {}
+    if not user_obj:
+        user_obj = {
+            "displayName": data.get("displayName", ""),
+            "userPrincipalName": data.get("userPrincipalName", ""),
+            "mail": data.get("mail", ""),
+            "sAMAccountName": data.get("sAMAccountName", ""),
+            "department": data.get("department", ""),
+            "title": data.get("title", ""),
+            "company": data.get("company", ""),
+        }
+
     policies = data.get("policies") or get_internet_policies_from_groups(groups)
+
     return {
         "ok": bool(data.get("ok", True)),
         "source": "AD Agent",
-        "user": data.get("user", {}),
+        "user": user_obj,
         "groups": groups,
         "policies": policies,
         "error": data.get("error", ""),
+    }
+
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def get_ad_agent_policy_users(policy_name: str):
+    """Read all users who are members of a firewall policy group from AD Agent.
+
+    Expected AD Agent endpoint:
+    GET {AD_AGENT_URL}/policy-users?policy=FW_Officer_A
+    Response:
+    {
+      "ok": true,
+      "policy": "FW_Officer_A",
+      "description": "Allow All Website",
+      "users": [{"displayName": "...", "mail": "...", "sAMAccountName": "..."}]
+    }
+    """
+    if not _ad_agent_enabled():
+        raise Exception("ยังไม่ได้ตั้งค่า AD_AGENT_URL")
+
+    policy = str(policy_name or "").strip()
+    if not policy:
+        raise Exception("กรุณาระบุชื่อ Policy เช่น FW_Officer_A")
+
+    headers = {}
+    if AD_AGENT_TOKEN:
+        headers["X-API-Token"] = AD_AGENT_TOKEN
+        headers["Authorization"] = f"Bearer {AD_AGENT_TOKEN}"
+
+    resp = requests.get(
+        f"{AD_AGENT_URL}/policy-users",
+        headers=headers,
+        params={"policy": policy},
+        timeout=AD_LDAP_TIMEOUT,
+    )
+    try:
+        data = resp.json()
+    except Exception:
+        data = {"error": resp.text[:300]}
+
+    if resp.status_code == 404:
+        raise Exception("AD Agent ยังไม่มี endpoint /policy-users — กรุณาอัปเดต ad_agent.py บน NAS เป็นเวอร์ชันที่รองรับค้นหา Policy")
+    if resp.status_code >= 400:
+        raise Exception(f"AD Agent HTTP {resp.status_code}: {data}")
+    if not isinstance(data, dict):
+        raise Exception("AD Agent response format ไม่ถูกต้อง")
+
+    users = data.get("users", []) or []
+    if not isinstance(users, list):
+        users = []
+
+    return {
+        "ok": bool(data.get("ok", True)),
+        "source": "AD Agent",
+        "policy": data.get("policy", policy),
+        "description": data.get("description", FW_POLICY_MAP.get(policy, "")),
+        "users": users,
+        "count": data.get("count", len(users)),
+        "error": data.get("error", ""),
+    }
+
+
+def get_policy_users_summary(policy_name: str):
+    """คืนรายชื่อ User ทั้งหมดที่ได้ Policy นี้."""
+    errors = []
+    policy = str(policy_name or "").strip()
+
+    if not policy:
+        return {
+            "ok": False,
+            "source": "",
+            "policy": "",
+            "description": "",
+            "users": [],
+            "count": 0,
+            "error": "กรุณาระบุชื่อ Policy",
+        }
+
+    # Streamlit Cloud ควรใช้ AD Agent เป็นหลัก เพราะเข้า IP ภายใน/LDAP ตรงไม่ได้
+    try:
+        if _ad_agent_enabled():
+            result = get_ad_agent_policy_users(policy)
+            if result.get("ok"):
+                return result
+            errors.append(f"AD Agent: {result.get('error', '')}")
+        else:
+            errors.append("AD Agent skipped: ยังไม่ได้ตั้งค่า AD_AGENT_URL")
+    except Exception as e:
+        errors.append(f"AD Agent: {e}")
+
+    return {
+        "ok": False,
+        "source": "",
+        "policy": policy,
+        "description": FW_POLICY_MAP.get(policy, ""),
+        "users": [],
+        "count": 0,
+        "error": " | ".join(errors) if errors else "ไม่พบข้อมูล Policy",
     }
 
 
@@ -4322,13 +4438,13 @@ else:
     # 🌐 AD / Firewall Policy
     # -------------------------------------------------------
     elif main_menu == "🌐 AD / Firewall Policy":
-        page_header("🌐", "AD / Firewall Policy", "ตรวจสอบ Internet Policy ที่ผู้ใช้ได้รับจาก AD / Entra ID Group")
+        page_header("🌐", "AD / Firewall Policy", "ตรวจสอบ Internet Policy ที่ผู้ใช้หรือ Policy Group ได้รับจาก AD / Entra ID Group")
 
-        st.info("ระบบอ่าน Group Membership จาก AD Server ผ่าน LDAP/LDAPS หรือ AD Agent ก่อน แล้ว fallback ไป Microsoft Graph จากนั้นแปลงกลุ่มที่ขึ้นต้นด้วย FW_, Firewall_ หรือ Internet_ เป็น Internet Policy")
+        st.info("ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย FW_, Firewall_ หรือ Internet_ เป็น Internet Policy")
 
-        tab_user, tab_assets, tab_map = st.tabs([
+        tab_user, tab_policy, tab_map = st.tabs([
             "ค้นหา User",
-            "รายงานจาก Asset",
+            "ค้นหา Policy",
             "Policy Mapping",
         ])
 
@@ -4337,7 +4453,7 @@ else:
             user_identity = st.text_input(
                 "User / Email / UPN",
                 value=default_identity,
-                placeholder="เช่น user@company.com หรือ Firstname.Lastname",
+                placeholder="เช่น supranee.ch หรือ user@company.com",
                 key="ad_policy_user_identity",
             )
 
@@ -4349,6 +4465,7 @@ else:
                     ldap_find_user.clear()
                     get_ldap_group_names_for_user.clear()
                     get_ad_agent_policy_summary.clear()
+                    get_ad_agent_policy_users.clear()
                     graph_find_user.clear()
                     get_ad_group_names_for_user.clear()
                     load_firewall_policy_mapping.clear()
@@ -4364,8 +4481,8 @@ else:
 
                     if user_obj:
                         u1, u2, u3, u4 = st.columns(4)
-                        u1.metric("Display Name", user_obj.get("displayName", "-"))
-                        u2.metric("UPN", user_obj.get("userPrincipalName", "-"))
+                        u1.metric("Display Name", user_obj.get("displayName", "-") or "-")
+                        u2.metric("Account", user_obj.get("sAMAccountName") or user_obj.get("userPrincipalName") or "-")
                         u3.metric("Mail", user_obj.get("mail") or "-")
                         u4.metric("Source", policy_summary.get("source", "-"))
                     else:
@@ -4405,59 +4522,92 @@ else:
                     else:
                         st.error(f"ยังดึงข้อมูล AD / Entra ID ไม่ได้: {policy_summary.get('error', '')}")
 
-        with tab_assets:
-            source_map = {
-                "Computer Asset": "Computer Asset",
-                "Monitor Asset": "Asset Monitor",
-                "Printer Asset": "Asset Printer",
-            }
-            selected_source_label = st.selectbox("เลือกแหล่งข้อมูล Asset", list(source_map.keys()), key="ad_policy_asset_source")
-            selected_source = source_map[selected_source_label]
-            st.caption("รายงานนี้จะดึง policy จาก AD ให้เฉพาะ User ที่พบในรายการ Asset ที่เลือก")
+        with tab_policy:
+            map_rows = load_firewall_policy_mapping()
+            available_policies = sorted({
+                str(row.get("AD Group", "")).strip()
+                for row in map_rows
+                if str(row.get("AD Group", "")).strip()
+            })
 
-            if st.button("สร้างรายงาน Policy จาก Asset", type="primary", use_container_width=True, key="ad_policy_asset_report"):
-                with st.spinner("กำลังโหลด Asset และตรวจสอบ Policy จาก AD..."):
-                    df_assets = load_sp_data(selected_source)
-                    report_rows = []
-                    seen_users = set()
+            c_policy, c_manual = st.columns([0.42, 0.58])
+            with c_policy:
+                selected_policy = st.selectbox(
+                    "เลือก Policy",
+                    available_policies if available_policies else sorted(FW_POLICY_MAP.keys()),
+                    key="ad_policy_selected_policy",
+                )
+            with c_manual:
+                manual_policy = st.text_input(
+                    "หรือพิมพ์ชื่อ Policy เอง",
+                    placeholder="เช่น FW_Officer_A",
+                    key="ad_policy_manual_policy",
+                )
 
-                    for _, row in df_assets.iterrows():
-                        user_identity = get_asset_user_identity(row, selected_source)
-                        if not user_identity:
-                            continue
+            policy_query = manual_policy.strip() or selected_policy
 
-                        dedupe_key = user_identity.strip().lower()
-                        if dedupe_key in seen_users:
-                            continue
-                        seen_users.add(dedupe_key)
+            col_search, col_cache = st.columns([0.22, 0.78])
+            with col_search:
+                policy_lookup_clicked = st.button("ค้นหา User", type="primary", use_container_width=True, key="ad_policy_policy_lookup")
+            with col_cache:
+                if st.button("ล้าง Cache Policy", use_container_width=True, key="ad_policy_policy_clear"):
+                    get_ad_agent_policy_users.clear()
+                    load_firewall_policy_mapping.clear()
+                    st.rerun()
 
-                        policy_summary = get_user_internet_policy_summary(user_identity)
-                        policies = policy_summary.get("policies", [])
-                        report_rows.append({
-                            "User": user_identity,
-                            "Asset Source": selected_source,
-                            "Policy Internet": format_policy_names(policies),
-                            "Policy Description": format_policy_descriptions(policies),
-                            "Allowed": format_policy_allowed(policies),
-                            "Blocked": format_policy_blocked(policies),
-                            "AD Groups Count": len(policy_summary.get("groups", [])) if policy_summary.get("ok") else 0,
-                            "Status": "OK" if policy_summary.get("ok") else "Error",
-                            "Error": policy_summary.get("error", ""),
+            if policy_lookup_clicked or manual_policy.strip():
+                with st.spinner(f"กำลังค้นหา User ที่ใช้ {policy_query}..."):
+                    policy_users = get_policy_users_summary(policy_query)
+
+                if policy_users.get("ok"):
+                    users = policy_users.get("users", []) or []
+                    m1, m2, m3 = st.columns(3)
+                    m1.metric("Policy", policy_users.get("policy", policy_query))
+                    m2.metric("Users", len(users))
+                    m3.metric("Source", policy_users.get("source", "-"))
+
+                    desc = policy_users.get("description") or FW_POLICY_MAP.get(policy_query, "")
+                    if desc:
+                        st.success(f"{policy_query}: {desc}")
+
+                    if users:
+                        users_df = pd.DataFrame(users)
+                        preferred_cols = [
+                            "displayName",
+                            "sAMAccountName",
+                            "userPrincipalName",
+                            "mail",
+                            "department",
+                            "title",
+                            "company",
+                        ]
+                        show_cols = [c for c in preferred_cols if c in users_df.columns]
+                        if show_cols:
+                            users_df = users_df[show_cols]
+                        users_df = users_df.rename(columns={
+                            "displayName": "Display Name",
+                            "sAMAccountName": "Account",
+                            "userPrincipalName": "UPN",
+                            "mail": "Mail",
+                            "department": "Department",
+                            "title": "Title",
+                            "company": "Company",
                         })
 
-                if report_rows:
-                    report_df = pd.DataFrame(report_rows)
-                    st.dataframe(report_df, use_container_width=True, hide_index=True)
-                    csv_data = report_df.to_csv(index=False).encode("utf-8-sig")
-                    st.download_button(
-                        "Export CSV",
-                        data=csv_data,
-                        file_name="ad_firewall_policy_report.csv",
-                        mime="text/csv",
-                        use_container_width=True,
-                    )
+                        st.dataframe(users_df, use_container_width=True, hide_index=True)
+                        st.download_button(
+                            "Export Users CSV",
+                            data=users_df.to_csv(index=False).encode("utf-8-sig"),
+                            file_name=f"{policy_query}_users.csv",
+                            mime="text/csv",
+                            use_container_width=True,
+                        )
+                    else:
+                        st.info("ไม่พบ User ที่อยู่ใน Policy นี้")
                 else:
-                    st.info("ไม่พบ User ในรายการ Asset ที่เลือก")
+                    st.error(f"ยังดึงรายชื่อ User ของ Policy นี้ไม่ได้: {policy_users.get('error', '')}")
+
+            st.caption("หมายเหตุ: การค้นหา Policy ต้องใช้ AD Agent endpoint `/policy-users` เช่น `https://ad-agent.poonyaruk.co.th/policy-users?policy=FW_Officer_A`")
 
         with tab_map:
             st.caption(f"อ่าน mapping จาก SharePoint List: {FIREWALL_POLICY_MAPPING_LIST} ถ้าไม่มีหรือว่าง ระบบจะใช้ Default Mapping ในโค้ด")
@@ -4475,6 +4625,7 @@ else:
             else:
                 st.info("ยังไม่มี Policy Mapping")
             st.caption(f"Policy prefixes: {', '.join(FW_POLICY_PREFIXES)}")
+
 
     # -------------------------------------------------------
     # 🖨️ Stock หมึกพิมพ์
