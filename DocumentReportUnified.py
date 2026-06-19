@@ -4379,8 +4379,11 @@ else:
     /* Remove the discarded top navigation completely. */
     .top-appbar,.top-nav-rule,.top-sub-label,
     [class*="st-key-topnav_"],[class*="st-key-topsub_"],.st-key-top_logout{display:none!important}
+    div[data-testid="stElementContainer"]:has(.top-appbar),
+    div[data-testid="stElementContainer"]:has(.top-nav-rule),
+    div[data-testid="stElementContainer"]:has(.top-sub-label){display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important}
     [data-testid="stHorizontalBlock"]:has([class*="st-key-topnav_"]),
-    [data-testid="stHorizontalBlock"]:has([class*="st-key-topsub_"]){display:none!important}
+    [data-testid="stHorizontalBlock"]:has([class*="st-key-topsub_"]){display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important}
 
     /* Stable full-width sidebar; no hover expansion and no icon rail. */
     section[data-testid="stSidebar"],
@@ -4536,7 +4539,11 @@ else:
     section[data-testid="stSidebar"] .nav-signout .stButton>button:hover{
         background:#FFF5F5!important;border-color:#FEE2E2!important;color:#DC2626!important;
     }
-    [data-testid="stMainBlockContainer"]{max-width:1500px!important;padding:1.35rem clamp(1rem,2.6vw,2.5rem) 4rem!important}
+    section[data-testid="stMain"]{padding-top:0!important;margin-top:0!important}
+    section[data-testid="stMain"] [data-testid="stMainBlockContainer"],
+    section[data-testid="stMain"] .block-container{max-width:1500px!important;padding:10px clamp(1rem,2.6vw,2.5rem) 4rem!important;margin-top:0!important}
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"],
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{padding-top:14px!important;margin-top:0!important}
     @media(max-width:900px){
         section[data-testid="stSidebar"],section[data-testid="stSidebar"]:hover,section[data-testid="stSidebar"]:focus-within{width:274px!important;min-width:274px!important;max-width:274px!important}
         section[data-testid="stSidebar"]>div:first-child,section[data-testid="stSidebar"]:hover>div:first-child{width:274px!important;min-width:274px!important;max-width:274px!important}
@@ -4716,7 +4723,7 @@ else:
 
         /* V8 visual polish: tighter rhythm, richer glass, integrated actions. */
         [data-testid="stHeader"],[data-testid="stToolbar"]{display:none!important}
-        [data-testid="stMainBlockContainer"]{padding-top:18px!important;padding-bottom:38px!important}
+        section[data-testid="stMain"] [data-testid="stMainBlockContainer"],section[data-testid="stMain"] .block-container{padding-top:6px!important;margin-top:0!important;padding-bottom:38px!important}
         [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:radial-gradient(circle at 88% 4%,rgba(34,211,238,.25),transparent 27rem),radial-gradient(circle at 12% 88%,rgba(99,102,241,.22),transparent 28rem),linear-gradient(140deg,#EDF8FF 0%,#F2F3FF 46%,#F7F1FF 100%)!important}
         .dash-hero{margin-bottom:14px!important;box-shadow:0 26px 70px rgba(30,64,175,.26)!important}
         .dash-section{margin:17px 0 8px!important}
@@ -4803,26 +4810,6 @@ else:
             _low_ink_count = int(df_ink.apply(
                 lambda row: _dash_int(row.get("Quantity", 0)) <= _dash_int(row.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
             ).sum())
-
-        _kpi_cols = st.columns(4, gap="medium")
-        _kpis = [
-            ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#BFDBFE", "#2563EB", "linear-gradient(145deg,rgba(147,197,253,.76),rgba(255,255,255,.62))"),
-            ("ACTIVE USERS", _active_users, "Unique assigned users", "◉", "#A7F3D0", "#059669", "linear-gradient(145deg,rgba(110,231,183,.70),rgba(255,255,255,.62))"),
-            ("SECURITY POLICIES", _security_policy_count, "Firewall policy mappings", "◆", "#DDD6FE", "#7C3AED", "linear-gradient(145deg,rgba(196,181,253,.76),rgba(255,255,255,.62))"),
-            ("NAS STORAGE", _nas_count, "Shared folders monitored", "▤", "#A5F3FC", "#0891B2", "linear-gradient(145deg,rgba(103,232,249,.68),rgba(255,255,255,.62))"),
-        ]
-        for _col, (_label, _value, _caption, _icon, _bg, _tone, _card_bg) in zip(_kpi_cols, _kpis):
-            with _col:
-                st.markdown(f"""
-                <div class="dash-kpi" style="--kpi-glow:{_tone}33;background:{_card_bg}!important;box-shadow:inset 0 4px 0 {_tone},0 16px 42px rgba(51,65,85,.11)!important;">
-                    <div class="dash-kpi-top">
-                        <div class="dash-kpi-label">{_label}</div>
-                        <div class="dash-kpi-icon" style="background:{_bg};color:{_tone};">{_icon}</div>
-                    </div>
-                    <div class="dash-kpi-value">{_value:,}</div>
-                    <div class="dash-kpi-caption">{_caption}</div>
-                </div>
-                """, unsafe_allow_html=True)
 
         # ── Asset Portfolio cards ─────────────────────────────────────────
         st.markdown('<div class="dash-section"><div class="dash-section-title">Asset Portfolio</div><div class="dash-section-note">Managed inventory by category</div></div>', unsafe_allow_html=True)
