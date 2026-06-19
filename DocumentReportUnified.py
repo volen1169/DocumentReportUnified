@@ -4092,7 +4092,6 @@ else:
             label,
             use_container_width=True,
             type="secondary",
-            help=text,
             key=f"nav_{nav_key}_{'active' if active else 'idle'}",
             **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle")),
         ):
@@ -4119,7 +4118,7 @@ else:
         label = f"{text}   {'⌄' if open_ else '›'}"
         if not _ST_BUTTON_HAS_ICON:
             label = f"{_GROUP_FALLBACK_ICONS.get(state_key, '◇')}  {label}"
-        if st.sidebar.button(label, use_container_width=True, type="secondary", help=text,
+        if st.sidebar.button(label, use_container_width=True, type="secondary",
                              key=f"tog_{state_key}",
                              **_button_icon(_GROUP_MATERIAL_ICONS.get(state_key, "folder"))):
             st.session_state[state_key] = not open_
@@ -4131,7 +4130,7 @@ else:
         if not _ST_BUTTON_HAS_ICON:
             label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
         if st.sidebar.button(label, use_container_width=True, type="secondary",
-                             help=text, key=f"nav_{nav_key}_{'active' if active else 'idle'}",
+                             key=f"nav_{nav_key}_{'active' if active else 'idle'}",
                              **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle"))):
             st.session_state.active_nav = nav_key
             st.rerun()
