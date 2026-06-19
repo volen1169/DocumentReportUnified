@@ -3432,13 +3432,13 @@ else:
 
         c1, c2, c3, c4, c5 = st.columns(5)
         _cards = [
-            (c1, "COMPUTERS",  _comp_count, "#4f8ef7", "#eff4ff", "💻"),
-            (c2, "MONITORS",   _mon_count,  "#22c55e", "#f0fdf4", "🖥️"),
-            (c3, "PRINTERS",   _prn_count,  "#a855f7", "#faf5ff", "🖨️"),
-            (c4, "NAS SHARES", _nas_count,  "#f59e0b", "#fffbeb", "📁"),
-            (c5, "COMPANIES",  _co_count,   "#06b6d4", "#ecfeff", "🏢"),
+            (c1, "COMPUTERS",  _comp_count, "#4f8ef7", "#eff4ff", "💻", "computers"),
+            (c2, "MONITORS",   _mon_count,  "#22c55e", "#f0fdf4", "🖥️", "monitors"),
+            (c3, "PRINTERS",   _prn_count,  "#a855f7", "#faf5ff", "🖨️", "printers"),
+            (c4, "NAS SHARES", _nas_count,  "#f59e0b", "#fffbeb", "📁", "user_perm"),
+            (c5, "COMPANIES",  _co_count,   "#06b6d4", "#ecfeff", "🏢", None),
         ]
-        for _col, _label, _val, _color, _bg, _icon in _cards:
+        for _col, _label, _val, _color, _bg, _icon, _nav_key in _cards:
             with _col:
                 st.markdown(f"""
                 <div class="ov-card">
@@ -3453,6 +3453,9 @@ else:
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+                if _nav_key and st.button(f"Open {_label.title()}", key=f"dash_nav_{_nav_key}", use_container_width=True):
+                    st.session_state.active_nav = _nav_key
+                    st.rerun()
 
         # ── Ink low-stock alert ──
         if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
