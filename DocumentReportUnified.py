@@ -297,6 +297,10 @@ import extra_streamlit_components as stx
 import plotly.express as px
 from openpyxl import load_workbook
 from copy import copy
+try:
+    from ldap3 import ALL, SUBTREE, Connection, Server
+except Exception:
+    ALL = SUBTREE = Connection = Server = None
 
 # =============================================================================
 # SECTION 01 : CONFIGURATION
@@ -312,6 +316,47 @@ SHAREPOINT_DOMAIN = "optimalcoth.sharepoint.com"
 SITE_NAME = "InformationTechnology"
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 GRAPH_URL = "https://graph.microsoft.com/v1.0"
+
+
+def _secret_bool(name: str, default=False) -> bool:
+    value = st.secrets.get(name, default)
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in ("1", "true", "yes", "y", "on")
+
+# AD / Firewall Policy Source
+# ---------------------------------------------------------------------------
+# AD_POLICY_SOURCE:
+# - "ldap"  = query Domain Controller / AD Server directly via LDAP/LDAPS
+# - "agent" = call internal AD Agent API
+# - "graph" = Microsoft Graph / Entra ID
+# - "auto"  = try ldap, then agent, then graph
+AD_POLICY_SOURCE = st.secrets.get("AD_POLICY_SOURCE", "auto").lower().strip()
+
+# LDAP / LDAPS direct AD settings
+# Example:
+# AD_LDAP_SERVER = "192.168.2.3"
+# AD_LDAP_PORT = 389          # 636 for LDAPS
+# AD_LDAP_USE_SSL = false     # true for LDAPS
+# AD_DOMAIN = "optimalgroup.com"
+# AD_BASE_DN = "DC=optimalgroup,DC=com"
+# AD_BIND_USER = "OPTIMALGROUP\\svc_ad_reader" or "svc_ad_reader@optimalgroup.com"
+# AD_BIND_PASSWORD = "..."
+AD_LDAP_SERVER = st.secrets.get("AD_LDAP_SERVER", st.secrets.get("AD_SERVER", "")).strip()
+AD_LDAP_USE_SSL = _secret_bool("AD_LDAP_USE_SSL", False)
+AD_LDAP_PORT = int(st.secrets.get("AD_LDAP_PORT", 636 if AD_LDAP_USE_SSL else 389))
+AD_DOMAIN = st.secrets.get("AD_DOMAIN", "").strip()
+AD_BASE_DN = st.secrets.get("AD_BASE_DN", "").strip()
+AD_BIND_USER = st.secrets.get("AD_BIND_USER", "").strip()
+AD_BIND_PASSWORD = st.secrets.get("AD_BIND_PASSWORD", "")
+AD_LDAP_TIMEOUT = int(st.secrets.get("AD_LDAP_TIMEOUT", 15))
+
+# Optional internal AD Agent API settings
+# Expected endpoints:
+# GET {AD_AGENT_URL}/user-policy?user=<identity>
+# Response: {"ok": true, "user": {...}, "groups": ["FW_Officer_D"], "policies": [...]}
+AD_AGENT_URL = st.secrets.get("AD_AGENT_URL", "").rstrip("/")
+AD_AGENT_TOKEN = st.secrets.get("AD_AGENT_TOKEN", "")
 
 # NAS Config
 # -----------------------------------------------------------------------------
@@ -602,6 +647,183 @@ def check_ms_login(username, password):
 # ดึง Group Membership จาก Microsoft Entra ID / Active Directory ผ่าน Microsoft Graph
 # แล้วแปลง Group ที่ขึ้นต้นด้วย FW_ เป็น Internet Policy
 # =============================================================================
+def _escape_ldap_filter_value(value: str) -> str:
+    """Escape special characters for LDAP filter values."""
+    text = str(value or "")
+    return (
+        text.replace("\\", r"\5c")
+            .replace("*", r"\2a")
+            .replace("(", r"\28")
+            .replace(")", r"\29")
+            .replace("\x00", r"\00")
+    )
+
+
+def _extract_cn_from_dn(dn: str) -> str:
+    """Extract CN from a distinguishedName like CN=FW_Officer_D,OU=Groups,..."""
+    text = str(dn or "").strip()
+    if not text:
+        return ""
+    match = re.match(r"CN=((?:\\.|[^,])+)", text, flags=re.IGNORECASE)
+    if not match:
+        return text
+    return match.group(1).replace(r"\,", ",").replace(r"\\", "\\").strip()
+
+
+def _normalize_ad_identity(user_identity: str):
+    ident = str(user_identity or "").strip()
+    if "\\" in ident:
+        ident = ident.split("\\")[-1].strip()
+    return ident
+
+
+def _ldap_enabled():
+    return bool(AD_LDAP_SERVER and AD_BASE_DN and AD_BIND_USER and AD_BIND_PASSWORD)
+
+
+def _ad_agent_enabled():
+    return bool(AD_AGENT_URL)
+
+
+def _source_order():
+    if AD_POLICY_SOURCE in ("ldap", "agent", "graph"):
+        return [AD_POLICY_SOURCE]
+    return ["ldap", "agent", "graph"]
+
+
+def _make_ldap_connection():
+    if Server is None or Connection is None:
+        raise Exception("ยังไม่ได้ติดตั้ง Python package 'ldap3' ใน environment ที่รันแอป")
+    if not _ldap_enabled():
+        raise Exception("ยังไม่ได้ตั้งค่า AD_LDAP_SERVER / AD_BASE_DN / AD_BIND_USER / AD_BIND_PASSWORD")
+
+    server = Server(
+        AD_LDAP_SERVER,
+        port=AD_LDAP_PORT,
+        use_ssl=AD_LDAP_USE_SSL,
+        get_info=ALL,
+        connect_timeout=AD_LDAP_TIMEOUT,
+    )
+    conn = Connection(
+        server,
+        user=AD_BIND_USER,
+        password=AD_BIND_PASSWORD,
+        auto_bind=True,
+        receive_timeout=AD_LDAP_TIMEOUT,
+    )
+    return conn
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def ldap_find_user(user_identity: str):
+    """Find a user directly from AD LDAP and return core attributes."""
+    ident = _normalize_ad_identity(user_identity)
+    if not ident:
+        return None
+
+    local_part = ident.split("@")[0] if "@" in ident else ident
+    safe_ident = _escape_ldap_filter_value(ident)
+    safe_local = _escape_ldap_filter_value(local_part)
+
+    filters = [
+        f"(userPrincipalName={safe_ident})",
+        f"(mail={safe_ident})",
+        f"(sAMAccountName={safe_local})",
+        f"(cn={safe_ident})",
+        f"(displayName={safe_ident})",
+        f"(displayName={_escape_ldap_filter_value(ident.replace('.', ' '))})",
+    ]
+    search_filter = "(&(objectCategory=person)(objectClass=user)(|" + "".join(filters) + "))"
+    attributes = [
+        "displayName",
+        "userPrincipalName",
+        "mail",
+        "sAMAccountName",
+        "distinguishedName",
+        "memberOf",
+        "department",
+        "title",
+        "company",
+        "enabled",
+    ]
+
+    conn = _make_ldap_connection()
+    try:
+        ok = conn.search(
+            search_base=AD_BASE_DN,
+            search_filter=search_filter,
+            search_scope=SUBTREE,
+            attributes=attributes,
+            size_limit=1,
+        )
+        if not ok or not conn.entries:
+            return None
+
+        entry = conn.entries[0]
+        data = entry.entry_attributes_as_dict
+        return {
+            "id": str(data.get("distinguishedName", [""])[0] if isinstance(data.get("distinguishedName"), list) else data.get("distinguishedName", "")),
+            "displayName": str(data.get("displayName", [""])[0] if isinstance(data.get("displayName"), list) and data.get("displayName") else data.get("displayName", "")),
+            "userPrincipalName": str(data.get("userPrincipalName", [""])[0] if isinstance(data.get("userPrincipalName"), list) and data.get("userPrincipalName") else data.get("userPrincipalName", "")),
+            "mail": str(data.get("mail", [""])[0] if isinstance(data.get("mail"), list) and data.get("mail") else data.get("mail", "")),
+            "sAMAccountName": str(data.get("sAMAccountName", [""])[0] if isinstance(data.get("sAMAccountName"), list) and data.get("sAMAccountName") else data.get("sAMAccountName", "")),
+            "department": str(data.get("department", [""])[0] if isinstance(data.get("department"), list) and data.get("department") else data.get("department", "")),
+            "title": str(data.get("title", [""])[0] if isinstance(data.get("title"), list) and data.get("title") else data.get("title", "")),
+            "company": str(data.get("company", [""])[0] if isinstance(data.get("company"), list) and data.get("company") else data.get("company", "")),
+            "memberOf": data.get("memberOf", []) or [],
+        }
+    finally:
+        conn.unbind()
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def get_ldap_group_names_for_user(user_identity: str):
+    """Return direct AD memberOf group names from Domain Controller."""
+    user_obj = ldap_find_user(user_identity)
+    if not user_obj:
+        return []
+    groups = [_extract_cn_from_dn(dn) for dn in user_obj.get("memberOf", [])]
+    return sorted({g for g in groups if g}, key=lambda x: x.lower())
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def get_ad_agent_policy_summary(user_identity: str):
+    """Read user/group/policy data from an internal AD Agent API if configured."""
+    if not _ad_agent_enabled():
+        raise Exception("ยังไม่ได้ตั้งค่า AD_AGENT_URL")
+
+    headers = {}
+    if AD_AGENT_TOKEN:
+        headers["X-API-Token"] = AD_AGENT_TOKEN
+        headers["Authorization"] = f"Bearer {AD_AGENT_TOKEN}"
+
+    resp = requests.get(
+        f"{AD_AGENT_URL}/user-policy",
+        headers=headers,
+        params={"user": user_identity},
+        timeout=AD_LDAP_TIMEOUT,
+    )
+    try:
+        data = resp.json()
+    except Exception:
+        data = {"error": resp.text[:300]}
+    if resp.status_code >= 400:
+        raise Exception(f"AD Agent HTTP {resp.status_code}: {data}")
+    if not isinstance(data, dict):
+        raise Exception("AD Agent response format ไม่ถูกต้อง")
+
+    groups = data.get("groups", []) or []
+    policies = data.get("policies") or get_internet_policies_from_groups(groups)
+    return {
+        "ok": bool(data.get("ok", True)),
+        "source": "AD Agent",
+        "user": data.get("user", {}),
+        "groups": groups,
+        "policies": policies,
+        "error": data.get("error", ""),
+    }
+
+
 def _escape_graph_filter_value(value: str) -> str:
     """Escape single quote for Microsoft Graph OData filter."""
     return str(value or "").replace("'", "''").strip()
@@ -835,13 +1057,66 @@ def get_internet_policies_from_groups(group_names):
 
 
 def get_user_internet_policy_summary(user_identity: str):
-    """คืนสรุป Internet Policy ของ User จาก AD Group"""
-    try:
-        groups = get_ad_group_names_for_user(user_identity)
-        policies = get_internet_policies_from_groups(groups)
-        return {"ok": True, "groups": groups, "policies": policies, "error": ""}
-    except Exception as e:
-        return {"ok": False, "groups": [], "policies": [], "error": str(e)}
+    """คืนสรุป Internet Policy ของ User จาก AD / Agent / Graph ตาม source ที่ตั้งค่าไว้"""
+    errors = []
+
+    for source in _source_order():
+        try:
+            if source == "ldap":
+                if not _ldap_enabled():
+                    errors.append("LDAP skipped: ยังไม่ได้ตั้งค่า LDAP secrets")
+                    continue
+                user_obj = ldap_find_user(user_identity)
+                if not user_obj:
+                    errors.append("LDAP: ไม่พบ User ใน AD Server")
+                    continue
+                groups = get_ldap_group_names_for_user(user_identity)
+                policies = get_internet_policies_from_groups(groups)
+                return {
+                    "ok": True,
+                    "source": "AD LDAP",
+                    "user": user_obj,
+                    "groups": groups,
+                    "policies": policies,
+                    "error": "",
+                }
+
+            if source == "agent":
+                if not _ad_agent_enabled():
+                    errors.append("AD Agent skipped: ยังไม่ได้ตั้งค่า AD_AGENT_URL")
+                    continue
+                result = get_ad_agent_policy_summary(user_identity)
+                if result.get("ok"):
+                    return result
+                errors.append(f"AD Agent: {result.get('error', '')}")
+                continue
+
+            if source == "graph":
+                user_obj = graph_find_user(user_identity)
+                if not user_obj or not user_obj.get("id"):
+                    errors.append("Graph: ไม่พบ User ใน Entra ID")
+                    continue
+                groups = get_ad_group_names_for_user(user_identity)
+                policies = get_internet_policies_from_groups(groups)
+                return {
+                    "ok": True,
+                    "source": "Microsoft Graph",
+                    "user": user_obj,
+                    "groups": groups,
+                    "policies": policies,
+                    "error": "",
+                }
+        except Exception as e:
+            errors.append(f"{source.upper()}: {e}")
+
+    return {
+        "ok": False,
+        "source": "",
+        "user": {},
+        "groups": [],
+        "policies": [],
+        "error": " | ".join(errors) if errors else "ไม่พบข้อมูลจากทุก source",
+    }
 
 
 def format_policy_names(policies):
@@ -4049,7 +4324,7 @@ else:
     elif main_menu == "🌐 AD / Firewall Policy":
         page_header("🌐", "AD / Firewall Policy", "ตรวจสอบ Internet Policy ที่ผู้ใช้ได้รับจาก AD / Entra ID Group")
 
-        st.info("ระบบอ่าน Group Membership จาก Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย FW_, Firewall_ หรือ Internet_ เป็น Internet Policy")
+        st.info("ระบบอ่าน Group Membership จาก AD Server ผ่าน LDAP/LDAPS หรือ AD Agent ก่อน แล้ว fallback ไป Microsoft Graph จากนั้นแปลงกลุ่มที่ขึ้นต้นด้วย FW_, Firewall_ หรือ Internet_ เป็น Internet Policy")
 
         tab_user, tab_assets, tab_map = st.tabs([
             "ค้นหา User",
@@ -4071,6 +4346,9 @@ else:
                 lookup_clicked = st.button("ตรวจสอบ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
             with col_clear:
                 if st.button("ล้าง Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
+                    ldap_find_user.clear()
+                    get_ldap_group_names_for_user.clear()
+                    get_ad_agent_policy_summary.clear()
                     graph_find_user.clear()
                     get_ad_group_names_for_user.clear()
                     load_firewall_policy_mapping.clear()
@@ -4081,16 +4359,17 @@ else:
                     st.warning("กรุณาระบุ User / Email / UPN")
                 else:
                     with st.spinner("กำลังดึงข้อมูลจาก AD / Entra ID..."):
-                        user_obj = graph_find_user(user_identity)
                         policy_summary = get_user_internet_policy_summary(user_identity)
+                        user_obj = policy_summary.get("user", {}) if policy_summary.get("ok") else {}
 
                     if user_obj:
-                        u1, u2, u3 = st.columns(3)
+                        u1, u2, u3, u4 = st.columns(4)
                         u1.metric("Display Name", user_obj.get("displayName", "-"))
                         u2.metric("UPN", user_obj.get("userPrincipalName", "-"))
                         u3.metric("Mail", user_obj.get("mail") or "-")
+                        u4.metric("Source", policy_summary.get("source", "-"))
                     else:
-                        st.warning("ไม่พบ User นี้ใน AD / Entra ID หรือ App ยังไม่มีสิทธิ์อ่าน User")
+                        st.warning("ไม่พบ User นี้จาก AD LDAP / AD Agent / Microsoft Graph หรือตั้งค่า source ยังไม่ครบ")
 
                     if policy_summary.get("ok"):
                         policies = policy_summary.get("policies", [])
