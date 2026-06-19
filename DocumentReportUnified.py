@@ -4251,6 +4251,164 @@ else:
         st.rerun()
     st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
+    # -----------------------------------------------------------------------
+    # V6 TOP NAVIGATION
+    # Replaces the icon rail completely.  The legacy sidebar widgets remain
+    # non-rendered for backward-compatible state handling only.
+    # -----------------------------------------------------------------------
+    st.markdown("""
+    <style>
+    section[data-testid="stSidebar"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"]{display:none!important}
+    [data-testid="stAppViewContainer"]>.main{margin-left:0!important}
+    [data-testid="stMainBlockContainer"]{padding-top:1rem!important}
+
+    .top-appbar{
+        min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+        padding:15px 20px;margin:0 0 10px;border:1px solid rgba(148,163,184,.20);
+        border-radius:20px;background:rgba(255,255,255,.90);
+        box-shadow:0 10px 32px rgba(15,23,42,.055);backdrop-filter:blur(18px);
+    }
+    .top-brand{display:flex;align-items:center;gap:13px;min-width:0}
+    .top-brand-mark{width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+        flex:0 0 48px;border-radius:15px;color:#fff;font-size:.8rem;font-weight:800;letter-spacing:.04em;
+        background:linear-gradient(135deg,#38BDF8,#6366F1 55%,#8B5CF6);
+        box-shadow:0 9px 22px rgba(99,102,241,.24)}
+    .top-brand-name{font-size:1rem;font-weight:800;letter-spacing:-.025em;color:#0F172A;line-height:1.25}
+    .top-brand-sub{font-size:.74rem;font-weight:550;color:#64748B;margin-top:3px}
+    .top-user{display:flex;align-items:center;justify-content:flex-end;gap:11px;min-width:0}
+    .top-user-copy{text-align:right;min-width:0}
+    .top-user-name{font-size:.86rem;font-weight:750;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-user-role{font-size:.72rem;color:#64748B;margin-top:2px}
+    .top-user-avatar{width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+        flex:0 0 40px;border-radius:13px;background:#EEF2FF;color:#4F46E5;font-size:.75rem;font-weight:800;
+        border:1px solid #DDE3FF}
+    .top-online{display:inline-block;width:7px;height:7px;border-radius:50%;background:#10B981;margin-right:5px}
+
+    [class*="st-key-topnav_"] .stButton>button,
+    [class*="st-key-topsub_"] .stButton>button,
+    .st-key-top_logout .stButton>button{
+        width:100%!important;height:44px!important;min-height:44px!important;padding:0 13px!important;
+        border-radius:12px!important;border:1px solid transparent!important;background:transparent!important;
+        color:#475569!important;box-shadow:none!important;font-size:.82rem!important;font-weight:700!important;
+        white-space:nowrap!important;transform:none!important;transition:.16s ease!important;
+    }
+    [class*="st-key-topnav_"] .stButton>button:hover,
+    [class*="st-key-topsub_"] .stButton>button:hover{
+        background:#F1F5FF!important;color:#4338CA!important;border-color:#DDE3FF!important;transform:none!important;
+    }
+    [class*="st-key-topnav_"] .stButton>button[kind="primary"],
+    [class*="st-key-topnav_"] .stButton>button[data-testid="stBaseButton-primary"]{
+        background:linear-gradient(135deg,#4F46E5,#6366F1 58%,#7C3AED)!important;
+        color:#FFF!important;border-color:transparent!important;box-shadow:0 8px 18px rgba(99,102,241,.22)!important;
+    }
+    .st-key-top_logout .stButton>button{color:#64748B!important;border-color:#E2E8F0!important;background:#FFF!important}
+    .st-key-top_logout .stButton>button:hover{color:#DC2626!important;background:#FFF5F5!important;border-color:#FECACA!important}
+    [class*="st-key-topsub_"] .stButton>button{height:38px!important;min-height:38px!important;font-size:.78rem!important;background:#FFF!important;border-color:#E2E8F0!important}
+    [class*="st-key-topsub_"] .stButton>button[kind="primary"],
+    [class*="st-key-topsub_"] .stButton>button[data-testid="stBaseButton-primary"]{
+        background:#EEF2FF!important;color:#4338CA!important;border-color:#C7D2FE!important;box-shadow:none!important;
+    }
+    .top-nav-rule{height:1px;background:linear-gradient(90deg,transparent,#DDE3EE 8%,#DDE3EE 92%,transparent);margin:7px 0 12px}
+    .top-sub-label{font-size:.65rem;font-weight:800;letter-spacing:.13em;color:#94A3B8;text-transform:uppercase;margin:2px 0 7px}
+    @media(max-width:900px){
+        .top-appbar{min-height:70px;padding:12px 14px;border-radius:16px}.top-brand-mark{width:42px;height:42px;flex-basis:42px}
+        .top-brand-sub,.top-user-role{display:none}.top-user-copy{max-width:150px}
+        [class*="st-key-topnav_"] .stButton>button{font-size:.75rem!important;padding:0 8px!important}
+    }
+    @media(max-width:640px){
+        .top-user-copy{display:none}.top-appbar{gap:10px}.top-brand-name{font-size:.9rem}
+        [class*="st-key-topnav_"] .stButton>button{font-size:.7rem!important;padding:0 5px!important}
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="top-appbar">
+        <div class="top-brand">
+            <div class="top-brand-mark">DR</div>
+            <div>
+                <div class="top-brand-name">DocumentReportUnified</div>
+                <div class="top-brand-sub">Enterprise IT Management Platform</div>
+            </div>
+        </div>
+        <div class="top-user">
+            <div class="top-user-copy">
+                <div class="top-user-name">{name}</div>
+                <div class="top-user-role"><span class="top-online"></span>{profile_dept}</div>
+            </div>
+            <div class="top-user-avatar">{initials}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    def _top_category(nav_key: str) -> str:
+        if nav_key in ("computers", "monitors", "printers", "projector", "ups", "misc"):
+            return "assets"
+        if nav_key in ("password", "user_perm"):
+            return "security"
+        if nav_key in ("ink_stock", "ink_history", "consumables"):
+            return "inventory"
+        if nav_key in ("admin_users", "admin_settings", "admin_logs"):
+            return "admin"
+        return nav_key
+
+    _current_category = _top_category(st.session_state.active_nav)
+    _top_items = [("overview", "ภาพรวม", "overview"), ("assets", "สินทรัพย์ IT", "computers")]
+    if admin_mode:
+        _top_items = [
+            ("overview", "ภาพรวม", "overview"),
+            ("reports", "รายงาน", "reports"),
+            ("ad_policy", "AD / Firewall", "ad_policy"),
+            ("assets", "สินทรัพย์ IT", "computers"),
+            ("security", "ความปลอดภัย", "password"),
+            ("inventory", "คลังสินค้า", "ink_stock"),
+            ("admin", "ผู้ดูแลระบบ", "admin_users"),
+        ]
+
+    _top_cols = st.columns([1] * len(_top_items) + [0.72], gap="small")
+    for _col, (_cat, _label, _target) in zip(_top_cols[:-1], _top_items):
+        with _col:
+            if st.button(_label, key=f"topnav_{_cat}", use_container_width=True,
+                         type="primary" if _current_category == _cat else "secondary"):
+                st.session_state.active_nav = _target
+                st.rerun()
+    with _top_cols[-1]:
+        if st.button("ออกจากระบบ", key="top_logout", use_container_width=True):
+            expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
+            for cookie_key in ("user_name", "user_email"):
+                try:
+                    cookie_manager.delete(cookie_key, key=f"top_logout_delete_{cookie_key}")
+                except Exception:
+                    pass
+                cookie_manager.set(cookie_key, "", expires_at=expire_time, max_age=0,
+                                   key=f"top_logout_set_{cookie_key}")
+            st.session_state.is_auth = False
+            st.session_state.skip_cookie_login = True
+            st.session_state.user_name = ""
+            st.session_state.user_email = ""
+            st.rerun()
+
+    _subnav = {
+        "assets": [("computers", "คอมพิวเตอร์"), ("monitors", "จอภาพ"), ("printers", "เครื่องพิมพ์"),
+                   ("projector", "โปรเจกเตอร์"), ("ups", "UPS"), ("misc", "อุปกรณ์อื่น")],
+        "security": [("password", "Password Manager"), ("user_perm", "NAS Permission")],
+        "inventory": [("ink_stock", "สต็อกหมึก")],
+        "admin": [("admin_users", "ผู้ใช้งาน"), ("admin_settings", "ตั้งค่า"), ("admin_logs", "Activity Logs")],
+    }.get(_current_category, [])
+
+    if _subnav:
+        st.markdown('<div class="top-sub-label">เมนูย่อย</div>', unsafe_allow_html=True)
+        _sub_cols = st.columns(len(_subnav), gap="small")
+        for _col, (_key, _label) in zip(_sub_cols, _subnav):
+            with _col:
+                if st.button(_label, key=f"topsub_{_key}", use_container_width=True,
+                             type="primary" if st.session_state.active_nav == _key else "secondary"):
+                    st.session_state.active_nav = _key
+                    st.rerun()
+    st.markdown('<div class="top-nav-rule"></div>', unsafe_allow_html=True)
+
     _nav = st.session_state.active_nav
 
     # ── ROUTE ────────────────────────────────────────────────────────────────
