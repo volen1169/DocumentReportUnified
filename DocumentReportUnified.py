@@ -649,6 +649,26 @@ def format_policy_descriptions(policies):
         return "-"
     return ", ".join(sorted({p.get("Description", "") for p in policies if p.get("Description")}))
 
+
+def get_asset_user_identity(row, asset_list_name: str = ""):
+    """Return the best user identifier from an asset row for AD policy lookup."""
+    if row is None:
+        return ""
+
+    candidates = []
+    list_name = str(asset_list_name or "").lower()
+    if "printer" in list_name:
+        candidates.extend(["User", "field_3", "Title"])
+    else:
+        candidates.extend(["field_3", "User", "Title"])
+
+    for key in candidates:
+        value = row.get(key, "") if hasattr(row, "get") else ""
+        value = str(value or "").strip()
+        if value and value.lower() not in ("nan", "none", "-"):
+            return value
+    return ""
+
 # =============================================================================
 # SECTION 03 : SHAREPOINT CRUD
 # โหลดข้อมูล / เพิ่ม / แก้ไข / ลบ ข้อมูลจาก SharePoint
@@ -3232,7 +3252,7 @@ else:
 
     def _nav_leaf(nav_key: str, icon: str, text: str, badge_text: str = ""):
         active = st.session_state.active_nav == nav_key
-        icon = {"overview": "⌂", "reports": "▥", "admin_settings": "⚙"}.get(nav_key, icon)
+        icon = {"overview": "⌂", "reports": "▥", "ad_policy": "🌐", "admin_settings": "⚙"}.get(nav_key, icon)
         if not badge_text:
             badge_text = {"reports": "12", "admin_settings": "3"}.get(nav_key, "")
         badge_suffix = f"        {badge_text}" if badge_text and not compact else ""
@@ -3314,6 +3334,7 @@ else:
     _nav_leaf("overview", "⌂", "Dashboard")
     if admin_mode:
         _nav_leaf("reports", "📊", "Reports & Analytics")
+        _nav_leaf("ad_policy", "🌐", "AD / Firewall Policy")
         _nav_leaf("admin_settings", "⚙", "Administration")
 
     # Asset modules moved to Dashboard cards
@@ -3390,6 +3411,7 @@ else:
         "ink_stock":  ("🖨️ Stock หมึกพิมพ์",       None),
         "ink_history":("🖨️ Stock หมึกพิมพ์",       None),
         "consumables":("🖨️ Stock หมึกพิมพ์",       None),
+        "ad_policy":      ("🌐 AD / Firewall Policy", None),
         "admin_users":    ("⚙ Administration", None),
         "admin_settings": ("⚙ Administration", None),
         "admin_logs":     ("⚙ Administration", None),
@@ -3802,6 +3824,134 @@ else:
                     st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
 
 
+
+    # -------------------------------------------------------
+    # 🌐 AD / Firewall Policy
+    # -------------------------------------------------------
+    elif main_menu == "🌐 AD / Firewall Policy":
+        page_header("🌐", "AD / Firewall Policy", "ตรวจสอบ Internet Policy ที่ผู้ใช้ได้รับจาก AD / Entra ID Group")
+
+        st.info("ระบบอ่าน Group Membership จาก Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย FW_, Firewall_ หรือ Internet_ เป็น Internet Policy")
+
+        tab_user, tab_assets, tab_map = st.tabs([
+            "ค้นหา User",
+            "รายงานจาก Asset",
+            "Policy Mapping",
+        ])
+
+        with tab_user:
+            default_identity = st.session_state.get("user_email", "")
+            user_identity = st.text_input(
+                "User / Email / UPN",
+                value=default_identity,
+                placeholder="เช่น user@company.com หรือ Firstname.Lastname",
+                key="ad_policy_user_identity",
+            )
+
+            col_lookup, col_clear = st.columns([0.22, 0.78])
+            with col_lookup:
+                lookup_clicked = st.button("ตรวจสอบ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
+            with col_clear:
+                if st.button("ล้าง Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
+                    graph_find_user.clear()
+                    get_ad_group_names_for_user.clear()
+                    st.rerun()
+
+            if lookup_clicked or user_identity:
+                if not user_identity.strip():
+                    st.warning("กรุณาระบุ User / Email / UPN")
+                else:
+                    with st.spinner("กำลังดึงข้อมูลจาก AD / Entra ID..."):
+                        user_obj = graph_find_user(user_identity)
+                        policy_summary = get_user_internet_policy_summary(user_identity)
+
+                    if user_obj:
+                        u1, u2, u3 = st.columns(3)
+                        u1.metric("Display Name", user_obj.get("displayName", "-"))
+                        u2.metric("UPN", user_obj.get("userPrincipalName", "-"))
+                        u3.metric("Mail", user_obj.get("mail") or "-")
+
+                    if policy_summary.get("ok"):
+                        policies = policy_summary.get("policies", [])
+                        groups = policy_summary.get("groups", [])
+
+                        p1, p2 = st.columns(2)
+                        p1.metric("Internet Policies", len(policies))
+                        p2.metric("AD Groups", len(groups))
+
+                        if policies:
+                            st.subheader("Internet Policy")
+                            st.dataframe(pd.DataFrame(policies), use_container_width=True, hide_index=True)
+                        else:
+                            st.info("ไม่พบ Internet Policy Group สำหรับ User นี้")
+
+                        with st.expander("AD Groups ทั้งหมด"):
+                            if groups:
+                                st.dataframe(pd.DataFrame({"AD Group": groups}), use_container_width=True, hide_index=True)
+                            else:
+                                st.write("-")
+                    else:
+                        st.error(f"ยังดึงข้อมูล AD / Entra ID ไม่ได้: {policy_summary.get('error', '')}")
+
+        with tab_assets:
+            source_map = {
+                "Computer Asset": "Computer Asset",
+                "Monitor Asset": "Asset Monitor",
+                "Printer Asset": "Asset Printer",
+            }
+            selected_source_label = st.selectbox("เลือกแหล่งข้อมูล Asset", list(source_map.keys()), key="ad_policy_asset_source")
+            selected_source = source_map[selected_source_label]
+            st.caption("รายงานนี้จะดึง policy จาก AD ให้เฉพาะ User ที่พบในรายการ Asset ที่เลือก")
+
+            if st.button("สร้างรายงาน Policy จาก Asset", type="primary", use_container_width=True, key="ad_policy_asset_report"):
+                with st.spinner("กำลังโหลด Asset และตรวจสอบ Policy จาก AD..."):
+                    df_assets = load_sp_data(selected_source)
+                    report_rows = []
+                    seen_users = set()
+
+                    for _, row in df_assets.iterrows():
+                        user_identity = get_asset_user_identity(row, selected_source)
+                        if not user_identity:
+                            continue
+
+                        dedupe_key = user_identity.strip().lower()
+                        if dedupe_key in seen_users:
+                            continue
+                        seen_users.add(dedupe_key)
+
+                        policy_summary = get_user_internet_policy_summary(user_identity)
+                        policies = policy_summary.get("policies", [])
+                        report_rows.append({
+                            "User": user_identity,
+                            "Asset Source": selected_source,
+                            "Policy Internet": format_policy_names(policies),
+                            "Policy Description": format_policy_descriptions(policies),
+                            "AD Groups Count": len(policy_summary.get("groups", [])) if policy_summary.get("ok") else 0,
+                            "Status": "OK" if policy_summary.get("ok") else "Error",
+                            "Error": policy_summary.get("error", ""),
+                        })
+
+                if report_rows:
+                    report_df = pd.DataFrame(report_rows)
+                    st.dataframe(report_df, use_container_width=True, hide_index=True)
+                    csv_data = report_df.to_csv(index=False).encode("utf-8-sig")
+                    st.download_button(
+                        "Export CSV",
+                        data=csv_data,
+                        file_name="ad_firewall_policy_report.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                    )
+                else:
+                    st.info("ไม่พบ User ในรายการ Asset ที่เลือก")
+
+        with tab_map:
+            map_rows = [
+                {"AD Group": group_name, "Policy Description": desc}
+                for group_name, desc in sorted(FW_POLICY_MAP.items())
+            ]
+            st.dataframe(pd.DataFrame(map_rows), use_container_width=True, hide_index=True)
+            st.caption(f"Policy prefixes: {', '.join(FW_POLICY_PREFIXES)}")
 
     # -------------------------------------------------------
     # 🖨️ Stock หมึกพิมพ์
