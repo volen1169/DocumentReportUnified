@@ -4124,27 +4124,26 @@ else:
 
     # ── User profile first (reference image) ────────────────
     st.sidebar.markdown(f"""
-    <div class="ref-brand hide-when-compact">
+    <div class="ce-brand">
         <div style="display:flex;align-items:center;gap:14px;">
-            <div class="ref-logo" style="background:#2563EB;color:#fff;">DR</div>
+            <div class="ce-logo">DR</div>
             <div style="min-width:0;flex:1;">
-                <div class="ref-brand-title" style="color:#0F172A !important;">DocumentReportUnified</div>
-                <div class="ref-brand-sub" style="color:#475569 !important;font-size:0.82rem;">Enterprise IT Platform</div>
+                <div class="ce-brand-title">DocumentReportUnified</div>
+                <div class="ce-brand-sub">Enterprise IT Platform</div>
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     st.sidebar.markdown(f"""
-    <div class="ref-profile hide-when-compact">
+    <div class="ce-profile">
         <div style="display:flex;align-items:center;gap:14px;">
-            <div class="ref-avatar" style="background:#2563EB;color:#fff;">{initials}</div>
+            <div class="ce-avatar">{initials}</div>
             <div style="min-width:0;flex:1;">
-                <div class="ref-profile-dept" style="color:#0F172A !important;font-weight:800;font-size:0.96rem;">{name}</div>
-                <div class="ref-profile-name" style="color:#475569 !important;font-size:0.80rem;">{profile_dept}</div>
-                <div style="display:flex;align-items:center;gap:7px;margin-top:10px;font-size:0.78rem;color:#475569;">
-                    <span class="ref-status-dot"></span>
-                    <span style="color:#475569 !important;">Online</span>
+                <div class="ce-user-name">{name}</div>
+                <div class="ce-user-role">{profile_dept}</div>
+                <div class="ce-user-status">
+                    <span class="ce-status-dot"></span><span>Online</span>
                 </div>
             </div>
         </div>
@@ -4428,6 +4427,26 @@ else:
     section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button{margin-top:3px!important;font-weight:750!important;color:#334155!important}
     section[data-testid="stSidebar"] .nav-signout .stButton>button{margin-top:10px!important;justify-content:center!important;border-color:#E2E8F0!important;background:#FFF!important;color:#64748B!important}
     section[data-testid="stSidebar"] .nav-signout .stButton>button:hover{background:#FFF5F5!important;color:#DC2626!important;border-color:#FECACA!important}
+    section[data-testid="stSidebar"] .ce-brand{padding:2px 2px 18px;margin:0 0 14px;border-bottom:1px solid #E2E8F0}
+    section[data-testid="stSidebar"] .ce-logo{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:0 0 44px;border-radius:13px;background:linear-gradient(135deg,#38BDF8,#6366F1 55%,#8B5CF6);color:#FFF;font-size:.76rem;font-weight:850;box-shadow:0 8px 20px rgba(99,102,241,.22)}
+    section[data-testid="stSidebar"] .ce-brand-title{font-size:.88rem;font-weight:850;letter-spacing:-.025em;color:#0F172A;line-height:1.25}
+    section[data-testid="stSidebar"] .ce-brand-sub{margin-top:3px;font-size:.69rem;font-weight:550;color:#64748B}
+    section[data-testid="stSidebar"] .ce-profile{padding:13px;margin:0 0 16px;border:1px solid #E2E8F0;border-radius:16px;background:linear-gradient(145deg,#FFF,#F8FAFF);box-shadow:0 7px 20px rgba(15,23,42,.045)}
+    section[data-testid="stSidebar"] .ce-avatar{width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:0 0 42px;border-radius:12px;background:#EEF2FF;color:#4F46E5;border:1px solid #DDE3FF;font-size:.74rem;font-weight:850}
+    section[data-testid="stSidebar"] .ce-user-name{font-size:.82rem;font-weight:800;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    section[data-testid="stSidebar"] .ce-user-role{margin-top:2px;font-size:.68rem;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    section[data-testid="stSidebar"] .ce-user-status{display:flex;align-items:center;gap:5px;margin-top:7px;font-size:.66rem;font-weight:650;color:#64748B}
+    section[data-testid="stSidebar"] .ce-status-dot{width:7px;height:7px;border-radius:50%;background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.12)}
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-brand,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-profile,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-brand-title,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-brand-sub,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-user-name,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-user-role,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-user-status{display:block!important;opacity:1!important;visibility:visible!important}
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-user-status{display:flex!important}
+    section[data-testid="stSidebar"] .stButton>button[data-testid*="primary"],
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button[data-testid*="primary"]{background:linear-gradient(135deg,#4F46E5,#6366F1 58%,#7C3AED)!important;color:#FFF!important;border:1px solid transparent!important;border-left:3px solid #C4B5FD!important;box-shadow:0 8px 18px rgba(79,70,229,.20)!important}
     [data-testid="stMainBlockContainer"]{max-width:1500px!important;padding:1.35rem clamp(1rem,2.6vw,2.5rem) 4rem!important}
     @media(max-width:900px){
         section[data-testid="stSidebar"],section[data-testid="stSidebar"]:hover,section[data-testid="stSidebar"]:focus-within{width:274px!important;min-width:274px!important;max-width:274px!important}
@@ -4661,35 +4680,17 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
 
-        st.markdown('<div class="dash-section"><div class="dash-section-title">สินทรัพย์แยกตามประเภท</div><div class="dash-section-note">เลือกโมดูลจาก Quick Access ด้านล่าง</div></div>', unsafe_allow_html=True)
-        _asset_cols = st.columns(5, gap="small")
-        _asset_summary = [
-            ("คอมพิวเตอร์", _comp_count, "💻"), ("จอภาพ", _mon_count, "🖥️"),
-            ("เครื่องพิมพ์", _prn_count, "🖨️"), ("NAS Shares", _nas_count, "📁"),
-            ("บริษัท", _co_count, "🏢"),
-        ]
-        for _col, (_label, _value, _icon) in zip(_asset_cols, _asset_summary):
-            with _col:
-                st.markdown(f"""
-                <div class="dash-module">
-                    <div class="dash-module-row"><div class="dash-module-icon">{_icon}</div><div class="dash-module-count">{_value:,}</div></div>
-                    <div class="dash-module-name">{_label}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
         # ── Clean Enterprise Module Launcher ──
         st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">ทางลัดเข้าสู่โมดูลที่ใช้งานบ่อย</div></div>', unsafe_allow_html=True)
-        _launcher = [
+        _launcher = ([
+            ("computers", "💻", "Asset Center", f"ดูแลสินทรัพย์ {_total_assets:,} รายการในระบบ"),
+            ("ad_policy", "🌐", "AD / Firewall", "ค้นหา Internet Policy และ Group Membership"),
+            ("user_perm", "📂", "NAS Permission", f"ตรวจสอบสิทธิ์การเข้าถึง {_nas_count:,} Shares"),
+        ] if admin_mode else [
             ("computers", "💻", "Computers", "จัดการรายการคอมพิวเตอร์และผู้ใช้งาน"),
             ("monitors", "🖥️", "Monitors", "ตรวจสอบจอภาพและสถานะการใช้งาน"),
             ("printers", "🖨️", "Printers", "รายการเครื่องพิมพ์และ IP Address"),
-        ]
-        if admin_mode:
-            _launcher += [
-                ("ad_policy", "🌐", "AD / Firewall", "ค้นหา Internet Policy จาก AD Group"),
-                ("user_perm", "📂", "NAS Permission", "ตรวจสอบสิทธิ์ Share Folder"),
-                ("ink_stock", "🖊️", "Ink Stock", "สต็อกหมึกและประวัติการเบิก"),
-            ]
+        ])
         _launch_cols = st.columns(3, gap="medium")
         for _i, (_key, _icon, _title, _desc) in enumerate(_launcher):
             with _launch_cols[_i % 3]:
