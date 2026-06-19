@@ -9,4 +9,6 @@ plotly
 openpyxl
 fastapi
 uvicorn
+flask
 ldap3
+gunicorn
