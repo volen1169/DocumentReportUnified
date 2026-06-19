@@ -4509,6 +4509,11 @@ else:
     section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button:hover{
         background:#F8FAFC!important;border-color:#EEF2F7!important;color:#4338CA!important;
     }
+    section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button:before,
+    section[data-testid="stSidebar"] [class*="st-key-nav_"] .stButton>button:before,
+    section[data-testid="stSidebar"] .st-key-logout_btn .stButton>button:before{
+        display:none!important;content:none!important;
+    }
     section[data-testid="stSidebar"] .st-key-nav_computers .stButton>button,
     section[data-testid="stSidebar"] .st-key-nav_monitors .stButton>button,
     section[data-testid="stSidebar"] .st-key-nav_printers .stButton>button,
@@ -4708,6 +4713,24 @@ else:
         .timeline-card,.ai-card{height:100%;min-height:300px;padding:22px;border:1px solid rgba(255,255,255,.82);border-radius:24px;background:rgba(255,255,255,.72);box-shadow:0 16px 40px rgba(51,65,85,.08);backdrop-filter:blur(18px)}
         .panel-title{font-size:.94rem;font-weight:850;color:#1E293B}.panel-sub{margin-top:4px;font-size:.69rem;color:#94A3B8}.timeline-item{position:relative;padding:15px 0 15px 25px;border-bottom:1px solid rgba(226,232,240,.8)}.timeline-item:last-child{border-bottom:0}.timeline-item:before{content:'';position:absolute;left:2px;top:20px;width:9px;height:9px;border-radius:50%;background:#6366F1;box-shadow:0 0 0 5px #EEF2FF}.timeline-title{font-size:.76rem;font-weight:750;color:#475569}.timeline-meta{margin-top:3px;font-size:.65rem;color:#94A3B8}
         .ai-card{background:radial-gradient(circle at 90% 8%,rgba(34,211,238,.14),transparent 14rem),linear-gradient(145deg,rgba(238,242,255,.88),rgba(255,255,255,.74))}.ai-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#E0E7FF;color:#4F46E5;font-size:.62rem;font-weight:850;letter-spacing:.08em}.insight-item{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid rgba(199,210,254,.45)}.insight-item:last-child{border-bottom:0}.insight-icon{width:27px;height:27px;display:flex;align-items:center;justify-content:center;flex:0 0 27px;border-radius:9px;background:#FFF;color:#4F46E5;font-size:.72rem}.insight-text{font-size:.73rem;line-height:1.5;color:#475569}
+
+        /* V8 visual polish: tighter rhythm, richer glass, integrated actions. */
+        [data-testid="stHeader"],[data-testid="stToolbar"]{display:none!important}
+        [data-testid="stMainBlockContainer"]{padding-top:18px!important;padding-bottom:38px!important}
+        [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:radial-gradient(circle at 88% 4%,rgba(34,211,238,.25),transparent 27rem),radial-gradient(circle at 12% 88%,rgba(99,102,241,.22),transparent 28rem),linear-gradient(140deg,#EDF8FF 0%,#F2F3FF 46%,#F7F1FF 100%)!important}
+        .dash-hero{margin-bottom:14px!important;box-shadow:0 26px 70px rgba(30,64,175,.26)!important}
+        .dash-section{margin:17px 0 8px!important}
+        .dash-kpi{position:relative;overflow:hidden;min-height:132px!important;background:rgba(255,255,255,.58)!important;border:1px solid rgba(255,255,255,.92)!important;backdrop-filter:blur(24px) saturate(150%)!important;-webkit-backdrop-filter:blur(24px) saturate(150%)!important}
+        .dash-kpi:after{content:'';position:absolute;width:92px;height:92px;right:-38px;bottom:-46px;border-radius:50%;background:var(--kpi-glow,rgba(99,102,241,.18));filter:blur(2px)}
+        .dash-kpi-value{position:relative;z-index:1}.dash-kpi-icon{position:relative;z-index:1;box-shadow:0 8px 18px rgba(15,23,42,.07)}
+        .saas-grid-card{position:relative;overflow:hidden;min-height:122px!important;padding:17px!important;border:1px solid rgba(255,255,255,.94)!important;border-radius:24px!important;backdrop-filter:blur(24px) saturate(150%)!important;-webkit-backdrop-filter:blur(24px) saturate(150%)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+        .saas-grid-card:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(79,70,229,.15)!important}
+        .saas-card-title{margin-top:10px!important}.saas-card-sub{max-width:82%}.saas-card-action{position:absolute;right:17px;bottom:16px;display:flex;align-items:center;justify-content:center;width:31px;height:31px;border-radius:10px;background:rgba(255,255,255,.72);color:#4F46E5;font-size:.9rem;font-weight:900;box-shadow:0 7px 16px rgba(79,70,229,.12)}
+        [class*="st-key-saas_quick_"]{position:relative!important;height:0!important;min-height:0!important;margin:0!important;overflow:visible!important;z-index:5!important}
+        [class*="st-key-saas_quick_"] .stButton{height:0!important;margin:0!important}
+        [class*="st-key-saas_quick_"] .stButton>button{position:absolute!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:129px!important;min-height:129px!important;margin:0!important;border:0!important;border-radius:24px!important;background:transparent!important;color:transparent!important;box-shadow:none!important;opacity:.01!important;cursor:pointer!important}
+        .security-card,.timeline-card,.ai-card{border:1px solid rgba(255,255,255,.94)!important;background:rgba(255,255,255,.58)!important;backdrop-filter:blur(24px) saturate(145%)!important;-webkit-backdrop-filter:blur(24px) saturate(145%)!important}
+        .timeline-card,.ai-card{min-height:276px!important}.timeline-item{padding-top:12px!important;padding-bottom:12px!important}.insight-item{padding-top:11px!important;padding-bottom:11px!important}
         @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
         </style>
         """, unsafe_allow_html=True)
@@ -4780,15 +4803,15 @@ else:
         st.markdown('<div class="dash-section"><div class="dash-section-title">ภาพรวมวันนี้</div><div class="dash-section-note">สถานะจากข้อมูลล่าสุดในระบบ</div></div>', unsafe_allow_html=True)
         _kpi_cols = st.columns(4, gap="medium")
         _kpis = [
-            ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#DBEAFE", "#2563EB", "linear-gradient(145deg,rgba(219,234,254,.94),rgba(255,255,255,.84))"),
-            ("ACTIVE USERS", _active_users, "Unique assigned users", "◉", "#D1FAE5", "#059669", "linear-gradient(145deg,rgba(209,250,229,.92),rgba(255,255,255,.84))"),
-            ("SECURITY POLICIES", _security_policy_count, "Firewall policy mappings", "◆", "#EDE9FE", "#7C3AED", "linear-gradient(145deg,rgba(237,233,254,.95),rgba(255,255,255,.84))"),
-            ("NAS STORAGE", _nas_count, "Shared folders monitored", "▤", "#CFFAFE", "#0891B2", "linear-gradient(145deg,rgba(207,250,254,.92),rgba(255,255,255,.84))"),
+            ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#BFDBFE", "#2563EB", "linear-gradient(145deg,rgba(147,197,253,.76),rgba(255,255,255,.62))"),
+            ("ACTIVE USERS", _active_users, "Unique assigned users", "◉", "#A7F3D0", "#059669", "linear-gradient(145deg,rgba(110,231,183,.70),rgba(255,255,255,.62))"),
+            ("SECURITY POLICIES", _security_policy_count, "Firewall policy mappings", "◆", "#DDD6FE", "#7C3AED", "linear-gradient(145deg,rgba(196,181,253,.76),rgba(255,255,255,.62))"),
+            ("NAS STORAGE", _nas_count, "Shared folders monitored", "▤", "#A5F3FC", "#0891B2", "linear-gradient(145deg,rgba(103,232,249,.68),rgba(255,255,255,.62))"),
         ]
         for _col, (_label, _value, _caption, _icon, _bg, _tone, _card_bg) in zip(_kpi_cols, _kpis):
             with _col:
                 st.markdown(f"""
-                <div class="dash-kpi" style="background:{_card_bg}!important;box-shadow:inset 0 4px 0 {_tone},0 16px 42px rgba(51,65,85,.10)!important;">
+                <div class="dash-kpi" style="--kpi-glow:{_tone}33;background:{_card_bg}!important;box-shadow:inset 0 4px 0 {_tone},0 16px 42px rgba(51,65,85,.11)!important;">
                     <div class="dash-kpi-top">
                         <div class="dash-kpi-label">{_label}</div>
                         <div class="dash-kpi-icon" style="background:{_bg};color:{_tone};">{_icon}</div>
@@ -4816,6 +4839,7 @@ else:
                     <div class="saas-card-icon" style="color:{_accent};">{_icon}</div>
                     <div class="saas-card-title">{_title}</div>
                     <div class="saas-card-sub">{_description}</div>
+                    <div class="saas-card-action">→</div>
                 </div>
                 """, unsafe_allow_html=True)
                 if st.button("Open", key=f"saas_quick_{_target}", use_container_width=True,
