@@ -2836,19 +2836,113 @@ else:
     st.sidebar.markdown("""
     <style>
     [data-testid="stSidebar"],
-    [data-testid="stSidebar"] > div:first-child { background: #F8FAFC !important; }
-    [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-        background: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 16px !important;
-        margin: 10px !important;
-        padding: 14px 12px !important;
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+    [data-testid="stSidebar"] > div:first-child {
+        background:
+            radial-gradient(circle at 16% 4%, rgba(56, 189, 248, 0.28), transparent 30%),
+            radial-gradient(circle at 82% 96%, rgba(139, 92, 246, 0.24), transparent 34%),
+            linear-gradient(180deg, #e0f2fe 0%, #dbeafe 42%, #ede9fe 100%) !important;
     }
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.2rem !important; }
+    [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        background: rgba(255, 255, 255, 0.34) !important;
+        border: 1px solid rgba(255, 255, 255, 0.58) !important;
+        border-radius: 22px !important;
+        margin: 10px 8px !important;
+        padding: 16px 12px 18px !important;
+        box-shadow: 0 18px 42px rgba(37, 99, 235, 0.10), inset 0 1px 0 rgba(255,255,255,.50) !important;
+        backdrop-filter: blur(18px) saturate(150%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.28rem !important; }
     [data-testid="stSidebar"] .element-container { margin-bottom: 0 !important; }
     [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
         gap: 6px !important; margin-bottom: 0 !important; align-items: center !important;
+    }
+    [data-testid="stSidebar"] .ref-profile,
+    [data-testid="stSidebar"] .ref-brand {
+        background: rgba(255, 255, 255, 0.36) !important;
+        border: 1px solid rgba(255, 255, 255, 0.58) !important;
+        border-radius: 18px !important;
+        padding: 12px !important;
+        margin-bottom: 10px !important;
+        box-shadow: 0 10px 28px rgba(37, 99, 235, 0.08) !important;
+    }
+    [data-testid="stSidebar"] .ref-brand {
+        margin-top: 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.58) !important;
+    }
+    [data-testid="stSidebar"] .ref-avatar,
+    [data-testid="stSidebar"] .ref-logo {
+        background: linear-gradient(135deg, #2563EB 0%, #6366F1 58%, #8B5CF6 100%) !important;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22) !important;
+    }
+    [data-testid="stSidebar"] .ref-status-row {
+        border-top: 1px solid rgba(148, 163, 184, 0.20) !important;
+        margin-top: 12px !important;
+        padding-top: 10px !important;
+    }
+    [data-testid="stSidebar"] .nav-section-label {
+        color: #475569 !important;
+        font-size: 0.62rem !important;
+        letter-spacing: 0.16em !important;
+        padding: 8px 8px 7px !important;
+    }
+    [data-testid="stSidebar"] .stButton > button {
+        min-height: 38px !important;
+        height: 38px !important;
+        border-radius: 13px !important;
+        border: 1px solid transparent !important;
+        background: rgba(255, 255, 255, 0.20) !important;
+        color: #1E293B !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        padding: 0 12px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        box-shadow: none !important;
+        transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover {
+        background: rgba(255, 255, 255, 0.58) !important;
+        border-color: rgba(96, 165, 250, 0.34) !important;
+        color: #1D4ED8 !important;
+        transform: translateX(2px) !important;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08) !important;
+    }
+    [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(139, 92, 246, 0.14)) !important;
+        color: #1D4ED8 !important;
+        border: 1px solid rgba(96, 165, 250, 0.46) !important;
+        border-left: 4px solid #2563EB !important;
+        padding-left: 10px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12) !important;
+    }
+    [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.24), rgba(139, 92, 246, 0.20)) !important;
+        color: #1E40AF !important;
+    }
+    [data-testid="stSidebar"] .nav-toolbar-row .stButton > button {
+        min-height: 32px !important;
+        height: 32px !important;
+        justify-content: center !important;
+        border-radius: 12px !important;
+        background: rgba(255, 255, 255, 0.56) !important;
+        border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        color: #334155 !important;
+    }
+    [data-testid="stSidebar"] hr {
+        background: rgba(148, 163, 184, 0.26) !important;
+        margin: 12px 6px !important;
+    }
+    [data-testid="stSidebar"] .nav-signout .stButton > button {
+        justify-content: center !important;
+        background: rgba(255, 255, 255, 0.24) !important;
+        color: #334155 !important;
+        min-height: 40px !important;
+    }
+    [data-testid="stSidebar"] .nav-signout .stButton > button:hover {
+        background: rgba(254, 242, 242, 0.86) !important;
+        color: #DC2626 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2897,7 +2991,7 @@ else:
         if st.sidebar.button(
             label,
             use_container_width=True,
-            type="secondary",
+            type="primary" if active else "secondary",
             key=f"nav_{nav_key}"
         ):
             st.session_state.active_nav = nav_key
@@ -2926,7 +3020,7 @@ else:
             label = f"▾  {icon}  {text}"
         else:
             label = f"{icon}  {text}  ›"
-        if st.sidebar.button(label, use_container_width=True, key=f"tog_{state_key}"):
+        if st.sidebar.button(label, use_container_width=True, type="primary" if open_ else "secondary", key=f"tog_{state_key}"):
             st.session_state[state_key] = not open_
             st.rerun()
 
