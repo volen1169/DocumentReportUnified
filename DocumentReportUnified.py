@@ -4076,9 +4076,18 @@ else:
         "open_grp_assets": "◇", "open_grp_security": "◈",
         "open_grp_inventory": "▣", "open_grp_admin": "⚙",
     }
+    _SAFE_EMOJI_ICONS = {
+        "space_dashboard": "🏠", "policy": "🛡️", "computer": "💻",
+        "desktop_windows": "🖥️", "print": "🖨️", "videocam": "📽️",
+        "battery_charging_full": "🔋", "devices_other": "📦", "key": "🔑",
+        "folder_shared": "📂", "water_drop": "💧", "group": "👥",
+        "settings": "⚙️", "history": "🕘", "inventory_2": "🗃️",
+        "shield_lock": "🔐", "inventory": "📚", "admin_panel_settings": "🛠️",
+        "logout": "↪️", "arrow_forward": "→",
+    }
 
     def _button_icon(material_name: str):
-        return {"icon": f":material/{material_name}:"} if _ST_BUTTON_HAS_ICON else {}
+        return {"icon": _SAFE_EMOJI_ICONS.get(material_name, "•")} if _ST_BUTTON_HAS_ICON else {}
 
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         
@@ -4093,9 +4102,9 @@ else:
         if st.sidebar.button(
             label,
             use_container_width=True,
-            type="primary" if active else "secondary",
+            type="secondary",
             help=text,
-            key=f"nav_{nav_key}",
+            key=f"nav_{nav_key}_{'active' if active else 'idle'}",
             **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle")),
         ):
             st.session_state.active_nav = nav_key
@@ -4132,8 +4141,8 @@ else:
         label = text
         if not _ST_BUTTON_HAS_ICON:
             label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
-        if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary",
-                             help=text, key=f"nav_{nav_key}",
+        if st.sidebar.button(label, use_container_width=True, type="secondary",
+                             help=text, key=f"nav_{nav_key}_{'active' if active else 'idle'}",
                              **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle"))):
             st.session_state.active_nav = nav_key
             st.rerun()
@@ -4485,6 +4494,14 @@ else:
         background:#EEF2FF!important;color:#4338CA!important;border:1px solid #DDE3FF!important;
         border-left:1px solid #DDE3FF!important;padding-left:12px!important;box-shadow:none!important;font-weight:750!important;
     }
+    section[data-testid="stSidebar"] [class*="st-key-nav_"][class*="_active"] .stButton>button,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) [class*="st-key-nav_"][class*="_active"] .stButton>button{
+        background:linear-gradient(135deg,#2563EB 0%,#4F46E5 55%,#7C3AED 100%)!important;
+        color:#FFF!important;border:1px solid transparent!important;box-shadow:0 9px 22px rgba(79,70,229,.24)!important;
+    }
+    section[data-testid="stSidebar"] [class*="st-key-nav_"][class*="_active"] .stButton>button:hover{
+        background:linear-gradient(135deg,#1D4ED8 0%,#4338CA 55%,#6D28D9 100%)!important;color:#FFF!important;
+    }
     section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button{
         margin-top:5px!important;background:transparent!important;border-color:transparent!important;
         color:#334155!important;font-weight:750!important;
@@ -4763,15 +4780,15 @@ else:
         st.markdown('<div class="dash-section"><div class="dash-section-title">ภาพรวมวันนี้</div><div class="dash-section-note">สถานะจากข้อมูลล่าสุดในระบบ</div></div>', unsafe_allow_html=True)
         _kpi_cols = st.columns(4, gap="medium")
         _kpis = [
-            ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#E0F2FE", "#0284C7"),
-            ("ACTIVE USERS", _active_users, "Unique assigned users", "◉", "#ECFDF5", "#059669"),
-            ("SECURITY POLICIES", _security_policy_count, "Firewall policy mappings", "◆", "#EEF2FF", "#4F46E5"),
-            ("NAS STORAGE", _nas_count, "Shared folders monitored", "▤", "#ECFEFF", "#0891B2"),
+            ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#DBEAFE", "#2563EB", "linear-gradient(145deg,rgba(219,234,254,.94),rgba(255,255,255,.84))"),
+            ("ACTIVE USERS", _active_users, "Unique assigned users", "◉", "#D1FAE5", "#059669", "linear-gradient(145deg,rgba(209,250,229,.92),rgba(255,255,255,.84))"),
+            ("SECURITY POLICIES", _security_policy_count, "Firewall policy mappings", "◆", "#EDE9FE", "#7C3AED", "linear-gradient(145deg,rgba(237,233,254,.95),rgba(255,255,255,.84))"),
+            ("NAS STORAGE", _nas_count, "Shared folders monitored", "▤", "#CFFAFE", "#0891B2", "linear-gradient(145deg,rgba(207,250,254,.92),rgba(255,255,255,.84))"),
         ]
-        for _col, (_label, _value, _caption, _icon, _bg, _tone) in zip(_kpi_cols, _kpis):
+        for _col, (_label, _value, _caption, _icon, _bg, _tone, _card_bg) in zip(_kpi_cols, _kpis):
             with _col:
                 st.markdown(f"""
-                <div class="dash-kpi">
+                <div class="dash-kpi" style="background:{_card_bg}!important;box-shadow:inset 0 4px 0 {_tone},0 16px 42px rgba(51,65,85,.10)!important;">
                     <div class="dash-kpi-top">
                         <div class="dash-kpi-label">{_label}</div>
                         <div class="dash-kpi-icon" style="background:{_bg};color:{_tone};">{_icon}</div>
@@ -4784,19 +4801,19 @@ else:
         # ── Quick Access ───────────────────────────────────────────────────
         st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">Your most-used IT tools</div></div>', unsafe_allow_html=True)
         _quick_access = [
-            ("computers", "▣", "Computers", "Manage assigned computers and lifecycle"),
-            ("monitors", "▭", "Monitors", "Track displays and current assignments"),
-            ("printers", "▧", "Printers", "Review printers, models and IP details"),
-            ("ups", "⌁", "UPS", "Monitor power protection inventory"),
-            ("password", "⌘", "Password Manager", "Access protected system credentials"),
-            ("user_perm", "▤", "NAS Permission Analyzer", "Audit shared-folder access"),
+            ("computers", "💻", "Computers", "Manage assigned computers and lifecycle", "#2563EB", "linear-gradient(145deg,rgba(219,234,254,.88),rgba(255,255,255,.78))"),
+            ("monitors", "🖥️", "Monitors", "Track displays and current assignments", "#0891B2", "linear-gradient(145deg,rgba(207,250,254,.88),rgba(255,255,255,.78))"),
+            ("printers", "🖨️", "Printers", "Review printers, models and IP details", "#7C3AED", "linear-gradient(145deg,rgba(237,233,254,.90),rgba(255,255,255,.78))"),
+            ("ups", "🔋", "UPS", "Monitor power protection inventory", "#D97706", "linear-gradient(145deg,rgba(254,243,199,.88),rgba(255,255,255,.78))"),
+            ("password", "🔑", "Password Manager", "Access protected system credentials", "#DB2777", "linear-gradient(145deg,rgba(252,231,243,.88),rgba(255,255,255,.78))"),
+            ("user_perm", "📂", "NAS Permission Analyzer", "Audit shared-folder access", "#059669", "linear-gradient(145deg,rgba(209,250,229,.88),rgba(255,255,255,.78))"),
         ]
         _quick_cols = st.columns(3, gap="medium")
-        for _index, (_target, _icon, _title, _description) in enumerate(_quick_access):
+        for _index, (_target, _icon, _title, _description, _accent, _card_bg) in enumerate(_quick_access):
             with _quick_cols[_index % 3]:
                 st.markdown(f"""
-                <div class="saas-grid-card">
-                    <div class="saas-card-icon">{_icon}</div>
+                <div class="saas-grid-card" style="background:{_card_bg};box-shadow:inset 0 3px 0 {_accent},0 14px 36px rgba(51,65,85,.08);">
+                    <div class="saas-card-icon" style="color:{_accent};">{_icon}</div>
                     <div class="saas-card-title">{_title}</div>
                     <div class="saas-card-sub">{_description}</div>
                 </div>
