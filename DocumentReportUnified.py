@@ -370,6 +370,7 @@ ADMIN_EMAILS = [
 # ถ้าบริษัทมี Policy เพิ่ม ให้เพิ่มชื่อ Group และคำอธิบายที่นี่ได้เลย
 # -----------------------------------------------------------------------------
 FW_POLICY_PREFIXES = ("FW_", "Firewall_", "Internet_")
+FIREWALL_POLICY_MAPPING_LIST = st.secrets.get("FIREWALL_POLICY_MAPPING_LIST", "Firewall Policy Mapping")
 FW_POLICY_MAP = {
     "FW_Officer_A": "Allow All Website",
     "FW_Officer_B": "Block Social Media",
@@ -381,6 +382,108 @@ FW_POLICY_MAP = {
     "FW_MD": "Management Internet Policy",
     "FW_Supervisor_B": "Supervisor Internet Policy",
     "FW_Conference": "Conference Room Internet Policy",
+}
+FW_POLICY_DEFAULT_DETAILS = {
+    "FW_Officer_A": {
+        "Policy Name": "Allow All Website",
+        "Internet Level": "Full Access",
+        "Allowed": "Web, Email, Business apps, YouTube, Facebook, Social media",
+        "Blocked": "-",
+        "Firewall Rule": "FW_Officer_A",
+        "Description": "ใช้งาน Internet ได้เต็มตาม policy พนักงานกลุ่ม A",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Officer_B": {
+        "Policy Name": "Block Social Media",
+        "Internet Level": "Standard Access",
+        "Allowed": "Web, Email, Business apps",
+        "Blocked": "Facebook, TikTok, Instagram, Social media",
+        "Firewall Rule": "FW_Officer_B",
+        "Description": "ใช้งาน Internet ทั่วไปได้ แต่บล็อก Social Media",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Officer_C": {
+        "Policy Name": "Allow YouTube",
+        "Internet Level": "Standard + YouTube",
+        "Allowed": "Web, Email, Business apps, YouTube",
+        "Blocked": "Facebook, TikTok, Instagram",
+        "Firewall Rule": "FW_Officer_C",
+        "Description": "ใช้งานทั่วไปและ YouTube ได้ แต่ยังบล็อก Social Media อื่น",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Officer_D": {
+        "Policy Name": "Allow Facebook",
+        "Internet Level": "Standard + Facebook",
+        "Allowed": "Web, Email, Business apps, Facebook",
+        "Blocked": "YouTube, TikTok, Instagram",
+        "Firewall Rule": "FW_Officer_D",
+        "Description": "ใช้งานทั่วไปและ Facebook ได้",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Officer_E": {
+        "Policy Name": "Allow YouTube, Facebook",
+        "Internet Level": "Standard + Media",
+        "Allowed": "Web, Email, Business apps, YouTube, Facebook",
+        "Blocked": "TikTok, Instagram",
+        "Firewall Rule": "FW_Officer_E",
+        "Description": "ใช้งานทั่วไปพร้อม YouTube และ Facebook ได้",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Manager": {
+        "Policy Name": "Net True",
+        "Internet Level": "Manager Access",
+        "Allowed": "Web, Email, Business apps, approved management access",
+        "Blocked": "ตาม policy firewall",
+        "Firewall Rule": "FW_Manager",
+        "Description": "Policy สำหรับระดับ Manager",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_IT": {
+        "Policy Name": "IT Internet Policy",
+        "Internet Level": "IT Admin Access",
+        "Allowed": "All standard access, admin tools, remote support, vendor sites",
+        "Blocked": "ตาม security baseline",
+        "Firewall Rule": "FW_IT",
+        "Description": "สิทธิ์ Internet สำหรับทีม IT",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_MD": {
+        "Policy Name": "Management Internet Policy",
+        "Internet Level": "Management Access",
+        "Allowed": "Business apps, web, email, executive-approved services",
+        "Blocked": "ตาม policy firewall",
+        "Firewall Rule": "FW_MD",
+        "Description": "สิทธิ์ Internet สำหรับผู้บริหาร",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Supervisor_B": {
+        "Policy Name": "Supervisor Internet Policy",
+        "Internet Level": "Supervisor Access",
+        "Allowed": "Web, Email, Business apps, approved team resources",
+        "Blocked": "Social media ตามข้อกำหนด",
+        "Firewall Rule": "FW_Supervisor_B",
+        "Description": "สิทธิ์ Internet สำหรับ Supervisor",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Conference": {
+        "Policy Name": "Conference Room Internet Policy",
+        "Internet Level": "Meeting Room Access",
+        "Allowed": "Meeting apps, web, presentation services",
+        "Blocked": "High-risk categories ตาม policy firewall",
+        "Firewall Rule": "FW_Conference",
+        "Description": "สิทธิ์ Internet สำหรับอุปกรณ์ห้องประชุม",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
 }
 
 
@@ -612,19 +715,122 @@ def get_ad_group_names_for_user(user_identity: str):
     return sorted(set(groups), key=lambda x: x.lower())
 
 
+def _first_policy_value(row, aliases, default=""):
+    """Return the first non-empty value from possible SharePoint column names."""
+    for key in aliases:
+        value = row.get(key, "") if hasattr(row, "get") else ""
+        value = str(value or "").strip()
+        if value and value.lower() not in ("nan", "none", "-"):
+            return value
+    return default
+
+
+def _default_firewall_policy_rows():
+    rows = []
+    for group_name, description in FW_POLICY_MAP.items():
+        detail = dict(FW_POLICY_DEFAULT_DETAILS.get(group_name, {}))
+        rows.append({
+            "AD Group": group_name,
+            "Policy Name": detail.get("Policy Name", description),
+            "Internet Level": detail.get("Internet Level", ""),
+            "Allowed": detail.get("Allowed", ""),
+            "Blocked": detail.get("Blocked", ""),
+            "Firewall Rule": detail.get("Firewall Rule", group_name),
+            "Description": detail.get("Description", description),
+            "Owner": detail.get("Owner", "IT"),
+            "Last Updated": detail.get("Last Updated", ""),
+            "Source": "Default Mapping",
+        })
+    return rows
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def load_firewall_policy_mapping():
+    """Load detailed firewall policy mapping from SharePoint, fallback to defaults."""
+    default_rows = _default_firewall_policy_rows()
+
+    try:
+        df_map = load_sp_data(FIREWALL_POLICY_MAPPING_LIST)
+    except Exception:
+        df_map = pd.DataFrame()
+
+    if df_map is None or df_map.empty:
+        return default_rows
+
+    rows = []
+    for _, row in df_map.iterrows():
+        ad_group = _first_policy_value(row, ["AD Group", "ADGroup", "Group", "Group Name", "Title", "field_1"])
+        if not ad_group:
+            continue
+
+        fallback_description = FW_POLICY_MAP.get(ad_group, "Firewall / Internet policy group")
+        rows.append({
+            "AD Group": ad_group,
+            "Policy Name": _first_policy_value(row, ["Policy Name", "PolicyName", "Policy", "Title"], ad_group),
+            "Internet Level": _first_policy_value(row, ["Internet Level", "InternetLevel", "Level", "Access Level", "field_2"]),
+            "Allowed": _first_policy_value(row, ["Allowed", "Allow", "Allow List", "AllowList", "Can Access", "field_3"]),
+            "Blocked": _first_policy_value(row, ["Blocked", "Block", "Block List", "BlockList", "Deny", "field_4"]),
+            "Firewall Rule": _first_policy_value(row, ["Firewall Rule", "FirewallRule", "Rule", "Rule Name", "field_5"], ad_group),
+            "Description": _first_policy_value(row, ["Description", "Policy Description", "PolicyDescription", "Detail", "field_6"], fallback_description),
+            "Owner": _first_policy_value(row, ["Owner", "Responsible", "Managed By", "ManagedBy", "field_7"], "IT"),
+            "Last Updated": _first_policy_value(row, ["Last Updated", "LastUpdated", "Modified", "Updated", "field_8"]),
+            "Source": "SharePoint Mapping",
+        })
+
+    return rows or default_rows
+
+
+def get_firewall_policy_mapping_dict():
+    return {
+        str(row.get("AD Group", "")).strip().lower(): row
+        for row in load_firewall_policy_mapping()
+        if str(row.get("AD Group", "")).strip()
+    }
+
+
 def get_internet_policies_from_groups(group_names):
-    """แปลง AD Groups เป็น Internet Policy rows"""
+    """แปลง AD Groups เป็น Internet Policy rows พร้อมรายละเอียดว่า Policy ทำอะไรได้บ้าง"""
+    mapping = get_firewall_policy_mapping_dict()
     policies = []
+
     for group_name in group_names or []:
         g = str(group_name).strip()
         if not g:
             continue
-        if g in FW_POLICY_MAP or any(g.upper().startswith(p.upper()) for p in FW_POLICY_PREFIXES):
-            policies.append({
-                "Policy Internet": g,
+
+        is_policy_group = g.lower() in mapping or any(g.upper().startswith(p.upper()) for p in FW_POLICY_PREFIXES)
+        if not is_policy_group:
+            continue
+
+        detail = dict(mapping.get(g.lower(), {}))
+        if not detail:
+            detail = {
+                "AD Group": g,
+                "Policy Name": FW_POLICY_MAP.get(g, g),
+                "Internet Level": "",
+                "Allowed": "",
+                "Blocked": "",
+                "Firewall Rule": g,
                 "Description": FW_POLICY_MAP.get(g, "Firewall / Internet policy group"),
-                "Source": "AD Group",
-            })
+                "Owner": "IT",
+                "Last Updated": "",
+                "Source": "AD Group (unmapped)",
+            }
+
+        policies.append({
+            "Policy Internet": g,
+            "AD Group": detail.get("AD Group", g),
+            "Policy Name": detail.get("Policy Name", FW_POLICY_MAP.get(g, g)),
+            "Internet Level": detail.get("Internet Level", ""),
+            "Allowed": detail.get("Allowed", ""),
+            "Blocked": detail.get("Blocked", ""),
+            "Firewall Rule": detail.get("Firewall Rule", g),
+            "Description": detail.get("Description", FW_POLICY_MAP.get(g, "Firewall / Internet policy group")),
+            "Owner": detail.get("Owner", ""),
+            "Last Updated": detail.get("Last Updated", ""),
+            "Source": detail.get("Source", "AD Group"),
+        })
+
     return policies
 
 
@@ -648,6 +854,18 @@ def format_policy_descriptions(policies):
     if not policies:
         return "-"
     return ", ".join(sorted({p.get("Description", "") for p in policies if p.get("Description")}))
+
+
+def format_policy_allowed(policies):
+    if not policies:
+        return "-"
+    return ", ".join(sorted({p.get("Allowed", "") for p in policies if p.get("Allowed")}))
+
+
+def format_policy_blocked(policies):
+    if not policies:
+        return "-"
+    return ", ".join(sorted({p.get("Blocked", "") for p in policies if p.get("Blocked")}))
 
 
 def get_asset_user_identity(row, asset_list_name: str = ""):
@@ -3855,6 +4073,7 @@ else:
                 if st.button("ล้าง Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
                     graph_find_user.clear()
                     get_ad_group_names_for_user.clear()
+                    load_firewall_policy_mapping.clear()
                     st.rerun()
 
             if lookup_clicked or user_identity:
@@ -3870,6 +4089,8 @@ else:
                         u1.metric("Display Name", user_obj.get("displayName", "-"))
                         u2.metric("UPN", user_obj.get("userPrincipalName", "-"))
                         u3.metric("Mail", user_obj.get("mail") or "-")
+                    else:
+                        st.warning("ไม่พบ User นี้ใน AD / Entra ID หรือ App ยังไม่มีสิทธิ์อ่าน User")
 
                     if policy_summary.get("ok"):
                         policies = policy_summary.get("policies", [])
@@ -3882,6 +4103,18 @@ else:
                         if policies:
                             st.subheader("Internet Policy")
                             st.dataframe(pd.DataFrame(policies), use_container_width=True, hide_index=True)
+                            for policy in policies:
+                                with st.expander(f"{policy.get('Policy Internet', '-')} - {policy.get('Policy Name', '-')}"):
+                                    c_allowed, c_blocked = st.columns(2)
+                                    with c_allowed:
+                                        st.markdown("**Allowed**")
+                                        st.write(policy.get("Allowed") or "-")
+                                    with c_blocked:
+                                        st.markdown("**Blocked**")
+                                        st.write(policy.get("Blocked") or "-")
+                                    st.markdown("**Description**")
+                                    st.write(policy.get("Description") or "-")
+                                    st.caption(f"Firewall Rule: {policy.get('Firewall Rule', '-') or '-'} | Owner: {policy.get('Owner', '-') or '-'} | Source: {policy.get('Source', '-')}")
                         else:
                             st.info("ไม่พบ Internet Policy Group สำหรับ User นี้")
 
@@ -3926,6 +4159,8 @@ else:
                             "Asset Source": selected_source,
                             "Policy Internet": format_policy_names(policies),
                             "Policy Description": format_policy_descriptions(policies),
+                            "Allowed": format_policy_allowed(policies),
+                            "Blocked": format_policy_blocked(policies),
                             "AD Groups Count": len(policy_summary.get("groups", [])) if policy_summary.get("ok") else 0,
                             "Status": "OK" if policy_summary.get("ok") else "Error",
                             "Error": policy_summary.get("error", ""),
@@ -3946,11 +4181,20 @@ else:
                     st.info("ไม่พบ User ในรายการ Asset ที่เลือก")
 
         with tab_map:
-            map_rows = [
-                {"AD Group": group_name, "Policy Description": desc}
-                for group_name, desc in sorted(FW_POLICY_MAP.items())
-            ]
-            st.dataframe(pd.DataFrame(map_rows), use_container_width=True, hide_index=True)
+            st.caption(f"อ่าน mapping จาก SharePoint List: {FIREWALL_POLICY_MAPPING_LIST} ถ้าไม่มีหรือว่าง ระบบจะใช้ Default Mapping ในโค้ด")
+            map_rows = load_firewall_policy_mapping()
+            map_df = pd.DataFrame(map_rows)
+            if not map_df.empty:
+                st.dataframe(map_df, use_container_width=True, hide_index=True)
+                st.download_button(
+                    "Export Policy Mapping CSV",
+                    data=map_df.to_csv(index=False).encode("utf-8-sig"),
+                    file_name="firewall_policy_mapping.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+            else:
+                st.info("ยังไม่มี Policy Mapping")
             st.caption(f"Policy prefixes: {', '.join(FW_POLICY_PREFIXES)}")
 
     # -------------------------------------------------------
