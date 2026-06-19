@@ -4000,22 +4000,11 @@ else:
     }
     section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button p{display:none!important}
     section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button:before{
-        content:'•';display:block!important;width:24px;text-align:center;font-size:1.12rem!important;
+        content:none!important;display:none!important;width:0;text-align:center;font-size:1.12rem!important;
         line-height:1;color:inherit;font-family:'Segoe UI Symbol','Segoe UI Emoji',sans-serif!important;
     }
     section[data-testid="stSidebar"]:hover .stButton>button:before,
     section[data-testid="stSidebar"]:focus-within .stButton>button:before{display:none!important}
-
-    .st-key-nav_overview button:before{content:'⌂'!important}.st-key-nav_reports button:before{content:'▥'!important}
-    .st-key-nav_ad_policy button:before{content:'◎'!important}.st-key-tog_open_grp_assets button:before{content:'◇'!important}
-    .st-key-tog_open_grp_security button:before{content:'◈'!important}.st-key-tog_open_grp_inventory button:before{content:'▣'!important}
-    .st-key-tog_open_grp_admin button:before{content:'⚙'!important}.st-key-nav_computers button:before{content:'▤'!important}
-    .st-key-nav_monitors button:before{content:'▱'!important}.st-key-nav_printers button:before{content:'▧'!important}
-    .st-key-nav_projector button:before{content:'◫'!important}.st-key-nav_ups button:before{content:'⌁'!important}
-    .st-key-nav_misc button:before{content:'◇'!important}.st-key-nav_password button:before{content:'⌘'!important}
-    .st-key-nav_user_perm button:before{content:'≡'!important}.st-key-nav_ink_stock button:before{content:'▰'!important}
-    .st-key-nav_admin_users button:before{content:'♙'!important}.st-key-nav_admin_settings button:before{content:'⚙'!important}
-    .st-key-nav_admin_logs button:before{content:'≣'!important}.st-key-logout_btn button:before{content:'↪'!important}
 
     section[data-testid="stSidebar"] .nav-signout .stButton>button{margin-top:12px!important}
     section[data-testid="stSidebar"]:not(:hover):not(:focus-within) hr{width:54px!important;margin:8px 1px!important}
@@ -4513,6 +4502,18 @@ else:
     section[data-testid="stSidebar"] [class*="st-key-nav_"] .stButton>button:before,
     section[data-testid="stSidebar"] .st-key-logout_btn .stButton>button:before{
         display:none!important;content:none!important;
+    }
+    section[data-testid="stSidebar"] .stButton[class*="st-key-tog_"]>button:before,
+    section[data-testid="stSidebar"] .stButton[class*="st-key-nav_"]>button:before,
+    section[data-testid="stSidebar"] .stButton.st-key-logout_btn>button:before,
+    section[data-testid="stSidebar"] [class*="st-key-tog_"]>button:before,
+    section[data-testid="stSidebar"] [class*="st-key-nav_"]>button:before{
+        display:none!important;content:none!important;width:0!important;margin:0!important;
+    }
+    section[data-testid="stSidebar"] .stButton[class*="st-key-nav_"][class*="_active"]>button,
+    section[data-testid="stSidebar"] [class*="st-key-nav_"][class*="_active"]>button{
+        background:linear-gradient(135deg,#2563EB 0%,#4F46E5 55%,#7C3AED 100%)!important;
+        color:#FFF!important;border:1px solid transparent!important;box-shadow:0 9px 22px rgba(79,70,229,.24)!important;
     }
     section[data-testid="stSidebar"] .st-key-nav_computers .stButton>button,
     section[data-testid="stSidebar"] .st-key-nav_monitors .stButton>button,
