@@ -248,16 +248,6 @@ div[data-testid="stVerticalBlock"]{
 
 
 
-[data-testid="stSidebar"] button > div > div{
-    background: lime !important;
-    border: 2px solid blue !important;
-}
-
-[data-testid="stSidebar"] button > div > div > div{
-    background: cyan !important;
-    border: 2px solid black !important;
-}
-
 </style>
 """
 
@@ -3354,7 +3344,7 @@ else:
         margin-bottom: 0 !important;
     }
     [data-testid="stSidebar"] .nav-group-btn > button:hover {
-        background: #f8fa64 !important;
+        background: #F8FAFC !important;
     }
     [data-testid="stSidebar"] .nav-signout .stButton > button {
         color: #EF4444 !important;
@@ -4317,6 +4307,38 @@ else:
         .top-brand-sub,.top-user-role{display:none}.top-user-copy{max-width:150px}
         [class*="st-key-topnav_"] .stButton>button{font-size:.75rem!important;padding:0 8px!important}
     }
+    /* V6.3 Clean Enterprise final layer */
+    [data-testid="stAppViewContainer"],section[data-testid="stMain"]{
+        background:radial-gradient(circle at 92% 2%,rgba(99,102,241,.08),transparent 26rem),radial-gradient(circle at 2% 96%,rgba(56,189,248,.07),transparent 24rem),#F6F8FC!important;
+    }
+    [data-testid="stMainBlockContainer"]{max-width:1500px!important;padding-top:.85rem!important}
+    .top-appbar{
+        min-height:76px!important;border-radius:24px!important;padding:14px 18px!important;margin-bottom:14px!important;
+        background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(248,250,252,.92))!important;
+        border:1px solid rgba(203,213,225,.78)!important;box-shadow:0 14px 40px rgba(15,23,42,.065)!important;
+    }
+    .top-brand-mark{border-radius:16px!important}
+    .top-brand-name{font-size:1.08rem!important}
+    .top-user-avatar{border-radius:999px!important;background:linear-gradient(135deg,#EEF2FF,#E0EAFF)!important}
+    [class*="st-key-topnav_"] .stButton>button{height:46px!important;min-height:46px!important;border-radius:999px!important;background:#FFFFFF!important;border:1px solid #E2E8F0!important;color:#334155!important}
+    [class*="st-key-topnav_"] .stButton>button:hover{background:#EEF2FF!important;color:#4338CA!important;border-color:#C7D2FE!important;box-shadow:0 8px 18px rgba(79,70,229,.10)!important}
+    [class*="st-key-topnav_"] .stButton>button[kind="primary"],
+    [class*="st-key-topnav_"] .stButton>button[data-testid="stBaseButton-primary"]{background:linear-gradient(135deg,#2563EB,#6366F1 56%,#8B5CF6)!important;color:#FFF!important;border-color:transparent!important}
+    [class*="st-key-topsub_"] .stButton>button{border-radius:999px!important;background:#FFF!important}
+    .top-nav-rule{margin:12px 0 18px!important}
+    .page-header{border-radius:26px!important;background:linear-gradient(125deg,#1E3A8A,#4338CA 58%,#7C3AED)!important;box-shadow:0 20px 48px rgba(67,56,202,.20)!important}
+    .ov-card{border-radius:22px!important;padding:20px!important;background:linear-gradient(180deg,#FFFFFF,#FBFCFF)!important;border:1px solid #E2E8F0!important;box-shadow:0 12px 32px rgba(15,23,42,.055)!important}
+    .ov-card:hover{transform:translateY(-4px)!important;border-color:#C7D2FE!important;box-shadow:0 20px 44px rgba(79,70,229,.13)!important}
+    .ov-card-icon{width:46px!important;height:46px!important;border-radius:16px!important;font-size:1.28rem!important}
+    .ov-card-label{font-size:.76rem!important;color:#64748B!important}
+    .ov-card-value{font-size:2.25rem!important;color:#0F172A!important}
+    .ov-card-link{border-top:1px solid #EEF2F7!important;color:#4F46E5!important;font-weight:750!important}
+    [data-testid="stMain"] div[data-testid="stVerticalBlockBorderWrapper"]>div{border-radius:22px!important;border-color:#E2E8F0!important;box-shadow:0 10px 28px rgba(15,23,42,.045)!important}
+    @media(max-width:900px){
+        .top-appbar{min-height:70px;padding:12px 14px;border-radius:18px}.top-brand-mark{width:42px;height:42px;flex-basis:42px}
+        .top-brand-sub,.top-user-role{display:none}.top-user-copy{max-width:150px}
+        [class*="st-key-topnav_"] .stButton>button{font-size:.75rem!important;padding:0 8px!important}
+    }
     @media(max-width:640px){
         .top-user-copy{display:none}.top-appbar{gap:10px}.top-brand-name{font-size:.9rem}
         [class*="st-key-topnav_"] .stButton>button{font-size:.7rem!important;padding:0 5px!important}
@@ -4437,12 +4459,12 @@ else:
     main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav in ("ink_history", "consumables"))
 
-    if not admin_mode and main_menu != "💻 Hardware Asset":
-        st.session_state.active_nav = "computers"
-        _nav = "computers"
-        main_menu, _hw_sub_override = _ROUTE["computers"]
+    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "💻 Hardware Asset"):
+        st.session_state.active_nav = "overview"
+        _nav = "overview"
+        main_menu, _hw_sub_override = _ROUTE["overview"]
         show_ink_history_only = False
-        st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Hardware Asset เท่านั้น")
+        st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Dashboard และ Hardware Asset เท่านั้น")
 
     # -------------------------------------------------------
     # 📊 Overview Dashboard
@@ -4495,6 +4517,36 @@ else:
                 """, unsafe_allow_html=True)
                 if _nav_key and st.button(f"Open {_label.title()}", key=f"dash_nav_{_nav_key}", use_container_width=True):
                     st.session_state.active_nav = _nav_key
+                    st.rerun()
+
+        # ── Clean Enterprise Module Launcher ──
+        st.markdown('<div class="top-sub-label" style="margin-top:18px;margin-bottom:8px;">Quick Access</div>', unsafe_allow_html=True)
+        _launcher = [
+            ("computers", "💻", "Computers", "จัดการรายการคอมพิวเตอร์และผู้ใช้งาน"),
+            ("monitors", "🖥️", "Monitors", "ตรวจสอบจอภาพและสถานะการใช้งาน"),
+            ("printers", "🖨️", "Printers", "รายการเครื่องพิมพ์และ IP Address"),
+        ]
+        if admin_mode:
+            _launcher += [
+                ("ad_policy", "🌐", "AD / Firewall", "ค้นหา Internet Policy จาก AD Group"),
+                ("user_perm", "📂", "NAS Permission", "ตรวจสอบสิทธิ์ Share Folder"),
+                ("ink_stock", "🖊️", "Ink Stock", "สต็อกหมึกและประวัติการเบิก"),
+            ]
+        _launch_cols = st.columns(3, gap="medium")
+        for _i, (_key, _icon, _title, _desc) in enumerate(_launcher):
+            with _launch_cols[_i % 3]:
+                st.markdown(f'''
+                <div class="ov-card" style="min-height:142px;">
+                    <div class="ov-card-top">
+                        <div class="ov-card-icon" style="background:#EEF2FF;">{_icon}</div>
+                        <span class="ov-card-label">MODULE</span>
+                    </div>
+                    <div style="font-size:1.05rem;font-weight:850;color:#0F172A;margin-bottom:6px;">{_title}</div>
+                    <div style="font-size:.82rem;color:#64748B;line-height:1.5;min-height:40px;">{_desc}</div>
+                </div>
+                ''', unsafe_allow_html=True)
+                if st.button(f"เปิด {_title}", key=f"quick_{_key}", use_container_width=True):
+                    st.session_state.active_nav = _key
                     st.rerun()
 
         # ── Ink low-stock alert ──
