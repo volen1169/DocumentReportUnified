@@ -948,6 +948,34 @@ def nas_agent_get_acl_raw(share):
     return data.get("stdout") or data.get("acl") or ""
 
 
+
+def _clean_nas_principal(name: str) -> str:
+    """Normalize Synology ACL principal names.
+
+    Examples:
+    - OPTIMALGROUP\\Sasithorn.Su -> Sasithorn.Su
+    - user:OPTIMALGROUP\\IT_Network -> IT_Network
+    - group:administrators -> administrators
+    """
+    if name is None:
+        return ""
+
+    cleaned = str(name).strip()
+    if not cleaned or cleaned.lower() in ("nan", "none", "null"):
+        return ""
+
+    # Remove optional prefix that may already be included in parsed text.
+    cleaned = re.sub(r"^(user|group)\s*:\s*", "", cleaned, flags=re.I).strip()
+
+    # Synology / AD principals are often DOMAIN\\name.
+    if "\\" in cleaned:
+        cleaned = cleaned.split("\\")[-1].strip()
+
+    # Remove accidental surrounding quotes/spaces.
+    cleaned = cleaned.strip().strip('"').strip("'").strip()
+
+    return cleaned
+
 def parse_nas_agent_permissions_payload(payload, employee_list=None):
     """แปลง payload จาก Agent เวอร์ชันใหม่เป็น ACL Tags และ Matched Employees
 
