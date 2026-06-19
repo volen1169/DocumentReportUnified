@@ -3931,6 +3931,109 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
+    # V5.2 ICON RAIL FIX — real icons, overlay expansion, no content reflow.
+    st.sidebar.markdown("""
+    <style>
+    /* Keep the layout rail narrow; only its inner panel expands above content. */
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"]:hover,
+    section[data-testid="stSidebar"]:focus-within{
+        width:80px!important;min-width:80px!important;max-width:80px!important;
+        overflow:visible!important;z-index:999!important;
+    }
+    section[data-testid="stSidebar"]>div:first-child{
+        width:80px!important;min-width:80px!important;max-width:none!important;
+        overflow:hidden!important;border-right:1px solid rgba(99,102,241,.14)!important;
+        background:linear-gradient(180deg,rgba(235,248,255,.97),rgba(238,242,255,.97) 52%,rgba(245,243,255,.97))!important;
+        box-shadow:8px 0 26px rgba(49,46,129,.07)!important;
+        transition:width .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease!important;
+    }
+    section[data-testid="stSidebar"]:hover>div:first-child,
+    section[data-testid="stSidebar"]:focus-within>div:first-child{
+        width:286px!important;min-width:286px!important;
+        box-shadow:20px 0 48px rgba(49,46,129,.16)!important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{
+        width:286px!important;min-width:286px!important;padding:18px 12px!important;
+        overflow-x:hidden!important;background:transparent!important;
+    }
+    [data-testid="stSidebarCollapseButton"]{display:none!important}
+
+    /* Brand and profile become two clean square marks in rail mode. */
+    section[data-testid="stSidebar"] .ref-brand,
+    section[data-testid="stSidebar"] .ref-profile{
+        width:262px!important;margin:0!important;padding:4px 5px 15px!important;
+        border:0!important;border-radius:0!important;background:transparent!important;
+        box-shadow:none!important;overflow:hidden!important;white-space:nowrap!important;
+    }
+    section[data-testid="stSidebar"] .ref-profile{padding-top:12px!important;padding-bottom:12px!important;border-top:1px solid rgba(148,163,184,.18)!important}
+    section[data-testid="stSidebar"] .ref-logo,
+    section[data-testid="stSidebar"] .ref-avatar{
+        width:46px!important;height:46px!important;min-width:46px!important;border-radius:14px!important;
+        font-size:.82rem!important;box-shadow:0 8px 18px rgba(99,102,241,.20)!important;
+    }
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-brand-title,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-brand-sub,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-profile-dept,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-profile-name,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-status-dot,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ref-status-dot+span,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .nav-section-label{opacity:0!important}
+    section[data-testid="stSidebar"] .nav-section-label{width:250px!important;height:25px!important;margin:0!important;padding:7px 8px 4px!important;transition:opacity .12s ease!important}
+
+    /* Neutralise legacy sizes and red/native primary treatments. */
+    section[data-testid="stSidebar"] .stButton{width:262px!important;overflow:hidden!important}
+    section[data-testid="stSidebar"] .stButton>button{
+        width:262px!important;height:48px!important;min-height:48px!important;margin:0!important;
+        padding:0 14px!important;border:1px solid transparent!important;border-radius:13px!important;
+        background:transparent!important;color:#475569!important;box-shadow:none!important;
+        justify-content:flex-start!important;overflow:hidden!important;white-space:nowrap!important;
+        transform:none!important;transition:background .16s ease,border-color .16s ease,color .16s ease!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button:hover{
+        background:rgba(255,255,255,.80)!important;border-color:rgba(99,102,241,.14)!important;
+        color:#4338CA!important;box-shadow:0 7px 18px rgba(79,70,229,.08)!important;transform:none!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button[kind="primary"],
+    section[data-testid="stSidebar"] .stButton>button[data-testid="stBaseButton-primary"]{
+        background:linear-gradient(135deg,#E0EAFF,#EDE9FE)!important;color:#4338CA!important;
+        border:1px solid rgba(99,102,241,.18)!important;border-left:3px solid #6366F1!important;
+        box-shadow:0 7px 18px rgba(79,70,229,.09)!important;
+    }
+
+    /* Collapsed rail: hide labels and render deterministic icons. */
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button{
+        width:56px!important;padding:0!important;justify-content:center!important;
+    }
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button p{display:none!important}
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button:before{
+        content:'•';display:block!important;width:24px;text-align:center;font-size:1.12rem!important;
+        line-height:1;color:inherit;font-family:'Segoe UI Symbol','Segoe UI Emoji',sans-serif!important;
+    }
+    section[data-testid="stSidebar"]:hover .stButton>button:before,
+    section[data-testid="stSidebar"]:focus-within .stButton>button:before{display:none!important}
+
+    .st-key-nav_overview button:before{content:'⌂'!important}.st-key-nav_reports button:before{content:'▥'!important}
+    .st-key-nav_ad_policy button:before{content:'◎'!important}.st-key-tog_open_grp_assets button:before{content:'◇'!important}
+    .st-key-tog_open_grp_security button:before{content:'◈'!important}.st-key-tog_open_grp_inventory button:before{content:'▣'!important}
+    .st-key-tog_open_grp_admin button:before{content:'⚙'!important}.st-key-nav_computers button:before{content:'▤'!important}
+    .st-key-nav_monitors button:before{content:'▱'!important}.st-key-nav_printers button:before{content:'▧'!important}
+    .st-key-nav_projector button:before{content:'◫'!important}.st-key-nav_ups button:before{content:'⌁'!important}
+    .st-key-nav_misc button:before{content:'◇'!important}.st-key-nav_password button:before{content:'⌘'!important}
+    .st-key-nav_user_perm button:before{content:'≡'!important}.st-key-nav_ink_stock button:before{content:'▰'!important}
+    .st-key-nav_admin_users button:before{content:'♙'!important}.st-key-nav_admin_settings button:before{content:'⚙'!important}
+    .st-key-nav_admin_logs button:before{content:'≣'!important}.st-key-logout_btn button:before{content:'↪'!important}
+
+    section[data-testid="stSidebar"] .nav-signout .stButton>button{margin-top:12px!important}
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) hr{width:54px!important;margin:8px 1px!important}
+    @media(max-width:768px){
+        section[data-testid="stSidebar"],section[data-testid="stSidebar"]:hover,section[data-testid="stSidebar"]:focus-within{width:72px!important;min-width:72px!important;max-width:72px!important}
+        section[data-testid="stSidebar"]>div:first-child{width:72px!important;min-width:72px!important}
+        section[data-testid="stSidebar"]:hover>div:first-child,section[data-testid="stSidebar"]:focus-within>div:first-child{width:272px!important;min-width:272px!important}
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     if compact:
         st.sidebar.markdown(
             '<style>[data-testid="stSidebar"]{min-width:72px!important;}'
@@ -4093,7 +4196,6 @@ else:
     if admin_mode:
         _nav_leaf("reports", "📊", "Reports & Analytics")
         _nav_leaf("ad_policy", "🌐", "AD / Firewall Policy")
-        _nav_leaf("admin_settings", "⚙", "Administration")
 
     # Asset modules moved to Dashboard cards
     _group_toggle("open_grp_assets", "📦", "Asset Management")
