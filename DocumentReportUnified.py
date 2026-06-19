@@ -4731,6 +4731,9 @@ else:
         [class*="st-key-saas_quick_"] .stButton>button{position:absolute!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:129px!important;min-height:129px!important;margin:0!important;border:0!important;border-radius:24px!important;background:transparent!important;color:transparent!important;box-shadow:none!important;opacity:.01!important;cursor:pointer!important}
         .security-card,.timeline-card,.ai-card{border:1px solid rgba(255,255,255,.94)!important;background:rgba(255,255,255,.58)!important;backdrop-filter:blur(24px) saturate(145%)!important;-webkit-backdrop-filter:blur(24px) saturate(145%)!important}
         .timeline-card,.ai-card{min-height:276px!important}.timeline-item{padding-top:12px!important;padding-bottom:12px!important}.insight-item{padding-top:11px!important;padding-bottom:11px!important}
+        .portfolio-card,.action-card{height:100%;min-height:286px;padding:22px;border:1px solid rgba(255,255,255,.94);border-radius:24px;background:rgba(255,255,255,.60);box-shadow:0 16px 40px rgba(51,65,85,.08);backdrop-filter:blur(24px) saturate(145%);-webkit-backdrop-filter:blur(24px) saturate(145%)}
+        .portfolio-row{display:grid;grid-template-columns:120px 1fr 48px;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(226,232,240,.78)}.portfolio-row:last-child{border-bottom:0}.portfolio-name{font-size:.76rem;font-weight:750;color:#475569}.portfolio-count{text-align:right;font-size:.76rem;font-weight:850;color:#1E293B}.portfolio-track{height:8px;border-radius:999px;background:#E9EEF7;overflow:hidden}.portfolio-fill{height:100%;border-radius:999px;box-shadow:0 2px 8px rgba(79,70,229,.20)}
+        .action-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid rgba(226,232,240,.78)}.action-row:last-of-type{border-bottom:0}.action-main{display:flex;align-items:center;gap:11px}.action-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 34px;border-radius:11px;font-size:.85rem}.action-title{font-size:.77rem;font-weight:800;color:#475569}.action-desc{margin-top:3px;font-size:.66rem;color:#94A3B8}.action-badge{min-width:36px;padding:7px 10px;border-radius:999px;text-align:center;font-size:.7rem;font-weight:850}.action-footer{margin-top:15px;padding:11px 12px;border-radius:12px;background:linear-gradient(135deg,#EEF2FF,#ECFEFF);color:#4338CA;font-size:.69rem;font-weight:750}
         @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
         </style>
         """, unsafe_allow_html=True)
@@ -4866,38 +4869,39 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # ── Activities & AI Insights ──────────────────────────────────────
-        st.markdown('<div class="dash-section"><div class="dash-section-title">Workspace Intelligence</div><div class="dash-section-note">Recent signals from your environment</div></div>', unsafe_allow_html=True)
-        _activity_time = datetime.datetime.now().strftime("%H:%M")
-        _active_rate = round((_active_assets / _total_assets) * 100) if _total_assets else 0
-        _intel_cols = st.columns([1.05, .95], gap="medium")
-        with _intel_cols[0]:
+        # ── Asset Portfolio & Action Center ───────────────────────────────
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Operational Overview</div><div class="dash-section-note">Inventory mix and items requiring action</div></div>', unsafe_allow_html=True)
+        _ops_cols = st.columns([1.05, .95], gap="medium")
+        _portfolio_total = max(_total_assets, 1)
+        _comp_pct = round((_comp_count / _portfolio_total) * 100)
+        _mon_pct = round((_mon_count / _portfolio_total) * 100)
+        _prn_pct = round((_prn_count / _portfolio_total) * 100)
+        with _ops_cols[0]:
             st.markdown(f"""
-            <div class="timeline-card">
-                <div class="panel-title">Recent Activities</div>
-                <div class="panel-sub">Latest successful workspace updates</div>
-                <div class="timeline-item"><div class="timeline-title">Asset inventory synchronized</div><div class="timeline-meta">{_total_assets:,} records available · {_activity_time}</div></div>
-                <div class="timeline-item"><div class="timeline-title">Security policy mapping refreshed</div><div class="timeline-meta">{_security_policy_count:,} policies loaded · {_activity_time}</div></div>
-                <div class="timeline-item"><div class="timeline-title">NAS permission index updated</div><div class="timeline-meta">{_nas_count:,} shared folders available · {_activity_time}</div></div>
+            <div class="portfolio-card">
+                <div class="panel-title">Asset Portfolio</div>
+                <div class="panel-sub">Distribution across managed asset types</div>
+                <div class="portfolio-row"><div class="portfolio-name">💻 Computers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_comp_pct}%;background:linear-gradient(90deg,#2563EB,#60A5FA);"></div></div><div class="portfolio-count">{_comp_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">🖥️ Monitors</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_mon_pct}%;background:linear-gradient(90deg,#0891B2,#22D3EE);"></div></div><div class="portfolio-count">{_mon_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">🖨️ Printers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_prn_pct}%;background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div></div><div class="portfolio-count">{_prn_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">📂 NAS Shares</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{min(_nas_count,100)}%;background:linear-gradient(90deg,#059669,#34D399);"></div></div><div class="portfolio-count">{_nas_count}</div></div>
             </div>
             """, unsafe_allow_html=True)
-        with _intel_cols[1]:
-            _attention_insight = (
-                f"{_attention_assets} assets are inactive or under repair and should be reviewed."
-                if _attention_assets else "No inactive or repair assets require immediate action."
-            )
-            _ink_insight = (
-                f"{_low_ink_count} ink items are at or below their reorder threshold."
-                if _low_ink_count else "Ink inventory is currently above all reorder thresholds."
+        with _ops_cols[1]:
+            _integration_issues = int(not _firewall_ok) + int(not _ad_ok) + int(not _nas_ok)
+            _action_total = _attention_assets + _low_ink_count + _integration_issues
+            _action_footer = (
+                "✓ All monitored areas are healthy. No immediate action required."
+                if _action_total == 0 else f"{_action_total} total items should be reviewed by the IT team."
             )
             st.markdown(f"""
-            <div class="ai-card">
-                <div class="ai-badge">AI INSIGHTS</div>
-                <div class="panel-title" style="margin-top:12px;">Environment Summary</div>
-                <div class="panel-sub">Actionable signals derived from current data</div>
-                <div class="insight-item"><div class="insight-icon">↗</div><div class="insight-text"><strong>Asset health is {_active_rate}%.</strong><br>{_active_assets:,} of {_total_assets:,} tracked assets are active.</div></div>
-                <div class="insight-item"><div class="insight-icon">!</div><div class="insight-text">{_attention_insight}</div></div>
-                <div class="insight-item"><div class="insight-icon">◉</div><div class="insight-text">{_ink_insight}</div></div>
+            <div class="action-card">
+                <div class="panel-title">Action Center</div>
+                <div class="panel-sub">Prioritized issues from live system data</div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FFF7ED;color:#D97706;">!</div><div><div class="action-title">Asset attention</div><div class="action-desc">Inactive or repair status</div></div></div><div class="action-badge" style="background:#FFF7ED;color:#C2410C;">{_attention_assets}</div></div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FEF2F2;color:#DC2626;">↓</div><div><div class="action-title">Low ink stock</div><div class="action-desc">At or below reorder threshold</div></div></div><div class="action-badge" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div></div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#EEF2FF;color:#4F46E5;">◆</div><div><div class="action-title">Integration health</div><div class="action-desc">Firewall, AD and NAS connections</div></div></div><div class="action-badge" style="background:#EEF2FF;color:#4F46E5;">{_integration_issues}</div></div>
+                <div class="action-footer">{_action_footer}</div>
             </div>
             """, unsafe_allow_html=True)
 
