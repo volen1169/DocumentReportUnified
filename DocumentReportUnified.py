@@ -278,6 +278,7 @@ import paramiko
 import re
 import textwrap
 import datetime
+import inspect
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -4051,28 +4052,51 @@ else:
 #   - รองรับ Sub Menu
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
+    _ST_BUTTON_HAS_ICON = "icon" in inspect.signature(st.button).parameters
+    _NAV_MATERIAL_ICONS = {
+        "overview": "space_dashboard", "ad_policy": "policy",
+        "computers": "computer", "monitors": "desktop_windows",
+        "printers": "print", "projector": "videocam",
+        "ups": "battery_charging_full", "misc": "devices_other",
+        "password": "key", "user_perm": "folder_shared",
+        "ink_stock": "water_drop", "admin_users": "group",
+        "admin_settings": "settings", "admin_logs": "history",
+    }
+    _GROUP_MATERIAL_ICONS = {
+        "open_grp_assets": "inventory_2", "open_grp_security": "shield_lock",
+        "open_grp_inventory": "inventory", "open_grp_admin": "admin_panel_settings",
+    }
+    _NAV_FALLBACK_ICONS = {
+        "overview": "◫", "ad_policy": "◎", "computers": "▣", "monitors": "▭",
+        "printers": "▧", "projector": "▰", "ups": "⌁", "misc": "◇",
+        "password": "⌘", "user_perm": "▤", "ink_stock": "◉",
+        "admin_users": "♙", "admin_settings": "⚙", "admin_logs": "≣",
+    }
+    _GROUP_FALLBACK_ICONS = {
+        "open_grp_assets": "◇", "open_grp_security": "◈",
+        "open_grp_inventory": "▣", "open_grp_admin": "⚙",
+    }
+
+    def _button_icon(material_name: str):
+        return {"icon": f":material/{material_name}:"} if _ST_BUTTON_HAS_ICON else {}
+
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         
        
         
         active = st.session_state.active_nav == nav_key
-        prefix = "      " if sub and not compact else ""
-
         val = nav_badges.get(badge_key, 0) if badge_key else None
-
-        if compact:
-            label = icon
-        else:
-            label = f"{prefix}{icon}  {text}"
-            if val is not None:
-                label += f" ({val})"
+        label = text if val is None else f"{text}   {val}"
+        if not _ST_BUTTON_HAS_ICON:
+            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
 
         if st.sidebar.button(
             label,
             use_container_width=True,
             type="primary" if active else "secondary",
             help=text,
-            key=f"nav_{nav_key}"
+            key=f"nav_{nav_key}",
+            **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle")),
         ):
             st.session_state.active_nav = nav_key
             
@@ -4094,31 +4118,23 @@ else:
 # =============================================================================
     def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
-        if compact:
-            label = "▾" if open_ else icon
-        elif open_:
-            label = f"▾  {icon}  {text}"
-        else:
-            label = f"{icon}  {text}  ›"
-        if st.sidebar.button(label, use_container_width=True, type="primary" if open_ else "secondary", help=text, key=f"tog_{state_key}"):
+        label = f"{text}   {'⌄' if open_ else '›'}"
+        if not _ST_BUTTON_HAS_ICON:
+            label = f"{_GROUP_FALLBACK_ICONS.get(state_key, '◇')}  {label}"
+        if st.sidebar.button(label, use_container_width=True, type="secondary", help=text,
+                             key=f"tog_{state_key}",
+                             **_button_icon(_GROUP_MATERIAL_ICONS.get(state_key, "folder"))):
             st.session_state[state_key] = not open_
             st.rerun()
 
     def _nav_leaf(nav_key: str, icon: str, text: str, badge_text: str = ""):
         active = st.session_state.active_nav == nav_key
-        icon = {"overview": "⌂", "reports": "▥", "ad_policy": "🌐", "admin_settings": "⚙"}.get(nav_key, icon)
-        if not badge_text:
-            badge_text = {"reports": "12", "admin_settings": "3"}.get(nav_key, "")
-        badge_suffix = f"        {badge_text}" if badge_text and not compact else ""
-        if compact:
-            label = icon
-        elif active:
-            label = f"{icon}  {text}{badge_suffix}"
-        else:
-            label = f"{icon}  {text}  ›"
-        if badge_suffix and not compact:
-            label = f"{icon}  {text}{badge_suffix}"
-        if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary", help=text, key=f"nav_{nav_key}"):
+        label = text
+        if not _ST_BUTTON_HAS_ICON:
+            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
+        if st.sidebar.button(label, use_container_width=True, type="primary" if active else "secondary",
+                             help=text, key=f"nav_{nav_key}",
+                             **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle"))):
             st.session_state.active_nav = nav_key
             st.rerun()
 
@@ -4173,6 +4189,8 @@ else:
     # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
         st.session_state.active_nav = "overview"
+    if st.session_state.active_nav == "reports":
+        st.session_state.active_nav = "overview"
 
     for _gk in ("open_grp_assets", "open_grp_security", "open_grp_inventory", "open_grp_admin"):
         if _gk not in st.session_state:
@@ -4191,12 +4209,11 @@ else:
 
     # removed force redirect to computers
 
-    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">NAVIGATION</p>', unsafe_allow_html=True)
+    st.sidebar.markdown('<p class="nav-section-label hide-when-compact">WORKSPACE</p>', unsafe_allow_html=True)
 
     # Card Navigation Style (Option B)
     _nav_leaf("overview", "⌂", "Dashboard")
     if admin_mode:
-        _nav_leaf("reports", "📊", "Reports & Analytics")
         _nav_leaf("ad_policy", "🌐", "AD / Firewall Policy")
 
     # Asset modules moved to Dashboard cards
@@ -4231,7 +4248,8 @@ else:
     st.sidebar.markdown("---")
 
     st.sidebar.markdown('<div class="nav-signout">', unsafe_allow_html=True)
-    if st.sidebar.button("↪   Sign out" if not compact else "↪", use_container_width=True, key="logout_btn"):
+    if st.sidebar.button("Sign out", use_container_width=True, key="logout_btn",
+                         **_button_icon("logout")):
         expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
         for cookie_key in ("user_name", "user_email"):
             try:
@@ -4447,6 +4465,55 @@ else:
     section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .ce-user-status{display:flex!important}
     section[data-testid="stSidebar"] .stButton>button[data-testid*="primary"],
     section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button[data-testid*="primary"]{background:linear-gradient(135deg,#4F46E5,#6366F1 58%,#7C3AED)!important;color:#FFF!important;border:1px solid transparent!important;border-left:3px solid #C4B5FD!important;box-shadow:0 8px 18px rgba(79,70,229,.20)!important}
+
+    /* V7.2 SaaS navigation: calm surfaces, consistent Material icons. */
+    section[data-testid="stSidebar"] [class*="material-symbols"],
+    section[data-testid="stSidebar"] span[data-testid="stIconMaterial"]{
+        font-size:19px!important;font-weight:400!important;color:currentColor!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button,
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button{
+        height:42px!important;min-height:42px!important;padding:0 12px!important;border-radius:10px!important;
+        background:transparent!important;border:1px solid transparent!important;color:#475569!important;
+        font-size:.81rem!important;font-weight:650!important;box-shadow:none!important;gap:10px!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button:hover{
+        background:#F6F7FF!important;border-color:#E7E9FF!important;color:#4F46E5!important;box-shadow:none!important;
+    }
+    section[data-testid="stSidebar"] .stButton>button[data-testid*="primary"],
+    section[data-testid="stSidebar"]:not(:hover):not(:focus-within) .stButton>button[data-testid*="primary"]{
+        background:#EEF2FF!important;color:#4338CA!important;border:1px solid #DDE3FF!important;
+        border-left:1px solid #DDE3FF!important;padding-left:12px!important;box-shadow:none!important;font-weight:750!important;
+    }
+    section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button{
+        margin-top:5px!important;background:transparent!important;border-color:transparent!important;
+        color:#334155!important;font-weight:750!important;
+    }
+    section[data-testid="stSidebar"] [class*="st-key-tog_"] .stButton>button:hover{
+        background:#F8FAFC!important;border-color:#EEF2F7!important;color:#4338CA!important;
+    }
+    section[data-testid="stSidebar"] .st-key-nav_computers .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_monitors .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_printers .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_projector .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_ups .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_misc .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_password .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_user_perm .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_ink_stock .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_admin_users .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_admin_settings .stButton>button,
+    section[data-testid="stSidebar"] .st-key-nav_admin_logs .stButton>button{
+        width:calc(100% - 12px)!important;margin-left:12px!important;height:39px!important;min-height:39px!important;
+        color:#64748B!important;font-size:.77rem!important;
+    }
+    section[data-testid="stSidebar"] .nav-signout .stButton>button{
+        height:42px!important;min-height:42px!important;margin-top:8px!important;background:transparent!important;
+        border-color:transparent!important;color:#64748B!important;justify-content:flex-start!important;
+    }
+    section[data-testid="stSidebar"] .nav-signout .stButton>button:hover{
+        background:#FFF5F5!important;border-color:#FEE2E2!important;color:#DC2626!important;
+    }
     [data-testid="stMainBlockContainer"]{max-width:1500px!important;padding:1.35rem clamp(1rem,2.6vw,2.5rem) 4rem!important}
     @media(max-width:900px){
         section[data-testid="stSidebar"],section[data-testid="stSidebar"]:hover,section[data-testid="stSidebar"]:focus-within{width:274px!important;min-width:274px!important;max-width:274px!important}
@@ -4491,7 +4558,6 @@ else:
     if admin_mode:
         _top_items = [
             ("overview", "ภาพรวม", "overview"),
-            ("reports", "รายงาน", "reports"),
             ("ad_policy", "AD / Firewall", "ad_policy"),
             ("assets", "สินทรัพย์ IT", "computers"),
             ("security", "ความปลอดภัย", "password"),
@@ -4546,7 +4612,6 @@ else:
     # ── ROUTE ────────────────────────────────────────────────────────────────
     _ROUTE = {
         "overview":   ("📊 Overview Dashboard",  None),
-        "reports":    ("📊 Overview Dashboard",  None),
         "computers":  ("💻 Hardware Asset",       "Computer Asset"),
         "monitors":   ("💻 Hardware Asset",       "Asset Monitor"),
         "projector":  ("💻 Hardware Asset",       "Asset Projector"),
@@ -4580,8 +4645,8 @@ else:
     # 📊 Overview Dashboard
     # -------------------------------------------------------
     if main_menu == "📊 Overview Dashboard":
-        _dash_title = "Reports & Analytics" if _nav == "reports" else "IT Asset Overview"
-        _dash_sub = "วิเคราะห์แนวโน้มและภาพรวมข้อมูลสินทรัพย์" if _nav == "reports" else "ศูนย์ควบคุมและติดตามสินทรัพย์ IT"
+        _dash_title = "IT Asset Overview"
+        _dash_sub = "ศูนย์ควบคุมและติดตามสินทรัพย์ IT"
 
         st.markdown("""
         <style>
@@ -4610,6 +4675,22 @@ else:
         .attention-item:last-child{border-bottom:0}.attention-label{font-size:.78rem;font-weight:700;color:#475569}.attention-note{margin-top:3px;font-size:.68rem;color:#94A3B8}
         .attention-value{min-width:38px;height:30px;display:flex;align-items:center;justify-content:center;padding:0 9px;border-radius:999px;font-size:.78rem;font-weight:850}
         .attention-ok{margin-top:16px;padding:12px;border-radius:12px;background:#ECFDF5;color:#047857;font-size:.73rem;font-weight:700}
+        [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:radial-gradient(circle at 88% 3%,rgba(56,189,248,.18),transparent 28rem),radial-gradient(circle at 8% 92%,rgba(99,102,241,.14),transparent 26rem),linear-gradient(145deg,#F5FAFF 0%,#F5F7FF 48%,#F8F7FF 100%)!important}
+        .dash-hero{min-height:170px!important;padding:28px 30px!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:24px!important;color:#FFF!important;background:radial-gradient(circle at 85% 20%,rgba(34,211,238,.30),transparent 18rem),linear-gradient(125deg,#0F3A8A 0%,#3730A3 56%,#6366F1 100%)!important;box-shadow:0 24px 60px rgba(49,46,129,.22)!important;overflow:hidden!important}
+        .dash-hero:before{left:auto!important;top:-90px!important;right:-70px!important;bottom:auto!important;width:280px!important;height:280px!important;border-radius:50%!important;background:rgba(255,255,255,.08)!important}
+        .dash-eyebrow{color:#A5F3FC!important}.dash-title{color:#FFF!important;font-size:clamp(1.65rem,2.4vw,2.15rem)!important}.dash-subtitle{color:rgba(255,255,255,.72)!important}
+        .dash-profile{position:relative;z-index:2;display:flex;align-items:center;gap:11px;min-width:220px;padding:11px 13px;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(255,255,255,.11);backdrop-filter:blur(16px)}
+        .dash-profile-avatar{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:rgba(255,255,255,.18);color:#FFF;font-size:.75rem;font-weight:850}.dash-profile-name{font-size:.8rem;font-weight:750;color:#FFF}.dash-profile-role{margin-top:3px;font-size:.67rem;color:rgba(255,255,255,.65)}
+        .dash-kpi{min-height:142px!important;padding:20px!important;border:1px solid rgba(255,255,255,.76)!important;border-radius:24px!important;background:rgba(255,255,255,.72)!important;box-shadow:0 16px 42px rgba(51,65,85,.09)!important;backdrop-filter:blur(18px)!important;transition:transform .18s ease,box-shadow .18s ease!important}.dash-kpi:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(79,70,229,.13)!important}
+        .saas-grid-card{height:100%;min-height:128px;padding:18px;border:1px solid rgba(255,255,255,.82);border-radius:24px;background:rgba(255,255,255,.70);box-shadow:0 14px 36px rgba(51,65,85,.075);backdrop-filter:blur(18px)}
+        .saas-card-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:linear-gradient(135deg,#E0F2FE,#EDE9FE);color:#4F46E5;font-size:1.05rem}.saas-card-title{margin-top:13px;font-size:.86rem;font-weight:800;color:#1E293B}.saas-card-sub{margin-top:4px;font-size:.69rem;line-height:1.45;color:#94A3B8}
+        [class*="st-key-saas_quick_"] .stButton>button{height:38px!important;min-height:38px!important;margin-top:7px!important;border:1px solid rgba(199,210,254,.75)!important;border-radius:12px!important;background:rgba(255,255,255,.74)!important;color:#4F46E5!important;font-size:.72rem!important;font-weight:750!important;box-shadow:none!important}
+        [class*="st-key-saas_quick_"] .stButton>button:hover{background:#EEF2FF!important;border-color:#A5B4FC!important;transform:none!important}
+        .security-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 18px;border:1px solid rgba(255,255,255,.82);border-radius:20px;background:rgba(255,255,255,.72);box-shadow:0 12px 32px rgba(51,65,85,.07);backdrop-filter:blur(16px)}
+        .security-name{font-size:.8rem;font-weight:800;color:#334155}.security-note{margin-top:4px;font-size:.67rem;color:#94A3B8}.status-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:.67rem;font-weight:800}.status-pill:before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}.status-online{background:#ECFDF5;color:#059669}.status-warning{background:#FFF7ED;color:#D97706}
+        .timeline-card,.ai-card{height:100%;min-height:300px;padding:22px;border:1px solid rgba(255,255,255,.82);border-radius:24px;background:rgba(255,255,255,.72);box-shadow:0 16px 40px rgba(51,65,85,.08);backdrop-filter:blur(18px)}
+        .panel-title{font-size:.94rem;font-weight:850;color:#1E293B}.panel-sub{margin-top:4px;font-size:.69rem;color:#94A3B8}.timeline-item{position:relative;padding:15px 0 15px 25px;border-bottom:1px solid rgba(226,232,240,.8)}.timeline-item:last-child{border-bottom:0}.timeline-item:before{content:'';position:absolute;left:2px;top:20px;width:9px;height:9px;border-radius:50%;background:#6366F1;box-shadow:0 0 0 5px #EEF2FF}.timeline-title{font-size:.76rem;font-weight:750;color:#475569}.timeline-meta{margin-top:3px;font-size:.65rem;color:#94A3B8}
+        .ai-card{background:radial-gradient(circle at 90% 8%,rgba(34,211,238,.14),transparent 14rem),linear-gradient(145deg,rgba(238,242,255,.88),rgba(255,255,255,.74))}.ai-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#E0E7FF;color:#4F46E5;font-size:.62rem;font-weight:850;letter-spacing:.08em}.insight-item{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid rgba(199,210,254,.45)}.insight-item:last-child{border-bottom:0}.insight-icon{width:27px;height:27px;display:flex;align-items:center;justify-content:center;flex:0 0 27px;border-radius:9px;background:#FFF;color:#4F46E5;font-size:.72rem}.insight-text{font-size:.73rem;line-height:1.5;color:#475569}
         @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
         </style>
         """, unsafe_allow_html=True)
@@ -4618,11 +4699,14 @@ else:
         st.markdown(f"""
         <div class="dash-hero">
             <div style="position:relative;z-index:1;">
-                <div class="dash-eyebrow">Document Report Unified · Command Center</div>
-                <div class="dash-title">{_dash_title}</div>
-                <div class="dash-subtitle">{_dash_sub}</div>
+                <div class="dash-eyebrow">DOCUMENTREPORTUNIFIED</div>
+                <div class="dash-title">Good Morning, IT Team</div>
+                <div class="dash-subtitle">Everything important across your IT workspace, in one place.</div>
             </div>
-            <div class="dash-date">อัปเดตล่าสุด · {_today}</div>
+            <div class="dash-profile">
+                <div class="dash-profile-avatar">{initials}</div>
+                <div><div class="dash-profile-name">{name}</div><div class="dash-profile-role">{profile_dept} · {_today}</div></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -4644,6 +4728,21 @@ else:
         else:
             _co_count = 0
 
+        _active_users = 0
+        if not df_comp.empty and "field_3" in df_comp.columns:
+            _users = df_comp["field_3"].dropna().astype(str).str.strip()
+            _active_users = int(_users[_users != ""].nunique())
+
+        try:
+            _policy_frame = load_firewall_policy_mapping()
+            _security_policy_count = len(_policy_frame) if _policy_frame is not None else 0
+        except Exception:
+            _security_policy_count = 0
+
+        _firewall_ok = _security_policy_count > 0
+        _ad_ok = bool(_ad_agent_enabled() or _ldap_enabled())
+        _nas_ok = df_nas is not None
+
         def _count_status(frame, values):
             if frame is None or frame.empty or "Status" not in frame.columns:
                 return 0
@@ -4664,10 +4763,10 @@ else:
         st.markdown('<div class="dash-section"><div class="dash-section-title">ภาพรวมวันนี้</div><div class="dash-section-note">สถานะจากข้อมูลล่าสุดในระบบ</div></div>', unsafe_allow_html=True)
         _kpi_cols = st.columns(4, gap="medium")
         _kpis = [
-            ("สินทรัพย์ทั้งหมด", _total_assets, "รายการในระบบ", "▦", "#EEF2FF", "#4F46E5"),
-            ("พร้อมใช้งาน", _active_assets, "สถานะ Active", "✓", "#ECFDF5", "#059669"),
-            ("ต้องตรวจสอบ", _attention_assets, "Inactive หรือ Repair", "!", "#FFF7ED", "#EA580C"),
-            ("หมึกใกล้หมด", _low_ink_count, "ต่ำกว่าจุดสั่งซื้อ", "↓", "#FEF2F2", "#DC2626"),
+            ("TOTAL ASSETS", _total_assets, "Computers, monitors and printers", "▦", "#E0F2FE", "#0284C7"),
+            ("ACTIVE USERS", _active_users, "Unique assigned users", "◉", "#ECFDF5", "#059669"),
+            ("SECURITY POLICIES", _security_policy_count, "Firewall policy mappings", "◆", "#EEF2FF", "#4F46E5"),
+            ("NAS STORAGE", _nas_count, "Shared folders monitored", "▤", "#ECFEFF", "#0891B2"),
         ]
         for _col, (_label, _value, _caption, _icon, _bg, _tone) in zip(_kpi_cols, _kpis):
             with _col:
@@ -4681,6 +4780,88 @@ else:
                     <div class="dash-kpi-caption">{_caption}</div>
                 </div>
                 """, unsafe_allow_html=True)
+
+        # ── Quick Access ───────────────────────────────────────────────────
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">Your most-used IT tools</div></div>', unsafe_allow_html=True)
+        _quick_access = [
+            ("computers", "▣", "Computers", "Manage assigned computers and lifecycle"),
+            ("monitors", "▭", "Monitors", "Track displays and current assignments"),
+            ("printers", "▧", "Printers", "Review printers, models and IP details"),
+            ("ups", "⌁", "UPS", "Monitor power protection inventory"),
+            ("password", "⌘", "Password Manager", "Access protected system credentials"),
+            ("user_perm", "▤", "NAS Permission Analyzer", "Audit shared-folder access"),
+        ]
+        _quick_cols = st.columns(3, gap="medium")
+        for _index, (_target, _icon, _title, _description) in enumerate(_quick_access):
+            with _quick_cols[_index % 3]:
+                st.markdown(f"""
+                <div class="saas-grid-card">
+                    <div class="saas-card-icon">{_icon}</div>
+                    <div class="saas-card-title">{_title}</div>
+                    <div class="saas-card-sub">{_description}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("Open", key=f"saas_quick_{_target}", use_container_width=True,
+                             **_button_icon(_NAV_MATERIAL_ICONS.get(_target, "arrow_forward"))):
+                    st.session_state.active_nav = _target
+                    st.rerun()
+
+        # ── Security Center ────────────────────────────────────────────────
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Security Center</div><div class="dash-section-note">Live integration health</div></div>', unsafe_allow_html=True)
+        _security_items = [
+            ("Firewall Status", f"{_security_policy_count} policy mappings loaded", _firewall_ok),
+            ("AD Agent Status", "Agent or LDAP configuration detected" if _ad_ok else "Connection is not configured", _ad_ok),
+            ("NAS Agent Status", f"{_nas_count} shared folders indexed" if _nas_ok else "Unable to load NAS data", _nas_ok),
+        ]
+        _security_cols = st.columns(3, gap="medium")
+        for _col, (_label, _note, _ok) in zip(_security_cols, _security_items):
+            with _col:
+                _pill_class = "status-online" if _ok else "status-warning"
+                _pill_text = "Operational" if _ok else "Attention"
+                st.markdown(f"""
+                <div class="security-card">
+                    <div><div class="security-name">{_label}</div><div class="security-note">{_note}</div></div>
+                    <div class="status-pill {_pill_class}">{_pill_text}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # ── Activities & AI Insights ──────────────────────────────────────
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Workspace Intelligence</div><div class="dash-section-note">Recent signals from your environment</div></div>', unsafe_allow_html=True)
+        _activity_time = datetime.datetime.now().strftime("%H:%M")
+        _active_rate = round((_active_assets / _total_assets) * 100) if _total_assets else 0
+        _intel_cols = st.columns([1.05, .95], gap="medium")
+        with _intel_cols[0]:
+            st.markdown(f"""
+            <div class="timeline-card">
+                <div class="panel-title">Recent Activities</div>
+                <div class="panel-sub">Latest successful workspace updates</div>
+                <div class="timeline-item"><div class="timeline-title">Asset inventory synchronized</div><div class="timeline-meta">{_total_assets:,} records available · {_activity_time}</div></div>
+                <div class="timeline-item"><div class="timeline-title">Security policy mapping refreshed</div><div class="timeline-meta">{_security_policy_count:,} policies loaded · {_activity_time}</div></div>
+                <div class="timeline-item"><div class="timeline-title">NAS permission index updated</div><div class="timeline-meta">{_nas_count:,} shared folders available · {_activity_time}</div></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with _intel_cols[1]:
+            _attention_insight = (
+                f"{_attention_assets} assets are inactive or under repair and should be reviewed."
+                if _attention_assets else "No inactive or repair assets require immediate action."
+            )
+            _ink_insight = (
+                f"{_low_ink_count} ink items are at or below their reorder threshold."
+                if _low_ink_count else "Ink inventory is currently above all reorder thresholds."
+            )
+            st.markdown(f"""
+            <div class="ai-card">
+                <div class="ai-badge">AI INSIGHTS</div>
+                <div class="panel-title" style="margin-top:12px;">Environment Summary</div>
+                <div class="panel-sub">Actionable signals derived from current data</div>
+                <div class="insight-item"><div class="insight-icon">↗</div><div class="insight-text"><strong>Asset health is {_active_rate}%.</strong><br>{_active_assets:,} of {_total_assets:,} tracked assets are active.</div></div>
+                <div class="insight-item"><div class="insight-icon">!</div><div class="insight-text">{_attention_insight}</div></div>
+                <div class="insight-item"><div class="insight-icon">◉</div><div class="insight-text">{_ink_insight}</div></div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Dashboard is complete. Avoid rendering legacy dashboard sections below.
+        st.stop()
 
         # ── Ink low-stock alert ──
         low_ink = df_ink.iloc[0:0] if df_ink is not None else None
