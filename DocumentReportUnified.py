@@ -2247,6 +2247,25 @@ def show_pop_printer(data, admin_mode=False):
 def edit_computer_dialog(row, list_name):
     st.markdown(f"### ✏️ แก้ไข: {row.get('field_3', '')}")
     item_id = row.get('_item_id')
+    login_account = st.text_input("LoginAccount", value=row.get('LoginAccount', ''))
+    department = st.text_input("Department", value=row.get('field_4', ''))
+    operating_system = st.text_input("Operating System", value=row.get('field_10', ''))
+    _computer_known_fields = {"field_1","field_3","field_4","field_6","field_7","field_8","field_10","field_13","field_14","field_15","field_16"}
+    _computer_extra_fields = {}
+    _computer_extra_names = sorted(
+        (key for key in row if re.fullmatch(r"field_\d+", str(key)) and key not in _computer_known_fields),
+        key=lambda key: int(str(key).split("_")[-1])
+    )
+    if _computer_extra_names:
+        with st.expander("Additional SharePoint fields", expanded=False):
+            for _field_name in _computer_extra_names:
+                _field_value = row.get(_field_name, '')
+                if isinstance(_field_value, (str, int, float, bool)) or _field_value is None:
+                    _computer_extra_fields[_field_name] = st.text_input(
+                        _field_name,
+                        value="" if _field_value is None else str(_field_value),
+                        key=f"computer_extra_{item_id}_{_field_name}"
+                    )
     company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
     emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
     hostname = st.text_input("💻 Hostname", value=row.get('field_6', ''))
@@ -2260,10 +2279,13 @@ def edit_computer_dialog(row, list_name):
     col_save, col_del = st.columns(2)
     with col_save:
         if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-            fields = {"field_1": company, "field_3": emp_name, "field_6": hostname,
+            fields = {"field_1": company, "field_3": emp_name,
+                      "LoginAccount": login_account, "field_4": department,
+                      "field_10": operating_system, "field_6": hostname,
                       "field_7": model, "field_8": serial, "field_13": ram,
                       "field_14": storage_type, "field_15": storage_c,
                       "field_16": storage_d, "Status": status}
+            fields.update(_computer_extra_fields)
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
                 st.success("✅ บันทึกสำเร็จ")
@@ -2271,7 +2293,7 @@ def edit_computer_dialog(row, list_name):
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
+                st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
         if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
@@ -2387,6 +2409,9 @@ def edit_printer_dialog(row, list_name):
 # =============================================================================
 @st.dialog("➕ เพิ่ม Computer Asset")
 def add_computer_dialog(list_name):
+    login_account = st.text_input("LoginAccount")
+    department = st.text_input("Department")
+    operating_system = st.text_input("Operating System")
     st.markdown("### ➕ เพิ่มอุปกรณ์ใหม่")
     company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
     emp_name = st.text_input("👤 ชื่อพนักงาน")
@@ -2399,7 +2424,9 @@ def add_computer_dialog(list_name):
     storage_d = st.text_input("💿 Storage D:")
     status = st.selectbox("✳️ Status", STATUS_OPTIONS)
     if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-        fields = {"field_1": company, "field_3": emp_name, "field_6": hostname,
+        fields = {"field_1": company, "field_3": emp_name,
+                  "LoginAccount": login_account, "field_4": department,
+                  "field_10": operating_system, "field_6": hostname,
                   "field_7": model, "field_8": serial, "field_13": ram,
                   "field_14": storage_type, "field_15": storage_c,
                   "field_16": storage_d, "Status": status}
