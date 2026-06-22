@@ -5304,7 +5304,7 @@ else:
             _ca_records=[]
             for idx,row in _ca_filtered.iterrows():
                 status,status_class=_ca_status(row)
-                _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6","Hostname","ComputerName"),"user":_ca_value(row,"field_3","User","Employee"),"department":_ca_value(row,"Department","field_2"),"ip":_ca_value(row,"IPAddress","IP Address","IP","field_12"),"os":_ca_value(row,"OS","OperatingSystem","field_11"),"model":_ca_value(row,"field_7","Model"),"location":_ca_value(row,"Location","field_4"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
+                _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6","Hostname","ComputerName"),"user":_ca_value(row,"field_3","User","Employee"),"department":_ca_value(row,"Department","field_2"),"ip":_ca_value(row,"IPAddress","IP Address","IP","field_12"),"os":_ca_value(row,"OS","OperatingSystem","field_10"),"model":_ca_value(row,"field_7","Model"),"location":_ca_value(row,"Location","field_4"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
             _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Z–A")
             _ca_page_size=8; _ca_page_count=max(1,(len(_ca_records)+_ca_page_size-1)//_ca_page_size); _ca_page=max(1,min(st.session_state.get("ca_page",1),_ca_page_count)); st.session_state["ca_page"]=_ca_page; _ca_slice=_ca_records[(_ca_page-1)*_ca_page_size:_ca_page*_ca_page_size]
             st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>▦</span>รายการคอมพิวเตอร์</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
