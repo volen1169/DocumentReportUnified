@@ -5228,6 +5228,8 @@ else:
             .ca-table{background:#FFF;border:1px solid #E2E8F0;border-radius:0 0 17px 17px;box-shadow:0 8px 22px rgba(15,23,42,.045);overflow:hidden}.ca-table-scroll{overflow:auto;max-height:560px}.ca-table table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11px;color:#334155}.ca-table th{position:sticky;top:0;z-index:2;height:44px;padding:0 11px;text-align:left;background:#F8FAFC;color:#475569;font-size:10.5px;font-weight:800;border-bottom:1px solid #E2E8F0;white-space:nowrap}.ca-table td{height:44px;box-sizing:border-box;padding:0 11px;border-bottom:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-table tbody tr:hover td{background:#F8FAFF}
             .ca-status{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800}.ca-status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.ca-status-online{background:#ECFDF5;color:#059669}.ca-status-offline{background:#FEF2F2;color:#DC2626}.ca-status-nouser{background:#FFF7ED;color:#D97706}.ca-row-actions{display:flex;gap:5px}.ca-row-action{width:25px;height:25px;display:grid;place-items:center;border:1px solid #E2E8F0;border-radius:8px;font-size:12px}.ca-view{color:#2563EB;background:#EFF6FF}.ca-edit{color:#7C3AED;background:#F5F3FF}.ca-delete{color:#EF4444;background:#FEF2F2}
             .ca-table-footer{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;border-top:1px solid #E2E8F0;color:#64748B;font-size:11px}.ca-pages{display:flex;gap:5px}.ca-pages span{min-width:28px;height:28px;display:grid;place-items:center;border:1px solid #E2E8F0;border-radius:8px}.ca-pages .active{color:#FFF;border-color:#6366F1;background:linear-gradient(135deg,#6366F1,#7C3AED)}
+            .stApp:has(.ca-page) div[data-testid="stVerticalBlockBorderWrapper"]:has(.ca-native-grid){padding:0!important;border:1px solid #E2E8F0!important;border-radius:0 0 17px 17px!important;background:#FFF!important;box-shadow:0 8px 22px rgba(15,23,42,.045)!important;overflow:hidden}
+            .stApp:has(.ca-page) div[data-testid="stVerticalBlockBorderWrapper"]:has(.ca-native-grid)>div{padding:0!important}.ca-native-grid{display:none}.ca-native-head{height:44px;display:flex;align-items:center;padding:0 10px;color:#475569;background:#F8FAFC;font-size:10.5px;font-weight:800;white-space:nowrap}.ca-native-cell{height:44px;display:flex;align-items:center;padding:0 10px;color:#334155;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-native-status{height:44px;display:flex;align-items:center;padding-left:5px}.ca-native-divider{height:1px;margin:0;background:#EDF2F7}.ca-native-footer{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;color:#64748B;font-size:10.5px;border-top:1px solid #E2E8F0}.stApp:has(.ca-page) div[data-testid="stVerticalBlockBorderWrapper"]:has(.ca-native-grid) .stButton>button{height:28px!important;min-height:28px!important;padding:0!important;border-radius:8px!important;font-size:11px!important}.stApp:has(.ca-page) div[data-testid="stVerticalBlockBorderWrapper"]:has(.ca-native-grid) [data-testid="stHorizontalBlock"]{gap:0!important}.stApp:has(.ca-page) div[data-testid="stVerticalBlockBorderWrapper"]:has(.ca-native-grid) [data-testid="column"]{border-right:1px solid #EDF2F7}.stApp:has(.ca-page) div[data-testid="stVerticalBlockBorderWrapper"]:has(.ca-native-grid) [data-testid="column"]:last-child{border-right:0}
             .ca-analytics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}.ca-chart-card,.ca-recent-card{height:235px;box-sizing:border-box;padding:15px;background:#FFF;border:1px solid #E2E8F0;border-radius:17px;box-shadow:0 7px 18px rgba(15,23,42,.04);overflow:hidden}.ca-chart-title{margin-bottom:11px;color:#0F172A;font-size:12.5px;font-weight:800}.ca-donut-layout{display:flex;align-items:center;gap:12px;height:164px}.ca-donut{width:112px;height:112px;flex:0 0 112px;border-radius:50%;position:relative;background:conic-gradient(var(--d1) 0 var(--p1),var(--d2) var(--p1) var(--p2),var(--d3) var(--p2) 100%)}.ca-donut:after{content:"";position:absolute;inset:22px;border-radius:50%;background:#FFF}.ca-legend{display:grid;gap:9px;min-width:0}.ca-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:10px}.ca-legend-row i{width:8px;height:8px;border-radius:50%}.ca-legend-row b{color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
             .ca-bars{display:grid;gap:12px}.ca-bar-row{display:grid;grid-template-columns:78px 1fr 24px;align-items:center;gap:8px;color:#475569;font-size:10px}.ca-bar-track{height:7px;background:#EEF2FF;border-radius:99px;overflow:hidden}.ca-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#3B82F6,#8B5CF6)}.ca-bar-row strong{text-align:right}.ca-recent-list{display:grid;gap:11px}.ca-recent-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding-bottom:9px;border-bottom:1px solid #F1F5F9;font-size:10px}.ca-recent-name{color:#334155;font-weight:750}.ca-recent-state,.ca-recent-time{color:#94A3B8}
             @media(max-width:1180px){.ca-metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ca-analytics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.ca-header{height:auto;min-height:110px;padding:18px}.ca-header-icon{width:56px;height:56px;flex-basis:56px}.ca-header h1{font-size:23px!important}.ca-metric-grid,.ca-analytics{grid-template-columns:1fr}.ca-chart-card,.ca-recent-card{height:auto;min-height:245px}.ca-table-footer{height:auto;padding:11px;gap:8px;align-items:flex-start;flex-direction:column}}
@@ -5302,29 +5304,33 @@ else:
                 _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6","Hostname","ComputerName"),"user":_ca_value(row,"field_3","User","Employee"),"department":_ca_value(row,"Department","field_2"),"ip":_ca_value(row,"IPAddress","IP Address","IP","field_12"),"os":_ca_value(row,"OS","OperatingSystem","field_11"),"model":_ca_value(row,"field_7","Model"),"location":_ca_value(row,"Location","field_4"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
             _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Z–A")
             _ca_page_size=10; _ca_page_count=max(1,(len(_ca_records)+9)//10); _ca_page=max(1,min(st.session_state.get("ca_page",1),_ca_page_count)); st.session_state["ca_page"]=_ca_page; _ca_slice=_ca_records[(_ca_page-1)*10:_ca_page*10]
-            if admin_mode and _ca_records:
-                _ca_action_map={f'{item[2]["computer"]} · {item[2]["user"]}':item for item in _ca_records}
-                _ca_action_cols=st.columns([4.9,.72,.82,.72])
-                with _ca_action_cols[0]:
-                    _ca_selected=st.selectbox("เลือกรายการเพื่อดำเนินการ",list(_ca_action_map),label_visibility="collapsed",key="ca_selected_asset")
-                _ca_selected_row=_ca_action_map[_ca_selected][1]
-                with _ca_action_cols[1]:
-                    if st.button("👁 ดู",use_container_width=True,key="ca_view_selected",help="ดูรายละเอียด"): show_pop_computer(_ca_selected_row.to_dict())
-                with _ca_action_cols[2]:
-                    if st.button("✏️ แก้ไข",use_container_width=True,key="ca_edit_selected",help="แก้ไขข้อมูล"): edit_computer_dialog(_ca_selected_row.to_dict(),sub)
-                with _ca_action_cols[3]:
-                    if st.button("🗑️ ลบ",use_container_width=True,key="ca_delete_selected",help="ลบรายการ"): delete_computer_dialog(_ca_selected_row.to_dict(),sub)
             st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>▦</span>รายการคอมพิวเตอร์</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
-            _ca_body=[]
-            for _,_,d in _ca_slice:
-                _ca_cells=[]
-                for _ca_key in _ca_visible_columns:
-                    if _ca_key=="status": _ca_cells.append(f'<td><span class="ca-status ca-status-{d["status_class"]}">{_ca_esc(d["status"])}</span></td>')
-                    else: _ca_cells.append(f'<td title="{_ca_esc(d[_ca_key])}">{_ca_esc(d[_ca_key])}</td>')
-                _ca_body.append('<tr>'+''.join(_ca_cells)+'</tr>')
-            _ca_headers=''.join(f'<th>{_ca_column_defs[key]}</th>' for key in _ca_visible_columns)
             _ca_from=(_ca_page-1)*10+1 if _ca_records else 0; _ca_to=min(_ca_page*10,len(_ca_records))
-            st.markdown(f'<div class="ca-table"><div class="ca-table-scroll"><table style="min-width:{max(760,len(_ca_visible_columns)*125)}px"><thead><tr>{_ca_headers}</tr></thead><tbody>{"".join(_ca_body) or f"<tr><td colspan=\"{len(_ca_visible_columns)}\" style=\"text-align:center;color:#94A3B8\">ไม่พบข้อมูล</td></tr>"}</tbody></table></div><div class="ca-table-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><span>หน้า {_ca_page} / {_ca_page_count}</span></div></div>',unsafe_allow_html=True)
+            with st.container(border=True):
+                st.markdown('<div class="ca-native-grid"></div>',unsafe_allow_html=True)
+                _ca_widths=[1.08,1.08,1.02,1.02,.9,1.2,1.05,.82,.86]
+                _ca_head=st.columns(_ca_widths,gap="small")
+                for _ca_col,_ca_label in zip(_ca_head,["Computer Name","User","Department","IP Address","OS","Model","Location","Status","Action"]):
+                    with _ca_col: st.markdown(f'<div class="ca-native-head">{_ca_label}</div>',unsafe_allow_html=True)
+                if not _ca_slice:
+                    st.info("ไม่พบข้อมูลตามเงื่อนไข")
+                for _ca_idx,_ca_row,_ca_data in _ca_slice:
+                    _ca_cols=st.columns(_ca_widths,gap="small",vertical_alignment="center")
+                    _ca_values=[_ca_data["computer"],_ca_data["user"],_ca_data["department"],_ca_data["ip"],_ca_data["os"],_ca_data["model"],_ca_data["location"]]
+                    for _ca_col,_ca_value_text in zip(_ca_cols[:7],_ca_values):
+                        with _ca_col: st.markdown(f'<div class="ca-native-cell" title="{_ca_esc(_ca_value_text)}">{_ca_esc(_ca_value_text)}</div>',unsafe_allow_html=True)
+                    with _ca_cols[7]:
+                        st.markdown(f'<div class="ca-native-status"><span class="ca-status ca-status-{_ca_data["status_class"]}">{_ca_esc(_ca_data["status"])}</span></div>',unsafe_allow_html=True)
+                    with _ca_cols[8]:
+                        _ca_b1,_ca_b2,_ca_b3=st.columns(3,gap="small")
+                        with _ca_b1:
+                            if st.button("👁",key=f"ca_view_{_ca_idx}",help="ดูรายละเอียด",use_container_width=True): show_pop_computer(_ca_row.to_dict())
+                        with _ca_b2:
+                            if admin_mode and st.button("✏️",key=f"ca_edit_{_ca_idx}",help="แก้ไข",use_container_width=True): edit_computer_dialog(_ca_row.to_dict(),sub)
+                        with _ca_b3:
+                            if admin_mode and st.button("🗑️",key=f"ca_delete_{_ca_idx}",help="ลบ",use_container_width=True): delete_computer_dialog(_ca_row.to_dict(),sub)
+                    st.markdown('<div class="ca-native-divider"></div>',unsafe_allow_html=True)
+                st.markdown(f'<div class="ca-native-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><span>หน้า {_ca_page} / {_ca_page_count}</span></div>',unsafe_allow_html=True)
 
             _ca_nav=st.columns([6,.65,.65,.65,.65,.65])
             with _ca_nav[1]:
