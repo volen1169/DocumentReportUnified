@@ -392,7 +392,7 @@ SYNOACL_PATH = ""  # Deprecated: Streamlit ไม่เรียก synoacltool 
 SHAREPOINT_FOLDER = "Update IT documents"
 PASSWORD_FILE_NAME = "Password.xlsx"
 
-# ? Admin List — เพิ่ม/ลด email ได้ที่นี่
+# ✅ Admin List — เพิ่ม/ลด email ได้ที่นี่
 ADMIN_EMAILS = [
     "itsupport@poonyaruk.co.th",
     "IT_Network@poonyaruk.co.th",
@@ -1482,8 +1482,8 @@ def upload_password_excel(drive_id, sheets_dict):
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
 # เชื่อมต่อ Synology NAS ได้ 2 แบบ
-#   1) Synology DSM API ผ่าน Cloudflare Tunnel   แนะนำสำหรับ Streamlit Cloud
-#   2) SSH แบบเดิม                                 ใช้เมื่อเปิด SSH/VPN เท่านั้น
+#   1) Synology DSM API ผ่าน Cloudflare Tunnel  ← แนะนำสำหรับ Streamlit Cloud
+#   2) SSH แบบเดิม                                ← ใช้เมื่อเปิด SSH/VPN เท่านั้น
 # =============================================================================
 
 def _nas_api_enabled():
@@ -1992,7 +1992,7 @@ def check_synoacl():
         ssh.close()
         return "/usr/syno/bin/synoacltool" in output
     except Exception as e:
-        st.warning(f"?? ไม่สามารถเชื่อมต่อ NAS ผ่าน SSH ได้: {e}")
+        st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน SSH ได้: {e}")
         return False
 
 
@@ -2026,7 +2026,7 @@ def load_nas_data():
         try:
             return load_nas_data_agent()
         except Exception as e:
-            st.warning(f"?? ไม่สามารถเชื่อมต่อ NAS Agent ได้: {e}")
+            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS Agent ได้: {e}")
             # ถ้าเลือก NAS_MODE=agent ห้าม fallback ไป DSM API route เดิม เพราะจะทำให้ timeout ซ้ำ
             if AGENT_ONLY_MODE:
                 return None
@@ -2034,7 +2034,7 @@ def load_nas_data():
                 try:
                     return load_nas_data_api()
                 except Exception as api_e:
-                    st.warning(f"?? ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {api_e}")
+                    st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {api_e}")
                     return None
             return None
 
@@ -2042,7 +2042,7 @@ def load_nas_data():
         try:
             return load_nas_data_api()
         except Exception as e:
-            st.warning(f"?? ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {e}")
+            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {e}")
             return None
 
     if not check_synoacl():
@@ -2103,26 +2103,26 @@ def render_card_computer(row, key, admin_mode):
         st.markdown(f"""
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
             <div>
-                <div class="hw-card-title">?? {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">?? {row.get('field_1','-')}</div>
+                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
+                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
             </div>
             {_hw_badge(status)}
         </div>
-        <div class="hw-field"><strong>?? Hostname</strong>&nbsp;&nbsp;{row.get('field_6','-')}</div>
-        <div class="hw-field"><strong>??? Model</strong>&nbsp;&nbsp;{row.get('field_7','-')}</div>
-        <div class="hw-field"><strong>?? RAM</strong>&nbsp;&nbsp;{row.get('field_13','-')}</div>
+        <div class="hw-field"><strong>💻 Hostname</strong>&nbsp;&nbsp;{row.get('field_6','-')}</div>
+        <div class="hw-field"><strong>🏷️ Model</strong>&nbsp;&nbsp;{row.get('field_7','-')}</div>
+        <div class="hw-field"><strong>💾 RAM</strong>&nbsp;&nbsp;{row.get('field_13','-')}</div>
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("?? ดูข้อมูล", key=f"comp_view_{key}", use_container_width=True):
+                if st.button("🔍 ดูข้อมูล", key=f"comp_view_{key}", use_container_width=True):
                     show_pop_computer(row.to_dict(), admin_mode=True)
             with c2:
-                if st.button("?? แก้ไข", key=f"comp_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"comp_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_computer_{key}"] = True
                     st.rerun()
         else:
-            st.caption("?? ข้อมูลเพิ่มเติมและการแก้ไขเฉพาะผู้ดูแลระบบ")
+            st.caption("🔒 ข้อมูลเพิ่มเติมและการแก้ไขเฉพาะผู้ดูแลระบบ")
 
 
 # =============================================================================
@@ -2138,25 +2138,25 @@ def render_card_monitor(row, key, admin_mode):
         st.markdown(f"""
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
             <div>
-                <div class="hw-card-title">?? {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">?? {row.get('field_1','-')}</div>
+                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
+                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
             </div>
             {_hw_badge(status)}
         </div>
-        <div class="hw-field"><strong>??? Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        {'<div class="hw-field"><strong>?? Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
+        <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("?? ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
+                if st.button("🔍 ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
                     show_pop_monitor(row.to_dict(), admin_mode=True)
             with c2:
-                if st.button("?? แก้ไข", key=f"mon_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"mon_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_monitor_{key}"] = True
                     st.rerun()
         else:
-            st.caption("?? ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
+            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
 
 # =============================================================================
@@ -2170,279 +2170,279 @@ def render_card_printer(row, key, admin_mode):
     with st.container():
         st.markdown(f"""
         <div style="margin-bottom:6px;">
-            <div class="hw-card-title">??? {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
-            <div class="hw-card-sub">?? {row.get('field_1','-')}</div>
+            <div class="hw-card-title">🖨️ {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
+            <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
         </div>
-        <div class="hw-field"><strong>?? User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        {'<div class="hw-field"><strong>?? Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
-        {'<div class="hw-field"><strong>?? IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
+        <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
+        {'<div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("?? ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
+                if st.button("🔍 ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
                     show_pop_printer(row.to_dict(), admin_mode=True)
             with c2:
-                if st.button("?? แก้ไข", key=f"prn_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"prn_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_printer_{key}"] = True
                     st.rerun()
         else:
-            st.caption("?? ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
+            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
 # =============================================================================
 # SECTION 08 : VIEW DIALOGS
 # Popup แสดงรายละเอียด Asset
 # =============================================================================
-@st.dialog("?? รายละเอียด Computer")
+@st.dialog("📋 รายละเอียด Computer")
 def show_pop_computer(data, admin_mode=False):
-    st.markdown(f"### ?? {data.get('field_7', 'Computer')}")
+    st.markdown(f"### 💻 {data.get('field_7', 'Computer')}")
     c1, c2 = st.columns(2)
     with c1:
-        st.write(f"**?? พนักงาน:** {data.get('field_3', '-')}")
-        st.write(f"**?? บริษัท:** {data.get('field_1', '-')}")
-        st.write(f"**?? Hostname:** {data.get('field_6', '-')}")
+        st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
+        st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
+        st.write(f"**💻 Hostname:** {data.get('field_6', '-')}")
     with c2:
         if admin_mode:
-            st.write(f"**?? Serial No:** {data.get('field_8', '-')}")
+            st.write(f"**🔢 Serial No:** {data.get('field_8', '-')}")
         else:
-            st.write("**?? Serial No:** ?? ซ่อนสำหรับผู้ใช้ทั่วไป")
-        st.write(f"**?? สถานะ:** {data.get('Status', '-')}")
-        st.write(f"**?? RAM:** {data.get('field_13', '-')}")
-        st.write(f"**?? Storage C:** {data.get('field_15', '-')}  D: {data.get('field_16', '-')}")
-    with st.expander("?? ดูข้อมูลดิบ"):
+            st.write("**🔢 Serial No:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+        st.write(f"**✳️ สถานะ:** {data.get('Status', '-')}")
+        st.write(f"**💾 RAM:** {data.get('field_13', '-')}")
+        st.write(f"**💿 Storage C:** {data.get('field_15', '-')}  D: {data.get('field_16', '-')}")
+    with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
-@st.dialog("?? รายละเอียด Monitor")
+@st.dialog("📋 รายละเอียด Monitor")
 def show_pop_monitor(data, admin_mode=False):
-    st.markdown(f"### ??? {data.get('field_2', 'Monitor')}")
-    st.write(f"**?? พนักงาน:** {data.get('field_3', '-')}")
-    st.write(f"**?? บริษัท:** {data.get('field_1', '-')}")
+    st.markdown(f"### 🖥️ {data.get('field_2', 'Monitor')}")
+    st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
+    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
     if admin_mode:
-        st.write(f"**?? Serial No.:** {data.get('field_4', '-')}")
+        st.write(f"**🔢 Serial No.:** {data.get('field_4', '-')}")
     else:
-        st.write("**?? Serial No.:** ?? ซ่อนสำหรับผู้ใช้ทั่วไป")
-    st.write(f"**? สถานะ:** {data.get('Status', '-')}")
-    with st.expander("?? ดูข้อมูลดิบ"):
+        st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+    st.write(f"**✅ สถานะ:** {data.get('Status', '-')}")
+    with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
-@st.dialog("?? รายละเอียด Printer")
+@st.dialog("📋 รายละเอียด Printer")
 def show_pop_printer(data, admin_mode=False):
-    st.markdown(f"### ??? {data.get('field_2', 'Printer')}")
-    st.write(f"**?? บริษัท:** {data.get('field_1', '-')}")
-    st.write(f"**?? User:** {data.get('User', '-')}")
+    st.markdown(f"### 🖨️ {data.get('field_2', 'Printer')}")
+    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
+    st.write(f"**👤 User:** {data.get('User', '-')}")
     if admin_mode:
-        st.write(f"**?? Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
-        st.write(f"**?? IP Address:** {data.get('field_3', '-')}")
+        st.write(f"**🔢 Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
+        st.write(f"**🌐 IP Address:** {data.get('field_3', '-')}")
     else:
-        st.write("**?? Serial No.:** ?? ซ่อนสำหรับผู้ใช้ทั่วไป")
-        st.write("**?? IP Address:** ?? ซ่อนสำหรับผู้ใช้ทั่วไป")
-    with st.expander("?? ดูข้อมูลดิบ"):
+        st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+        st.write("**🌐 IP Address:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+    with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
 # =============================================================================
 # SECTION 09 : EDIT DIALOGS
 # Popup แก้ไขข้อมูล Asset
 # =============================================================================
-@st.dialog("?? แก้ไข Computer Asset")
+@st.dialog("✏️ แก้ไข Computer Asset")
 def edit_computer_dialog(row, list_name):
-    st.markdown(f"### ?? แก้ไข: {row.get('field_3', '')}")
+    st.markdown(f"### ✏️ แก้ไข: {row.get('field_3', '')}")
     item_id = row.get('_item_id')
-    company = st.selectbox("?? บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    emp_name = st.text_input("?? ชื่อพนักงาน", value=row.get('field_3', ''))
-    hostname = st.text_input("?? Hostname", value=row.get('field_6', ''))
-    model = st.text_input("??? Model", value=row.get('field_7', ''))
-    serial = st.text_input("?? Serial No.", value=row.get('field_8', ''))
-    ram = st.text_input("?? RAM", value=row.get('field_13', ''))
-    storage_type = st.text_input("?? Storage Type", value=row.get('field_14', ''))
-    storage_c = st.text_input("?? Storage C:", value=row.get('field_15', ''))
-    storage_d = st.text_input("?? Storage D:", value=row.get('field_16', ''))
-    status = st.selectbox("?? Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
+    hostname = st.text_input("💻 Hostname", value=row.get('field_6', ''))
+    model = st.text_input("🏷️ Model", value=row.get('field_7', ''))
+    serial = st.text_input("🔢 Serial No.", value=row.get('field_8', ''))
+    ram = st.text_input("💾 RAM", value=row.get('field_13', ''))
+    storage_type = st.text_input("💿 Storage Type", value=row.get('field_14', ''))
+    storage_c = st.text_input("💿 Storage C:", value=row.get('field_15', ''))
+    storage_d = st.text_input("💿 Storage D:", value=row.get('field_16', ''))
+    status = st.selectbox("✳️ Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("?? บันทึก", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"field_1": company, "field_3": emp_name, "field_6": hostname,
                       "field_7": model, "field_8": serial, "field_13": ram,
                       "field_14": storage_type, "field_15": storage_c,
                       "field_16": storage_d, "Status": status}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
-                st.success("? บันทึกสำเร็จ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? บันทึกไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("??? ลบรายการนี้", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
     if st.session_state.get('confirm_delete') == item_id:
-        st.warning("?? ยืนยันการลบ?")
-        if st.button("? ยืนยันลบ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = sp_delete_item(list_name, item_id)
             if ok:
-                st.success("? ลบสำเร็จ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop('confirm_delete', None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("? ลบไม่สำเร็จ")
+                st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("?? แก้ไข Monitor")
+@st.dialog("✏️ แก้ไข Monitor")
 def edit_monitor_dialog(row, list_name):
-    st.markdown(f"### ?? แก้ไข: {row.get('field_2', '')}")
+    st.markdown(f"### ✏️ แก้ไข: {row.get('field_2', '')}")
     item_id = row.get('_item_id')
-    company = st.selectbox("?? บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    emp_name = st.text_input("?? ชื่อพนักงาน", value=row.get('field_3', ''))
-    model = st.text_input("??? Brand/Model", value=row.get('field_2', ''))
-    serial = st.text_input("?? Serial No.", value=row.get('field_4', ''))
-    status = st.selectbox("? Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
+    model = st.text_input("🏷️ Brand/Model", value=row.get('field_2', ''))
+    serial = st.text_input("🔢 Serial No.", value=row.get('field_4', ''))
+    status = st.selectbox("✅ Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("?? บันทึก", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
-                st.success("? บันทึกสำเร็จ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? บันทึกไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("??? ลบรายการนี้", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
     if st.session_state.get('confirm_delete') == item_id:
-        st.warning("?? ยืนยันการลบ?")
-        if st.button("? ยืนยันลบ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = sp_delete_item(list_name, item_id)
             if ok:
-                st.success("? ลบสำเร็จ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop('confirm_delete', None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("? ลบไม่สำเร็จ")
+                st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("?? แก้ไข Printer")
+@st.dialog("✏️ แก้ไข Printer")
 def edit_printer_dialog(row, list_name):
-    st.markdown(f"### ?? แก้ไข Printer")
+    st.markdown(f"### ✏️ แก้ไข Printer")
     item_id = row.get('_item_id')
-    company = st.selectbox("?? บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    user = st.text_input("?? User", value=row.get('User', ''))
-    model = st.text_input("??? Brand/Model", value=row.get('Brand_x0020__x002f__x0020_Model', ''))
-    serial = st.text_input("?? Serial No.", value=row.get('S_x002f_N_x0020_No_x002e_', ''))
-    ip = st.text_input("?? IP Address", value=row.get('field_3', ''))
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    user = st.text_input("👤 User", value=row.get('User', ''))
+    model = st.text_input("🏷️ Brand/Model", value=row.get('Brand_x0020__x002f__x0020_Model', ''))
+    serial = st.text_input("🔢 Serial No.", value=row.get('S_x002f_N_x0020_No_x002e_', ''))
+    ip = st.text_input("🌐 IP Address", value=row.get('field_3', ''))
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("?? บันทึก", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"field_1": company, "User": user,
                       "Brand_x0020__x002f__x0020_Model": model,
                       "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
-                st.success("? บันทึกสำเร็จ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? บันทึกไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("??? ลบรายการนี้", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
     if st.session_state.get('confirm_delete') == item_id:
-        st.warning("?? ยืนยันการลบ?")
-        if st.button("? ยืนยันลบ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = sp_delete_item(list_name, item_id)
             if ok:
-                st.success("? ลบสำเร็จ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop('confirm_delete', None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("? ลบไม่สำเร็จ")
+                st.error("❌ ลบไม่สำเร็จ")
 
 # =============================================================================
 # SECTION 10 : ADD DIALOGS
 # Popup เพิ่มข้อมูล Asset
 # =============================================================================
-@st.dialog("? เพิ่ม Computer Asset")
+@st.dialog("➕ เพิ่ม Computer Asset")
 def add_computer_dialog(list_name):
-    st.markdown("### ? เพิ่มอุปกรณ์ใหม่")
-    company = st.selectbox("?? บริษัท", COMPANY_OPTIONS)
-    emp_name = st.text_input("?? ชื่อพนักงาน")
-    hostname = st.text_input("?? Hostname")
-    model = st.text_input("??? Model")
-    serial = st.text_input("?? Serial No.")
-    ram = st.text_input("?? RAM")
-    storage_type = st.text_input("?? Storage Type")
-    storage_c = st.text_input("?? Storage C:")
-    storage_d = st.text_input("?? Storage D:")
-    status = st.selectbox("?? Status", STATUS_OPTIONS)
-    if st.button("?? บันทึก", use_container_width=True, type="primary"):
+    st.markdown("### ➕ เพิ่มอุปกรณ์ใหม่")
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
+    emp_name = st.text_input("👤 ชื่อพนักงาน")
+    hostname = st.text_input("💻 Hostname")
+    model = st.text_input("🏷️ Model")
+    serial = st.text_input("🔢 Serial No.")
+    ram = st.text_input("💾 RAM")
+    storage_type = st.text_input("💿 Storage Type")
+    storage_c = st.text_input("💿 Storage C:")
+    storage_d = st.text_input("💿 Storage D:")
+    status = st.selectbox("✳️ Status", STATUS_OPTIONS)
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "field_3": emp_name, "field_6": hostname,
                   "field_7": model, "field_8": serial, "field_13": ram,
                   "field_14": storage_type, "field_15": storage_c,
                   "field_16": storage_d, "Status": status}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
-            st.success("? เพิ่มสำเร็จ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? เพิ่มไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-@st.dialog("? เพิ่ม Monitor")
+@st.dialog("➕ เพิ่ม Monitor")
 def add_monitor_dialog(list_name):
-    st.markdown("### ? เพิ่ม Monitor ใหม่")
-    company = st.selectbox("?? บริษัท", COMPANY_OPTIONS)
-    emp_name = st.text_input("?? ชื่อพนักงาน")
-    model = st.text_input("??? Brand/Model")
-    serial = st.text_input("?? Serial No.")
-    status = st.selectbox("? Status", STATUS_OPTIONS)
-    if st.button("?? บันทึก", use_container_width=True, type="primary"):
+    st.markdown("### ➕ เพิ่ม Monitor ใหม่")
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
+    emp_name = st.text_input("👤 ชื่อพนักงาน")
+    model = st.text_input("🏷️ Brand/Model")
+    serial = st.text_input("🔢 Serial No.")
+    status = st.selectbox("✅ Status", STATUS_OPTIONS)
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
-            st.success("? เพิ่มสำเร็จ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? เพิ่มไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-@st.dialog("? เพิ่ม Printer")
+@st.dialog("➕ เพิ่ม Printer")
 def add_printer_dialog(list_name):
-    st.markdown("### ? เพิ่ม Printer ใหม่")
-    company = st.selectbox("?? บริษัท", COMPANY_OPTIONS)
-    user = st.text_input("?? User")
-    model = st.text_input("??? Brand/Model")
-    serial = st.text_input("?? Serial No.")
-    ip = st.text_input("?? IP Address")
-    if st.button("?? บันทึก", use_container_width=True, type="primary"):
+    st.markdown("### ➕ เพิ่ม Printer ใหม่")
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
+    user = st.text_input("👤 User")
+    model = st.text_input("🏷️ Brand/Model")
+    serial = st.text_input("🔢 Serial No.")
+    ip = st.text_input("🌐 IP Address")
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "User": user,
                   "Brand_x0020__x002f__x0020_Model": model,
                   "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
-            st.success("? เพิ่มสำเร็จ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? เพิ่มไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
 # =============================================================================
 # SECTION 11 : PASSWORD MANAGER
 # แสดง Password Card / เพิ่ม / แก้ไข / ลบ
 # =============================================================================
 def get_sheet_icon(sheet_name):
-    icon_map = {"server": "???", "network": "??", "sql": "???",
-                "software": "??", "license": "??", "domain": "??",
-                "email": "??", "mail": "??", "internet": "??",
-                "wifi": "??", "vpn": "??", "firewall": "??"}
+    icon_map = {"server": "🖥️", "network": "🌐", "sql": "🗄️",
+                "software": "📦", "license": "📦", "domain": "🌍",
+                "email": "📧", "mail": "📧", "internet": "📡",
+                "wifi": "📶", "vpn": "🔒", "firewall": "🔥"}
     s = sheet_name.lower()
-    return next((v for k, v in icon_map.items() if k in s), "??")
+    return next((v for k, v in icon_map.items() if k in s), "🔑")
 
 def is_secret_field(col_name):
     return any(k in str(col_name).lower() for k in ['pass', 'pwd', 'secret', 'key', 'รหัส', 'token'])
@@ -2484,78 +2484,78 @@ def render_password_card(row, sheet_name, card_key, admin_mode, df_pw, drive_id,
         if secret_fields:
             
             for col_name, val in secret_fields:
-                with st.expander(f"?? {col_name}"):
+                with st.expander(f"🔐 {col_name}"):
                     st.code(str(val), language=None)
 
         if admin_mode:
             
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("?? แก้ไข", key=f"pw_edit_{sheet_name}_{card_key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"pw_edit_{sheet_name}_{card_key}", use_container_width=True):
                     st.session_state[f"pw_edit_row_{sheet_name}_{card_key}"] = True
                     st.rerun()
             with c2:
-                if st.button("??? ลบ", key=f"pw_del_{sheet_name}_{card_key}", use_container_width=True):
+                if st.button("🗑️ ลบ", key=f"pw_del_{sheet_name}_{card_key}", use_container_width=True):
                     st.session_state[f"pw_del_confirm_{sheet_name}_{card_key}"] = True
 
             if st.session_state.get(f"pw_del_confirm_{sheet_name}_{card_key}"):
-                st.warning("?? ยืนยันการลบ?")
-                if st.button("? ยืนยันลบ", key=f"pw_del_ok_{sheet_name}_{card_key}", type="primary"):
+                st.warning("⚠️ ยืนยันการลบ?")
+                if st.button("✅ ยืนยันลบ", key=f"pw_del_ok_{sheet_name}_{card_key}", type="primary"):
                     new_df = df_pw.drop(index=card_key).reset_index(drop=True)
                     pw_sheets[sheet_name] = new_df
                     ok = upload_password_excel(drive_id, pw_sheets)
                     if ok:
-                        st.success("? ลบสำเร็จ")
+                        st.success("✅ ลบสำเร็จ")
                         load_password_excel.clear()
                         st.session_state.pop(f"pw_del_confirm_{sheet_name}_{card_key}", None)
                         st.rerun()
                     else:
-                        st.error("? ลบไม่สำเร็จ")
+                        st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("?? แก้ไข Password Entry")
+@st.dialog("✏️ แก้ไข Password Entry")
 def edit_password_dialog(row, row_idx, sheet_name, df_pw, drive_id, pw_sheets):
-    st.markdown(f"### ?? แก้ไขรายการ")
+    st.markdown(f"### ✏️ แก้ไขรายการ")
     new_vals = {}
     for col in df_pw.columns:
         cur_val = str(row.get(col, '')) if pd.notna(row.get(col)) else ''
         if is_secret_field(col):
-            new_vals[col] = st.text_input(f"?? {col}", value=cur_val, type="password")
+            new_vals[col] = st.text_input(f"🔐 {col}", value=cur_val, type="password")
         else:
             new_vals[col] = st.text_input(col, value=cur_val)
-    if st.button("?? บันทึก", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         for col, val in new_vals.items():
             df_pw.at[row_idx, col] = val if val.strip() != '' else None
         pw_sheets[sheet_name] = df_pw
         ok = upload_password_excel(drive_id, pw_sheets)
         if ok:
-            st.success("? บันทึกสำเร็จ")
+            st.success("✅ บันทึกสำเร็จ")
             load_password_excel.clear()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? บันทึกไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
 
-@st.dialog("? เพิ่ม Password Entry")
+@st.dialog("➕ เพิ่ม Password Entry")
 def add_password_dialog(sheet_name, df_pw, drive_id, pw_sheets):
-    st.markdown(f"### ? เพิ่มรายการใหม่ — {sheet_name}")
+    st.markdown(f"### ➕ เพิ่มรายการใหม่ — {sheet_name}")
     new_vals = {}
     for col in df_pw.columns:
         if is_secret_field(col):
-            new_vals[col] = st.text_input(f"?? {col}", type="password")
+            new_vals[col] = st.text_input(f"🔐 {col}", type="password")
         else:
             new_vals[col] = st.text_input(col)
-    if st.button("?? บันทึก", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         new_row = {col: (val if val.strip() != '' else None) for col, val in new_vals.items()}
         new_df = pd.concat([df_pw, pd.DataFrame([new_row])], ignore_index=True)
         pw_sheets[sheet_name] = new_df
         ok = upload_password_excel(drive_id, pw_sheets)
         if ok:
-            st.success("? เพิ่มสำเร็จ")
+            st.success("✅ เพิ่มสำเร็จ")
             load_password_excel.clear()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? เพิ่มไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
 # =============================================================================
 # SECTION 12 : INK STOCK UI
@@ -2577,10 +2577,10 @@ def ink_qty_badge(qty, min_qty):
     qty = int(qty) if str(qty).isdigit() else 0
     min_qty = int(min_qty) if str(min_qty).isdigit() else INK_LOW_THRESHOLD
     if qty == 0:
-        return f"<span style='background:#dc3545;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>หมด ?</span>"
+        return f"<span style='background:#dc3545;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>หมด ❌</span>"
     elif qty <= min_qty:
-        return f"<span style='background:#fd7e14;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>?? เหลือ {qty}</span>"
-    return f"<span style='background:#198754;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>? {qty}</span>"
+        return f"<span style='background:#fd7e14;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>⚠️ เหลือ {qty}</span>"
+    return f"<span style='background:#198754;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>✅ {qty}</span>"
 
 def render_ink_card(row, key, admin_mode, requester_name):
     qty     = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
@@ -2592,25 +2592,25 @@ def render_ink_card(row, key, admin_mode, requester_name):
     with st.container():
         c_left, c_right = st.columns([0.65, 0.35])
         with c_left:
-            st.markdown(f"#### ??? {title}")
+            st.markdown(f"#### 🖨️ {title}")
             st.markdown(
                 ink_stock_color_badge(color) + "&nbsp;&nbsp;" + ink_qty_badge(qty, min_qty),
                 unsafe_allow_html=True,
             )
-            st.caption(f"?? {row.get('Company', '-')}  |  ?? {row.get('Printer_Model', '-')}")
+            st.caption(f"🏢 {row.get('Company', '-')}  |  📠 {row.get('Printer_Model', '-')}")
             price = row.get("Unit_Price", "")
             if price and str(price) not in ("None", "nan", ""):
-                st.caption(f"?? {price} บาท/ชิ้น")
+                st.caption(f"💰 {price} บาท/ชิ้น")
         with c_right:
             # ปุ่ม เบิก / เพิ่ม / แก้ไข
-            if st.button("?? เบิก", key=f"ink_withdraw_{key}", use_container_width=True):
+            if st.button("📤 เบิก", key=f"ink_withdraw_{key}", use_container_width=True):
                 st.session_state[f"ink_withdraw_{key}"] = True
                 st.rerun()
             if admin_mode:
-                if st.button("?? เพิ่ม", key=f"ink_add_qty_{key}", use_container_width=True):
+                if st.button("📥 เพิ่ม", key=f"ink_add_qty_{key}", use_container_width=True):
                     st.session_state[f"ink_add_qty_{key}"] = True
                     st.rerun()
-                if st.button("?? แก้ไข", key=f"ink_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"ink_edit_{key}", use_container_width=True):
                     st.session_state[f"ink_edit_{key}"] = True
                     st.rerun()
 
@@ -2627,55 +2627,55 @@ def render_ink_card(row, key, admin_mode, requester_name):
         st.session_state.pop(f"ink_edit_{key}")
         edit_ink_dialog(row.to_dict(), key)
 
-@st.dialog("?? เบิกหมึกพิมพ์")
+@st.dialog("📤 เบิกหมึกพิมพ์")
 def withdraw_ink_dialog(row, key, requester_name):
     qty   = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
     title = row.get("Title", "N/A")
     color = row.get("Color", "-")
-    st.markdown(f"### ?? เบิก: {title}")
+    st.markdown(f"### 📤 เบิก: {title}")
     st.markdown(ink_stock_color_badge(color), unsafe_allow_html=True)
     if qty <= 0:
-        st.error("? หมึกหมดสต็อก ไม่สามารถเบิกได้")
+        st.error("❌ หมึกหมดสต็อก ไม่สามารถเบิกได้")
         return
     st.info(f"สต็อกปัจจุบัน: **{qty}** ชิ้น")
     withdraw_qty = st.number_input("จำนวนที่ต้องการเบิก", min_value=1, max_value=qty, value=1, step=1)
     note = st.text_input("หมายเหตุ (เช่น เครื่อง/ชั้น/ห้อง)")
-    if st.button("? ยืนยันเบิก", use_container_width=True, type="primary"):
+    if st.button("✅ ยืนยันเบิก", use_container_width=True, type="primary"):
         ok, new_qty = ink_adjust_quantity(
             row["_item_id"], qty, -withdraw_qty,
             title, color, requester_name, note, "เบิก"
         )
         if ok:
-            st.success(f"? เบิกสำเร็จ — สต็อกคงเหลือ: {new_qty} ชิ้น")
+            st.success(f"✅ เบิกสำเร็จ — สต็อกคงเหลือ: {new_qty} ชิ้น")
             st.rerun()
         else:
-            st.error("? เบิกไม่สำเร็จ")
+            st.error("❌ เบิกไม่สำเร็จ")
 
-@st.dialog("?? เพิ่มจำนวนสต็อกหมึก")
+@st.dialog("📥 เพิ่มจำนวนสต็อกหมึก")
 def add_ink_qty_dialog(row, key, requester_name):
     qty   = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
     title = row.get("Title", "N/A")
     color = row.get("Color", "-")
-    st.markdown(f"### ?? เพิ่มสต็อก: {title}")
+    st.markdown(f"### 📥 เพิ่มสต็อก: {title}")
     st.markdown(ink_stock_color_badge(color), unsafe_allow_html=True)
     st.info(f"สต็อกปัจจุบัน: **{qty}** ชิ้น")
     add_qty = st.number_input("จำนวนที่ต้องการเพิ่ม", min_value=1, value=1, step=1)
     note = st.text_input("หมายเหตุ (เช่น เลข PO / ผู้ขาย)")
-    if st.button("? ยืนยันเพิ่มสต็อก", use_container_width=True, type="primary"):
+    if st.button("✅ ยืนยันเพิ่มสต็อก", use_container_width=True, type="primary"):
         ok, new_qty = ink_adjust_quantity(
             row["_item_id"], qty, add_qty,
             title, color, requester_name, note, "เพิ่มสต็อก"
         )
         if ok:
-            st.success(f"? เพิ่มสำเร็จ — สต็อกคงเหลือ: {new_qty} ชิ้น")
+            st.success(f"✅ เพิ่มสำเร็จ — สต็อกคงเหลือ: {new_qty} ชิ้น")
             st.rerun()
         else:
-            st.error("? เพิ่มไม่สำเร็จ")
+            st.error("❌ เพิ่มไม่สำเร็จ")
 
-@st.dialog("?? แก้ไขข้อมูลหมึกพิมพ์")
+@st.dialog("✏️ แก้ไขข้อมูลหมึกพิมพ์")
 def edit_ink_dialog(row, key):
     item_id = row.get("_item_id")
-    st.markdown(f"### ?? แก้ไข: {row.get('Title', '')}")
+    st.markdown(f"### ✏️ แก้ไข: {row.get('Title', '')}")
     title      = st.text_input("รุ่นหมึก", value=row.get("Title", ""))
     color      = st.selectbox("สี", INK_COLOR_OPTIONS,
                               index=INK_COLOR_OPTIONS.index(row.get("Color", "Black"))
@@ -2690,36 +2690,36 @@ def edit_ink_dialog(row, key):
     notes      = st.text_input("หมายเหตุ", value=str(row.get("Notes", "")).replace("None","").replace("nan",""))
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("?? บันทึก", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"Title": title, "Color": color, "Printer_Model": printer_m,
                       "Company": company, "Quantity": qty, "Min_Qty": min_qty,
                       "Unit_Price": unit_price or None, "Notes": notes or None}
             ok, res_data = ink_update(item_id, fields)
             if ok:
-                st.success("? บันทึกสำเร็จ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-                st.error(f"? บันทึกไม่สำเร็จ: {err_msg}")
+                st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("??? ลบรายการนี้", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state["ink_confirm_delete"] = item_id
     if st.session_state.get("ink_confirm_delete") == item_id:
-        st.warning("?? ยืนยันการลบ?")
-        if st.button("? ยืนยันลบ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = ink_delete(item_id)
             if ok:
-                st.success("? ลบสำเร็จ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop("ink_confirm_delete", None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("? ลบไม่สำเร็จ")
+                st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("? เพิ่มหมึกพิมพ์ใหม่")
+@st.dialog("➕ เพิ่มหมึกพิมพ์ใหม่")
 def add_ink_dialog():
-    st.markdown("### ? เพิ่มหมึกพิมพ์ใหม่")
+    st.markdown("### ➕ เพิ่มหมึกพิมพ์ใหม่")
     title      = st.text_input("รุ่นหมึก *", placeholder="เช่น HP 680 Black")
     color      = st.selectbox("สี *", INK_COLOR_OPTIONS)
     printer_m  = st.text_input("รุ่นเครื่องพิมพ์", placeholder="เช่น HP DeskJet 2135")
@@ -2728,21 +2728,21 @@ def add_ink_dialog():
     min_qty    = st.number_input("จุดแจ้งเตือน (Low Stock)", min_value=1, value=INK_LOW_THRESHOLD)
     unit_price = st.text_input("ราคา/ชิ้น (บาท)", placeholder="เช่น 350")
     notes      = st.text_input("หมายเหตุ")
-    if st.button("?? บันทึก", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         if not title.strip():
-            st.warning("?? กรุณาระบุรุ่นหมึก")
+            st.warning("⚠️ กรุณาระบุรุ่นหมึก")
             return
         fields = {"Title": title.strip(), "Color": color, "Printer_Model": printer_m,
                   "Company": company, "Quantity": qty, "Min_Qty": min_qty,
                   "Unit_Price": unit_price or None, "Notes": notes or None}
         ok, res_data = ink_create(fields)
         if ok:
-            st.success("? เพิ่มสำเร็จ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"? เพิ่มไม่สำเร็จ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
 # =============================================================================
 # SECTION 13 : SIDEBAR BADGES
@@ -2804,28 +2804,28 @@ def load_theme(*themes):
 # Reports & Analytics
 #
 # Administration
-# ?ฤ Asset Management
-# ณ  ?ฤ Computers
-# ณ  ?ฤ Monitors
-# ณ  ?ฤ Printers
-# ณ  ?ฤ Projectors
-# ณ  ?ฤ UPS
-# ณ  ภฤ Miscellaneous
-# ณ
-# ?ฤ Security
-# ณ  ?ฤ Password Manager
-# ณ  ภฤ NAS Permission Analyzer
-# ณ
-# ภฤ Inventory
-#    ?ฤ Ink Stock
-#    ภฤ Consumables
+# ├─ Asset Management
+# │  ├─ Computers
+# │  ├─ Monitors
+# │  ├─ Printers
+# │  ├─ Projectors
+# │  ├─ UPS
+# │  └─ Miscellaneous
+# │
+# ├─ Security
+# │  ├─ Password Manager
+# │  └─ NAS Permission Analyzer
+# │
+# └─ Inventory
+#    ├─ Ink Stock
+#    └─ Consumables
 #
 # =============================================================================
 
 # SECTION 14 : MAIN UI
 # Theme / Sidebar / Dashboard / Navigation
 # =============================================================================
-st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon="???")
+st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon="🛡️")
 cookie_manager = get_manager()
 
 # --- AUTH ---
@@ -2867,7 +2867,7 @@ html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif !
 </style>
 """
 
-# ฤฤ BASE CSS (always) ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+# ── BASE CSS (always) ──────────────────────────────────────────────────────────
 load_theme(MODERN_THEME,SIDEBAR_V32_THEME)
 
 st.markdown("""
@@ -2883,12 +2883,12 @@ footer { visibility: hidden; }
 # CSS สำหรับหน้า Login เท่านั้น
 # =============================================================================
 
-# ออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+# ══════════════════════════════════════════════════════════════════════════════
 # # THEME BLOCK : LOGIN
 # แก้ UI Login ทั้งหมดในช่วงด้านล่างนี้
 
 # LOGIN PAGE
-# ออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+# ══════════════════════════════════════════════════════════════════════════════
 if not st.session_state.is_auth:
     # -----------------------------------------------------------------------------
 # CSS THEME BLOCK
@@ -3037,7 +3037,7 @@ if not st.session_state.is_auth:
         <div style="text-align:center; margin-bottom:28px;">
             <div style="width:72px;height:72px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
                         border-radius:20px;display:inline-flex;align-items:center;justify-content:center;
-                        font-size:2rem;box-shadow:0 8px 28px rgba(99,102,241,.55);margin-bottom:16px;">???</div>
+                        font-size:2rem;box-shadow:0 8px 28px rgba(99,102,241,.55);margin-bottom:16px;">🛡️</div>
             <h1 style="color:#0f172a;font-size:2rem;font-weight:800;margin:0 0 8px;letter-spacing:-1px;">
                 DocumentReportUnified</h1>
             <p style="color:#475569;font-size:.92rem;margin:0;font-weight:500;">
@@ -3046,12 +3046,12 @@ if not st.session_state.is_auth:
         """, unsafe_allow_html=True)
 
         with st.form("login_form"):
-            u = st.text_input("?? Microsoft 365 Email", placeholder="yourname@optimal.co.th")
-            p = st.text_input("?? Password", type="password", placeholder="••••••••••••")
-            submitted = st.form_submit_button("Sign In ", use_container_width=True)
+            u = st.text_input("📧 Microsoft 365 Email", placeholder="yourname@optimal.co.th")
+            p = st.text_input("🔒 Password", type="password", placeholder="••••••••••••")
+            submitted = st.form_submit_button("Sign In →", use_container_width=True)
             if submitted:
                 if not u.strip() or not p.strip():
-                    st.warning("?? กรุณากรอก Email และ Password")
+                    st.warning("⚠️ กรุณากรอก Email และ Password")
                 else:
                     with st.spinner("กำลังตรวจสอบ..."):
                         success, name, email = check_ms_login(u, p)
@@ -3064,11 +3064,11 @@ if not st.session_state.is_auth:
                         cookie_manager.set("user_email", email, key="auth_email")
                         st.rerun()
                     else:
-                        st.error(f"? {name}")
+                        st.error(f"❌ {name}")
 
         st.markdown("""
         <p style="color:rgba(255,255,255,.25);font-size:.75rem;text-align:center;margin-top:20px;">
-            ?? Secure Microsoft 365 Access &nbsp;?&nbsp; Optimal Group ? 2025</p>
+            ☁️ Secure Microsoft 365 Access &nbsp;·&nbsp; Optimal Group © 2025</p>
         """, unsafe_allow_html=True)
 
 # =============================================================================
@@ -3079,9 +3079,9 @@ if not st.session_state.is_auth:
 # CSS หลัง Login สำเร็จ
 # =============================================================================
 
-# ออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+# ══════════════════════════════════════════════════════════════════════════════
 # MAIN APP
-# ออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+# ══════════════════════════════════════════════════════════════════════════════
 else:
     st.markdown("""
     <style>
@@ -3091,7 +3091,7 @@ else:
         font-family: 'IBM Plex Sans Thai', sans-serif;
 }
 
-    /* ฤฤ APP BG ฤฤ */
+    /* ── APP BG ── */
     [data-testid="stAppViewContainer"] { background: #F8FAFC !important; }
     section[data-testid="stMain"]      { background: #F8FAFC !important; }
     [data-testid="stMainBlockContainer"] {
@@ -3100,7 +3100,7 @@ else:
 }
     [data-testid="stHeader"] { background: transparent !important; box-shadow: none !important; }
 
-    /* ฤฤ SIDEBAR — Reference mockup (M365 / Entra / Azure) ฤฤ */
+    /* ── SIDEBAR — Reference mockup (M365 / Entra / Azure) ── */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     [data-testid="stSidebar"]{
@@ -3242,7 +3242,7 @@ else:
     [data-testid="stSidebar"] .nav-badge-red {
         background: #FEF2F2; color: #DC2626; border: none;
     }
-    /* ฤฤ Tight vertical rhythm (fix Streamlit default gaps) ฤฤ */
+    /* ── Tight vertical rhythm (fix Streamlit default gaps) ── */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         gap: 0.2rem !important;
     }
@@ -3370,7 +3370,7 @@ else:
         [data-testid="stSidebar"] .hide-when-compact { display: none !important; }
     }
 
-    /* ฤฤ METRIC CARDS ฤฤ */
+    /* ── METRIC CARDS ── */
     [data-testid="stMetric"] {
         background: #ffffff !important;
         border-radius: 14px !important;
@@ -3387,7 +3387,7 @@ else:
     [data-testid="stMetricLabel"] { font-size: 0.76rem !important; color: #94a3b8 !important; font-weight: 600 !important; letter-spacing: 0.5px !important; text-transform: uppercase !important; }
     [data-testid="stMetricValue"] { font-size: 2.1rem !important; font-weight: 700 !important; color: #0f172a !important; letter-spacing: -1px !important; font-family: 'IBM Plex Mono', monospace !important; }
 
-    /* ฤฤ CONTENT CARDS ฤฤ */
+    /* ── CONTENT CARDS ── */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stElementContainer"]) > div {
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
@@ -3400,13 +3400,13 @@ else:
         transform: translateY(-1px) !important;
 }
 
-    /* ฤฤ TYPOGRAPHY ฤฤ */
+    /* ── TYPOGRAPHY ── */
     h1 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.5px !important; font-size: 1.6rem !important; }
     h2 { color: #1e293b !important; font-weight: 600 !important; }
     h3 { color: #334155 !important; font-weight: 600 !important; font-size: 1rem !important; }
     p, .stMarkdown p { color: #475569 !important; }
 
-    /* ฤฤ PRIMARY BUTTON — main content only ฤฤ */
+    /* ── PRIMARY BUTTON — main content only ── */
     [data-testid="stMain"] [data-testid="stButton"] > button[kind="primary"],
     [data-testid="stFormSubmitButton"] > button {
         background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
@@ -3421,7 +3421,7 @@ else:
         box-shadow: 0 6px 16px rgba(99,102,241,0.45) !important;
 }
 
-    /* ฤฤ SECONDARY BUTTON — main content only (NOT sidebar) ฤฤ */
+    /* ── SECONDARY BUTTON — main content only (NOT sidebar) ── */
     [data-testid="stMain"] [data-testid="stButton"] > button:not([kind="primary"]) {
         background: #fff !important; border: 1px solid #e2e8f0 !important;
         border-radius: 10px !important; color: #475569 !important;
@@ -3433,7 +3433,7 @@ else:
         background: #f5f3ff !important;
 }
 
-    /* ฤฤ INPUTS ฤฤ */
+    /* ── INPUTS ── */
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input {
         border-radius: 10px !important; border: 1.5px solid #e2e8f0 !important;
@@ -3448,7 +3448,7 @@ else:
         box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
 }
 
-    /* ฤฤ SELECTBOX ฤฤ */
+    /* ── SELECTBOX ── */
     [data-baseweb="select"] > div {
         border-radius: 10px !important; border-color: #e2e8f0 !important;
         font-family: 'IBM Plex Sans Thai', sans-serif !important;
@@ -3456,17 +3456,17 @@ else:
 }
     [data-baseweb="select"] > div:hover { border-color: #a5b4fc !important; }
 
-    /* ฤฤ DATAFRAME ฤฤ */
+    /* ── DATAFRAME ── */
     [data-testid="stDataFrame"] {
         border-radius: 12px !important; overflow: hidden !important;
         border: 1px solid #e2e8f0 !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
 }
 
-    /* ฤฤ DIVIDER ฤฤ */
+    /* ── DIVIDER ── */
     hr { border-color: #e2e8f0 !important; }
 
-    /* ฤฤ EXPANDER ฤฤ */
+    /* ── EXPANDER ── */
     details > summary {
         border-radius: 10px !important; background: #f8fafc !important;
         border: 1px solid #e2e8f0 !important; padding: 10px 14px !important;
@@ -3474,16 +3474,16 @@ else:
 }
     details[open] > summary { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
 
-    /* ฤฤ ALERTS ฤฤ */
+    /* ── ALERTS ── */
     [data-testid="stAlert"][data-baseweb="notification"] {
         border-radius: 12px !important; border-left: 4px solid !important;
         font-size: 0.88rem !important;
 }
 
-    /* ฤฤ SPINNER ฤฤ */
+    /* ── SPINNER ── */
     [data-testid="stSpinner"] { opacity: 0.7; }
 
-    /* ฤฤ GAP — main content only ฤฤ */
+    /* ── GAP — main content only ── */
     [data-testid="stMain"] [data-testid="stVerticalBlock"] { gap: 0.6rem !important; }
 
     
@@ -3510,13 +3510,13 @@ else:
 }
 
 
-    /* ฤฤ CHECKBOX ฤฤ */
+    /* ── CHECKBOX ── */
     [data-testid="stCheckbox"] label { color: #475569 !important; font-size: 0.85rem !important; }
 
-    /* ฤฤ CAPTION ฤฤ */
+    /* ── CAPTION ── */
     [data-testid="stCaptionContainer"] p { color: #94a3b8 !important; font-size: 0.78rem !important; }
 
-    /* ฤฤ SIDEBAR STAT CARDS ฤฤ */
+    /* ── SIDEBAR STAT CARDS ── */
     .ov-card {
         background: #fff;
         border-radius: 14px;
@@ -3534,7 +3534,7 @@ else:
     .ov-card-link { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 500; padding-top: 8px; border-top: 1px solid #f1f5f9; cursor: pointer; }
     
 
-    /* ฤฤ STATUS BADGE (custom html) ฤฤ */
+    /* ── STATUS BADGE (custom html) ── */
     .badge {
         display: inline-block; padding: 3px 11px; border-radius: 20px;
         font-size: 0.73rem; font-weight: 700; letter-spacing: 0.4px;
@@ -3545,7 +3545,7 @@ else:
     .badge-repair   { background: #fef3c7; color: #b45309; }
     .badge-default  { background: #f1f5f9; color: #64748b; }
 
-    /* ฤฤ PAGE HEADER (custom html) ฤฤ */
+    /* ── PAGE HEADER (custom html) ── */
     .page-header {
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
         border-radius: 16px; padding: 24px 28px; margin-bottom: 1.5rem;
@@ -3570,7 +3570,7 @@ else:
 }
     .page-header-text p { color: rgba(255,255,255,0.5) !important; font-size: 0.82rem !important; margin: 0 !important; }
 
-    /* ฤฤ SECTION HEADER ฤฤ */
+    /* ── SECTION HEADER ── */
     .section-title {
         font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
         text-transform: uppercase; color: #94a3b8;
@@ -3578,14 +3578,14 @@ else:
         border-bottom: 1px solid #e2e8f0;
 }
 
-    /* ฤฤ HARDWARE CARD ฤฤ */
+    /* ── HARDWARE CARD ── */
     .hw-card-title { font-size: 0.98rem; font-weight: 600; color: #1e293b; margin: 0; }
     .hw-card-sub   { font-size: 0.76rem; color: #94a3b8; margin: 3px 0 8px; }
     .hw-field      { font-size: 0.82rem; color: #475569; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
     .hw-field:last-of-type { border-bottom: none; }
     .hw-field strong { color: #334155; font-weight: 600; }
 
-    /* ฤฤ NAS CARD ฤฤ */
+    /* ── NAS CARD ── */
     .nas-folder-badge {
         background: linear-gradient(135deg, #ede9fe, #ddd6fe);
         border: 1px solid #c4b5fd; border-radius: 10px;
@@ -3599,7 +3599,7 @@ else:
     .nas-rw  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .nas-ro  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
 
-    /* ฤฤ PASSWORD CARD ฤฤ */
+    /* ── PASSWORD CARD ── */
     .pw-field-row {
         display: flex; gap: 8px; align-items: baseline;
         padding: 6px 0; border-bottom: 1px solid #f8fafc; font-size: 0.83rem;
@@ -3611,7 +3611,7 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # ฤฤ helpers ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+    # ── helpers ──────────────────────────────────────────────
     # V5 UNIFIED UI — final visual layer for all authenticated screens.
     st.markdown("""
     <style>
@@ -3678,7 +3678,7 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # ฤฤ SIDEBAR — Reference-aligned navigation (UI only) ฤฤฤฤฤฤ
+    # ── SIDEBAR — Reference-aligned navigation (UI only) ──────
     admin_mode = is_admin(st.session_state.user_email)
     name = st.session_state.user_name or "User"
     email = st.session_state.user_email or ""
@@ -4034,7 +4034,7 @@ else:
 #   Asset Management / Security / Inventory / Dashboard
 #
 # VISUAL
-#   ?? Computers        [154]
+#   💻 Computers        [154]
 #
 # NOTES
 #   - รองรับ Badge
@@ -4042,7 +4042,10 @@ else:
 #   - รองรับ Sub Menu
 #   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
-    _ST_BUTTON_HAS_ICON = "icon" in inspect.signature(st.button).parameters
+    # Streamlit Cloud may accept Material icon syntax but fail to load the
+    # Material Symbols font, which exposes icon names as raw text.  Keep the
+    # navigation portable by rendering icons inside the button label instead.
+    _ST_BUTTON_HAS_ICON = False
     _NAV_MATERIAL_ICONS = {
         "overview": "space_dashboard", "ad_policy": "policy",
         "computers": "computer", "monitors": "desktop_windows",
@@ -4057,23 +4060,23 @@ else:
         "open_grp_inventory": "inventory", "open_grp_admin": "admin_panel_settings",
     }
     _NAV_FALLBACK_ICONS = {
-        "overview": "?", "ad_policy": "?", "computers": "?", "monitors": "?",
-        "printers": "?", "projector": "?", "ups": "?", "misc": "?",
-        "password": "?", "user_perm": "?", "ink_stock": "?",
-        "admin_users": "?", "admin_settings": "?", "admin_logs": "?",
+        "overview": "🏠", "ad_policy": "🛡️", "computers": "💻", "monitors": "🖥️",
+        "printers": "🖨️", "projector": "📽️", "ups": "🔋", "misc": "📦",
+        "password": "🔐", "user_perm": "📂", "ink_stock": "💧",
+        "admin_users": "👥", "admin_settings": "⚙️", "admin_logs": "🕘",
     }
     _GROUP_FALLBACK_ICONS = {
-        "open_grp_assets": "?", "open_grp_security": "?",
-        "open_grp_inventory": "?", "open_grp_admin": "?",
+        "open_grp_assets": "🗃️", "open_grp_security": "🔐",
+        "open_grp_inventory": "📚", "open_grp_admin": "🛠️",
     }
     _SAFE_EMOJI_ICONS = {
-        "space_dashboard": "??", "policy": "???", "computer": "??",
-        "desktop_windows": "???", "print": "???", "videocam": "???",
-        "battery_charging_full": "??", "devices_other": "??", "key": "??",
-        "folder_shared": "??", "water_drop": "??", "group": "??",
-        "settings": "??", "history": "??", "inventory_2": "???",
-        "shield_lock": "??", "inventory": "??", "admin_panel_settings": "???",
-        "logout": "??", "arrow_forward": "",
+        "space_dashboard": "🏠", "policy": "🛡️", "computer": "💻",
+        "desktop_windows": "🖥️", "print": "🖨️", "videocam": "📽️",
+        "battery_charging_full": "🔋", "devices_other": "📦", "key": "🔑",
+        "folder_shared": "📂", "water_drop": "💧", "group": "👥",
+        "settings": "⚙️", "history": "🕘", "inventory_2": "🗃️",
+        "shield_lock": "🔐", "inventory": "📚", "admin_panel_settings": "🛠️",
+        "logout": "↪️", "arrow_forward": "→",
     }
 
     def _button_icon(material_name: str):
@@ -4090,7 +4093,7 @@ else:
         val = nav_badges.get(badge_key, 0) if badge_key else None
         label = text if val is None else f"{text}   {val}"
         if not _ST_BUTTON_HAS_ICON:
-            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '?')}  {label}"
+            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
 
         if st.sidebar.button(
             label,
@@ -4119,9 +4122,9 @@ else:
 # =============================================================================
     def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
-        label = f"{text}   {'?' if open_ else '?'}"
+        label = f"{text}   {'⌄' if open_ else '›'}"
         if not _ST_BUTTON_HAS_ICON:
-            label = f"{_GROUP_FALLBACK_ICONS.get(state_key, '?')}  {label}"
+            label = f"{_GROUP_FALLBACK_ICONS.get(state_key, '◇')}  {label}"
         if st.sidebar.button(label, use_container_width=True, type="secondary",
                              key=f"tog_{state_key}",
                              **_button_icon(_GROUP_MATERIAL_ICONS.get(state_key, "folder"))):
@@ -4132,14 +4135,14 @@ else:
         active = st.session_state.active_nav == nav_key
         label = text
         if not _ST_BUTTON_HAS_ICON:
-            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '?')}  {label}"
+            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
         if st.sidebar.button(label, use_container_width=True, type="secondary",
                              key=f"nav_{nav_key}_{'active' if active else 'idle'}",
                              **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle"))):
             st.session_state.active_nav = nav_key
             st.rerun()
 
-    # ฤฤ User profile first (reference image) ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+    # ── User profile first (reference image) ────────────────
     st.sidebar.markdown(f"""
     <div class="ce-brand">
         <div style="display:flex;align-items:center;gap:14px;">
@@ -4178,16 +4181,16 @@ else:
         st.sidebar.markdown('<div class="nav-toolbar-row">', unsafe_allow_html=True)
         rt1, rt2 = st.sidebar.columns(2, gap="small")
         with rt1:
-            if st.button("?", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
+            if st.button("◀", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
                 st.session_state.sidebar_compact = not compact
                 st.rerun()
         with rt2:
-            if st.button("?", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
+            if st.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
                 get_sidebar_nav_badges.clear()
                 st.rerun()
         st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-    # ฤฤ Navigation ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+    # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
         st.session_state.active_nav = "overview"
     if st.session_state.active_nav == "reports":
@@ -4213,38 +4216,38 @@ else:
     st.sidebar.markdown('<p class="nav-section-label hide-when-compact">WORKSPACE</p>', unsafe_allow_html=True)
 
     # Card Navigation Style (Option B)
-    _nav_leaf("overview", "", "Dashboard")
+    _nav_leaf("overview", "⌂", "Dashboard")
     if admin_mode:
-        _nav_leaf("ad_policy", "??", "AD / Firewall Policy")
+        _nav_leaf("ad_policy", "🌐", "AD / Firewall Policy")
 
     # Asset modules moved to Dashboard cards
-    _group_toggle("open_grp_assets", "??", "Asset Management")
+    _group_toggle("open_grp_assets", "📦", "Asset Management")
     if st.session_state.open_grp_assets:
-        _nav_item("computers", "??", "Computers", "computers", "blue", sub=True)
-        _nav_item("monitors", "??", "Monitors", "monitors", "blue", sub=True)
-        _nav_item("printers", "??", "Printers", "printers", "blue", sub=True)
-        _nav_item("projector", "??", "Projectors", "projector", "blue", sub=True)
-        _nav_item("ups", "??", "UPS", "ups", "blue", sub=True)
-        _nav_item("misc", "??", "Miscellaneous", "misc", "blue", sub=True)
+        _nav_item("computers", "🖥", "Computers", "computers", "blue", sub=True)
+        _nav_item("monitors", "🖵", "Monitors", "monitors", "blue", sub=True)
+        _nav_item("printers", "🖨", "Printers", "printers", "blue", sub=True)
+        _nav_item("projector", "📽", "Projectors", "projector", "blue", sub=True)
+        _nav_item("ups", "🔋", "UPS", "ups", "blue", sub=True)
+        _nav_item("misc", "📦", "Miscellaneous", "misc", "blue", sub=True)
 
     if admin_mode:
-        _group_toggle("open_grp_security", "??", "Security")
+        _group_toggle("open_grp_security", "🔒", "Security")
         if st.session_state.open_grp_security:
-            _nav_item("password", "??", "Password Manager", "password", "blue", sub=True)
-            _nav_item("user_perm", "??", "NAS Permission Analyzer", "user_perm", "blue", sub=True)
+            _nav_item("password", "🔑", "Password Manager", "password", "blue", sub=True)
+            _nav_item("user_perm", "📂", "NAS Permission Analyzer", "user_perm", "blue", sub=True)
 
-        _group_toggle("open_grp_inventory", "??", "Inventory")
+        _group_toggle("open_grp_inventory", "📁", "Inventory")
         if st.session_state.open_grp_inventory:
-            _nav_item("ink_stock", "??", "Ink Stock", "ink_stock", "blue", sub=True)
+            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "blue", sub=True)
 
         # removed duplicate reports menu
 
 
-        _group_toggle("open_grp_admin", "?", "Administration")
+        _group_toggle("open_grp_admin", "⚙", "Administration")
         if st.session_state.open_grp_admin:
-            _nav_item("admin_users", "??", "Users", sub=True)
-            _nav_item("admin_settings", "?", "Settings", sub=True)
-            _nav_item("admin_logs", "??", "Activity Logs", sub=True)
+            _nav_item("admin_users", "👥", "Users", sub=True)
+            _nav_item("admin_settings", "⚙", "Settings", sub=True)
+            _nav_item("admin_logs", "📜", "Activity Logs", sub=True)
 
     st.sidebar.markdown("---")
 
@@ -4642,42 +4645,42 @@ else:
 
     _nav = st.session_state.active_nav
 
-    # ฤฤ ROUTE ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+    # ── ROUTE ────────────────────────────────────────────────────────────────
     _ROUTE = {
-        "overview":   ("?? Overview Dashboard",  None),
-        "computers":  ("?? Hardware Asset",       "Computer Asset"),
-        "monitors":   ("?? Hardware Asset",       "Asset Monitor"),
-        "projector":  ("?? Hardware Asset",       "Asset Projector"),
-        "printers":   ("?? Hardware Asset",       "Asset Printer"),
-        "ups":        ("?? Hardware Asset",       "Asset UPS"),
-        "misc":       ("?? Hardware Asset",       "Asset Misc"),
-        "email":      ("?? Password Information", None),
-        "domain":     ("?? Password Information", None),
-        "vendor":     ("?? Password Information", None),
-        "user_perm":  ("?? NAS Drive Check",      None),
-        "password":   ("?? Password Information", None),
-        "ink_stock":  ("??? Stock หมึกพิมพ์",       None),
-        "ink_history":("??? Stock หมึกพิมพ์",       None),
-        "consumables":("??? Stock หมึกพิมพ์",       None),
-        "ad_policy":      ("?? AD / Firewall Policy", None),
-        "admin_users":    ("? Administration", None),
-        "admin_settings": ("? Administration", None),
-        "admin_logs":     ("? Administration", None),
+        "overview":   ("📊 Overview Dashboard",  None),
+        "computers":  ("💻 Hardware Asset",       "Computer Asset"),
+        "monitors":   ("💻 Hardware Asset",       "Asset Monitor"),
+        "projector":  ("💻 Hardware Asset",       "Asset Projector"),
+        "printers":   ("💻 Hardware Asset",       "Asset Printer"),
+        "ups":        ("💻 Hardware Asset",       "Asset UPS"),
+        "misc":       ("💻 Hardware Asset",       "Asset Misc"),
+        "email":      ("🔑 Password Information", None),
+        "domain":     ("🔑 Password Information", None),
+        "vendor":     ("🔑 Password Information", None),
+        "user_perm":  ("📂 NAS Drive Check",      None),
+        "password":   ("🔑 Password Information", None),
+        "ink_stock":  ("🖨️ Stock หมึกพิมพ์",       None),
+        "ink_history":("🖨️ Stock หมึกพิมพ์",       None),
+        "consumables":("🖨️ Stock หมึกพิมพ์",       None),
+        "ad_policy":      ("🌐 AD / Firewall Policy", None),
+        "admin_users":    ("⚙ Administration", None),
+        "admin_settings": ("⚙ Administration", None),
+        "admin_logs":     ("⚙ Administration", None),
 }
-    main_menu, _hw_sub_override = _ROUTE.get(_nav, ("?? Overview Dashboard", None))
+    main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav in ("ink_history", "consumables"))
 
-    if not admin_mode and main_menu not in ("?? Overview Dashboard", "?? Hardware Asset"):
+    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "💻 Hardware Asset"):
         st.session_state.active_nav = "overview"
         _nav = "overview"
         main_menu, _hw_sub_override = _ROUTE["overview"]
         show_ink_history_only = False
-        st.warning("?? สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Dashboard และ Hardware Asset เท่านั้น")
+        st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Dashboard และ Hardware Asset เท่านั้น")
 
     # -------------------------------------------------------
-    # ?? Overview Dashboard
+    # 📊 Overview Dashboard
     # -------------------------------------------------------
-    if main_menu == "?? Overview Dashboard":
+    if main_menu == "📊 Overview Dashboard":
         _dash_title = "IT Asset Overview"
         _dash_sub = "ศูนย์ควบคุมและติดตามสินทรัพย์ IT"
 
@@ -4760,7 +4763,7 @@ else:
             </div>
             <div class="dash-profile">
                 <div class="dash-profile-avatar">{initials}</div>
-                <div><div class="dash-profile-name">{name}</div><div class="dash-profile-role">{profile_dept} ? {_today}</div></div>
+                <div><div class="dash-profile-name">{name}</div><div class="dash-profile-role">{profile_dept} · {_today}</div></div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -4772,7 +4775,7 @@ else:
             df_ink  = load_sp_data(INK_STOCK_LIST)
             df_nas  = load_nas_data()
 
-        # ฤฤ Stat Cards ฤฤ
+        # ── Stat Cards ──
         _comp_count = len(df_comp)
         _mon_count  = len(df_mon)
         _prn_count  = len(df_prn)
@@ -4815,14 +4818,14 @@ else:
                 lambda row: _dash_int(row.get("Quantity", 0)) <= _dash_int(row.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
             ).sum())
 
-        # ฤฤ Asset Portfolio cards ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+        # ── Asset Portfolio cards ─────────────────────────────────────────
         st.markdown('<div class="dash-section"><div class="dash-section-title">Asset Portfolio</div><div class="dash-section-note">Managed inventory by category</div></div>', unsafe_allow_html=True)
         _portfolio_cols = st.columns(4, gap="medium")
         _portfolio_cards = [
-            ("??", "Computers", _comp_count, "Assigned endpoints", "linear-gradient(145deg,rgba(147,197,253,.72),rgba(255,255,255,.62))", "#2563EB"),
-            ("???", "Monitors", _mon_count, "Managed displays", "linear-gradient(145deg,rgba(103,232,249,.68),rgba(255,255,255,.62))", "#0891B2"),
-            ("???", "Printers", _prn_count, "Network and local printers", "linear-gradient(145deg,rgba(196,181,253,.72),rgba(255,255,255,.62))", "#7C3AED"),
-            ("??", "NAS Shares", _nas_count, "Indexed shared folders", "linear-gradient(145deg,rgba(110,231,183,.66),rgba(255,255,255,.62))", "#059669"),
+            ("💻", "Computers", _comp_count, "Assigned endpoints", "linear-gradient(145deg,rgba(147,197,253,.72),rgba(255,255,255,.62))", "#2563EB"),
+            ("🖥️", "Monitors", _mon_count, "Managed displays", "linear-gradient(145deg,rgba(103,232,249,.68),rgba(255,255,255,.62))", "#0891B2"),
+            ("🖨️", "Printers", _prn_count, "Network and local printers", "linear-gradient(145deg,rgba(196,181,253,.72),rgba(255,255,255,.62))", "#7C3AED"),
+            ("📂", "NAS Shares", _nas_count, "Indexed shared folders", "linear-gradient(145deg,rgba(110,231,183,.66),rgba(255,255,255,.62))", "#059669"),
         ]
         for _col, (_icon, _label, _value, _meta, _bg, _tone) in zip(_portfolio_cols, _portfolio_cards):
             with _col:
@@ -4834,15 +4837,15 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # ฤฤ Quick Access ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+        # ── Quick Access ───────────────────────────────────────────────────
         st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">Your most-used IT tools</div></div>', unsafe_allow_html=True)
         _quick_access = [
-            ("computers", "??", "Computers", "Manage assigned computers and lifecycle", "#2563EB", "linear-gradient(145deg,rgba(219,234,254,.88),rgba(255,255,255,.78))"),
-            ("monitors", "???", "Monitors", "Track displays and current assignments", "#0891B2", "linear-gradient(145deg,rgba(207,250,254,.88),rgba(255,255,255,.78))"),
-            ("printers", "???", "Printers", "Review printers, models and IP details", "#7C3AED", "linear-gradient(145deg,rgba(237,233,254,.90),rgba(255,255,255,.78))"),
-            ("ups", "??", "UPS", "Monitor power protection inventory", "#D97706", "linear-gradient(145deg,rgba(254,243,199,.88),rgba(255,255,255,.78))"),
-            ("password", "??", "Password Manager", "Access protected system credentials", "#DB2777", "linear-gradient(145deg,rgba(252,231,243,.88),rgba(255,255,255,.78))"),
-            ("user_perm", "??", "NAS Permission Analyzer", "Audit shared-folder access", "#059669", "linear-gradient(145deg,rgba(209,250,229,.88),rgba(255,255,255,.78))"),
+            ("computers", "💻", "Computers", "Manage assigned computers and lifecycle", "#2563EB", "linear-gradient(145deg,rgba(219,234,254,.88),rgba(255,255,255,.78))"),
+            ("monitors", "🖥️", "Monitors", "Track displays and current assignments", "#0891B2", "linear-gradient(145deg,rgba(207,250,254,.88),rgba(255,255,255,.78))"),
+            ("printers", "🖨️", "Printers", "Review printers, models and IP details", "#7C3AED", "linear-gradient(145deg,rgba(237,233,254,.90),rgba(255,255,255,.78))"),
+            ("ups", "🔋", "UPS", "Monitor power protection inventory", "#D97706", "linear-gradient(145deg,rgba(254,243,199,.88),rgba(255,255,255,.78))"),
+            ("password", "🔑", "Password Manager", "Access protected system credentials", "#DB2777", "linear-gradient(145deg,rgba(252,231,243,.88),rgba(255,255,255,.78))"),
+            ("user_perm", "📂", "NAS Permission Analyzer", "Audit shared-folder access", "#059669", "linear-gradient(145deg,rgba(209,250,229,.88),rgba(255,255,255,.78))"),
         ]
         _quick_cols = st.columns(3, gap="medium")
         for _index, (_target, _icon, _title, _description, _accent, _card_bg) in enumerate(_quick_access):
@@ -4852,7 +4855,7 @@ else:
                     <div class="saas-card-icon" style="color:{_accent};">{_icon}</div>
                     <div class="saas-card-title">{_title}</div>
                     <div class="saas-card-sub">{_description}</div>
-                    <div class="saas-card-action"></div>
+                    <div class="saas-card-action">→</div>
                 </div>
                 """, unsafe_allow_html=True)
                 if st.button("Open", key=f"saas_quick_{_target}", use_container_width=True,
@@ -4860,7 +4863,7 @@ else:
                     st.session_state.active_nav = _target
                     st.rerun()
 
-        # ฤฤ Security Center ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+        # ── Security Center ────────────────────────────────────────────────
         st.markdown('<div class="dash-section"><div class="dash-section-title">Security Center</div><div class="dash-section-note">Live integration health</div></div>', unsafe_allow_html=True)
         _security_items = [
             ("Firewall Status", f"{_security_policy_count} policy mappings loaded", _firewall_ok),
@@ -4883,7 +4886,7 @@ else:
         # presented as cards above and Action Center has been intentionally removed.
         st.stop()
 
-        # ฤฤ Legacy operational panels (kept unreachable for safe rollback) ฤฤ
+        # ── Legacy operational panels (kept unreachable for safe rollback) ──
         st.markdown('<div class="dash-section"><div class="dash-section-title">Operational Overview</div><div class="dash-section-note">Inventory mix and items requiring action</div></div>', unsafe_allow_html=True)
         _ops_cols = st.columns([1.05, .95], gap="medium")
         _portfolio_total = max(_total_assets, 1)
@@ -4895,17 +4898,17 @@ else:
             <div class="portfolio-card">
                 <div class="panel-title">Asset Portfolio</div>
                 <div class="panel-sub">Distribution across managed asset types</div>
-                <div class="portfolio-row"><div class="portfolio-name">?? Computers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_comp_pct}%;background:linear-gradient(90deg,#2563EB,#60A5FA);"></div></div><div class="portfolio-count">{_comp_count}</div></div>
-                <div class="portfolio-row"><div class="portfolio-name">??? Monitors</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_mon_pct}%;background:linear-gradient(90deg,#0891B2,#22D3EE);"></div></div><div class="portfolio-count">{_mon_count}</div></div>
-                <div class="portfolio-row"><div class="portfolio-name">??? Printers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_prn_pct}%;background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div></div><div class="portfolio-count">{_prn_count}</div></div>
-                <div class="portfolio-row"><div class="portfolio-name">?? NAS Shares</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{min(_nas_count,100)}%;background:linear-gradient(90deg,#059669,#34D399);"></div></div><div class="portfolio-count">{_nas_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">💻 Computers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_comp_pct}%;background:linear-gradient(90deg,#2563EB,#60A5FA);"></div></div><div class="portfolio-count">{_comp_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">🖥️ Monitors</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_mon_pct}%;background:linear-gradient(90deg,#0891B2,#22D3EE);"></div></div><div class="portfolio-count">{_mon_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">🖨️ Printers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_prn_pct}%;background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div></div><div class="portfolio-count">{_prn_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">📂 NAS Shares</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{min(_nas_count,100)}%;background:linear-gradient(90deg,#059669,#34D399);"></div></div><div class="portfolio-count">{_nas_count}</div></div>
             </div>
             """, unsafe_allow_html=True)
         with _ops_cols[1]:
             _integration_issues = int(not _firewall_ok) + int(not _ad_ok) + int(not _nas_ok)
             _action_total = _attention_assets + _low_ink_count + _integration_issues
             _action_footer = (
-                "? All monitored areas are healthy. No immediate action required."
+                "✓ All monitored areas are healthy. No immediate action required."
                 if _action_total == 0 else f"{_action_total} total items should be reviewed by the IT team."
             )
             st.markdown(f"""
@@ -4913,8 +4916,8 @@ else:
                 <div class="panel-title">Action Center</div>
                 <div class="panel-sub">Prioritized issues from live system data</div>
                 <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FFF7ED;color:#D97706;">!</div><div><div class="action-title">Asset attention</div><div class="action-desc">Inactive or repair status</div></div></div><div class="action-badge" style="background:#FFF7ED;color:#C2410C;">{_attention_assets}</div></div>
-                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FEF2F2;color:#DC2626;"></div><div><div class="action-title">Low ink stock</div><div class="action-desc">At or below reorder threshold</div></div></div><div class="action-badge" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div></div>
-                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#EEF2FF;color:#4F46E5;">?</div><div><div class="action-title">Integration health</div><div class="action-desc">Firewall, AD and NAS connections</div></div></div><div class="action-badge" style="background:#EEF2FF;color:#4F46E5;">{_integration_issues}</div></div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FEF2F2;color:#DC2626;">↓</div><div><div class="action-title">Low ink stock</div><div class="action-desc">At or below reorder threshold</div></div></div><div class="action-badge" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div></div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#EEF2FF;color:#4F46E5;">◆</div><div><div class="action-title">Integration health</div><div class="action-desc">Firewall, AD and NAS connections</div></div></div><div class="action-badge" style="background:#EEF2FF;color:#4F46E5;">{_integration_issues}</div></div>
                 <div class="action-footer">{_action_footer}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -4922,7 +4925,7 @@ else:
         # Dashboard is complete. Avoid rendering legacy dashboard sections below.
         st.stop()
 
-        # ฤฤ Ink low-stock alert ฤฤ
+        # ── Ink low-stock alert ──
         low_ink = df_ink.iloc[0:0] if df_ink is not None else None
         low_str = "ไม่มีรายการ"
         if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
@@ -4933,7 +4936,7 @@ else:
                 lambda r: _toi2(r.get("Quantity", 0)) <= _toi2(r.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
             )]
             if not low_ink.empty:
-                low_str = " ? ".join(
+                low_str = " · ".join(
                     f"{r.get('Title','?')} ({r.get('Color','-')})" for _, r in low_ink.head(3).iterrows()
                 )
 
@@ -4942,7 +4945,7 @@ else:
         col1, col2 = st.columns(2)
         with col1:
             with st.container():
-                st.markdown("**?? สัดส่วนอุปกรณ์ตามบริษัท**")
+                st.markdown("**🏢 สัดส่วนอุปกรณ์ตามบริษัท**")
                 if not df_comp.empty and 'field_1' in df_comp.columns:
                     cc = df_comp['field_1'].value_counts().reset_index()
                     cc.columns = ['Company', 'Count']
@@ -4976,11 +4979,11 @@ else:
                         font=dict(family='IBM Plex Sans Thai')
                     )
                     st.plotly_chart(fig, use_container_width=True, config= {'displayModeBar': False})
-                    st.markdown('<div style="background:#f8f9fc;border-radius:8px;padding:8px 12px;font-size:0.75rem;color:#94a3b8;">?? แสดงสัดส่วนจำนวนอุปกรณ์ทั้งหมด จำแนกตามบริษัท</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="background:#f8f9fc;border-radius:8px;padding:8px 12px;font-size:0.75rem;color:#94a3b8;">ℹ️ แสดงสัดส่วนจำนวนอุปกรณ์ทั้งหมด จำแนกตามบริษัท</div>', unsafe_allow_html=True)
         with col2:
             _active_rate = round((_active_assets / _total_assets) * 100) if _total_assets else 0
             _health_message = (
-                '<div class="attention-ok">? ไม่มีรายการเร่งด่วน ระบบอยู่ในสถานะปกติ</div>'
+                '<div class="attention-ok">✓ ไม่มีรายการเร่งด่วน ระบบอยู่ในสถานะปกติ</div>'
                 if _attention_assets == 0 and _low_ink_count == 0 else ''
             )
             st.markdown(f"""
@@ -5009,9 +5012,9 @@ else:
 
     
     # -------------------------------------------------------
-    # ?? Hardware Asset
+    # 💻 Hardware Asset
     # -------------------------------------------------------
-    elif main_menu == "?? Hardware Asset":
+    elif main_menu == "💻 Hardware Asset":
 
         st.markdown("""
         <style>
@@ -5187,7 +5190,7 @@ else:
 
         st.markdown(f"""
         <div class="asset-hero">
-            <div class="asset-title">?? {hardware_name}</div>
+            <div class="asset-title">💻 {hardware_name}</div>
             <div class="asset-sub">
                 ระบบจัดการ{hardware_name}และทรัพย์สิน IT ทั้งหมด
             </div>
@@ -5219,13 +5222,13 @@ else:
         with col_search:
             search = st.text_input(
                 "",
-                placeholder="?? ค้นหาชื่อพนักงาน, Hostname, Model, S/N...",
+                placeholder="🔍 ค้นหาชื่อพนักงาน, Hostname, Model, S/N...",
                 label_visibility="collapsed"
             )
 
         with col_add:
             if admin_mode:
-                if st.button("? เพิ่มคอมพิวเตอร์", use_container_width=True, type="primary"):
+                if st.button("➕ เพิ่มคอมพิวเตอร์", use_container_width=True, type="primary"):
                     add_computer_dialog(sub)
 
         if search and not df_hw.empty:
@@ -5246,32 +5249,32 @@ else:
                 badge_class = "badge-active" if status == "Active" else "badge-inactive"
 
                 with st.container(border=True):
-                    st.markdown(f"### ?? {name}")
-                    st.caption(f"?? {row.get('field_1','-')}  |  Status: {status}")
-                    st.write(f"?? Hostname: {row.get('field_6','-')}")
-                    st.write(f"??? Model: {row.get('field_7','-')}")
-                    st.write(f"?? RAM: {row.get('field_13','-')}")
-                    st.write(f"?? Serial: {row.get('field_8','-')}")
+                    st.markdown(f"### 👤 {name}")
+                    st.caption(f"🏢 {row.get('field_1','-')}  |  Status: {status}")
+                    st.write(f"💻 Hostname: {row.get('field_6','-')}")
+                    st.write(f"🏷️ Model: {row.get('field_7','-')}")
+                    st.write(f"💾 RAM: {row.get('field_13','-')}")
+                    st.write(f"🔢 Serial: {row.get('field_8','-')}")
 
                 if admin_mode:
                     b1, b2 = st.columns(2)
 
                     with b1:
-                        if st.button("?? ดูข้อมูล", key=f"view_{idx}", use_container_width=True):
+                        if st.button("🔍 ดูข้อมูล", key=f"view_{idx}", use_container_width=True):
                             show_pop_computer(row.to_dict())
 
                     with b2:
-                        if st.button("?? แก้ไข", key=f"edit_{idx}", use_container_width=True):
+                        if st.button("✏️ แก้ไข", key=f"edit_{idx}", use_container_width=True):
                             edit_computer_dialog(row.to_dict(), sub)
                 else:
-                    st.caption("?? ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
+                    st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
 
 
 
     # -------------------------------------------------------
-    # ?? AD / Firewall Policy
+    # 🌐 AD / Firewall Policy
     # -------------------------------------------------------
-    elif main_menu == "?? AD / Firewall Policy":
+    elif main_menu == "🌐 AD / Firewall Policy":
         # UI OWNER: AD / Firewall Policy only.  All selectors are scoped by
         # .adp-page-marker so this theme cannot leak into other Streamlit pages.
         st.markdown("""
@@ -5327,7 +5330,8 @@ else:
             background:linear-gradient(90deg,#F1F5FF 0%,#F8FAFF 100%); border:1px solid #D8E1F5;
             box-shadow:0 2px 8px rgba(79,70,229,.025);
         }
-        .adp-info-icon {color:#4F46E5; font-size:16px; flex:0 0 auto}
+        .adp-info-icon {width:18px;height:18px;color:#4F46E5;flex:0 0 18px;display:grid;place-items:center}
+        .adp-info-icon svg{width:17px;height:17px;display:block;stroke:currentColor}
         .adp-info-banner code {font-size:11px; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:6px}
         .adp-stat-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:14px 0 8px}
         .adp-stat-card {
@@ -5408,7 +5412,7 @@ else:
             <svg viewBox="0 0 260 130"><defs><linearGradient id="adpBrick" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7DD3FC"/><stop offset="1" stop-color="#60A5FA"/></linearGradient><linearGradient id="adpMiniShield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#BAE6FD"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><g fill="none" stroke="#7DD3FC" stroke-width="3" opacity=".62"><circle cx="69" cy="57" r="43"/><path d="M27 57h84M69 14c-14 13-20 27-20 43s6 30 20 43M69 14c14 13 20 27 20 43s-6 30-20 43M34 35h70M34 79h70"/></g><g fill="url(#adpBrick)" stroke="#93C5FD" stroke-width="1"><rect x="102" y="48" width="43" height="24" rx="5"/><rect x="149" y="48" width="43" height="24" rx="5"/><rect x="196" y="48" width="43" height="24" rx="5"/><rect x="114" y="76" width="43" height="24" rx="5"/><rect x="161" y="76" width="43" height="24" rx="5"/><rect x="208" y="76" width="31" height="24" rx="5"/></g><g transform="translate(174 16)"><path d="M24 1 45 10v14c0 13-8.5 23.5-21 28C11.5 47.5 3 37 3 24V10L24 1Z" fill="url(#adpMiniShield)" stroke="#BAE6FD" stroke-width="2"/><path d="m15 25 6 6 13-14" fill="none" stroke="#E0F2FE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(184 73)"><path d="M8 14V9a12 12 0 0 1 24 0v5" fill="none" stroke="#BFDBFE" stroke-width="4"/><rect x="3" y="13" width="34" height="29" rx="6" fill="#4F46E5" stroke="#93C5FD" stroke-width="2"/><circle cx="20" cy="25" r="4" fill="#BAE6FD"/><path d="M20 29v6" stroke="#BAE6FD" stroke-width="3" stroke-linecap="round"/></g></svg>
           </div>
         </section>
-        <div class="adp-info-banner"><span class="adp-info-icon">?</span><span>ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย <code>FW_</code>, <code>Firewall_</code> หรือ <code>Internet_</code> เป็น Internet Policy</span></div>
+        <div class="adp-info-banner"><span class="adp-info-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span><span>ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย <code>FW_</code>, <code>Firewall_</code> หรือ <code>Internet_</code> เป็น Internet Policy</span></div>
         """, unsafe_allow_html=True)
 
         ADP_ICONS = {
@@ -5656,20 +5660,20 @@ else:
 
 
     # -------------------------------------------------------
-    # ??? Stock หมึกพิมพ์
+    # 🖨️ Stock หมึกพิมพ์
     # -------------------------------------------------------
-    elif main_menu == "? Administration":
+    elif main_menu == "⚙ Administration":
         _admin_pages = {
-            "admin_users": ("??", "Users", "จัดการผู้ใช้และสิทธิ์การเข้าถึง"),
-            "admin_settings": ("?", "Settings", "การตั้งค่าระบบและการเชื่อมต่อ"),
-            "admin_logs": ("??", "Activity Logs", "บันทึกกิจกรรมและการตรวจสอบ"),
+            "admin_users": ("👥", "Users", "จัดการผู้ใช้และสิทธิ์การเข้าถึง"),
+            "admin_settings": ("⚙", "Settings", "การตั้งค่าระบบและการเชื่อมต่อ"),
+            "admin_logs": ("📜", "Activity Logs", "บันทึกกิจกรรมและการตรวจสอบ"),
         }
-        _ap = _admin_pages.get(_nav, ("?", "Administration", ""))
+        _ap = _admin_pages.get(_nav, ("⚙", "Administration", ""))
         page_header(_ap[0], _ap[1], _ap[2])
         st.markdown("""
         <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-radius:16px;
             padding:2rem 2.2rem;border:1px solid #e2e8f0;box-shadow:0 8px 32px rgba(99,102,241,.08);">
-            <div style="font-size:2.5rem;margin-bottom:12px;">??</div>
+            <div style="font-size:2.5rem;margin-bottom:12px;">🚧</div>
             <h3 style="color:#201f1e;margin:0 0 8px;font-size:1.1rem;">Coming soon</h3>
             <p style="color:#605e5c;margin:0;font-size:0.9rem;">
                 ส่วนนี้อยู่ระหว่างพัฒนา — ฟีเจอร์จะเปิดใช้งานในรุ่นถัดไป
@@ -5677,11 +5681,11 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    elif main_menu == "??? Stock หมึกพิมพ์":
+    elif main_menu == "🖨️ Stock หมึกพิมพ์":
         if _nav == "consumables":
-            page_header("??", "Consumables", "วัสดุสิ้นเปลืองและประวัติการเบิกจ่าย")
+            page_header("📁", "Consumables", "วัสดุสิ้นเปลืองและประวัติการเบิกจ่าย")
         else:
-            page_header("???", "Stock หมึกพิมพ์", "ระบบติดตามและเบิกจ่ายหมึกพิมพ์")
+            page_header("🖨️", "Stock หมึกพิมพ์", "ระบบติดตามและเบิกจ่ายหมึกพิมพ์")
 
         df_ink = load_sp_data(INK_STOCK_LIST)
 
@@ -5699,20 +5703,20 @@ else:
                     f"{r.get('Title','?')} ({r.get('Color','-')})"
                     for _, r in low_items.iterrows()
                 )
-                st.warning(f"?? **สต็อกต่ำ / หมด:** {low_names}")
+                st.warning(f"⚠️ **สต็อกต่ำ / หมด:** {low_names}")
 
         st.markdown("---")
 
         # ---- Sidebar filters ----
-        comp_filter  = st.sidebar.selectbox("?? บริษัท:", ["ALL"] + COMPANY_OPTIONS, key="ink_company_filter")
-        color_filter = st.sidebar.selectbox("?? สี:", ["ALL"] + INK_COLOR_OPTIONS, key="ink_color_filter")
-        show_history = st.sidebar.checkbox("?? แสดงประวัติการเบิก", value=show_ink_history_only, key="ink_show_history")
+        comp_filter  = st.sidebar.selectbox("🏢 บริษัท:", ["ALL"] + COMPANY_OPTIONS, key="ink_company_filter")
+        color_filter = st.sidebar.selectbox("🎨 สี:", ["ALL"] + INK_COLOR_OPTIONS, key="ink_color_filter")
+        show_history = st.sidebar.checkbox("📜 แสดงประวัติการเบิก", value=show_ink_history_only, key="ink_show_history")
 
         # ---- Admin: add button ----
         if admin_mode:
             col_title2, col_add2 = st.columns([0.8, 0.2])
             with col_add2:
-                if st.button("? เพิ่มหมึกใหม่", use_container_width=True, type="primary"):
+                if st.button("➕ เพิ่มหมึกใหม่", use_container_width=True, type="primary"):
                     add_ink_dialog()
 
         # ---- Summary Metrics ----
@@ -5725,10 +5729,10 @@ else:
             low_count   = int(low_mask.sum()) if not df_ink.empty and "Quantity" in df_ink.columns else 0
             out_count   = int((df_ink["Quantity"].apply(_toi) == 0).sum()) if "Quantity" in df_ink.columns else 0
             m1, m2, m3, m4 = st.columns(4)
-            m1.metric("?? รายการทั้งหมด", total_items)
-            m2.metric("?? จำนวนรวม", total_qty, help="รวมทุกสี/รุ่น")
-            m3.metric("?? ใกล้หมด", low_count)
-            m4.metric("? หมดสต็อก", out_count)
+            m1.metric("📦 รายการทั้งหมด", total_items)
+            m2.metric("🔢 จำนวนรวม", total_qty, help="รวมทุกสี/รุ่น")
+            m3.metric("⚠️ ใกล้หมด", low_count)
+            m4.metric("❌ หมดสต็อก", out_count)
             st.markdown("---")
 
         # ---- Filter + Search ----
@@ -5738,7 +5742,7 @@ else:
                 df_show = df_show[(df_show["Company"] == comp_filter) | (df_show["Company"] == "ALL")]
             if color_filter != "ALL" and "Color" in df_show.columns:
                 df_show = df_show[df_show["Color"] == color_filter]
-            search_ink = st.text_input("?? ค้นหารุ่นหมึก หรือ รุ่นเครื่องพิมพ์...")
+            search_ink = st.text_input("🔍 ค้นหารุ่นหมึก หรือ รุ่นเครื่องพิมพ์...")
             if search_ink:
                 df_show = df_show[df_show.astype(str).apply(
                     lambda x: x.str.contains(search_ink, case=False)
@@ -5753,14 +5757,14 @@ else:
                     with ink_cols[i % 2]:
                         render_ink_card(row, idx, admin_mode, requester)
         else:
-            st.info("ยังไม่มีข้อมูลสต็อกหมึก — กด ? เพิ่มหมึกใหม่ เพื่อเริ่มต้น")
+            st.info("ยังไม่มีข้อมูลสต็อกหมึก — กด ➕ เพิ่มหมึกใหม่ เพื่อเริ่มต้น")
             if not admin_mode:
                 st.caption("(ต้องใช้สิทธิ์ Admin ในการเพิ่มข้อมูล)")
 
         # ---- History Section ----
         if show_history:
             st.markdown("---")
-            st.subheader("?? ประวัติการเบิก/เพิ่มสต็อก")
+            st.subheader("📜 ประวัติการเบิก/เพิ่มสต็อก")
             df_hist = load_sp_data(INK_HISTORY_LIST)
             if not df_hist.empty:
                 display_cols = [c for c in ["Timestamp", "Ink_Title", "Color", "Action", "Qty_Change", "Requester", "Note"] if c in df_hist.columns]
@@ -5775,7 +5779,7 @@ else:
                     buf_hist = io.StringIO()
                     df_hist_show.to_csv(buf_hist, index=False, encoding="utf-8-sig")
                     st.download_button(
-                        "?? Export CSV", buf_hist.getvalue(),
+                        "📥 Export CSV", buf_hist.getvalue(),
                         "ink_history.csv", "text/csv", use_container_width=True
                     )
                 st.dataframe(df_hist_show, use_container_width=True, hide_index=True)
@@ -5783,11 +5787,11 @@ else:
                 st.info("ยังไม่มีประวัติการเบิก/เพิ่มสต็อก")
 
     # -------------------------------------------------------
-    # ?? NAS Drive Check
+    # 📂 NAS Drive Check
     # -------------------------------------------------------
-    elif main_menu == "?? NAS Drive Check":
-        page_header("??", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึง Share บน Synology NAS")
-        st.info("?? ข้อมูลสิทธิ์ NAS เป็น Read-only — กรุณาแก้ไขผ่าน Synology DSM โดยตรง")
+    elif main_menu == "📂 NAS Drive Check":
+        page_header("📂", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึง Share บน Synology NAS")
+        st.info("🔒 ข้อมูลสิทธิ์ NAS เป็น Read-only — กรุณาแก้ไขผ่าน Synology DSM โดยตรง")
         st.markdown("---")
 
         if 'nas_df' not in st.session_state or st.session_state.nas_df is None:
@@ -5903,11 +5907,11 @@ else:
 
             s1, s2, s3 = st.columns(3)
             with s1:
-                st.metric("?? Shares", total_shares)
+                st.metric("📁 Shares", total_shares)
             with s2:
-                st.metric("?? Read / Write", total_rw)
+                st.metric("🔐 Read / Write", total_rw)
             with s3:
-                st.metric("?? Read Only", total_ro)
+                st.metric("👁 Read Only", total_ro)
 
             
 
@@ -5915,7 +5919,7 @@ else:
 
             with col_s:
                 search_term = st.text_input(
-                    "?? Search User / Share Drive",
+                    "🔎 Search User / Share Drive",
                     "",
                     placeholder="ค้นหา Share Drive หรือ Username..."
                 )
@@ -5923,7 +5927,7 @@ else:
             with col_r:
 
 
-                if st.button("?? Refresh", use_container_width=True):
+                if st.button("🔄 Refresh", use_container_width=True):
                     load_nas_data.clear()
                     st.session_state.nas_df = load_nas_data()
                     st.rerun()
@@ -5935,7 +5939,7 @@ else:
                 # ถ้าค้นหาเป็นชื่อ Share Drive อย่างเดียว อาจไม่พบ User ใน AD ซึ่งระบบจะแจ้งแบบไม่ทำให้หน้าล่ม
                 policy_summary = get_user_internet_policy_summary(search_term)
                 if policy_summary.get("ok") and policy_summary.get("policies"):
-                    st.markdown("### ?? Internet Policy จาก AD Group")
+                    st.markdown("### 🌐 Internet Policy จาก AD Group")
                     st.dataframe(
                         pd.DataFrame(policy_summary["policies"]),
                         use_container_width=True,
@@ -5944,9 +5948,9 @@ else:
                     with st.expander("ดู AD Groups ทั้งหมดของ User นี้"):
                         st.write(", ".join(policy_summary.get("groups", [])) or "-")
                 elif policy_summary.get("ok"):
-                    st.info("?? ไม่พบ AD Group ที่ตรงกับ Internet Policy เช่น FW_Officer_B / FW_IT สำหรับคำค้นหานี้")
+                    st.info("🌐 ไม่พบ AD Group ที่ตรงกับ Internet Policy เช่น FW_Officer_B / FW_IT สำหรับคำค้นหานี้")
                 else:
-                    st.warning(f"?? ยังดึง Internet Policy จาก AD ไม่ได้: {policy_summary.get('error', '')}")
+                    st.warning(f"🌐 ยังดึง Internet Policy จาก AD ไม่ได้: {policy_summary.get('error', '')}")
 
                 display_df = display_df[
                     display_df["Share"].str.contains(search_term, case=False, na=False) |
@@ -5984,21 +5988,21 @@ else:
 
                 with top1:
                     card_html = f"<div style='display:flex;align-items:center;gap:16px;'>" \
-                        f"<div style='width:74px;height:74px;border-radius:20px;background:linear-gradient(135deg,#ede9fe,#c4b5fd);display:flex;align-items:center;justify-content:center;font-size:2rem;border:1px solid #c4b5fd;'>??</div>" \
+                        f"<div style='width:74px;height:74px;border-radius:20px;background:linear-gradient(135deg,#ede9fe,#c4b5fd);display:flex;align-items:center;justify-content:center;font-size:2rem;border:1px solid #c4b5fd;'>📁</div>" \
                         f"<div>" \
                         f"<div class='nas-card-title'>{row['Share']}</div>" \
-                        f"<div class='nas-mini-stat'>?? {len(rw_users)+len(ro_users)} Users</div>" \
-                        f"<div class='nas-mini-stat'>?? {len(rw_users)} RW</div>" \
-                        f"<div class='nas-mini-stat'>?? {len(ro_users)} Read</div>" \
+                        f"<div class='nas-mini-stat'>👥 {len(rw_users)+len(ro_users)} Users</div>" \
+                        f"<div class='nas-mini-stat'>🔐 {len(rw_users)} RW</div>" \
+                        f"<div class='nas-mini-stat'>👁 {len(ro_users)} Read</div>" \
                         f"</div></div>"
 
                     st.markdown(card_html, unsafe_allow_html=True)
 
                 with top2:
 
-                    if st.button("?? รายละเอียด", key=f"acl_{idx}", use_container_width=True):
+                    if st.button("🔎 รายละเอียด", key=f"acl_{idx}", use_container_width=True):
 
-                        @st.dialog("?? Authorized Users/Groups")
+                        @st.dialog("📜 Authorized Users/Groups")
                         def show_acl_pop(raw):
                             if raw:
                                 parsed = []
@@ -6068,7 +6072,7 @@ else:
                         color:#475569;
                         font-size:0.92rem;
                         font-weight:600;'>
-                        ?? พบผู้ใช้งานที่มีสิทธิ์ทั้งหมด <b>{len(rw_users)+len(ro_users)}</b> รายการ
+                        🔐 พบผู้ใช้งานที่มีสิทธิ์ทั้งหมด <b>{len(rw_users)+len(ro_users)}</b> รายการ
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -6168,7 +6172,7 @@ else:
 
                 with ex1:
                     st.download_button(
-                        "?? Export CSV",
+                        "📥 Export CSV",
                         csv_buf.getvalue(),
                         "nas_acl_report.csv",
                         "text/csv",
@@ -6177,21 +6181,21 @@ else:
 
                 with ex2:
                     st.download_button(
-                        "?? Export Excel",
+                        "📊 Export Excel",
                         data=excel_buf.getvalue(),
                         file_name="nas_acl_report.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True
                     )
             else:
-                st.info("?? Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
+                st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
 
 
     # -------------------------------------------------------
-    # ?? Password Information
+    # 🔑 Password Information
     # -------------------------------------------------------
-    elif main_menu == "?? Password Information":
-        page_header("??", "Password Manager", "ข้อมูล Credentials และรหัสผ่านระบบ")
+    elif main_menu == "🔑 Password Information":
+        page_header("🔑", "Password Manager", "ข้อมูล Credentials และรหัสผ่านระบบ")
 
         with st.spinner("กำลังโหลด..."):
             pw_result = load_password_excel()
@@ -6199,12 +6203,12 @@ else:
 
         if not pw_sheets or "_error" in pw_sheets:
             err = pw_sheets.get("_error", "ไม่ทราบสาเหตุ") if pw_sheets else "ไม่ได้รับข้อมูลจาก SharePoint"
-            st.error(f"? ไม่สามารถโหลดไฟล์ได้")
+            st.error(f"❌ ไม่สามารถโหลดไฟล์ได้")
             st.code(err, language="text")
-            st.info(f"?? ตรวจสอบ: ชื่อโฟลเดอร์ = '{SHAREPOINT_FOLDER}' / ชื่อไฟล์ = '{PASSWORD_FILE_NAME}'")
+            st.info(f"💡 ตรวจสอบ: ชื่อโฟลเดอร์ = '{SHAREPOINT_FOLDER}' / ชื่อไฟล์ = '{PASSWORD_FILE_NAME}'")
         else:
             sheet_names = list(pw_sheets.keys())
-            selected_sheet = st.sidebar.selectbox("?? หมวดหมู่:", sheet_names, key="pw_sheet_select")
+            selected_sheet = st.sidebar.selectbox("📋 หมวดหมู่:", sheet_names, key="pw_sheet_select")
             df_pw = pw_sheets[selected_sheet].copy()
             sheet_icon = get_sheet_icon(selected_sheet)
 
@@ -6215,7 +6219,7 @@ else:
             with col_add:
                 if admin_mode:
                     st.write("##")
-                    if st.button("? เพิ่มรายการ", use_container_width=True, type="primary"):
+                    if st.button("➕ เพิ่มรายการ", use_container_width=True, type="primary"):
                         add_password_dialog(selected_sheet, df_pw, drive_id, pw_sheets)
 
             st.markdown("---")
