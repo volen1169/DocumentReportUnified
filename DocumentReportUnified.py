@@ -2287,6 +2287,26 @@ def edit_computer_dialog(row, list_name):
             else:
                 st.error("❌ ลบไม่สำเร็จ")
 
+@st.dialog("🗑️ ยืนยันการลบ Computer Asset")
+def delete_computer_dialog(row, list_name):
+    """UI confirmation only; deletion still uses the existing SharePoint CRUD helper."""
+    item_id = row.get('_item_id')
+    computer_name = row.get('field_6') or row.get('field_3') or '-'
+    st.warning(f"ต้องการลบ **{computer_name}** ออกจาก Computer Asset ใช่หรือไม่?")
+    st.caption("การลบไม่สามารถย้อนกลับได้")
+    cancel_col, delete_col = st.columns(2)
+    with cancel_col:
+        if st.button("ยกเลิก", use_container_width=True):
+            st.rerun()
+    with delete_col:
+        if st.button("🗑️ ยืนยันลบ", type="primary", use_container_width=True):
+            if sp_delete_item(list_name, item_id):
+                clear_sp_cache()
+                st.success("ลบรายการสำเร็จ")
+                st.rerun()
+            else:
+                st.error("ลบรายการไม่สำเร็จ")
+
 @st.dialog("✏️ แก้ไข Monitor")
 def edit_monitor_dialog(row, list_name):
     st.markdown(f"### ✏️ แก้ไข: {row.get('field_2', '')}")
@@ -5272,17 +5292,28 @@ else:
             with a1:
                 if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
             with a2: st.download_button("⇩ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
-            _ca_column_defs={"computer":"Computer Name","user":"User","department":"Department","ip":"IP Address","os":"OS","model":"Model","location":"Location","status":"Status","seen":"Last Seen"}
+            _ca_column_defs={"computer":"Computer Name","user":"User","department":"Department","ip":"IP Address","os":"OS","model":"Model","location":"Location","status":"Status"}
             _ca_visible_columns=list(_ca_column_defs)
-            with a3: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A","Last Seen ล่าสุด"],label_visibility="collapsed",key="ca_sort")
+            with a3: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A"],label_visibility="collapsed",key="ca_sort")
 
             _ca_records=[]
             for idx,row in _ca_filtered.iterrows():
                 status,status_class=_ca_status(row)
                 _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6","Hostname","ComputerName"),"user":_ca_value(row,"field_3","User","Employee"),"department":_ca_value(row,"Department","field_2"),"ip":_ca_value(row,"IPAddress","IP Address","IP","field_12"),"os":_ca_value(row,"OS","OperatingSystem","field_11"),"model":_ca_value(row,"field_7","Model"),"location":_ca_value(row,"Location","field_4"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
             _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Z–A")
-            if _ca_sort=="Last Seen ล่าสุด": _ca_records.sort(key=lambda x:x[2]["seen"],reverse=True)
             _ca_page_size=10; _ca_page_count=max(1,(len(_ca_records)+9)//10); _ca_page=max(1,min(st.session_state.get("ca_page",1),_ca_page_count)); st.session_state["ca_page"]=_ca_page; _ca_slice=_ca_records[(_ca_page-1)*10:_ca_page*10]
+            if admin_mode and _ca_records:
+                _ca_action_map={f'{item[2]["computer"]} · {item[2]["user"]}':item for item in _ca_records}
+                _ca_action_cols=st.columns([4.9,.72,.82,.72])
+                with _ca_action_cols[0]:
+                    _ca_selected=st.selectbox("เลือกรายการเพื่อดำเนินการ",list(_ca_action_map),label_visibility="collapsed",key="ca_selected_asset")
+                _ca_selected_row=_ca_action_map[_ca_selected][1]
+                with _ca_action_cols[1]:
+                    if st.button("👁 ดู",use_container_width=True,key="ca_view_selected",help="ดูรายละเอียด"): show_pop_computer(_ca_selected_row.to_dict())
+                with _ca_action_cols[2]:
+                    if st.button("✏️ แก้ไข",use_container_width=True,key="ca_edit_selected",help="แก้ไขข้อมูล"): edit_computer_dialog(_ca_selected_row.to_dict(),sub)
+                with _ca_action_cols[3]:
+                    if st.button("🗑️ ลบ",use_container_width=True,key="ca_delete_selected",help="ลบรายการ"): delete_computer_dialog(_ca_selected_row.to_dict(),sub)
             st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>▦</span>รายการคอมพิวเตอร์</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
             _ca_body=[]
             for _,_,d in _ca_slice:
@@ -5306,18 +5337,6 @@ else:
                 if st.button("›",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
             with _ca_nav[5]:
                 if st.button("»",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
-
-            # Keep the existing View/Edit/Delete CRUD flow reachable without
-            # duplicating or changing its SharePoint implementation.
-            if admin_mode and _ca_records:
-                _ca_action_map={f'{item[2]["computer"]} · {item[2]["user"]}':item for item in _ca_records}
-                _ca_action_cols=st.columns([5.4,.8,1.05])
-                with _ca_action_cols[0]: _ca_selected=st.selectbox("เลือกรายการเพื่อดำเนินการ",list(_ca_action_map),label_visibility="collapsed",key="ca_selected_asset")
-                _ca_selected_row=_ca_action_map[_ca_selected][1]
-                with _ca_action_cols[1]:
-                    if st.button("◉ View",use_container_width=True,key="ca_view_selected"): show_pop_computer(_ca_selected_row.to_dict())
-                with _ca_action_cols[2]:
-                    if st.button("✎ Edit / Delete",use_container_width=True,key="ca_edit_selected"): edit_computer_dialog(_ca_selected_row.to_dict(),sub)
 
             _ca_types={"Desktop":0,"All-in-One":0,"Notebook":0}; _ca_windows={"Windows 11":0,"Windows 10":0,"Windows 7":0}; _ca_depts={}
             for _,r in df_hw.iterrows():
