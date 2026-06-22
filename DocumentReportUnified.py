@@ -279,6 +279,7 @@ import re
 import textwrap
 import datetime
 import inspect
+import html
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -5268,26 +5269,123 @@ else:
     # 🌐 AD / Firewall Policy
     # -------------------------------------------------------
     elif main_menu == "🌐 AD / Firewall Policy":
-        page_header("🌐", "AD / Firewall Policy", "ตรวจสอบ Internet Policy ที่ผู้ใช้หรือ Policy Group ได้รับจาก AD / Entra ID Group")
+        # UI OWNER: AD / Firewall Policy only.  All selectors are scoped by
+        # .adp-page-marker so this theme cannot leak into other Streamlit pages.
+        st.markdown("""
+        <div class="adp-page-marker"></div>
+        <style>
+        .stApp:has(.adp-page-marker) [data-testid="stMainBlockContainer"] {
+            background:#F8FAFC;
+        }
+        .adp-hero {
+            min-height:158px; box-sizing:border-box; padding:27px 30px;
+            margin:0 0 18px; border-radius:20px; color:#fff;
+            display:flex; align-items:center; gap:20px; overflow:hidden; position:relative;
+            background:
+              radial-gradient(circle at 88% 18%,rgba(56,189,248,.38),transparent 21%),
+              radial-gradient(circle at 78% 120%,rgba(139,92,246,.72),transparent 36%),
+              linear-gradient(128deg,#1E40AF 0%,#3949C6 50%,#6D3DEB 100%);
+            box-shadow:0 14px 34px rgba(79,70,229,.16);
+        }
+        .adp-hero:after {
+            content:""; position:absolute; width:210px; height:210px; right:35px; top:-84px;
+            border:1px solid rgba(255,255,255,.14); border-radius:50%;
+            box-shadow:0 0 0 26px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025);
+        }
+        .adp-hero-icon {
+            width:72px; height:72px; flex:0 0 72px; border-radius:18px;
+            display:grid; place-items:center; font-size:34px;
+            background:linear-gradient(145deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
+            border:1px solid rgba(255,255,255,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+        }
+        .adp-hero-copy {position:relative; z-index:1; min-width:0}
+        .adp-hero h1 {font-size:32px!important; line-height:1.15; margin:0 0 10px!important; color:#fff!important; letter-spacing:-.025em}
+        .adp-hero p {font-size:15px; line-height:1.5; margin:0; color:rgba(255,255,255,.88)}
+        .adp-info-banner {
+            min-height:54px; box-sizing:border-box; display:flex; align-items:center; gap:12px;
+            margin:0 0 14px; padding:10px 16px; border-radius:14px;
+            color:#405174; font-size:14px; line-height:1.5;
+            background:linear-gradient(90deg,#EEF2FF,#F5F7FF); border:1px solid #DCE4FA;
+        }
+        .adp-info-icon {color:#4F46E5; font-size:18px; flex:0 0 auto}
+        .adp-info-banner code {font-size:12px; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:6px}
+        .adp-stat-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:14px 0}
+        .adp-stat-card {
+            height:116px; box-sizing:border-box; display:flex; align-items:center; gap:14px;
+            padding:18px 20px; min-width:0; background:#FFFFFF; border:1px solid #E2E8F0;
+            border-radius:16px; box-shadow:0 5px 18px rgba(15,23,42,.045);
+        }
+        .adp-stat-icon {width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:grid;place-items:center;font-size:21px;background:#EEF2FF;color:#6366F1}
+        .adp-stat-copy {min-width:0;overflow:hidden}
+        .adp-stat-label {font-size:12px;line-height:1.2;font-weight:700;letter-spacing:.055em;text-transform:uppercase;color:#64748B;margin-bottom:8px}
+        .adp-stat-value {font-size:21px;line-height:1.25;font-weight:750;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .adp-summary-grid {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 14px}
+        .adp-summary-card {height:112px;box-sizing:border-box;padding:17px 20px;background:#fff;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 5px 18px rgba(15,23,42,.035)}
+        .adp-summary-card:first-child {background:linear-gradient(135deg,#fff,#F7F5FF);border-color:#DDD6FE}
+        .adp-summary-card:last-child {background:linear-gradient(135deg,#fff,#F0F9FF);border-color:#D7ECF8}
+        .adp-summary-label {font-size:12px;font-weight:750;letter-spacing:.055em;color:#4F46E5;text-transform:uppercase}
+        .adp-summary-value {font-size:25px;line-height:1.2;font-weight:800;color:#1E3A8A;margin-top:8px}
+        .adp-summary-note {font-size:12px;color:#64748B;margin-top:2px}
+        .adp-table-title {display:flex;align-items:center;gap:9px;font-size:15px;font-weight:750;color:#1E293B;margin:4px 0 10px}
+        .adp-field-label {font-size:13px;font-weight:700;color:#334155;margin:2px 0 6px}
+        .adp-table-wrap {background:#fff;border:1px solid #E2E8F0;border-radius:17px;padding:16px 16px 12px;box-shadow:0 6px 20px rgba(15,23,42,.04);margin-top:2px}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:6px;padding:5px;background:#EEF2FF;border-radius:14px;width:max-content;max-width:100%;margin-bottom:8px}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:42px;padding:0 17px;border-radius:10px;color:#64748B;font-size:14px;font-weight:700}
+        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:#fff!important;color:#4F46E5!important;box-shadow:0 3px 10px rgba(15,23,42,.08)!important}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-highlight"],
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-border"] {display:none!important}
+        .stApp:has(.adp-page-marker) .stTextInput input,
+        .stApp:has(.adp-page-marker) .stSelectbox div[data-baseweb="select"]>div {min-height:48px!important;border-radius:12px!important;border-color:#DCE3ED!important}
+        .stApp:has(.adp-page-marker) .stButton>button {height:48px!important;min-height:48px!important;border-radius:12px!important}
+        .stApp:has(.adp-page-marker) [data-testid="stDataFrame"] {border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:none!important}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#fff;border:1px solid #E2E8F0!important;border-radius:14px!important;box-shadow:0 4px 14px rgba(15,23,42,.035);overflow:hidden;margin-top:8px}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary {min-height:48px;padding-top:4px;padding-bottom:4px;font-size:14px;font-weight:700;color:#334155}
+        .stApp:has(.adp-page-marker) [data-testid="stVerticalBlock"] {gap:.7rem}
+        @media(max-width:900px){.adp-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adp-hero{min-height:150px}.adp-hero:after{display:none}}
+        @media(max-width:640px){.adp-hero{padding:22px 18px;gap:14px}.adp-hero-icon{width:54px;height:54px;flex-basis:54px;font-size:27px}.adp-hero h1{font-size:28px!important}.adp-hero p{font-size:14px}.adp-stat-grid,.adp-summary-grid{grid-template-columns:1fr}.adp-stat-card{height:108px}}
+        </style>
+        <section class="adp-hero">
+          <div class="adp-hero-icon">🛡️</div>
+          <div class="adp-hero-copy">
+            <h1>AD / Firewall Policy</h1>
+            <p>ตรวจสอบ Internet Policy ที่ผู้ใช้หรือ Policy Group ได้รับจาก AD / Entra ID Group</p>
+          </div>
+        </section>
+        <div class="adp-info-banner"><span class="adp-info-icon">ⓘ</span><span>ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย <code>FW_</code>, <code>Firewall_</code> หรือ <code>Internet_</code> เป็น Internet Policy</span></div>
+        """, unsafe_allow_html=True)
 
-        st.info("ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย FW_, Firewall_ หรือ Internet_ เป็น Internet Policy")
+        def adp_stat_card(label, value, icon="◈"):
+            safe_label = html.escape(str(label))
+            safe_value = html.escape(str(value if value not in (None, "") else "-"))
+            return f'''<div class="adp-stat-card"><div class="adp-stat-icon">{icon}</div><div class="adp-stat-copy"><div class="adp-stat-label">{safe_label}</div><div class="adp-stat-value" title="{safe_value}">{safe_value}</div></div></div>'''
+
+        def adp_stat_grid(items):
+            st.markdown('<div class="adp-stat-grid">' + ''.join(adp_stat_card(*item) for item in items) + '</div>', unsafe_allow_html=True)
+
+        def adp_summary_grid(policy_count, group_count):
+            st.markdown(f'''<div class="adp-summary-grid">
+              <div class="adp-summary-card"><div class="adp-summary-label">Internet Policies</div><div class="adp-summary-value">{int(policy_count)}</div><div class="adp-summary-note">นโยบายที่ได้รับ</div></div>
+              <div class="adp-summary-card"><div class="adp-summary-label">AD Groups</div><div class="adp-summary-value">{int(group_count)}</div><div class="adp-summary-note">กลุ่มที่เป็นสมาชิก</div></div>
+            </div>''', unsafe_allow_html=True)
 
         tab_user, tab_policy, tab_map = st.tabs([
-            "ค้นหา User",
-            "ค้นหา Policy",
-            "Policy Mapping",
+            "♙  ค้นหา User",
+            "⌕  ค้นหา Policy",
+            "▱  Policy Mapping",
         ])
 
         with tab_user:
             default_identity = st.session_state.get("user_email", "")
-            user_identity = st.text_input(
-                "User / Email / UPN",
-                value=default_identity,
-                placeholder="เช่น supranee.ch หรือ user@company.com",
-                key="ad_policy_user_identity",
-            )
-
-            col_lookup, col_clear = st.columns([0.22, 0.78])
+            st.markdown('<div class="adp-field-label">User / Email / UPN</div>', unsafe_allow_html=True)
+            col_identity, col_lookup, col_clear = st.columns([0.64, 0.18, 0.18])
+            with col_identity:
+                user_identity = st.text_input(
+                    "User / Email / UPN",
+                    value=default_identity,
+                    placeholder="เช่น supranee.ch หรือ user@company.com",
+                    key="ad_policy_user_identity",
+                    label_visibility="collapsed",
+                )
             with col_lookup:
                 lookup_clicked = st.button("ตรวจสอบ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
             with col_clear:
@@ -5310,11 +5408,12 @@ else:
                         user_obj = policy_summary.get("user", {}) if policy_summary.get("ok") else {}
 
                     if user_obj:
-                        u1, u2, u3, u4 = st.columns(4)
-                        u1.metric("Display Name", user_obj.get("displayName", "-") or "-")
-                        u2.metric("Account", user_obj.get("sAMAccountName") or user_obj.get("userPrincipalName") or "-")
-                        u3.metric("Mail", user_obj.get("mail") or "-")
-                        u4.metric("Source", policy_summary.get("source", "-"))
+                        adp_stat_grid([
+                            ("Display Name", user_obj.get("displayName", "-") or "-", "♙"),
+                            ("Account", user_obj.get("sAMAccountName") or user_obj.get("userPrincipalName") or "-", "◎"),
+                            ("Mail", user_obj.get("mail") or "-", "✉"),
+                            ("Source", policy_summary.get("source", "-"), "▤"),
+                        ])
                     else:
                         st.warning("ไม่พบ User นี้จาก AD LDAP / AD Agent / Microsoft Graph หรือตั้งค่า source ยังไม่ครบ")
 
@@ -5322,13 +5421,17 @@ else:
                         policies = policy_summary.get("policies", [])
                         groups = policy_summary.get("groups", [])
 
-                        p1, p2 = st.columns(2)
-                        p1.metric("Internet Policies", len(policies))
-                        p2.metric("AD Groups", len(groups))
+                        adp_summary_grid(len(policies), len(groups))
 
                         if policies:
-                            st.subheader("Internet Policy")
-                            st.dataframe(pd.DataFrame(policies), use_container_width=True, hide_index=True)
+                            st.markdown('<div class="adp-table-title"><span>◉</span><span>Internet Policy ที่ได้รับ</span></div>', unsafe_allow_html=True)
+                            policies_df = pd.DataFrame(policies)
+                            st.dataframe(
+                                policies_df,
+                                use_container_width=True,
+                                hide_index=True,
+                                height=min(50 + (len(policies_df) * 46), 326),
+                            )
                             for policy in policies:
                                 with st.expander(f"{policy.get('Policy Internet', '-')} - {policy.get('Policy Name', '-')}"):
                                     c_allowed, c_blocked = st.columns(2)
@@ -5376,7 +5479,7 @@ else:
 
             policy_query = manual_policy.strip() or selected_policy
 
-            col_search, col_cache = st.columns([0.22, 0.78])
+            col_search, col_cache = st.columns([0.52, 0.48])
             with col_search:
                 policy_lookup_clicked = st.button("ค้นหา User", type="primary", use_container_width=True, key="ad_policy_policy_lookup")
             with col_cache:
@@ -5391,10 +5494,11 @@ else:
 
                 if policy_users.get("ok"):
                     users = policy_users.get("users", []) or []
-                    m1, m2, m3 = st.columns(3)
-                    m1.metric("Policy", policy_users.get("policy", policy_query))
-                    m2.metric("Users", len(users))
-                    m3.metric("Source", policy_users.get("source", "-"))
+                    adp_stat_grid([
+                        ("Policy", policy_users.get("policy", policy_query), "◈"),
+                        ("Users", len(users), "♙"),
+                        ("Source", policy_users.get("source", "-"), "▤"),
+                    ])
 
                     desc = policy_users.get("description") or FW_POLICY_MAP.get(policy_query, "")
                     if desc:
