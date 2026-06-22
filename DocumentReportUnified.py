@@ -4745,7 +4745,11 @@ else:
         .db-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.db-action-card{position:relative;min-height:108px;padding:13px;border:1px solid #E2E8F0;border-radius:16px;background:#FFF;transition:.18s ease}.db-action-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 10px 22px rgba(79,70,229,.09)}.db-action-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#8B5CF6);color:#FFF;font-size:20px}.db-action-title{margin-top:8px;padding-right:24px;font-size:14px;font-weight:800;color:#172554}.db-action-desc{margin-top:3px;padding-right:18px;font-size:11px;line-height:1.4;color:#64748B}.db-action-arrow{position:absolute;right:11px;bottom:11px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:12px;font-weight:800}
         .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:16px}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
-        [class*="st-key-db_action_"]{position:relative;height:0;min-height:0;margin:0;overflow:visible;z-index:4}[class*="st-key-db_action_"] .stButton{height:0;margin:0}[class*="st-key-db_action_"] .stButton>button{position:absolute;left:0;right:0;bottom:0;width:100%;height:108px;min-height:108px;border:0;border-radius:16px;background:transparent;color:transparent;box-shadow:none;opacity:.01;cursor:pointer}
+        [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
+        [class*="st-key-db_action_"]{position:relative;height:0;min-height:0;margin:0;overflow:visible;z-index:10}
+        [class*="st-key-db_action_"] .stButton{height:0;margin:0}
+        [class*="st-key-db_action_"] .stButton>button{position:absolute;right:10px;top:-38px;width:28px!important;height:28px!important;min-height:28px!important;padding:0!important;border:1px solid #C7D2FE!important;border-radius:50%!important;background:#FFF!important;color:#4F46E5!important;box-shadow:0 4px 10px rgba(79,70,229,.10)!important;opacity:1!important;font-size:16px!important;line-height:1!important;cursor:pointer!important}
+        [class*="st-key-db_action_"] .stButton>button:hover{transform:translateY(-1px)!important;background:#EEF2FF!important;border-color:#818CF8!important}
         [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:linear-gradient(135deg,#F8FBFF 0%,#F6F8FF 55%,#FBF9FF 100%)!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:8px!important}
         @media(max-width:1100px){.db-overview-grid{grid-template-columns:repeat(3,1fr)}.db-main-grid,.db-bottom-grid{grid-template-columns:1fr}.db-hero-visual{opacity:.75}.db-action-grid{grid-template-columns:repeat(3,1fr)}}
         @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}}
@@ -4822,7 +4826,7 @@ else:
         _main_cols = st.columns([3, 2], gap="medium")
         with _main_cols[0]:
             with st.container(key="db_quick_panel"):
-                st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
                 _quick_actions = [
                     ("computers", "▣", "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
                     ("user_perm", "▱", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
@@ -4834,11 +4838,13 @@ else:
                 _action_cols = st.columns(3, gap="small")
                 for _idx, (_target, _icon, _title, _description) in enumerate(_quick_actions):
                     with _action_cols[_idx % 3]:
-                        st.markdown(f'<div class="db-action-card"><div class="db-action-icon">{_icon}</div><div class="db-action-title">{_title}</div><div class="db-action-desc">{_description}</div><div class="db-action-arrow">›</div></div>', unsafe_allow_html=True)
-                        if st.button("เปิด", key=f"db_action_{_idx}_{_target}", use_container_width=True):
-                            st.session_state.active_nav = _target
-                            st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="db-action-card"><div class="db-action-icon">{_icon}</div><div class="db-action-title">{_title}</div><div class="db-action-desc">{_description}</div></div>', unsafe_allow_html=True)
+                        if st.button("›", key=f"db_action_{_idx}_{_target}", help=f"เปิด {_title}"):
+                            if _target == "overview":
+                                st.toast("Reports & Analytics แสดงอยู่ใน Dashboard นี้", icon="📊")
+                            else:
+                                st.session_state.active_nav = _target
+                                st.rerun()
         with _main_cols[1]:
             _health_items = [
                 ("S", "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "#E7F8EE", "#16A34A"),
@@ -4846,7 +4852,7 @@ else:
                 ("▤", "NAS Agent", f"เชื่อมต่อ NAS Agent · {_nas_count} shares", _nas_ok, "#E7F8EE", "#16A34A"),
                 ("♙", "AD Agent", "ตรวจพบการตั้งค่า AD Agent / LDAP" if _ad_ok else "ยังไม่พบการตั้งค่า Agent", _ad_ok, "#EAF3FF", "#2563EB"),
             ]
-            _health_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">System Health</div><div class="db-panel-link">ดูรายละเอียดทั้งหมด ›</div></div><div class="db-health-list">']
+            _health_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">System Health</div><div class="db-panel-link">สถานะปัจจุบัน</div></div><div class="db-health-list">']
             for _icon, _title, _sub, _ok, _bg, _color in _health_items:
                 _status_class = "db-status-online" if _ok else "db-status-warning"
                 _status_text = "Online" if _ok else "Warning"
@@ -4866,7 +4872,7 @@ else:
 
         _bottom_cols = st.columns(2, gap="medium")
         with _bottom_cols[0]:
-            _attention_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Needs Attention</div><div class="db-panel-link">ดูทั้งหมด ›</div></div>']
+            _attention_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Needs Attention</div></div>']
             if _attention_items:
                 _attention_html.append('<div class="db-attention-list">')
                 for _icon, _title, _sub, _badge, _bg, _color in _attention_items:
@@ -4883,7 +4889,7 @@ else:
                 ("▱", "อัปเดตสิทธิ์บน NAS Share", "NAS Permission Analyzer", _dash_time, "#EAF3FF", "#2563EB"),
                 ("▤", "อัปเดตข้อมูล Printer", "Asset Printer", _dash_time, "#FFF4E5", "#F59E0B"),
             ]
-            _recent_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div><div class="db-panel-link">ดูทั้งหมด ›</div></div><div class="db-activity-list">']
+            _recent_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div><div class="db-panel-link">กิจกรรมตัวอย่าง</div></div><div class="db-activity-list">']
             for _icon, _title, _sub, _time, _bg, _color in _recent:
                 _recent_html.append(f'<div class="db-list-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="db-time">{_time}</div></div>')
             _recent_html.append('</div></div></div>')
