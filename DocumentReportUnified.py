@@ -5298,10 +5298,12 @@ else:
             background:linear-gradient(145deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
             border:1px solid rgba(255,255,255,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
         }
+        .adp-hero-icon svg{width:38px;height:38px;display:block;filter:drop-shadow(0 4px 8px rgba(15,23,42,.18))}
         .adp-hero-copy {position:relative; z-index:1; min-width:0}
         .adp-hero h1 {font-size:28px!important; line-height:1.15; margin:0 0 9px!important; color:#fff!important; letter-spacing:-.025em}
         .adp-hero p,.stMarkdown .adp-hero p {font-size:13px!important; line-height:1.5; margin:0!important; color:rgba(255,255,255,.88)!important}
-        .adp-hero-art {position:absolute;z-index:1;right:40px;top:14px;width:178px;height:104px;color:#BAE6FD;opacity:.92}
+        .adp-hero-art {position:absolute;z-index:1;right:34px;top:7px;width:230px;height:118px;color:#BAE6FD;opacity:.94}
+        .adp-hero-art svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 10px 18px rgba(30,64,175,.20))}
         .adp-globe {position:absolute;right:76px;top:0;width:80px;height:80px;border:3px solid rgba(125,211,252,.58);border-radius:50%;background:linear-gradient(90deg,transparent 46%,rgba(125,211,252,.42) 47%,rgba(125,211,252,.42) 53%,transparent 54%)}
         .adp-globe:before,.adp-globe:after {content:"";position:absolute;left:8px;right:8px;border-top:3px solid rgba(125,211,252,.55)}
         .adp-globe:before{top:27px}.adp-globe:after{top:55px}
@@ -5323,6 +5325,7 @@ else:
             border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.04);
         }
         .adp-stat-icon {width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:#EEF2FF;color:#6366F1}
+        .adp-stat-icon svg{width:21px;height:21px;display:block;stroke:currentColor}
         .adp-stat-copy {min-width:0;overflow:hidden}
         .adp-stat-label {font-size:10.5px;line-height:1.2;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
         .adp-stat-value {font-size:18px;line-height:1.25;font-weight:750;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -5330,10 +5333,15 @@ else:
         .adp-summary-card {height:90px;box-sizing:border-box;padding:13px 17px;background:#fff;border:1px solid #E2E8F0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.03)}
         .adp-summary-card:first-child {background:linear-gradient(135deg,#fff,#F7F5FF);border-color:#DDD6FE}
         .adp-summary-card:last-child {background:linear-gradient(135deg,#fff,#F0F9FF);border-color:#D7ECF8}
+        .adp-summary-card{position:relative;overflow:hidden}
+        .adp-summary-icon{position:absolute;right:17px;top:17px;width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:#F0EDFF;color:#6366F1}
+        .adp-summary-card:last-child .adp-summary-icon{background:#EAF7FF;color:#0284C7}
+        .adp-summary-icon svg{width:23px;height:23px;stroke:currentColor}
         .adp-summary-label {font-size:10.5px;font-weight:750;letter-spacing:.06em;color:#4F46E5;text-transform:uppercase}
         .adp-summary-value {font-size:22px;line-height:1.15;font-weight:800;color:#1E3A8A;margin-top:6px}
         .adp-summary-note {font-size:10.5px;color:#64748B;margin-top:1px}
         .adp-table-title {display:flex;align-items:center;gap:8px;font-size:13px;font-weight:750;color:#1E293B;margin:0 0 9px}
+        .adp-table-title .adp-stat-icon svg{width:14px;height:14px}
         .adp-field-label {font-size:11px;font-weight:700;color:#334155;margin:0 0 5px}
         .adp-table-wrap {background:#fff;border:1px solid #E2E8F0;border-radius:15px;padding:12px;box-shadow:0 5px 16px rgba(15,23,42,.035);margin-top:0;overflow:hidden}
         .adp-policy-table {width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid #E2E8F0;border-radius:10px;overflow:hidden;font-size:10.5px;color:#334155}
@@ -5344,8 +5352,10 @@ else:
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:8px;padding:0;background:transparent;border-radius:13px;width:min(600px,100%);max-width:100%;margin-bottom:4px}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:58px;flex:1;position:relative;justify-content:flex-start;padding:0 12px 0 46px;border:1px solid #E2E8F0;border-radius:12px;background:#fff;color:#64748B;font-size:12px;font-weight:750;box-shadow:0 3px 10px rgba(15,23,42,.025)}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] p {font-size:12px!important;font-weight:750!important;color:inherit!important;margin:0 0 15px!important}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:before {position:absolute;left:14px;top:16px;width:24px;height:24px;display:grid;place-items:center;border-radius:8px;background:#F1F5F9;color:#64748B;font-size:14px}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):before{content:"♙"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):before{content:"⌕"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{content:"▱"}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:before {content:"";position:absolute;left:15px;top:18px;width:20px;height:20px;background:currentColor;opacity:.9;mask-repeat:no-repeat;mask-position:center;mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='8' r='3' fill='black'/%3E%3Cpath d='M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6v1H3zM16 8h5v2h-5zM17.5 5.5h2v7h-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='8' r='3' fill='black'/%3E%3Cpath d='M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6v1H3zM16 8h5v2h-5zM17.5 5.5h2v7h-2z' fill='black'/%3E%3C/svg%3E")}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10.5 3a7.5 7.5 0 1 0 4.7 13.3L20 21l1-1-4.7-4.8A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10.5 3a7.5 7.5 0 1 0 4.7 13.3L20 21l1-1-4.7-4.8A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z' fill='black'/%3E%3C/svg%3E")}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E")}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:after {position:absolute;left:46px;top:34px;color:#94A3B8;font-size:9.5px;font-weight:550;white-space:nowrap}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"ค้นหานโยบายของผู้ใช้"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"ค้นหาผู้ใช้ตาม Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"ตรวจสอบการแม็ป Policy"}
         .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF,#F7F5FF)!important;color:#4F46E5!important;border-color:#A5B4FC!important;box-shadow:inset 0 2px 0 #6366F1,0 5px 14px rgba(79,70,229,.08)!important}
@@ -5367,28 +5377,43 @@ else:
         @media(max-width:640px){.adp-hero{padding:22px 18px;gap:14px}.adp-hero-icon{width:54px;height:54px;flex-basis:54px;font-size:27px}.adp-hero h1{font-size:28px!important}.adp-hero p{font-size:14px}.adp-stat-grid,.adp-summary-grid{grid-template-columns:1fr}.adp-stat-card{height:108px}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]{height:50px;padding:0 9px;font-size:12px}}
         </style>
         <section class="adp-hero">
-          <div class="adp-hero-icon">🛡️</div>
+          <div class="adp-hero-icon">
+            <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="adpShield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E0F2FE"/><stop offset="1" stop-color="#93C5FD"/></linearGradient></defs><path d="M24 4 40 11v11c0 10.2-6.5 18.3-16 22C14.5 40.3 8 32.2 8 22V11L24 4Z" fill="url(#adpShield)" stroke="#BFDBFE" stroke-width="2"/><path d="m17.2 24.2 4.4 4.4 9.6-10" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
           <div class="adp-hero-copy">
             <h1>AD / Firewall Policy</h1>
             <p>ตรวจสอบ Internet Policy ที่ผู้ใช้หรือ Policy Group ได้รับจาก AD / Entra ID Group</p>
           </div>
-          <div class="adp-hero-art" aria-hidden="true"><div class="adp-globe"></div><div class="adp-wall"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="adp-lock">🔒</div></div>
+          <div class="adp-hero-art" aria-hidden="true">
+            <svg viewBox="0 0 260 130"><defs><linearGradient id="adpBrick" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7DD3FC"/><stop offset="1" stop-color="#60A5FA"/></linearGradient><linearGradient id="adpMiniShield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#BAE6FD"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><g fill="none" stroke="#7DD3FC" stroke-width="3" opacity=".62"><circle cx="69" cy="57" r="43"/><path d="M27 57h84M69 14c-14 13-20 27-20 43s6 30 20 43M69 14c14 13 20 27 20 43s-6 30-20 43M34 35h70M34 79h70"/></g><g fill="url(#adpBrick)" stroke="#93C5FD" stroke-width="1"><rect x="102" y="48" width="43" height="24" rx="5"/><rect x="149" y="48" width="43" height="24" rx="5"/><rect x="196" y="48" width="43" height="24" rx="5"/><rect x="114" y="76" width="43" height="24" rx="5"/><rect x="161" y="76" width="43" height="24" rx="5"/><rect x="208" y="76" width="31" height="24" rx="5"/></g><g transform="translate(174 16)"><path d="M24 1 45 10v14c0 13-8.5 23.5-21 28C11.5 47.5 3 37 3 24V10L24 1Z" fill="url(#adpMiniShield)" stroke="#BAE6FD" stroke-width="2"/><path d="m15 25 6 6 13-14" fill="none" stroke="#E0F2FE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(184 73)"><path d="M8 14V9a12 12 0 0 1 24 0v5" fill="none" stroke="#BFDBFE" stroke-width="4"/><rect x="3" y="13" width="34" height="29" rx="6" fill="#4F46E5" stroke="#93C5FD" stroke-width="2"/><circle cx="20" cy="25" r="4" fill="#BAE6FD"/><path d="M20 29v6" stroke="#BAE6FD" stroke-width="3" stroke-linecap="round"/></g></svg>
+          </div>
         </section>
         <div class="adp-info-banner"><span class="adp-info-icon">ⓘ</span><span>ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย <code>FW_</code>, <code>Firewall_</code> หรือ <code>Internet_</code> เป็น Internet Policy</span></div>
         """, unsafe_allow_html=True)
 
-        def adp_stat_card(label, value, icon="◈"):
+        ADP_ICONS = {
+            "user": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3.1-7 7-7s7 3 7 7"/></svg>',
+            "account": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.7-1.8 1.8-2.7 3.2-2.7s2.5.9 3.2 2.7M15 10h3M15 14h3"/></svg>',
+            "mail": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>',
+            "server": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M11 6.5h7M11 17.5h7"/></svg>',
+            "shield": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 5.5V11c0 5.1-3.2 9.1-8 11-4.8-1.9-8-5.9-8-11V5.5L12 2Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>',
+            "groups": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M3 20c0-4 2.7-7 6-7s6 3 6 7M15 14c3.2 0 5 2.2 5 5"/></svg>',
+            "link": '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 14.5 5-5M7.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0M16.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-4 4a3.5 3.5 0 0 1-5 0"/></svg>',
+        }
+
+        def adp_stat_card(label, value, icon="shield"):
             safe_label = html.escape(str(label))
             safe_value = html.escape(str(value if value not in (None, "") else "-"))
-            return f'''<div class="adp-stat-card"><div class="adp-stat-icon">{icon}</div><div class="adp-stat-copy"><div class="adp-stat-label">{safe_label}</div><div class="adp-stat-value" title="{safe_value}">{safe_value}</div></div></div>'''
+            icon_svg = ADP_ICONS.get(icon, ADP_ICONS["shield"])
+            return f'''<div class="adp-stat-card"><div class="adp-stat-icon">{icon_svg}</div><div class="adp-stat-copy"><div class="adp-stat-label">{safe_label}</div><div class="adp-stat-value" title="{safe_value}">{safe_value}</div></div></div>'''
 
         def adp_stat_grid(items):
             st.markdown('<div class="adp-stat-grid">' + ''.join(adp_stat_card(*item) for item in items) + '</div>', unsafe_allow_html=True)
 
         def adp_summary_grid(policy_count, group_count):
             st.markdown(f'''<div class="adp-summary-grid">
-              <div class="adp-summary-card"><div class="adp-summary-label">Internet Policies</div><div class="adp-summary-value">{int(policy_count)}</div><div class="adp-summary-note">นโยบายที่ได้รับ</div></div>
-              <div class="adp-summary-card"><div class="adp-summary-label">AD Groups</div><div class="adp-summary-value">{int(group_count)}</div><div class="adp-summary-note">กลุ่มที่เป็นสมาชิก</div></div>
+              <div class="adp-summary-card"><div class="adp-summary-icon">{ADP_ICONS['shield']}</div><div class="adp-summary-label">Internet Policies</div><div class="adp-summary-value">{int(policy_count)}</div><div class="adp-summary-note">นโยบายที่ได้รับ</div></div>
+              <div class="adp-summary-card"><div class="adp-summary-icon">{ADP_ICONS['groups']}</div><div class="adp-summary-label">AD Groups</div><div class="adp-summary-value">{int(group_count)}</div><div class="adp-summary-note">กลุ่มที่เป็นสมาชิก</div></div>
             </div>''', unsafe_allow_html=True)
 
         def adp_policy_table(rows):
@@ -5417,7 +5442,7 @@ else:
                     else:
                         cells.append(f'<td title="{safe_value}">{safe_value}</td>')
                 body_rows.append('<tr>' + ''.join(cells) + '</tr>')
-            table = f'''<div class="adp-table-wrap"><div class="adp-table-title"><span>◉</span><span>Internet Policy ที่ได้รับ</span></div><table class="adp-policy-table"><colgroup>{colgroup}</colgroup><thead><tr>{header}</tr></thead><tbody>{''.join(body_rows)}</tbody></table></div>'''
+            table = f'''<div class="adp-table-wrap"><div class="adp-table-title"><span class="adp-stat-icon" style="width:24px;height:24px;flex-basis:24px;border-radius:8px">{ADP_ICONS['link']}</span><span>Internet Policy ที่ได้รับ</span></div><table class="adp-policy-table"><colgroup>{colgroup}</colgroup><thead><tr>{header}</tr></thead><tbody>{''.join(body_rows)}</tbody></table></div>'''
             st.markdown(table, unsafe_allow_html=True)
 
         tab_user, tab_policy, tab_map = st.tabs([
@@ -5462,10 +5487,10 @@ else:
 
                     if user_obj:
                         adp_stat_grid([
-                            ("Display Name", user_obj.get("displayName", "-") or "-", "♙"),
-                            ("Account", user_obj.get("sAMAccountName") or user_obj.get("userPrincipalName") or "-", "◎"),
-                            ("Mail", user_obj.get("mail") or "-", "✉"),
-                            ("Source", policy_summary.get("source", "-"), "▤"),
+                            ("Display Name", user_obj.get("displayName", "-") or "-", "user"),
+                            ("Account", user_obj.get("sAMAccountName") or user_obj.get("userPrincipalName") or "-", "account"),
+                            ("Mail", user_obj.get("mail") or "-", "mail"),
+                            ("Source", policy_summary.get("source", "-"), "server"),
                         ])
                     else:
                         st.warning("ไม่พบ User นี้จาก AD LDAP / AD Agent / Microsoft Graph หรือตั้งค่า source ยังไม่ครบ")
@@ -5541,9 +5566,9 @@ else:
                 if policy_users.get("ok"):
                     users = policy_users.get("users", []) or []
                     adp_stat_grid([
-                        ("Policy", policy_users.get("policy", policy_query), "◈"),
-                        ("Users", len(users), "♙"),
-                        ("Source", policy_users.get("source", "-"), "▤"),
+                        ("Policy", policy_users.get("policy", policy_query), "shield"),
+                        ("Users", len(users), "user"),
+                        ("Source", policy_users.get("source", "-"), "server"),
                     ])
 
                     desc = policy_users.get("description") or FW_POLICY_MAP.get(policy_query, "")
