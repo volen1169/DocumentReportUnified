@@ -5188,6 +5188,132 @@ else:
         hardware_name = sub.replace("Asset ", "")
         df_hw = load_sp_data(sub)
 
+        if sub == "Computer Asset":
+            # UI OWNER: Computer Asset only.  SharePoint and CRUD functions remain unchanged.
+            st.markdown("""
+            <div class="ca-page"></div>
+            <style>
+            .stApp:has(.ca-page) [data-testid="stMainBlockContainer"]{background:#F8FAFC;padding-top:1rem!important}
+            .stApp:has(.ca-page) [data-testid="stVerticalBlock"]{gap:.75rem}.ca-page{display:none}
+            .ca-header{height:110px;box-sizing:border-box;display:flex;align-items:center;gap:18px;padding:20px 24px;margin-bottom:16px;background:#FFF;border:1px solid #E2E8F0;border-radius:24px;box-shadow:0 12px 32px rgba(15,23,42,.06)}
+            .ca-header-icon{width:66px;height:66px;flex:0 0 66px;display:grid;place-items:center;color:#4F46E5;background:#F3F5FF;border:1px solid #E0E7FF;border-radius:20px}.ca-header-icon svg{width:38px;height:38px;stroke:currentColor}
+            .ca-header h1{margin:0 0 5px!important;color:#0F172A!important;font-size:27px!important;font-weight:800;letter-spacing:-.035em}.ca-header p{margin:0!important;color:#64748B!important;font-size:13px!important}
+            .ca-metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:16px}.ca-card{height:120px;box-sizing:border-box;position:relative;padding:16px 15px;background:#FFF;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 9px 24px rgba(15,23,42,.045);overflow:hidden}.ca-card:after{content:"";position:absolute;inset:auto 0 0;height:3px;background:var(--tone)}
+            .ca-card-icon{position:absolute;right:13px;top:14px;width:48px;height:48px;display:grid;place-items:center;border-radius:50%;color:var(--tone);background:var(--soft)}.ca-card-icon svg{width:25px;height:25px;stroke:currentColor}.ca-card-label{max-width:calc(100% - 48px);color:#475569;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-card-value{margin-top:8px;color:#0F172A;font-size:28px;line-height:1;font-weight:850;letter-spacing:-.04em}.ca-card-foot{position:absolute;left:15px;right:15px;bottom:13px;display:flex;justify-content:space-between;color:#64748B;font-size:12px}.ca-card-foot strong{color:var(--tone)}
+            .ca-search-panel{padding:13px 15px 4px;margin-bottom:14px;background:#FFF;border:1px solid #E2E8F0;border-radius:18px;box-shadow:0 8px 22px rgba(15,23,42,.045)}.ca-search-panel-title{margin-bottom:8px;color:#334155;font-size:12px;font-weight:750}.ca-filter-row{display:none}
+            .stApp:has(.ca-page) .stTextInput input,.stApp:has(.ca-page) .stSelectbox div[data-baseweb="select"]>div{height:52px!important;min-height:52px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;font-size:12px!important}.stApp:has(.ca-page) .stButton>button,.stApp:has(.ca-page) .stDownloadButton>button{height:42px;min-height:42px;border-radius:12px;border-color:#E2E8F0;font-size:12px;font-weight:700}.stApp:has(.ca-page) button[kind="primary"]{color:#FFF!important;border:0!important;background:linear-gradient(135deg,#3B82F6,#7C3AED)!important;box-shadow:0 8px 18px rgba(99,102,241,.22)}
+            .ca-action-bar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#FFF;border:1px solid #E2E8F0;border-bottom:0;border-radius:18px 18px 0 0;color:#334155;font-size:12px;font-weight:750}.ca-action-title{display:flex;align-items:center;gap:8px}.ca-action-title span{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#EEF2FF;color:#4F46E5}
+            .ca-table{background:#FFF;border:1px solid #E2E8F0;border-radius:0 0 18px 18px;box-shadow:0 10px 26px rgba(15,23,42,.05);overflow:hidden}.ca-table-scroll{overflow:auto;max-height:610px}.ca-table table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11px;color:#334155}.ca-table th{position:sticky;top:0;z-index:2;height:50px;padding:0 11px;text-align:left;background:#F8FAFC;color:#475569;font-size:10.5px;font-weight:800;border-bottom:1px solid #E2E8F0;white-space:nowrap}.ca-table td{height:48px;box-sizing:border-box;padding:0 11px;border-bottom:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-table tbody tr:hover td{background:#F8FAFF}
+            .ca-status{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800}.ca-status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.ca-status-online{background:#ECFDF5;color:#059669}.ca-status-offline{background:#FEF2F2;color:#DC2626}.ca-status-nouser{background:#FFF7ED;color:#D97706}.ca-row-actions{display:flex;gap:5px}.ca-row-action{width:25px;height:25px;display:grid;place-items:center;border:1px solid #E2E8F0;border-radius:8px;font-size:12px}.ca-view{color:#2563EB;background:#EFF6FF}.ca-edit{color:#7C3AED;background:#F5F3FF}.ca-delete{color:#EF4444;background:#FEF2F2}
+            .ca-table-footer{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;border-top:1px solid #E2E8F0;color:#64748B;font-size:11px}.ca-pages{display:flex;gap:5px}.ca-pages span{min-width:28px;height:28px;display:grid;place-items:center;border:1px solid #E2E8F0;border-radius:8px}.ca-pages .active{color:#FFF;border-color:#6366F1;background:linear-gradient(135deg,#6366F1,#7C3AED)}
+            .ca-analytics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px}.ca-chart-card,.ca-recent-card{height:265px;box-sizing:border-box;padding:16px;background:#FFF;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 9px 24px rgba(15,23,42,.045);overflow:hidden}.ca-chart-title{margin-bottom:13px;color:#0F172A;font-size:13px;font-weight:800}.ca-donut-layout{display:flex;align-items:center;gap:14px;height:190px}.ca-donut{width:128px;height:128px;flex:0 0 128px;border-radius:50%;position:relative;background:conic-gradient(var(--d1) 0 var(--p1),var(--d2) var(--p1) var(--p2),var(--d3) var(--p2) 100%)}.ca-donut:after{content:"";position:absolute;inset:24px;border-radius:50%;background:#FFF}.ca-legend{display:grid;gap:10px;min-width:0}.ca-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:10px}.ca-legend-row i{width:8px;height:8px;border-radius:50%}.ca-legend-row b{color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+            .ca-bars{display:grid;gap:12px}.ca-bar-row{display:grid;grid-template-columns:78px 1fr 24px;align-items:center;gap:8px;color:#475569;font-size:10px}.ca-bar-track{height:7px;background:#EEF2FF;border-radius:99px;overflow:hidden}.ca-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#3B82F6,#8B5CF6)}.ca-bar-row strong{text-align:right}.ca-recent-list{display:grid;gap:11px}.ca-recent-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding-bottom:9px;border-bottom:1px solid #F1F5F9;font-size:10px}.ca-recent-name{color:#334155;font-weight:750}.ca-recent-state,.ca-recent-time{color:#94A3B8}
+            @media(max-width:1180px){.ca-metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ca-analytics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.ca-header{height:auto;min-height:110px;padding:18px}.ca-header-icon{width:56px;height:56px;flex-basis:56px}.ca-header h1{font-size:23px!important}.ca-metric-grid,.ca-analytics{grid-template-columns:1fr}.ca-chart-card,.ca-recent-card{height:auto;min-height:245px}.ca-table-footer{height:auto;padding:11px;gap:8px;align-items:flex-start;flex-direction:column}}
+            </style>""", unsafe_allow_html=True)
+
+            def _ca_value(row, *names, default="-"):
+                for name in names:
+                    value = row.get(name, None)
+                    if value is not None and str(value).strip() not in ("", "nan", "None", "NaT"):
+                        return str(value).strip()
+                return default
+
+            def _ca_status(row):
+                user = _ca_value(row, "field_3", "User", "Employee", default="")
+                raw = _ca_value(row, "Status", "ComputerStatus", default="Active").lower()
+                if not user or user == "-": return "No User", "nouser"
+                if raw in ("inactive", "offline", "repair", "เสีย", "ซ่อม"): return "Offline", "offline"
+                return "Online", "online"
+
+            _ca_esc = lambda value: html.escape(str(value), quote=True)
+            _ca_pct = lambda value,total: (float(value)/float(total)*100) if total else 0
+            _ca_total = len(df_hw)
+            _ca_online = sum(_ca_status(r)[1] == "online" for _,r in df_hw.iterrows())
+            _ca_offline = sum(_ca_status(r)[1] == "offline" for _,r in df_hw.iterrows())
+            _ca_nouser = sum(_ca_status(r)[1] == "nouser" for _,r in df_hw.iterrows())
+            _ca_win11 = sum("windows 11" in _ca_value(r,"OS","OperatingSystem","field_11",default="").lower() for _,r in df_hw.iterrows())
+            _ca_attention = _ca_offline + _ca_nouser
+            _ca_monitor = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>'
+            _ca_icons = [
+                _ca_monitor,
+                '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>',
+                '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.9"><path d="M4 9c4.7-4 11.3-4 16 0M7 12c3-2.5 7-2.5 10 0M10 15c1.2-1 2.8-1 4 0"/><circle cx="12" cy="19" r="1"/></svg>',
+                '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/></svg>',
+                '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m3 5 8-1.1v7.6H3V5Zm9-1.2L21 2.5v9h-9V3.8ZM3 12.5h8v7.6L3 19v-6.5Zm9 0h9v9L12 20.2v-7.7Z"/></svg>',
+                '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>'
+            ]
+            st.markdown(f'<section class="ca-header"><div class="ca-header-icon">{_ca_monitor}</div><div><h1>Computer Asset</h1><p>จัดการข้อมูลคอมพิวเตอร์ทั้งหมดในองค์กร</p></div></section>',unsafe_allow_html=True)
+            _ca_metrics=[("คอมพิวเตอร์ทั้งหมด",_ca_total,"#2563EB","#EFF6FF"),("ใช้งานปกติ",_ca_online,"#10B981","#ECFDF5"),("Offline",_ca_offline,"#F59E0B","#FFF7ED"),("ไม่มีผู้ใช้งาน",_ca_nouser,"#8B5CF6","#F5F3FF"),("Windows 11",_ca_win11,"#38BDF8","#F0F9FF"),("ต้องดูแล",_ca_attention,"#EF4444","#FEF2F2")]
+            st.markdown('<div class="ca-metric-grid">'+''.join(f'<div class="ca-card" style="--tone:{tone};--soft:{soft}"><div class="ca-card-label">{label}</div><div class="ca-card-value">{value:,}</div><div class="ca-card-icon">{_ca_icons[i]}</div><div class="ca-card-foot"><span>เครื่อง</span><strong>{_ca_pct(value,_ca_total):.2f}%</strong></div></div>' for i,(label,value,tone,soft) in enumerate(_ca_metrics))+'</div>',unsafe_allow_html=True)
+
+            _ca_departments=sorted({_ca_value(r,"Department","field_2") for _,r in df_hw.iterrows()}); _ca_locations=sorted({_ca_value(r,"Location","field_4") for _,r in df_hw.iterrows()}); _ca_oses=sorted({_ca_value(r,"OS","OperatingSystem","field_11") for _,r in df_hw.iterrows()})
+            st.markdown('<div class="ca-search-panel"><div class="ca-search-panel-title">⌕ ค้นหาและกรองข้อมูล</div>',unsafe_allow_html=True)
+            f1,f2,f3,f4,f5=st.columns([2.2,1,1,1,1])
+            with f1: _ca_search=st.text_input("ค้นหา",placeholder="ค้นหา Computer, User, IP, Location",label_visibility="collapsed",key="ca_search")
+            with f2: _ca_sf=st.selectbox("Status",["ทั้งหมด","Online","Offline","No User"],label_visibility="collapsed",key="ca_status")
+            with f3: _ca_of=st.selectbox("OS",["ทั้งหมด"]+_ca_oses,label_visibility="collapsed",key="ca_os")
+            with f4: _ca_df=st.selectbox("Department",["ทั้งหมด"]+_ca_departments,label_visibility="collapsed",key="ca_department")
+            with f5: _ca_lf=st.selectbox("Location",["ทั้งหมด"]+_ca_locations,label_visibility="collapsed",key="ca_location")
+            _ca_fb1,_ca_fb2,_ca_fb3=st.columns([5,1,1])
+            with _ca_fb2: st.button("⌕ ค้นหา",use_container_width=True,type="primary",key="ca_search_button")
+            with _ca_fb3:
+                if st.button("↻ ล้างตัวกรอง",use_container_width=True,key="ca_reset"):
+                    for _ca_key in ("ca_search","ca_status","ca_os","ca_department","ca_location"):
+                        st.session_state.pop(_ca_key,None)
+                    st.rerun()
+            st.markdown('</div>',unsafe_allow_html=True)
+            _ca_filtered=df_hw.copy()
+            if _ca_search: _ca_filtered=_ca_filtered[_ca_filtered.astype(str).apply(lambda c:c.str.contains(_ca_search,case=False,na=False)).any(axis=1)]
+            if _ca_sf!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_status(r)[0]==_ca_sf,axis=1)]
+            if _ca_of!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"OS","OperatingSystem","field_11")==_ca_of,axis=1)]
+            if _ca_df!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"Department","field_2")==_ca_df,axis=1)]
+            if _ca_lf!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"Location","field_4")==_ca_lf,axis=1)]
+            a1,a2,a3,a4=st.columns([1.35,1,1.15,3.8])
+            with a1:
+                if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
+            with a2: st.download_button("⇩ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
+            with a3: st.button("⚙ จัดการคอลัมน์",use_container_width=True,key="ca_columns",disabled=True)
+            with a4: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A","Last Seen ล่าสุด"],label_visibility="collapsed",key="ca_sort")
+
+            _ca_records=[]
+            for idx,row in _ca_filtered.iterrows():
+                status,status_class=_ca_status(row)
+                _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6","Hostname","ComputerName"),"user":_ca_value(row,"field_3","User","Employee"),"department":_ca_value(row,"Department","field_2"),"ip":_ca_value(row,"IPAddress","IP Address","IP","field_12"),"os":_ca_value(row,"OS","OperatingSystem","field_11"),"model":_ca_value(row,"field_7","Model"),"location":_ca_value(row,"Location","field_4"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
+            _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Z–A")
+            if _ca_sort=="Last Seen ล่าสุด": _ca_records.sort(key=lambda x:x[2]["seen"],reverse=True)
+            _ca_page_size=10; _ca_page_count=max(1,(len(_ca_records)+9)//10); _ca_page=min(st.session_state.get("ca_page",1),_ca_page_count); _ca_slice=_ca_records[(_ca_page-1)*10:_ca_page*10]
+            st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>▦</span>รายการคอมพิวเตอร์</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
+            _ca_body=[]
+            for _,_,d in _ca_slice:
+                _ca_body.append(f'<tr><td title="{_ca_esc(d["computer"])}">{_ca_esc(d["computer"])}</td><td>{_ca_esc(d["user"])}</td><td>{_ca_esc(d["department"])}</td><td>{_ca_esc(d["ip"])}</td><td>{_ca_esc(d["os"])}</td><td title="{_ca_esc(d["model"])}">{_ca_esc(d["model"])}</td><td>{_ca_esc(d["location"])}</td><td><span class="ca-status ca-status-{d["status_class"]}">{d["status"]}</span></td><td>{_ca_esc(d["seen"])}</td><td><div class="ca-row-actions"><span class="ca-row-action ca-view" title="View">◉</span><span class="ca-row-action ca-edit" title="Edit">✎</span><span class="ca-row-action ca-delete" title="Delete">⌫</span></div></td></tr>')
+            _ca_from=(_ca_page-1)*10+1 if _ca_records else 0; _ca_to=min(_ca_page*10,len(_ca_records)); _ca_pages=''.join(f'<span class="{"active" if p==_ca_page else ""}">{p}</span>' for p in range(1,min(_ca_page_count,5)+1))
+            st.markdown(f'<div class="ca-table"><div class="ca-table-scroll"><table><thead><tr><th>Computer Name</th><th>User</th><th>Department</th><th>IP Address</th><th>OS</th><th>Model</th><th>Location</th><th>Status</th><th>Last Seen</th><th>Action</th></tr></thead><tbody>{"".join(_ca_body) or "<tr><td colspan=\"10\" style=\"text-align:center;color:#94A3B8\">ไม่พบข้อมูล</td></tr>"}</tbody></table></div><div class="ca-table-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><div class="ca-pages">{_ca_pages}</div></div></div>',unsafe_allow_html=True)
+
+            # Keep the existing View/Edit/Delete CRUD flow reachable without
+            # duplicating or changing its SharePoint implementation.
+            if admin_mode and _ca_records:
+                _ca_action_map={f'{item[2]["computer"]} · {item[2]["user"]}':item for item in _ca_records}
+                _ca_action_cols=st.columns([5,1,1])
+                with _ca_action_cols[0]: _ca_selected=st.selectbox("เลือกรายการเพื่อดำเนินการ",list(_ca_action_map),label_visibility="collapsed",key="ca_selected_asset")
+                _ca_selected_row=_ca_action_map[_ca_selected][1]
+                with _ca_action_cols[1]:
+                    if st.button("◉ View",use_container_width=True,key="ca_view_selected"): show_pop_computer(_ca_selected_row.to_dict())
+                with _ca_action_cols[2]:
+                    if st.button("✎ Edit / Delete",use_container_width=True,key="ca_edit_selected"): edit_computer_dialog(_ca_selected_row.to_dict(),sub)
+
+            _ca_types={"Desktop":0,"All-in-One":0,"Notebook":0}; _ca_windows={"Windows 11":0,"Windows 10":0,"Windows 7":0}; _ca_depts={}
+            for _,r in df_hw.iterrows():
+                model=_ca_value(r,"field_7","Model",default="").lower(); kind="Notebook" if any(x in model for x in ("notebook","laptop","thinkpad","latitude")) else ("All-in-One" if any(x in model for x in ("all-in-one","aio")) else "Desktop"); _ca_types[kind]+=1
+                os_name=_ca_value(r,"OS","OperatingSystem","field_11",default="")
+                for win in _ca_windows:
+                    if win.lower() in os_name.lower(): _ca_windows[win]+=1; break
+                dept=_ca_value(r,"Department","field_2",default="ไม่ระบุ"); _ca_depts[dept]=_ca_depts.get(dept,0)+1
+            def _ca_donut(title,data,colors):
+                total=max(sum(data.values()),1); values=list(data.values()); p1=values[0]/total*100; p2=(values[0]+values[1])/total*100; legend=''.join(f'<div class="ca-legend-row"><i style="background:{colors[i]}"></i><b>{_ca_esc(k)}</b><span>{v}</span></div>' for i,(k,v) in enumerate(data.items())); return f'<div class="ca-chart-card"><div class="ca-chart-title">{title}</div><div class="ca-donut-layout"><div class="ca-donut" style="--d1:{colors[0]};--d2:{colors[1]};--d3:{colors[2]};--p1:{p1:.2f}%;--p2:{p2:.2f}%"></div><div class="ca-legend">{legend}</div></div></div>'
+            _ca_top=sorted(_ca_depts.items(),key=lambda x:x[1],reverse=True)[:5]; _ca_max=max([v for _,v in _ca_top] or [1]); _ca_bars=''.join(f'<div class="ca-bar-row"><span>{_ca_esc(k)}</span><div class="ca-bar-track"><div class="ca-bar-fill" style="width:{v/_ca_max*100:.1f}%"></div></div><strong>{v}</strong></div>' for k,v in _ca_top); _ca_recent=''.join(f'<div class="ca-recent-item"><div><div class="ca-recent-name">{_ca_esc(d["computer"])}</div><div class="ca-recent-state">{_ca_esc(d["status"])}</div></div><div class="ca-recent-time">{_ca_esc(d["seen"])}</div></div>' for _,_,d in sorted(_ca_records,key=lambda x:x[2]["seen"],reverse=True)[:5])
+            st.markdown('<div class="ca-analytics">'+_ca_donut("ประเภทเครื่อง",_ca_types,["#4F46E5","#38BDF8","#A855F7"])+_ca_donut("Windows Version",_ca_windows,["#2563EB","#3B82F6","#22C1C3"])+f'<div class="ca-chart-card"><div class="ca-chart-title">Top 5 Department</div><div class="ca-bars">{_ca_bars}</div></div><div class="ca-recent-card"><div class="ca-chart-title">◷ อัปเดตล่าสุด</div><div class="ca-recent-list">{_ca_recent}</div></div></div>',unsafe_allow_html=True)
+            st.stop()
+
         st.markdown(f"""
         <div class="asset-hero">
             <div class="asset-title">💻 {hardware_name}</div>
