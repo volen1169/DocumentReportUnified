@@ -4593,11 +4593,16 @@ else:
     section[data-testid="stSidebar"] .nav-signout .stButton>button:hover{
         background:#FFF5F5!important;border-color:#FEE2E2!important;color:#DC2626!important;
     }
-    section[data-testid="stMain"]{padding-top:0!important;margin-top:0!important}
+    /* Authenticated pages: remove Streamlit's reserved cloud header space. */
+    header[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],.stAppHeader{display:none!important;height:0!important;min-height:0!important}
+    [data-testid="stAppViewContainer"]{padding-top:0!important;background:radial-gradient(circle at 8% 8%,rgba(56,189,248,.26),transparent 28rem),radial-gradient(circle at 92% 88%,rgba(139,92,246,.23),transparent 31rem),linear-gradient(145deg,#EFF8FF,#EEF2FF 48%,#F5F3FF)!important}
+    section[data-testid="stMain"]{padding-top:0!important;margin-top:0!important;background:transparent!important}
     section[data-testid="stMain"] [data-testid="stMainBlockContainer"],
-    section[data-testid="stMain"] .block-container{max-width:1500px!important;padding:10px clamp(1rem,2.6vw,2.5rem) 4rem!important;margin-top:0!important}
+    section[data-testid="stMain"] .block-container{max-width:1500px!important;padding:6px clamp(1rem,2.6vw,2.5rem) 4rem!important;margin-top:0!important}
+    section[data-testid="stSidebar"] [data-testid="stSidebarHeader"]{display:none!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important}
     section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"],
-    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{padding-top:14px!important;margin-top:0!important}
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]{padding-top:6px!important;margin-top:0!important;background:transparent!important}
     @media(max-width:900px){
         section[data-testid="stSidebar"],section[data-testid="stSidebar"]:hover,section[data-testid="stSidebar"]:focus-within{width:274px!important;min-width:274px!important;max-width:274px!important}
         section[data-testid="stSidebar"]>div:first-child,section[data-testid="stSidebar"]:hover>div:first-child{width:274px!important;min-width:274px!important;max-width:274px!important}
@@ -4751,7 +4756,7 @@ else:
         [class*="st-key-db_card_action_"] .stButton>button:hover{transform:translateY(-2px)!important;border-color:#A5B4FC!important;background:#FFF!important;color:#172554!important;box-shadow:0 10px 22px rgba(79,70,229,.09)!important}
         [class*="st-key-db_card_action_"] .stButton>button p{width:100%!important;margin:0!important;white-space:pre-line!important;text-align:left!important;font-size:12px!important;line-height:1.55!important;color:#64748B!important;font-weight:500!important}
         [class*="st-key-db_card_action_"] .stButton>button p:first-line{font-size:15px!important;font-weight:800!important;color:#172554!important}
-        [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:linear-gradient(135deg,#F8FBFF 0%,#F6F8FF 55%,#FBF9FF 100%)!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:8px!important}
+        [data-testid="stAppViewContainer"]{background:radial-gradient(circle at 8% 8%,rgba(56,189,248,.26),transparent 28rem),radial-gradient(circle at 92% 88%,rgba(139,92,246,.23),transparent 31rem),linear-gradient(145deg,#EFF8FF,#EEF2FF 48%,#F5F3FF)!important}section[data-testid="stMain"]{background:transparent!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:6px!important}
         @media(max-width:1100px){.db-overview-grid{grid-template-columns:repeat(3,1fr)}.db-main-grid,.db-bottom-grid{grid-template-columns:1fr}.db-hero-visual{opacity:.75}.db-action-grid{grid-template-columns:repeat(3,1fr)}}
         @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}}
         @media(max-width:430px){.db-overview-grid{grid-template-columns:1fr}.db-top-card span.db-date-label{display:none}}
@@ -5219,7 +5224,7 @@ else:
             st.markdown("""
             <div class="ca-page"></div>
             <style>
-            .stApp:has(.ca-page) [data-testid="stMainBlockContainer"]{background:#F8FAFC;padding-top:1rem!important}
+            .stApp:has(.ca-page) [data-testid="stMainBlockContainer"]{background:transparent!important;padding-top:6px!important}
             .stApp:has(.ca-page) [data-testid="stHeader"],.stApp:has(.ca-page) [data-testid="stToolbar"]{display:none!important}
             .stApp:has(.ca-page) [data-testid="stVerticalBlock"]{gap:.58rem}.ca-page{display:none}
             .ca-header{height:102px;box-sizing:border-box;display:flex;align-items:center;gap:16px;padding:17px 22px;margin-bottom:12px;background:#FFF;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 10px 26px rgba(15,23,42,.055)}
