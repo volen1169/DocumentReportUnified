@@ -5272,7 +5272,10 @@ else:
             with a1:
                 if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
             with a2: st.download_button("⇩ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
-            with a3: st.button("⚙ จัดการคอลัมน์",use_container_width=True,key="ca_columns",disabled=True)
+            _ca_column_defs={"computer":"Computer Name","user":"User","department":"Department","ip":"IP Address","os":"OS","model":"Model","location":"Location","status":"Status","seen":"Last Seen"}
+            with a3:
+                _ca_visible_columns=st.multiselect("จัดการคอลัมน์",list(_ca_column_defs),default=list(_ca_column_defs),format_func=lambda key:_ca_column_defs[key],label_visibility="collapsed",placeholder="⚙ จัดการคอลัมน์",key="ca_visible_columns")
+                if not _ca_visible_columns: _ca_visible_columns=list(_ca_column_defs)
             with a4: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A","Last Seen ล่าสุด"],label_visibility="collapsed",key="ca_sort")
 
             _ca_records=[]
@@ -5281,13 +5284,29 @@ else:
                 _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6","Hostname","ComputerName"),"user":_ca_value(row,"field_3","User","Employee"),"department":_ca_value(row,"Department","field_2"),"ip":_ca_value(row,"IPAddress","IP Address","IP","field_12"),"os":_ca_value(row,"OS","OperatingSystem","field_11"),"model":_ca_value(row,"field_7","Model"),"location":_ca_value(row,"Location","field_4"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
             _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Z–A")
             if _ca_sort=="Last Seen ล่าสุด": _ca_records.sort(key=lambda x:x[2]["seen"],reverse=True)
-            _ca_page_size=10; _ca_page_count=max(1,(len(_ca_records)+9)//10); _ca_page=min(st.session_state.get("ca_page",1),_ca_page_count); _ca_slice=_ca_records[(_ca_page-1)*10:_ca_page*10]
+            _ca_page_size=10; _ca_page_count=max(1,(len(_ca_records)+9)//10); _ca_page=max(1,min(st.session_state.get("ca_page",1),_ca_page_count)); st.session_state["ca_page"]=_ca_page; _ca_slice=_ca_records[(_ca_page-1)*10:_ca_page*10]
             st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>▦</span>รายการคอมพิวเตอร์</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
             _ca_body=[]
             for _,_,d in _ca_slice:
-                _ca_body.append(f'<tr><td title="{_ca_esc(d["computer"])}">{_ca_esc(d["computer"])}</td><td>{_ca_esc(d["user"])}</td><td>{_ca_esc(d["department"])}</td><td>{_ca_esc(d["ip"])}</td><td>{_ca_esc(d["os"])}</td><td title="{_ca_esc(d["model"])}">{_ca_esc(d["model"])}</td><td>{_ca_esc(d["location"])}</td><td><span class="ca-status ca-status-{d["status_class"]}">{d["status"]}</span></td><td>{_ca_esc(d["seen"])}</td><td><div class="ca-row-actions"><span class="ca-row-action ca-view" title="View">◉</span><span class="ca-row-action ca-edit" title="Edit">✎</span><span class="ca-row-action ca-delete" title="Delete">⌫</span></div></td></tr>')
-            _ca_from=(_ca_page-1)*10+1 if _ca_records else 0; _ca_to=min(_ca_page*10,len(_ca_records)); _ca_pages=''.join(f'<span class="{"active" if p==_ca_page else ""}">{p}</span>' for p in range(1,min(_ca_page_count,5)+1))
-            st.markdown(f'<div class="ca-table"><div class="ca-table-scroll"><table><thead><tr><th>Computer Name</th><th>User</th><th>Department</th><th>IP Address</th><th>OS</th><th>Model</th><th>Location</th><th>Status</th><th>Last Seen</th><th>Action</th></tr></thead><tbody>{"".join(_ca_body) or "<tr><td colspan=\"10\" style=\"text-align:center;color:#94A3B8\">ไม่พบข้อมูล</td></tr>"}</tbody></table></div><div class="ca-table-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><div class="ca-pages">{_ca_pages}</div></div></div>',unsafe_allow_html=True)
+                _ca_cells=[]
+                for _ca_key in _ca_visible_columns:
+                    if _ca_key=="status": _ca_cells.append(f'<td><span class="ca-status ca-status-{d["status_class"]}">{_ca_esc(d["status"])}</span></td>')
+                    else: _ca_cells.append(f'<td title="{_ca_esc(d[_ca_key])}">{_ca_esc(d[_ca_key])}</td>')
+                _ca_body.append('<tr>'+''.join(_ca_cells)+'</tr>')
+            _ca_headers=''.join(f'<th>{_ca_column_defs[key]}</th>' for key in _ca_visible_columns)
+            _ca_from=(_ca_page-1)*10+1 if _ca_records else 0; _ca_to=min(_ca_page*10,len(_ca_records))
+            st.markdown(f'<div class="ca-table"><div class="ca-table-scroll"><table style="min-width:{max(760,len(_ca_visible_columns)*125)}px"><thead><tr>{_ca_headers}</tr></thead><tbody>{"".join(_ca_body) or f"<tr><td colspan=\"{len(_ca_visible_columns)}\" style=\"text-align:center;color:#94A3B8\">ไม่พบข้อมูล</td></tr>"}</tbody></table></div><div class="ca-table-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><span>หน้า {_ca_page} / {_ca_page_count}</span></div></div>',unsafe_allow_html=True)
+
+            _ca_nav=st.columns([1,1,1,1,1,6])
+            with _ca_nav[0]:
+                if st.button("«",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
+            with _ca_nav[1]:
+                if st.button("‹",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
+            with _ca_nav[2]: st.button(str(_ca_page),use_container_width=True,type="primary",key="ca_current",disabled=True)
+            with _ca_nav[3]:
+                if st.button("›",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
+            with _ca_nav[4]:
+                if st.button("»",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
 
             # Keep the existing View/Edit/Delete CRUD flow reachable without
             # duplicating or changing its SharePoint implementation.
