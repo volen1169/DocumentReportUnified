@@ -5341,13 +5341,13 @@ else:
                         _ca_b1,_ca_b2,_ca_b3=st.columns(3,gap="small")
                         with _ca_b1:
                             st.markdown('<span class="ca-row-action-marker ca-row-action-view"></span>',unsafe_allow_html=True)
-                            if st.button(" ",icon=":material/visibility:",key=f"ca_view_{_ca_idx}",help="ดูรายละเอียด",use_container_width=True): show_pop_computer(_ca_row.to_dict())
+                            if st.button(" ",icon=":material/visibility:",key=f"ca_view_{_ca_idx}",help="ดูรายละเอียด"): show_pop_computer(_ca_row.to_dict())
                         with _ca_b2:
                             st.markdown('<span class="ca-row-action-marker ca-row-action-edit"></span>',unsafe_allow_html=True)
-                            if admin_mode and st.button(" ",icon=":material/edit:",key=f"ca_edit_{_ca_idx}",help="แก้ไข",use_container_width=True): edit_computer_dialog(_ca_row.to_dict(),sub)
+                            if admin_mode and st.button(" ",icon=":material/edit:",key=f"ca_edit_{_ca_idx}",help="แก้ไข"): edit_computer_dialog(_ca_row.to_dict(),sub)
                         with _ca_b3:
                             st.markdown('<span class="ca-row-action-marker ca-row-action-delete"></span>',unsafe_allow_html=True)
-                            if admin_mode and st.button(" ",icon=":material/delete:",key=f"ca_delete_{_ca_idx}",help="ลบ",use_container_width=True): delete_computer_dialog(_ca_row.to_dict(),sub)
+                            if admin_mode and st.button(" ",icon=":material/delete:",key=f"ca_delete_{_ca_idx}",help="ลบ"): delete_computer_dialog(_ca_row.to_dict(),sub)
                     st.markdown('<div class="ca-native-divider"></div>',unsafe_allow_html=True)
                 st.markdown(f'<div class="ca-native-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><span>หน้า {_ca_page} / {_ca_page_count}</span></div>',unsafe_allow_html=True)
 
