@@ -5380,11 +5380,8 @@ else:
         .stApp:has(.adp-page-marker) .stButton>button p {color:inherit!important;font-size:inherit!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"] {border:1px solid #DCE3ED!important;border-radius:14px!important;background:#FFFFFF!important;box-shadow:0 7px 18px rgba(30,41,59,.045)!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]>div {padding:12px 14px!important}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"]>div>div:first-child div[data-testid="stVerticalBlockBorderWrapper"]{margin-top:-1px;border-radius:0 14px 14px 14px!important}
-        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]:has(.adp-table-footer-marker){margin-top:-9px;border-radius:0 0 14px 14px!important;border-top-color:#EEF2F7!important;box-shadow:0 7px 18px rgba(30,41,59,.035)!important}
-        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]:has(.adp-table-footer-marker)>div{padding:6px 10px!important}
-        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]:has(.adp-table-footer-marker) .stButton>button{height:30px!important;min-height:30px!important;border-radius:9px!important;font-size:10.5px!important;box-shadow:none!important}
-        .adp-table-footer-marker{display:flex;align-items:center;gap:7px;height:30px;color:#64748B;font-size:10.5px}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] div[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stTextInput"]){position:relative;z-index:1;margin-top:-1px;border-top-color:#9DA8FF!important;border-radius:0 14px 14px 14px!important;box-shadow:0 8px 18px rgba(30,41,59,.045)!important}
+        .adp-table-footer-marker{display:flex;align-items:center;gap:7px;height:30px;margin:5px 2px 0;padding:0 4px;color:#64748B;font-size:10.5px}
         .adp-table-footer-marker svg{width:15px;height:15px;stroke:#7EA5DF}
         .stApp:has(.adp-page-marker) [data-testid="stDataFrame"] {border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:none!important}
         .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#FFFFFF!important;border:1px solid #DEE5EF!important;border-radius:12px!important;box-shadow:0 4px 12px rgba(30,41,59,.035);overflow:hidden;margin-top:3px}
@@ -5533,28 +5530,12 @@ else:
                                 f"{adp_now.day} {adp_thai_months[adp_now.month - 1]} "
                                 f"{adp_now.year} {adp_now:%H:%M}"
                             )
-                            with st.container(border=True):
-                                footer_info, footer_refresh = st.columns([0.84, 0.16])
-                                with footer_info:
-                                    st.markdown(
-                                        f'''<div class="adp-table-footer-marker">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-                                        <span>อัปเดตล่าสุด: {adp_updated_text}</span></div>''',
-                                        unsafe_allow_html=True,
-                                    )
-                                with footer_refresh:
-                                    if st.button(
-                                        "⟳  รีเฟรชข้อมูล",
-                                        use_container_width=True,
-                                        key="ad_policy_refresh_data",
-                                    ):
-                                        ldap_find_user.clear()
-                                        get_ldap_group_names_for_user.clear()
-                                        get_ad_agent_policy_summary.clear()
-                                        graph_find_user.clear()
-                                        get_ad_group_names_for_user.clear()
-                                        load_firewall_policy_mapping.clear()
-                                        st.rerun()
+                            st.markdown(
+                                f'''<div class="adp-table-footer-marker">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                                <span>อัปเดตล่าสุด: {adp_updated_text}</span></div>''',
+                                unsafe_allow_html=True,
+                            )
                         else:
                             st.info("ไม่พบ Internet Policy Group สำหรับ User นี้")
                     else:
@@ -5650,7 +5631,10 @@ else:
 
         with tab_map:
             st.caption(f"อ่าน mapping จาก SharePoint List: {FIREWALL_POLICY_MAPPING_LIST} ถ้าไม่มีหรือว่าง ระบบจะใช้ Default Mapping ในโค้ด")
-            map_rows = load_firewall_policy_mapping()
+            map_rows = [
+                row for row in load_firewall_policy_mapping()
+                if str(row.get("AD Group", "")).strip().casefold() != "fw_supervisor_b"
+            ]
             map_df = pd.DataFrame(map_rows)
             if not map_df.empty:
                 st.dataframe(map_df, use_container_width=True, hide_index=True)
