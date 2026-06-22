@@ -5370,7 +5370,7 @@ else:
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E")}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:after {position:absolute;left:46px;top:34px;color:#94A3B8;font-size:9.5px;font-weight:550;white-space:nowrap}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"ค้นหานโยบายของผู้ใช้"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"ค้นหาผู้ใช้ตาม Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"ตรวจสอบการแม็ป Policy"}
-        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:#FFFFFF!important;color:#4F46E5!important;border-color:#9DA8FF!important;border-bottom-color:#FFFFFF!important;border-radius:12px 12px 0 0!important;box-shadow:inset 0 2px 0 #6366F1,0 5px 12px rgba(79,70,229,.08)!important;z-index:2}
+        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:#FFFFFF!important;color:#4F46E5!important;border-color:transparent!important;border-radius:12px 12px 0 0!important;box-shadow:none!important;z-index:2}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] {padding-top:0!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-highlight"],
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-border"] {display:none!important}
@@ -5380,7 +5380,7 @@ else:
         .stApp:has(.adp-page-marker) .stButton>button p {color:inherit!important;font-size:inherit!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"] {border:1px solid #DCE3ED!important;border-radius:14px!important;background:#FFFFFF!important;box-shadow:0 7px 18px rgba(30,41,59,.045)!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]>div {padding:12px 14px!important}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] div[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stTextInput"]){position:relative;z-index:1;margin-top:-1px;border-top-color:#9DA8FF!important;border-radius:0 14px 14px 14px!important;box-shadow:0 8px 18px rgba(30,41,59,.045)!important}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] div[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stTextInput"]){position:relative;z-index:1;margin-top:-1px;border:0!important;border-radius:0 14px 14px 14px!important;background:#FFFFFF!important;box-shadow:0 8px 20px rgba(30,41,59,.055)!important}
         .adp-table-footer-marker{display:flex;align-items:center;gap:7px;height:30px;margin:5px 2px 0;padding:0 4px;color:#64748B;font-size:10.5px}
         .adp-table-footer-marker svg{width:15px;height:15px;stroke:#7EA5DF}
         .stApp:has(.adp-page-marker) [data-testid="stDataFrame"] {border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:none!important}
