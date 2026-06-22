@@ -4732,24 +4732,24 @@ else:
         <style>
         /* Dashboard-only visual system. All reusable classes use the db- prefix. */
         .db-shell{color:#172554;padding:0 0 24px}.db-topbar{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin:0 0 14px}
-        .db-top-card{height:40px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid #E2E8F0;border-radius:13px;background:#FFF;box-shadow:0 5px 16px rgba(15,23,42,.05);font-size:12px;font-weight:700;color:#334155}
-        .db-notify{position:relative;width:40px;padding:0;justify-content:center;font-size:17px}.db-notify-badge{position:absolute;right:-3px;top:-6px;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid #FFF;border-radius:50%;background:#EF4444;color:#FFF;font-size:9px}
+        .db-top-card{height:40px;display:flex;align-items:center;gap:9px;padding:0 14px;border:1px solid #E2E8F0;border-radius:13px;background:#FFF;box-shadow:0 5px 16px rgba(15,23,42,.05);font-size:12px;font-weight:700;color:#334155}.db-top-card svg{width:16px;height:16px;stroke:#334155}
+        .db-notify{position:relative;width:40px;padding:0;justify-content:center}.db-notify-badge{position:absolute;right:-3px;top:-6px;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid #FFF;border-radius:50%;background:#EF4444;color:#FFF;font-size:9px}
         .db-hero{position:relative;min-height:170px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;padding:26px 38px;margin-bottom:20px;border-radius:28px;background:linear-gradient(118deg,#2563EB 0%,#6366F1 54%,#8B5CF6 100%);box-shadow:0 14px 34px rgba(79,70,229,.20);color:#FFF}
         .db-hero:before,.db-hero:after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.17)}.db-hero:before{width:560px;height:190px;right:90px;bottom:-125px}.db-hero:after{width:430px;height:150px;right:10px;bottom:-100px}
         .db-hero-copy{position:relative;z-index:2}.db-hero-badge{display:inline-flex;padding:6px 12px;margin-bottom:10px;border-radius:999px;background:rgba(255,255,255,.13);font-size:11px;font-weight:800;letter-spacing:.02em}
         .db-hero-title{font-size:34px;font-weight:800;line-height:1.15;letter-spacing:-.035em}.db-hero-subtitle{margin-top:6px;font-size:15px;color:rgba(255,255,255,.92)}.db-hero-status{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.88)}.db-live-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 4px rgba(74,222,128,.14)}
-        .db-hero-visual{position:relative;z-index:2;display:flex;align-items:center;gap:14px;padding-right:22px}.db-hero-icon{display:flex;align-items:center;justify-content:center;width:72px;height:72px;border:1px solid rgba(255,255,255,.20);border-radius:22px;background:rgba(255,255,255,.12);box-shadow:0 12px 30px rgba(30,41,59,.13);font-size:37px;filter:saturate(.8)}.db-hero-icon-main{width:88px;height:88px;font-size:47px;background:rgba(255,255,255,.19)}
+        .db-hero-visual{position:relative;z-index:2;width:330px;height:130px;padding-right:8px}.db-hero-art{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 16px 22px rgba(30,41,59,.18))}
         .db-section-title{margin:0 0 10px;font-size:18px;font-weight:800;color:#172554;letter-spacing:-.015em}.db-overview-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:14px}
-        .db-metric-card{position:relative;min-width:0;height:120px;padding:15px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.045);overflow:hidden}.db-metric-head{display:flex;align-items:center;gap:10px}.db-metric-icon{display:flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;border-radius:50%;font-size:19px}.db-metric-label{min-width:0;font-size:13px;font-weight:700;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-metric-value{margin:5px 0 0 50px;font-size:30px;font-weight:800;line-height:1;color:#172554}.db-metric-foot{display:flex;align-items:flex-end;justify-content:space-between;margin:5px 0 0 50px}.db-metric-sub{font-size:11px;color:#64748B}.db-metric-delta{font-size:11px;font-weight:800;color:#16A34A}.db-delta-down{color:#EF4444}
+        .db-metric-card{position:relative;min-width:0;height:120px;padding:15px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.045);overflow:hidden}.db-metric-head{display:flex;align-items:center;gap:10px}.db-metric-icon{display:flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;border-radius:50%}.db-metric-icon svg{width:20px;height:20px;stroke:currentColor}.db-metric-label{min-width:0;font-size:13px;font-weight:700;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-metric-value{margin:5px 0 0 50px;font-size:30px;font-weight:800;line-height:1;color:#172554}.db-metric-foot{display:flex;align-items:flex-end;justify-content:space-between;margin:5px 0 0 50px}.db-metric-sub{font-size:11px;color:#64748B}.db-metric-delta{font-size:11px;font-weight:700;color:#94A3B8}.db-metric-delta:empty{display:none}
         .db-main-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,2fr);gap:14px;margin-top:14px}.db-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.db-panel{min-width:0;padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}.db-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.db-panel-title{font-size:16px;font-weight:800;color:#172554}.db-panel-link{font-size:11px;font-weight:700;color:#2563EB}
-        .db-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.db-action-card{position:relative;min-height:108px;padding:13px;border:1px solid #E2E8F0;border-radius:16px;background:#FFF;transition:.18s ease}.db-action-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 10px 22px rgba(79,70,229,.09)}.db-action-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#8B5CF6);color:#FFF;font-size:20px}.db-action-title{margin-top:8px;padding-right:24px;font-size:14px;font-weight:800;color:#172554}.db-action-desc{margin-top:3px;padding-right:18px;font-size:11px;line-height:1.4;color:#64748B}.db-action-arrow{position:absolute;right:11px;bottom:11px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:12px;font-weight:800}
-        .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:16px}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
+        .db-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.db-action-card{position:relative;min-height:108px;padding:13px;border:1px solid #E2E8F0;border-radius:16px;background:#FFF;transition:.18s ease}.db-action-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 10px 22px rgba(79,70,229,.09)}.db-action-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#8B5CF6);color:#FFF}.db-action-icon svg{width:21px;height:21px;stroke:currentColor}.db-action-title{margin-top:8px;padding-right:24px;font-size:14px;font-weight:800;color:#172554}.db-action-desc{margin-top:3px;padding-right:18px;font-size:11px;line-height:1.4;color:#64748B}.db-action-arrow{position:absolute;right:11px;bottom:11px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:12px;font-weight:800}
+        .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:16px}.db-row-icon svg{width:17px;height:17px;stroke:currentColor}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
         [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
-        [class*="st-key-db_action_"]{position:relative;height:0;min-height:0;margin:0;overflow:visible;z-index:10}
+        [class*="st-key-db_action_"]{position:relative!important;width:100%!important;height:0!important;min-height:0!important;margin:0!important;overflow:visible!important;z-index:20!important}
         [class*="st-key-db_action_"] .stButton{height:0;margin:0}
-        [class*="st-key-db_action_"] .stButton>button{position:absolute;right:10px;top:-38px;width:28px!important;height:28px!important;min-height:28px!important;padding:0!important;border:1px solid #C7D2FE!important;border-radius:50%!important;background:#FFF!important;color:#4F46E5!important;box-shadow:0 4px 10px rgba(79,70,229,.10)!important;opacity:1!important;font-size:16px!important;line-height:1!important;cursor:pointer!important}
-        [class*="st-key-db_action_"] .stButton>button:hover{transform:translateY(-1px)!important;background:#EEF2FF!important;border-color:#818CF8!important}
+        [class*="st-key-db_action_"] .stButton>button{position:absolute!important;left:0!important;top:-116px!important;width:100%!important;height:108px!important;min-height:108px!important;padding:0!important;border:0!important;border-radius:16px!important;background:transparent!important;color:transparent!important;box-shadow:none!important;opacity:.01!important;cursor:pointer!important}
+        [class*="st-key-db_action_"] .stButton>button:hover{transform:none!important;background:rgba(99,102,241,.025)!important;border:1px solid #A5B4FC!important}
         [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:linear-gradient(135deg,#F8FBFF 0%,#F6F8FF 55%,#FBF9FF 100%)!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:8px!important}
         @media(max-width:1100px){.db-overview-grid{grid-template-columns:repeat(3,1fr)}.db-main-grid,.db-bottom-grid{grid-template-columns:1fr}.db-hero-visual{opacity:.75}.db-action-grid{grid-template-columns:repeat(3,1fr)}}
         @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}}
@@ -4791,11 +4791,21 @@ else:
             _owners = df_comp["field_3"].fillna("").astype(str).str.strip()
             _unassigned_assets = int((_owners == "").sum())
 
+        def _db_svg(kind):
+            paths = {
+                "computer": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+                "monitor": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M7 20h10"/>',
+                "printer": '<path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7" rx="1"/><path d="M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/>',
+                "folder": '<path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+                "lock": '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',
+                "drop": '<path d="M12 2s7 7.2 7 13a7 7 0 0 1-14 0c0-5.8 7-13 7-13Z"/><path d="M9 16a3 3 0 0 0 3 2"/>',
+            }
+            return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{paths[kind]}</svg>'
+
         st.markdown(f"""
         <div class="db-shell">
           <div class="db-topbar">
-            <div class="db-top-card db-notify">♧<span class="db-notify-badge">3</span></div>
-            <div class="db-top-card">▣ <span class="db-date-label">{_dash_date}</span>&nbsp;&nbsp; {_dash_time}</div>
+            <div class="db-top-card"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span class="db-date-label">{_dash_date}</span><span>{_dash_time}</span></div>
           </div>
           <div class="db-hero">
             <div class="db-hero-copy">
@@ -4804,18 +4814,24 @@ else:
               <div class="db-hero-subtitle">Enterprise IT Management Platform</div>
               <div class="db-hero-status"><span class="db-live-dot"></span><span>ระบบพร้อมใช้งาน</span><span>|</span><span>อัปเดตล่าสุด: {_dash_date} {_dash_time}</span></div>
             </div>
-            <div class="db-hero-visual"><div class="db-hero-icon">☁</div><div class="db-hero-icon db-hero-icon-main">🛡</div><div class="db-hero-icon">▥</div></div>
+            <div class="db-hero-visual">
+              <svg class="db-hero-art" viewBox="0 0 330 130" fill="none" aria-hidden="true">
+                <g opacity=".42" stroke="#FFF" stroke-width="5"><rect x="8" y="35" width="92" height="62" rx="7"/><path d="M39 111h31M54 97v14M27 78l17-16 14 10 21-24"/></g>
+                <g transform="translate(116 8)"><path d="M49 2 91 20v32c0 31-18 51-42 65C25 103 7 83 7 52V20L49 2Z" fill="rgba(255,255,255,.22)" stroke="#FFF" stroke-width="7"/><path d="m29 57 13 13 28-31" stroke="#FFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <path d="M248 90h57a19 19 0 0 0 1-38 28 28 0 0 0-53-7 23 23 0 0 0-5 45Z" fill="rgba(255,255,255,.72)"/>
+              </svg>
+            </div>
           </div>
           <div class="db-section-title">Overview</div>
         """, unsafe_allow_html=True)
 
         _db_metrics = [
-            ("🖥", "Computers", _comp_count, "เครื่อง", "+8", "#F0EDFF", "#5B5FEF", ""),
-            ("▣", "Monitors", _mon_count, "จอภาพ", "+3", "#EAF5FF", "#1684E8", ""),
-            ("▤", "Printers", _prn_count, "เครื่องพิมพ์", "คงที่", "#EAF5FF", "#1684E8", ""),
-            ("▱", "NAS Shares", _nas_count, "แชร์", "+2", "#EAF8EF", "#16A34A", ""),
-            ("▣", "Password Records", _password_count, "รายการ", "+12", "#F1EDFF", "#6D4AFF", ""),
-            ("♢", "Ink Stock (Low)", _low_ink_count, "รายการ", f"-{_low_ink_count}" if _low_ink_count else "0", "#EAF5FF", "#1684E8", "db-delta-down" if _low_ink_count else ""),
+            (_db_svg("computer"), "Computers", _comp_count, "เครื่อง", "", "#F0EDFF", "#5B5FEF", ""),
+            (_db_svg("monitor"), "Monitors", _mon_count, "จอภาพ", "", "#EAF5FF", "#1684E8", ""),
+            (_db_svg("printer"), "Printers", _prn_count, "เครื่องพิมพ์", "", "#EAF5FF", "#1684E8", ""),
+            (_db_svg("folder"), "NAS Shares", _nas_count, "แชร์", "", "#EAF8EF", "#16A34A", ""),
+            (_db_svg("lock"), "Password Records", _password_count, "รายการ", "", "#F1EDFF", "#6D4AFF", ""),
+            (_db_svg("drop"), "Ink Stock (Low)", _low_ink_count, "รายการ", "", "#EAF5FF", "#1684E8", ""),
         ]
         _metric_html = ['<div class="db-overview-grid">']
         for _icon, _label, _value, _sub, _delta, _icon_bg, _icon_color, _delta_class in _db_metrics:
@@ -4828,17 +4844,17 @@ else:
             with st.container(key="db_quick_panel"):
                 st.markdown('<div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
                 _quick_actions = [
-                    ("computers", "▣", "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
-                    ("user_perm", "▱", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
-                    ("ad_policy", "♢", "AD / Firewall Policy", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
-                    ("password", "▣", "Password Manager", "จัดการรหัสผ่านของระบบและบริการ"),
-                    ("ink_stock", "♢", "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
-                    ("overview", "▥", "Reports & Analytics", "รายงานและการวิเคราะห์ข้อมูลเชิงลึก"),
+                    ("computers", _db_svg("computer"), "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
+                    ("user_perm", _db_svg("folder"), "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
+                    ("ad_policy", _db_svg("lock"), "AD / Firewall Policy", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
+                    ("password", _db_svg("lock"), "Password Manager", "จัดการรหัสผ่านของระบบและบริการ"),
+                    ("ink_stock", _db_svg("drop"), "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
+                    ("overview", _db_svg("monitor"), "Reports & Analytics", "รายงานและการวิเคราะห์ข้อมูลเชิงลึก"),
                 ]
                 _action_cols = st.columns(3, gap="small")
                 for _idx, (_target, _icon, _title, _description) in enumerate(_quick_actions):
                     with _action_cols[_idx % 3]:
-                        st.markdown(f'<div class="db-action-card"><div class="db-action-icon">{_icon}</div><div class="db-action-title">{_title}</div><div class="db-action-desc">{_description}</div></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="db-action-card"><div class="db-action-icon">{_icon}</div><div class="db-action-title">{_title}</div><div class="db-action-desc">{_description}</div><div class="db-action-arrow">›</div></div>', unsafe_allow_html=True)
                         if st.button("›", key=f"db_action_{_idx}_{_target}", help=f"เปิด {_title}"):
                             if _target == "overview":
                                 st.toast("Reports & Analytics แสดงอยู่ใน Dashboard นี้", icon="📊")
@@ -4883,17 +4899,7 @@ else:
             _attention_html.append('</div>')
             st.markdown("".join(_attention_html), unsafe_allow_html=True)
         with _bottom_cols[1]:
-            _recent = [
-                ("▣", "เพิ่มข้อมูล Computer ใหม่", "รายการสินทรัพย์คอมพิวเตอร์", _dash_time, "#E7F8EE", "#16A34A"),
-                ("▣", "เพิ่ม Password Record ใหม่", "Password Manager", _dash_time, "#F1EDFF", "#6D4AFF"),
-                ("▱", "อัปเดตสิทธิ์บน NAS Share", "NAS Permission Analyzer", _dash_time, "#EAF3FF", "#2563EB"),
-                ("▤", "อัปเดตข้อมูล Printer", "Asset Printer", _dash_time, "#FFF4E5", "#F59E0B"),
-            ]
-            _recent_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div><div class="db-panel-link">กิจกรรมตัวอย่าง</div></div><div class="db-activity-list">']
-            for _icon, _title, _sub, _time, _bg, _color in _recent:
-                _recent_html.append(f'<div class="db-list-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="db-time">{_time}</div></div>')
-            _recent_html.append('</div></div></div>')
-            st.markdown("".join(_recent_html), unsafe_allow_html=True)
+            st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div></div><div class="db-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div></div>', unsafe_allow_html=True)
 
         # Stop here so the legacy dashboard remains unreachable and other routes are untouched.
         st.stop()
