@@ -4077,7 +4077,10 @@ else:
     }
 
     def _button_icon(material_name: str):
-        return {"icon": _SAFE_EMOJI_ICONS.get(material_name, "•")} if _ST_BUTTON_HAS_ICON else {}
+        if not _ST_BUTTON_HAS_ICON:
+            return {}
+        safe_material_name = material_name if re.fullmatch(r"[a-z0-9_]+", material_name or "") else "circle"
+        return {"icon": f":material/{safe_material_name}:"}
 
     def _nav_item(nav_key: str, icon: str, text: str, badge_key: str = None, badge_tone: str = "blue", *, sub: bool = False):
         
