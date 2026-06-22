@@ -5278,8 +5278,8 @@ else:
             background:#F8FAFC;
         }
         .adp-hero {
-            min-height:158px; box-sizing:border-box; padding:27px 30px;
-            margin:0 0 18px; border-radius:20px; color:#fff;
+            height:132px; min-height:132px; box-sizing:border-box; padding:22px 26px;
+            margin:0 0 14px; border-radius:18px; color:#fff;
             display:flex; align-items:center; gap:20px; overflow:hidden; position:relative;
             background:
               radial-gradient(circle at 88% 18%,rgba(56,189,248,.38),transparent 21%),
@@ -5293,67 +5293,77 @@ else:
             box-shadow:0 0 0 26px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025);
         }
         .adp-hero-icon {
-            width:72px; height:72px; flex:0 0 72px; border-radius:18px;
-            display:grid; place-items:center; font-size:34px;
+            width:64px; height:64px; flex:0 0 64px; border-radius:16px;
+            display:grid; place-items:center; font-size:30px;
             background:linear-gradient(145deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
             border:1px solid rgba(255,255,255,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
         }
         .adp-hero-copy {position:relative; z-index:1; min-width:0}
-        .adp-hero h1 {font-size:32px!important; line-height:1.15; margin:0 0 10px!important; color:#fff!important; letter-spacing:-.025em}
-        .adp-hero p {font-size:15px; line-height:1.5; margin:0; color:rgba(255,255,255,.88)}
-        .adp-hero-art {position:absolute;z-index:1;right:46px;top:22px;width:190px;height:112px;color:#BAE6FD;opacity:.92}
-        .adp-globe {position:absolute;right:80px;top:0;width:88px;height:88px;border:4px solid rgba(125,211,252,.58);border-radius:50%}
+        .adp-hero h1 {font-size:28px!important; line-height:1.15; margin:0 0 9px!important; color:#fff!important; letter-spacing:-.025em}
+        .adp-hero p,.stMarkdown .adp-hero p {font-size:13px!important; line-height:1.5; margin:0!important; color:rgba(255,255,255,.88)!important}
+        .adp-hero-art {position:absolute;z-index:1;right:40px;top:14px;width:178px;height:104px;color:#BAE6FD;opacity:.92}
+        .adp-globe {position:absolute;right:76px;top:0;width:80px;height:80px;border:3px solid rgba(125,211,252,.58);border-radius:50%;background:linear-gradient(90deg,transparent 46%,rgba(125,211,252,.42) 47%,rgba(125,211,252,.42) 53%,transparent 54%)}
         .adp-globe:before,.adp-globe:after {content:"";position:absolute;left:8px;right:8px;border-top:3px solid rgba(125,211,252,.55)}
         .adp-globe:before{top:27px}.adp-globe:after{top:55px}
         .adp-wall {position:absolute;right:0;bottom:4px;display:grid;grid-template-columns:repeat(3,30px);gap:4px;transform:skewY(-2deg)}
         .adp-wall i{height:22px;border-radius:4px;background:linear-gradient(145deg,#7DD3FC,#60A5FA);box-shadow:0 4px 10px rgba(30,64,175,.24)}
         .adp-lock {position:absolute;right:18px;bottom:0;font-size:35px;filter:drop-shadow(0 5px 8px rgba(30,64,175,.24))}
         .adp-info-banner {
-            min-height:54px; box-sizing:border-box; display:flex; align-items:center; gap:12px;
-            margin:0 0 14px; padding:10px 16px; border-radius:14px;
-            color:#405174; font-size:14px; line-height:1.5;
+            min-height:46px; box-sizing:border-box; display:flex; align-items:center; gap:10px;
+            margin:0 0 10px; padding:8px 14px; border-radius:13px;
+            color:#405174; font-size:12.5px; line-height:1.45;
             background:linear-gradient(90deg,#EEF2FF,#F5F7FF); border:1px solid #DCE4FA;
         }
-        .adp-info-icon {color:#4F46E5; font-size:18px; flex:0 0 auto}
-        .adp-info-banner code {font-size:12px; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:6px}
-        .adp-stat-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:14px 0}
+        .adp-info-icon {color:#4F46E5; font-size:16px; flex:0 0 auto}
+        .adp-info-banner code {font-size:11px; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:6px}
+        .adp-stat-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin:10px 0}
         .adp-stat-card {
-            height:116px; box-sizing:border-box; display:flex; align-items:center; gap:14px;
-            padding:18px 20px; min-width:0; background:#FFFFFF; border:1px solid #E2E8F0;
-            border-radius:16px; box-shadow:0 5px 18px rgba(15,23,42,.045);
+            height:94px; box-sizing:border-box; display:flex; align-items:center; gap:12px;
+            padding:14px 16px; min-width:0; background:#FFFFFF; border:1px solid #E2E8F0;
+            border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.04);
         }
-        .adp-stat-icon {width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:grid;place-items:center;font-size:21px;background:#EEF2FF;color:#6366F1}
+        .adp-stat-icon {width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:#EEF2FF;color:#6366F1}
         .adp-stat-copy {min-width:0;overflow:hidden}
-        .adp-stat-label {font-size:12px;line-height:1.2;font-weight:700;letter-spacing:.055em;text-transform:uppercase;color:#64748B;margin-bottom:8px}
-        .adp-stat-value {font-size:21px;line-height:1.25;font-weight:750;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .adp-summary-grid {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 14px}
-        .adp-summary-card {height:112px;box-sizing:border-box;padding:17px 20px;background:#fff;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 5px 18px rgba(15,23,42,.035)}
+        .adp-stat-label {font-size:10.5px;line-height:1.2;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
+        .adp-stat-value {font-size:18px;line-height:1.25;font-weight:750;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .adp-summary-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 10px}
+        .adp-summary-card {height:90px;box-sizing:border-box;padding:13px 17px;background:#fff;border:1px solid #E2E8F0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.03)}
         .adp-summary-card:first-child {background:linear-gradient(135deg,#fff,#F7F5FF);border-color:#DDD6FE}
         .adp-summary-card:last-child {background:linear-gradient(135deg,#fff,#F0F9FF);border-color:#D7ECF8}
-        .adp-summary-label {font-size:12px;font-weight:750;letter-spacing:.055em;color:#4F46E5;text-transform:uppercase}
-        .adp-summary-value {font-size:25px;line-height:1.2;font-weight:800;color:#1E3A8A;margin-top:8px}
-        .adp-summary-note {font-size:12px;color:#64748B;margin-top:2px}
-        .adp-table-title {display:flex;align-items:center;gap:9px;font-size:15px;font-weight:750;color:#1E293B;margin:2px 0 10px}
-        .adp-field-label {font-size:13px;font-weight:700;color:#334155;margin:2px 0 6px}
-        .adp-table-wrap {background:#fff;border:1px solid #E2E8F0;border-radius:17px;padding:16px;box-shadow:0 6px 20px rgba(15,23,42,.04);margin-top:2px;overflow:hidden}
-        .adp-policy-table {width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;font-size:12px;color:#334155}
-        .adp-policy-table th {height:42px;box-sizing:border-box;padding:8px 10px;text-align:left;background:#F8FAFC;color:#52617A;font-size:11.5px;font-weight:800;border-right:1px solid #E2E8F0;border-bottom:1px solid #DCE3ED;white-space:nowrap}
-        .adp-policy-table td {height:46px;box-sizing:border-box;padding:8px 10px;border-right:1px solid #EDF1F5;border-bottom:1px solid #E8EDF3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+        .adp-summary-label {font-size:10.5px;font-weight:750;letter-spacing:.06em;color:#4F46E5;text-transform:uppercase}
+        .adp-summary-value {font-size:22px;line-height:1.15;font-weight:800;color:#1E3A8A;margin-top:6px}
+        .adp-summary-note {font-size:10.5px;color:#64748B;margin-top:1px}
+        .adp-table-title {display:flex;align-items:center;gap:8px;font-size:13px;font-weight:750;color:#1E293B;margin:0 0 9px}
+        .adp-field-label {font-size:11px;font-weight:700;color:#334155;margin:0 0 5px}
+        .adp-table-wrap {background:#fff;border:1px solid #E2E8F0;border-radius:15px;padding:12px;box-shadow:0 5px 16px rgba(15,23,42,.035);margin-top:0;overflow:hidden}
+        .adp-policy-table {width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid #E2E8F0;border-radius:10px;overflow:hidden;font-size:10.5px;color:#334155}
+        .adp-policy-table th {height:34px;box-sizing:border-box;padding:6px 8px;text-align:left;background:#F8FAFC;color:#52617A;font-size:10px;font-weight:800;border-right:1px solid #E2E8F0;border-bottom:1px solid #DCE3ED;white-space:nowrap}
+        .adp-policy-table td {height:36px;box-sizing:border-box;padding:6px 8px;border-right:1px solid #EDF1F5;border-bottom:1px solid #E8EDF3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
         .adp-policy-table tr:last-child td{border-bottom:0}.adp-policy-table th:last-child,.adp-policy-table td:last-child{border-right:0}
-        .adp-source-pill {display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:22px;padding:0 8px;border-radius:999px;background:#EDE9FE;color:#4F46E5;font-size:11px;font-weight:800}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:8px;padding:5px;background:transparent;border-radius:14px;width:min(760px,100%);max-width:100%;margin-bottom:10px}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:58px;flex:1;padding:0 20px;border:1px solid #E2E8F0;border-radius:13px;background:#fff;color:#64748B;font-size:14px;font-weight:700;box-shadow:0 3px 12px rgba(15,23,42,.025)}
-        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF,#F7F5FF)!important;color:#4F46E5!important;border-color:#A5B4FC!important;box-shadow:0 5px 14px rgba(79,70,229,.10)!important}
+        .adp-source-pill {display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:18px;padding:0 6px;border-radius:999px;background:#EDE9FE;color:#4F46E5;font-size:9.5px;font-weight:800}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:8px;padding:0;background:transparent;border-radius:13px;width:min(600px,100%);max-width:100%;margin-bottom:4px}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:58px;flex:1;position:relative;justify-content:flex-start;padding:0 12px 0 46px;border:1px solid #E2E8F0;border-radius:12px;background:#fff;color:#64748B;font-size:12px;font-weight:750;box-shadow:0 3px 10px rgba(15,23,42,.025)}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] p {font-size:12px!important;font-weight:750!important;color:inherit!important;margin:0 0 15px!important}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:before {position:absolute;left:14px;top:16px;width:24px;height:24px;display:grid;place-items:center;border-radius:8px;background:#F1F5F9;color:#64748B;font-size:14px}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):before{content:"♙"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):before{content:"⌕"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{content:"▱"}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:after {position:absolute;left:46px;top:34px;color:#94A3B8;font-size:9.5px;font-weight:550;white-space:nowrap}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"ค้นหานโยบายของผู้ใช้"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"ค้นหาผู้ใช้ตาม Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"ตรวจสอบการแม็ป Policy"}
+        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF,#F7F5FF)!important;color:#4F46E5!important;border-color:#A5B4FC!important;box-shadow:inset 0 2px 0 #6366F1,0 5px 14px rgba(79,70,229,.08)!important}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] {padding-top:8px!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-highlight"],
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-border"] {display:none!important}
         .stApp:has(.adp-page-marker) .stTextInput input,
-        .stApp:has(.adp-page-marker) .stSelectbox div[data-baseweb="select"]>div {min-height:48px!important;border-radius:12px!important;border-color:#DCE3ED!important}
-        .stApp:has(.adp-page-marker) .stButton>button {height:48px!important;min-height:48px!important;border-radius:12px!important}
+        .stApp:has(.adp-page-marker) .stSelectbox div[data-baseweb="select"]>div {height:42px!important;min-height:42px!important;border-radius:10px!important;border-color:#DCE3ED!important;font-size:12px!important}
+        .stApp:has(.adp-page-marker) .stButton>button {height:42px!important;min-height:42px!important;border-radius:10px!important;font-size:12px!important}
+        .stApp:has(.adp-page-marker) .stButton>button p {color:inherit!important;font-size:inherit!important}
+        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"] {border:1px solid #E2E8F0!important;border-radius:14px!important;background:#FFFFFF!important;box-shadow:0 4px 14px rgba(15,23,42,.035)!important}
+        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]>div {padding:12px 14px!important}
         .stApp:has(.adp-page-marker) [data-testid="stDataFrame"] {border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:none!important}
-        .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#fff;border:1px solid #E2E8F0!important;border-radius:14px!important;box-shadow:0 4px 14px rgba(15,23,42,.035);overflow:hidden;margin-top:8px}
-        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary {min-height:48px;padding-top:4px;padding-bottom:4px;font-size:14px;font-weight:700;color:#334155}
-        .stApp:has(.adp-page-marker) [data-testid="stVerticalBlock"] {gap:.7rem}
-        @media(max-width:900px){.adp-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adp-hero{min-height:150px}.adp-hero:after,.adp-hero-art{display:none}.adp-policy-table th:nth-child(5),.adp-policy-table td:nth-child(5),.adp-policy-table th:nth-child(6),.adp-policy-table td:nth-child(6){display:none}}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#fff;border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:0 3px 10px rgba(15,23,42,.025);overflow:hidden;margin-top:2px}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary {min-height:40px;padding-top:2px;padding-bottom:2px;font-size:12px;font-weight:700;color:#334155}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary p {font-size:12px!important;color:#334155!important}
+        .stApp:has(.adp-page-marker) [data-testid="stVerticalBlock"] {gap:.35rem}
+        @media(max-width:900px){.adp-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adp-hero{height:132px;min-height:132px}.adp-hero:after,.adp-hero-art{display:none}.adp-policy-table th:nth-child(5),.adp-policy-table td:nth-child(5),.adp-policy-table th:nth-child(6),.adp-policy-table td:nth-child(6){display:none}}
         @media(max-width:640px){.adp-hero{padding:22px 18px;gap:14px}.adp-hero-icon{width:54px;height:54px;flex-basis:54px;font-size:27px}.adp-hero h1{font-size:28px!important}.adp-hero p{font-size:14px}.adp-stat-grid,.adp-summary-grid{grid-template-columns:1fr}.adp-stat-card{height:108px}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]{height:50px;padding:0 9px;font-size:12px}}
         </style>
         <section class="adp-hero">
@@ -5401,7 +5411,9 @@ else:
                     value = str(row.get(key, "-") or "-")
                     safe_value = html.escape(value)
                     if key == "Source":
-                        cells.append(f'<td title="{safe_value}"><span class="adp-source-pill">{safe_value}</span></td>')
+                        # Policies in this view originate from the user's AD group
+                        # membership; keep the full mapping source in the tooltip.
+                        cells.append(f'<td title="{safe_value}"><span class="adp-source-pill">AD</span></td>')
                     else:
                         cells.append(f'<td title="{safe_value}">{safe_value}</td>')
                 body_rows.append('<tr>' + ''.join(cells) + '</tr>')
@@ -5409,35 +5421,36 @@ else:
             st.markdown(table, unsafe_allow_html=True)
 
         tab_user, tab_policy, tab_map = st.tabs([
-            "♙  ค้นหา User",
-            "⌕  ค้นหา Policy",
-            "▱  Policy Mapping",
+            "ค้นหา User",
+            "ค้นหา Policy",
+            "Policy Mapping",
         ])
 
         with tab_user:
             default_identity = st.session_state.get("user_email", "")
-            st.markdown('<div class="adp-field-label">User / Email / UPN</div>', unsafe_allow_html=True)
-            col_identity, col_lookup, col_clear = st.columns([0.64, 0.18, 0.18])
-            with col_identity:
-                user_identity = st.text_input(
-                    "User / Email / UPN",
-                    value=default_identity,
-                    placeholder="เช่น supranee.ch หรือ user@company.com",
-                    key="ad_policy_user_identity",
-                    label_visibility="collapsed",
-                )
-            with col_lookup:
-                lookup_clicked = st.button("ตรวจสอบ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
-            with col_clear:
-                if st.button("ล้าง Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
-                    ldap_find_user.clear()
-                    get_ldap_group_names_for_user.clear()
-                    get_ad_agent_policy_summary.clear()
-                    get_ad_agent_policy_users.clear()
-                    graph_find_user.clear()
-                    get_ad_group_names_for_user.clear()
-                    load_firewall_policy_mapping.clear()
-                    st.rerun()
+            with st.container(border=True):
+                st.markdown('<div class="adp-field-label">User / Email / UPN</div>', unsafe_allow_html=True)
+                col_identity, col_lookup, col_clear = st.columns([0.66, 0.17, 0.17])
+                with col_identity:
+                    user_identity = st.text_input(
+                        "User / Email / UPN",
+                        value=default_identity,
+                        placeholder="เช่น supranee.ch หรือ user@company.com",
+                        key="ad_policy_user_identity",
+                        label_visibility="collapsed",
+                    )
+                with col_lookup:
+                    lookup_clicked = st.button("ตรวจสอบ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
+                with col_clear:
+                    if st.button("ล้าง Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
+                        ldap_find_user.clear()
+                        get_ldap_group_names_for_user.clear()
+                        get_ad_agent_policy_summary.clear()
+                        get_ad_agent_policy_users.clear()
+                        graph_find_user.clear()
+                        get_ad_group_names_for_user.clear()
+                        load_firewall_policy_mapping.clear()
+                        st.rerun()
 
             if lookup_clicked or user_identity:
                 if not user_identity.strip():
