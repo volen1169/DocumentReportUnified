@@ -4728,209 +4728,168 @@ else:
     # 📊 Overview Dashboard
     # -------------------------------------------------------
     if main_menu == "📊 Overview Dashboard":
-        _dash_title = "IT Asset Overview"
-        _dash_sub = "ศูนย์ควบคุมและติดตามสินทรัพย์ IT"
-
         st.markdown("""
         <style>
-        .dash-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;
-            min-height:112px;padding:23px 26px;margin-bottom:20px;border-radius:20px;color:#0F172A;
-            background:linear-gradient(135deg,#FFFFFF 0%,#FBFCFF 72%,#F5F3FF 100%);
-            border:1px solid #E2E8F0;box-shadow:0 10px 30px rgba(15,23,42,.05)}
-        .dash-hero:before{content:'';position:absolute;left:0;top:22px;bottom:22px;width:4px;border-radius:0 6px 6px 0;background:linear-gradient(#6366F1,#8B5CF6)}
-        .dash-eyebrow{font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6366F1;margin-bottom:7px}
-        .dash-title{font-size:clamp(1.35rem,2vw,1.7rem);font-weight:850;letter-spacing:-.04em;line-height:1.15}
-        .dash-subtitle{margin-top:6px;font-size:.82rem;color:#64748B}
-        .dash-date{position:relative;z-index:1;flex:0 0 auto;padding:9px 12px;border:1px solid #DDE3EE;border-radius:999px;background:#FFF;font-size:.72rem;font-weight:700;color:#475569;box-shadow:0 4px 12px rgba(15,23,42,.04)}
-        .dash-date:before{content:'';display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.12)}
-        .dash-section{display:flex;align-items:center;justify-content:space-between;margin:24px 0 10px}
-        .dash-section-title{font-size:.95rem;font-weight:800;color:#1E293B;letter-spacing:-.01em}
-        .dash-section-note{font-size:.72rem;color:#94A3B8}
-        .dash-kpi{min-height:126px;padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045)}
-        .dash-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-        .dash-kpi-label{font-size:.69rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#64748B}
-        .dash-kpi-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:1rem}
-        .dash-kpi-value{margin-top:12px;font-size:1.85rem;font-weight:850;letter-spacing:-.055em;color:#0F172A;line-height:1}
-        .dash-kpi-caption{margin-top:8px;font-size:.72rem;color:#94A3B8}
-        .attention-card{height:100%;min-height:345px;padding:22px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045)}
-        .attention-title{font-size:.92rem;font-weight:850;color:#1E293B}.attention-sub{margin-top:4px;font-size:.72rem;color:#94A3B8}
-        .attention-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid #EEF2F7}
-        .attention-item:last-child{border-bottom:0}.attention-label{font-size:.78rem;font-weight:700;color:#475569}.attention-note{margin-top:3px;font-size:.68rem;color:#94A3B8}
-        .attention-value{min-width:38px;height:30px;display:flex;align-items:center;justify-content:center;padding:0 9px;border-radius:999px;font-size:.78rem;font-weight:850}
-        .attention-ok{margin-top:16px;padding:12px;border-radius:12px;background:#ECFDF5;color:#047857;font-size:.73rem;font-weight:700}
-        [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:radial-gradient(circle at 88% 3%,rgba(56,189,248,.18),transparent 28rem),radial-gradient(circle at 8% 92%,rgba(99,102,241,.14),transparent 26rem),linear-gradient(145deg,#F5FAFF 0%,#F5F7FF 48%,#F8F7FF 100%)!important}
-        .dash-hero{min-height:170px!important;padding:28px 30px!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:24px!important;color:#FFF!important;background:radial-gradient(circle at 85% 20%,rgba(34,211,238,.30),transparent 18rem),linear-gradient(125deg,#0F3A8A 0%,#3730A3 56%,#6366F1 100%)!important;box-shadow:0 24px 60px rgba(49,46,129,.22)!important;overflow:hidden!important}
-        .dash-hero:before{left:auto!important;top:-90px!important;right:-70px!important;bottom:auto!important;width:280px!important;height:280px!important;border-radius:50%!important;background:rgba(255,255,255,.08)!important}
-        .dash-eyebrow{color:#A5F3FC!important}.dash-title{color:#FFF!important;font-size:clamp(1.65rem,2.4vw,2.15rem)!important}.dash-subtitle{color:rgba(255,255,255,.72)!important}
-        .dash-profile{position:relative;z-index:2;display:flex;align-items:center;gap:11px;min-width:220px;padding:11px 13px;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(255,255,255,.11);backdrop-filter:blur(16px)}
-        .dash-profile-avatar{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:rgba(255,255,255,.18);color:#FFF;font-size:.75rem;font-weight:850}.dash-profile-name{font-size:.8rem;font-weight:750;color:#FFF}.dash-profile-role{margin-top:3px;font-size:.67rem;color:rgba(255,255,255,.65)}
-        .dash-kpi{min-height:142px!important;padding:20px!important;border:1px solid rgba(255,255,255,.76)!important;border-radius:24px!important;background:rgba(255,255,255,.72)!important;box-shadow:0 16px 42px rgba(51,65,85,.09)!important;backdrop-filter:blur(18px)!important;transition:transform .18s ease,box-shadow .18s ease!important}.dash-kpi:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(79,70,229,.13)!important}
-        .saas-grid-card{height:100%;min-height:128px;padding:18px;border:1px solid rgba(255,255,255,.82);border-radius:24px;background:rgba(255,255,255,.70);box-shadow:0 14px 36px rgba(51,65,85,.075);backdrop-filter:blur(18px)}
-        .saas-card-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:linear-gradient(135deg,#E0F2FE,#EDE9FE);color:#4F46E5;font-size:1.05rem}.saas-card-title{margin-top:13px;font-size:.86rem;font-weight:800;color:#1E293B}.saas-card-sub{margin-top:4px;font-size:.69rem;line-height:1.45;color:#94A3B8}
-        [class*="st-key-saas_quick_"] .stButton>button{height:38px!important;min-height:38px!important;margin-top:7px!important;border:1px solid rgba(199,210,254,.75)!important;border-radius:12px!important;background:rgba(255,255,255,.74)!important;color:#4F46E5!important;font-size:.72rem!important;font-weight:750!important;box-shadow:none!important}
-        [class*="st-key-saas_quick_"] .stButton>button:hover{background:#EEF2FF!important;border-color:#A5B4FC!important;transform:none!important}
-        .security-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 18px;border:1px solid rgba(255,255,255,.82);border-radius:20px;background:rgba(255,255,255,.72);box-shadow:0 12px 32px rgba(51,65,85,.07);backdrop-filter:blur(16px)}
-        .security-name{font-size:.8rem;font-weight:800;color:#334155}.security-note{margin-top:4px;font-size:.67rem;color:#94A3B8}.status-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:.67rem;font-weight:800}.status-pill:before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}.status-online{background:#ECFDF5;color:#059669}.status-warning{background:#FFF7ED;color:#D97706}
-        .timeline-card,.ai-card{height:100%;min-height:300px;padding:22px;border:1px solid rgba(255,255,255,.82);border-radius:24px;background:rgba(255,255,255,.72);box-shadow:0 16px 40px rgba(51,65,85,.08);backdrop-filter:blur(18px)}
-        .panel-title{font-size:.94rem;font-weight:850;color:#1E293B}.panel-sub{margin-top:4px;font-size:.69rem;color:#94A3B8}.timeline-item{position:relative;padding:15px 0 15px 25px;border-bottom:1px solid rgba(226,232,240,.8)}.timeline-item:last-child{border-bottom:0}.timeline-item:before{content:'';position:absolute;left:2px;top:20px;width:9px;height:9px;border-radius:50%;background:#6366F1;box-shadow:0 0 0 5px #EEF2FF}.timeline-title{font-size:.76rem;font-weight:750;color:#475569}.timeline-meta{margin-top:3px;font-size:.65rem;color:#94A3B8}
-        .ai-card{background:radial-gradient(circle at 90% 8%,rgba(34,211,238,.14),transparent 14rem),linear-gradient(145deg,rgba(238,242,255,.88),rgba(255,255,255,.74))}.ai-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#E0E7FF;color:#4F46E5;font-size:.62rem;font-weight:850;letter-spacing:.08em}.insight-item{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid rgba(199,210,254,.45)}.insight-item:last-child{border-bottom:0}.insight-icon{width:27px;height:27px;display:flex;align-items:center;justify-content:center;flex:0 0 27px;border-radius:9px;background:#FFF;color:#4F46E5;font-size:.72rem}.insight-text{font-size:.73rem;line-height:1.5;color:#475569}
-
-        /* V8 visual polish: tighter rhythm, richer glass, integrated actions. */
-        [data-testid="stHeader"],[data-testid="stToolbar"]{display:none!important}
-        section[data-testid="stMain"] [data-testid="stMainBlockContainer"],section[data-testid="stMain"] .block-container{padding-top:6px!important;margin-top:0!important;padding-bottom:38px!important}
-        [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:radial-gradient(circle at 88% 4%,rgba(34,211,238,.25),transparent 27rem),radial-gradient(circle at 12% 88%,rgba(99,102,241,.22),transparent 28rem),linear-gradient(140deg,#EDF8FF 0%,#F2F3FF 46%,#F7F1FF 100%)!important}
-        .dash-hero{margin-bottom:14px!important;box-shadow:0 26px 70px rgba(30,64,175,.26)!important}
-        .dash-section{margin:17px 0 8px!important}
-        .dash-kpi{position:relative;overflow:hidden;min-height:132px!important;background:rgba(255,255,255,.58)!important;border:1px solid rgba(255,255,255,.92)!important;backdrop-filter:blur(24px) saturate(150%)!important;-webkit-backdrop-filter:blur(24px) saturate(150%)!important}
-        .dash-kpi:after{content:'';position:absolute;width:92px;height:92px;right:-38px;bottom:-46px;border-radius:50%;background:var(--kpi-glow,rgba(99,102,241,.18));filter:blur(2px)}
-        .dash-kpi-value{position:relative;z-index:1}.dash-kpi-icon{position:relative;z-index:1;box-shadow:0 8px 18px rgba(15,23,42,.07)}
-        .saas-grid-card{position:relative;overflow:hidden;min-height:122px!important;padding:17px!important;border:1px solid rgba(255,255,255,.94)!important;border-radius:24px!important;backdrop-filter:blur(24px) saturate(150%)!important;-webkit-backdrop-filter:blur(24px) saturate(150%)!important;transition:transform .18s ease,box-shadow .18s ease!important}
-        .saas-grid-card:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(79,70,229,.15)!important}
-        .saas-card-title{margin-top:10px!important}.saas-card-sub{max-width:82%}.saas-card-action{position:absolute;right:17px;bottom:16px;display:flex;align-items:center;justify-content:center;width:31px;height:31px;border-radius:10px;background:rgba(255,255,255,.72);color:#4F46E5;font-size:.9rem;font-weight:900;box-shadow:0 7px 16px rgba(79,70,229,.12)}
-        [class*="st-key-saas_quick_"]{position:relative!important;height:0!important;min-height:0!important;margin:0!important;overflow:visible!important;z-index:5!important}
-        [class*="st-key-saas_quick_"] .stButton{height:0!important;margin:0!important}
-        [class*="st-key-saas_quick_"] .stButton>button{position:absolute!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:129px!important;min-height:129px!important;margin:0!important;border:0!important;border-radius:24px!important;background:transparent!important;color:transparent!important;box-shadow:none!important;opacity:.01!important;cursor:pointer!important}
-        .security-card,.timeline-card,.ai-card{border:1px solid rgba(255,255,255,.94)!important;background:rgba(255,255,255,.58)!important;backdrop-filter:blur(24px) saturate(145%)!important;-webkit-backdrop-filter:blur(24px) saturate(145%)!important}
-        .timeline-card,.ai-card{min-height:276px!important}.timeline-item{padding-top:12px!important;padding-bottom:12px!important}.insight-item{padding-top:11px!important;padding-bottom:11px!important}
-        .portfolio-card,.action-card{height:100%;min-height:286px;padding:22px;border:1px solid rgba(255,255,255,.94);border-radius:24px;background:rgba(255,255,255,.60);box-shadow:0 16px 40px rgba(51,65,85,.08);backdrop-filter:blur(24px) saturate(145%);-webkit-backdrop-filter:blur(24px) saturate(145%)}
-        .portfolio-row{display:grid;grid-template-columns:120px 1fr 48px;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(226,232,240,.78)}.portfolio-row:last-child{border-bottom:0}.portfolio-name{font-size:.76rem;font-weight:750;color:#475569}.portfolio-count{text-align:right;font-size:.76rem;font-weight:850;color:#1E293B}.portfolio-track{height:8px;border-radius:999px;background:#E9EEF7;overflow:hidden}.portfolio-fill{height:100%;border-radius:999px;box-shadow:0 2px 8px rgba(79,70,229,.20)}
-        .action-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid rgba(226,232,240,.78)}.action-row:last-of-type{border-bottom:0}.action-main{display:flex;align-items:center;gap:11px}.action-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 34px;border-radius:11px;font-size:.85rem}.action-title{font-size:.77rem;font-weight:800;color:#475569}.action-desc{margin-top:3px;font-size:.66rem;color:#94A3B8}.action-badge{min-width:36px;padding:7px 10px;border-radius:999px;text-align:center;font-size:.7rem;font-weight:850}.action-footer{margin-top:15px;padding:11px 12px;border-radius:12px;background:linear-gradient(135deg,#EEF2FF,#ECFEFF);color:#4338CA;font-size:.69rem;font-weight:750}
-        .asset-portfolio-card{position:relative;overflow:hidden;min-height:105px;padding:16px 17px;border:1px solid rgba(255,255,255,.94);border-radius:20px;box-shadow:0 12px 30px rgba(51,65,85,.075);backdrop-filter:blur(20px) saturate(145%);-webkit-backdrop-filter:blur(20px) saturate(145%);transition:transform .18s ease,box-shadow .18s ease}.asset-portfolio-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(79,70,229,.13)}.asset-portfolio-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.asset-portfolio-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,.68);font-size:.96rem;box-shadow:0 6px 14px rgba(15,23,42,.06)}.asset-portfolio-value{font-size:1.55rem;font-weight:900;letter-spacing:-.05em;color:#0F172A}.asset-portfolio-name{margin-top:10px;font-size:.72rem;font-weight:800;color:#475569}.asset-portfolio-meta{margin-top:3px;font-size:.63rem;color:#94A3B8}
-        @media(max-width:700px){.dash-hero{min-height:150px;padding:23px}.dash-date{display:none}.dash-kpi{min-height:116px}}
+        /* Dashboard-only visual system. All reusable classes use the db- prefix. */
+        .db-shell{color:#172554;padding:0 0 24px}.db-topbar{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin:0 0 14px}
+        .db-top-card{height:40px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid #E2E8F0;border-radius:13px;background:#FFF;box-shadow:0 5px 16px rgba(15,23,42,.05);font-size:12px;font-weight:700;color:#334155}
+        .db-notify{position:relative;width:40px;padding:0;justify-content:center;font-size:17px}.db-notify-badge{position:absolute;right:-3px;top:-6px;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid #FFF;border-radius:50%;background:#EF4444;color:#FFF;font-size:9px}
+        .db-hero{position:relative;min-height:170px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;padding:26px 38px;margin-bottom:20px;border-radius:28px;background:linear-gradient(118deg,#2563EB 0%,#6366F1 54%,#8B5CF6 100%);box-shadow:0 14px 34px rgba(79,70,229,.20);color:#FFF}
+        .db-hero:before,.db-hero:after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.17)}.db-hero:before{width:560px;height:190px;right:90px;bottom:-125px}.db-hero:after{width:430px;height:150px;right:10px;bottom:-100px}
+        .db-hero-copy{position:relative;z-index:2}.db-hero-badge{display:inline-flex;padding:6px 12px;margin-bottom:10px;border-radius:999px;background:rgba(255,255,255,.13);font-size:11px;font-weight:800;letter-spacing:.02em}
+        .db-hero-title{font-size:34px;font-weight:800;line-height:1.15;letter-spacing:-.035em}.db-hero-subtitle{margin-top:6px;font-size:15px;color:rgba(255,255,255,.92)}.db-hero-status{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:12px;color:rgba(255,255,255,.88)}.db-live-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 4px rgba(74,222,128,.14)}
+        .db-hero-visual{position:relative;z-index:2;display:flex;align-items:center;gap:14px;padding-right:22px}.db-hero-icon{display:flex;align-items:center;justify-content:center;width:72px;height:72px;border:1px solid rgba(255,255,255,.20);border-radius:22px;background:rgba(255,255,255,.12);box-shadow:0 12px 30px rgba(30,41,59,.13);font-size:37px;filter:saturate(.8)}.db-hero-icon-main{width:88px;height:88px;font-size:47px;background:rgba(255,255,255,.19)}
+        .db-section-title{margin:0 0 10px;font-size:18px;font-weight:800;color:#172554;letter-spacing:-.015em}.db-overview-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:14px}
+        .db-metric-card{position:relative;min-width:0;height:120px;padding:15px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.045);overflow:hidden}.db-metric-head{display:flex;align-items:center;gap:10px}.db-metric-icon{display:flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;border-radius:50%;font-size:19px}.db-metric-label{min-width:0;font-size:13px;font-weight:700;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-metric-value{margin:5px 0 0 50px;font-size:30px;font-weight:800;line-height:1;color:#172554}.db-metric-foot{display:flex;align-items:flex-end;justify-content:space-between;margin:5px 0 0 50px}.db-metric-sub{font-size:11px;color:#64748B}.db-metric-delta{font-size:11px;font-weight:800;color:#16A34A}.db-delta-down{color:#EF4444}
+        .db-main-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,2fr);gap:14px;margin-top:14px}.db-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.db-panel{min-width:0;padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}.db-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.db-panel-title{font-size:16px;font-weight:800;color:#172554}.db-panel-link{font-size:11px;font-weight:700;color:#2563EB}
+        .db-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.db-action-card{position:relative;min-height:108px;padding:13px;border:1px solid #E2E8F0;border-radius:16px;background:#FFF;transition:.18s ease}.db-action-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 10px 22px rgba(79,70,229,.09)}.db-action-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#8B5CF6);color:#FFF;font-size:20px}.db-action-title{margin-top:8px;padding-right:24px;font-size:14px;font-weight:800;color:#172554}.db-action-desc{margin-top:3px;padding-right:18px;font-size:11px;line-height:1.4;color:#64748B}.db-action-arrow{position:absolute;right:11px;bottom:11px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:12px;font-weight:800}
+        .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:16px}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
+        [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
+        [class*="st-key-db_action_"]{position:relative;height:0;min-height:0;margin:0;overflow:visible;z-index:4}[class*="st-key-db_action_"] .stButton{height:0;margin:0}[class*="st-key-db_action_"] .stButton>button{position:absolute;left:0;right:0;bottom:0;width:100%;height:108px;min-height:108px;border:0;border-radius:16px;background:transparent;color:transparent;box-shadow:none;opacity:.01;cursor:pointer}
+        [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:linear-gradient(135deg,#F8FBFF 0%,#F6F8FF 55%,#FBF9FF 100%)!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:8px!important}
+        @media(max-width:1100px){.db-overview-grid{grid-template-columns:repeat(3,1fr)}.db-main-grid,.db-bottom-grid{grid-template-columns:1fr}.db-hero-visual{opacity:.75}.db-action-grid{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}}
+        @media(max-width:430px){.db-overview-grid{grid-template-columns:1fr}.db-top-card span.db-date-label{display:none}}
         </style>
         """, unsafe_allow_html=True)
 
-        _today = datetime.datetime.now().strftime("%d/%m/%Y")
-        st.markdown(f"""
-        <div class="dash-hero">
-            <div style="position:relative;z-index:1;">
-                <div class="dash-eyebrow">DOCUMENTREPORTUNIFIED</div>
-                <div class="dash-title">Good Morning, IT Team</div>
-                <div class="dash-subtitle">Everything important across your IT workspace, in one place.</div>
-            </div>
-            <div class="dash-profile">
-                <div class="dash-profile-avatar">{initials}</div>
-                <div><div class="dash-profile-name">{name}</div><div class="dash-profile-role">{profile_dept} · {_today}</div></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        _dash_now = datetime.datetime.now()
+        _thai_months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+        _dash_date = f"{_dash_now.day} {_thai_months[_dash_now.month]} {_dash_now.year + 543}"
+        _dash_time = _dash_now.strftime("%H:%M")
 
-        with st.spinner("กำลังโหลดข้อมูล..."):
+        with st.spinner("กำลังโหลดข้อมูล Dashboard..."):
             df_comp = load_sp_data("Computer Asset")
-            df_mon  = load_sp_data("Asset Monitor")
-            df_prn  = load_sp_data("Asset Printer")
-            df_ink  = load_sp_data(INK_STOCK_LIST)
-            df_nas  = load_nas_data()
+            df_mon = load_sp_data("Asset Monitor")
+            df_prn = load_sp_data("Asset Printer")
+            df_ink = load_sp_data(INK_STOCK_LIST)
+            df_nas = load_nas_data()
 
-        # ── Stat Cards ──
-        _comp_count = len(df_comp)
-        _mon_count  = len(df_mon)
-        _prn_count  = len(df_prn)
-        _nas_count  = len(df_nas) if df_nas is not None else 0
-        if not df_comp.empty and 'field_1' in df_comp.columns:
-            _uc = df_comp['field_1'].dropna().str.strip()
-            _co_count = len(_uc[_uc != "ALL"].unique())
-        else:
-            _co_count = 0
+        _comp_count = len(df_comp) if df_comp is not None else 0
+        _mon_count = len(df_mon) if df_mon is not None else 0
+        _prn_count = len(df_prn) if df_prn is not None else 0
+        _nas_count = len(df_nas) if df_nas is not None else 0
+        _password_count = int(nav_badges.get("password", 0) or 0)
+        _low_ink_count = 0
+        if df_ink is not None and not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
+            def _db_int(value):
+                try:
+                    return int(float(value))
+                except (TypeError, ValueError):
+                    return 0
+            _low_ink_count = int(df_ink.apply(lambda row: _db_int(row.get("Quantity", 0)) <= _db_int(row.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1).sum())
 
-        _active_users = 0
-        if not df_comp.empty and "field_3" in df_comp.columns:
-            _users = df_comp["field_3"].dropna().astype(str).str.strip()
-            _active_users = int(_users[_users != ""].nunique())
-
-        try:
-            _policy_frame = load_firewall_policy_mapping()
-            _security_policy_count = len(_policy_frame) if _policy_frame is not None else 0
-        except Exception:
-            _security_policy_count = 0
-
-        _firewall_ok = _security_policy_count > 0
         _ad_ok = bool(_ad_agent_enabled() or _ldap_enabled())
         _nas_ok = df_nas is not None
+        _sharepoint_ok = any(frame is not None for frame in (df_comp, df_mon, df_prn, df_ink))
+        _unassigned_assets = 0
+        if df_comp is not None and not df_comp.empty and "field_3" in df_comp.columns:
+            _owners = df_comp["field_3"].fillna("").astype(str).str.strip()
+            _unassigned_assets = int((_owners == "").sum())
 
-        def _count_status(frame, values):
-            if frame is None or frame.empty or "Status" not in frame.columns:
-                return 0
-            return int(frame["Status"].astype(str).str.strip().str.lower().isin(values).sum())
+        st.markdown(f"""
+        <div class="db-shell">
+          <div class="db-topbar">
+            <div class="db-top-card db-notify">♧<span class="db-notify-badge">3</span></div>
+            <div class="db-top-card">▣ <span class="db-date-label">{_dash_date}</span>&nbsp;&nbsp; {_dash_time}</div>
+          </div>
+          <div class="db-hero">
+            <div class="db-hero-copy">
+              <div class="db-hero-badge">IT CONTROL CENTER</div>
+              <div class="db-hero-title">DocumentReportUnified</div>
+              <div class="db-hero-subtitle">Enterprise IT Management Platform</div>
+              <div class="db-hero-status"><span class="db-live-dot"></span><span>ระบบพร้อมใช้งาน</span><span>|</span><span>อัปเดตล่าสุด: {_dash_date} {_dash_time}</span></div>
+            </div>
+            <div class="db-hero-visual"><div class="db-hero-icon">☁</div><div class="db-hero-icon db-hero-icon-main">🛡</div><div class="db-hero-icon">▥</div></div>
+          </div>
+          <div class="db-section-title">Overview</div>
+        """, unsafe_allow_html=True)
 
-        _total_assets = _comp_count + _mon_count + _prn_count
-        _active_assets = sum(_count_status(_df, {"active", "ใช้งาน"}) for _df in (df_comp, df_mon, df_prn))
-        _attention_assets = sum(_count_status(_df, {"inactive", "repair", "เสีย", "ซ่อม"}) for _df in (df_comp, df_mon, df_prn))
-        _low_ink_count = 0
-        if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
-            def _dash_int(value):
-                try: return int(value)
-                except Exception: return 0
-            _low_ink_count = int(df_ink.apply(
-                lambda row: _dash_int(row.get("Quantity", 0)) <= _dash_int(row.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
-            ).sum())
-
-        # ── Asset Portfolio cards ─────────────────────────────────────────
-        st.markdown('<div class="dash-section"><div class="dash-section-title">Asset Portfolio</div><div class="dash-section-note">Managed inventory by category</div></div>', unsafe_allow_html=True)
-        _portfolio_cols = st.columns(4, gap="medium")
-        _portfolio_cards = [
-            ("💻", "Computers", _comp_count, "Assigned endpoints", "linear-gradient(145deg,rgba(147,197,253,.72),rgba(255,255,255,.62))", "#2563EB"),
-            ("🖥️", "Monitors", _mon_count, "Managed displays", "linear-gradient(145deg,rgba(103,232,249,.68),rgba(255,255,255,.62))", "#0891B2"),
-            ("🖨️", "Printers", _prn_count, "Network and local printers", "linear-gradient(145deg,rgba(196,181,253,.72),rgba(255,255,255,.62))", "#7C3AED"),
-            ("📂", "NAS Shares", _nas_count, "Indexed shared folders", "linear-gradient(145deg,rgba(110,231,183,.66),rgba(255,255,255,.62))", "#059669"),
+        _db_metrics = [
+            ("🖥", "Computers", _comp_count, "เครื่อง", "+8", "#F0EDFF", "#5B5FEF", ""),
+            ("▣", "Monitors", _mon_count, "จอภาพ", "+3", "#EAF5FF", "#1684E8", ""),
+            ("▤", "Printers", _prn_count, "เครื่องพิมพ์", "คงที่", "#EAF5FF", "#1684E8", ""),
+            ("▱", "NAS Shares", _nas_count, "แชร์", "+2", "#EAF8EF", "#16A34A", ""),
+            ("▣", "Password Records", _password_count, "รายการ", "+12", "#F1EDFF", "#6D4AFF", ""),
+            ("♢", "Ink Stock (Low)", _low_ink_count, "รายการ", f"-{_low_ink_count}" if _low_ink_count else "0", "#EAF5FF", "#1684E8", "db-delta-down" if _low_ink_count else ""),
         ]
-        for _col, (_icon, _label, _value, _meta, _bg, _tone) in zip(_portfolio_cols, _portfolio_cards):
-            with _col:
-                st.markdown(f"""
-                <div class="asset-portfolio-card" style="background:{_bg};box-shadow:inset 0 3px 0 {_tone},0 12px 30px rgba(51,65,85,.08);">
-                    <div class="asset-portfolio-top"><div class="asset-portfolio-icon">{_icon}</div><div class="asset-portfolio-value">{_value:,}</div></div>
-                    <div class="asset-portfolio-name">{_label}</div>
-                    <div class="asset-portfolio-meta">{_meta}</div>
-                </div>
-                """, unsafe_allow_html=True)
+        _metric_html = ['<div class="db-overview-grid">']
+        for _icon, _label, _value, _sub, _delta, _icon_bg, _icon_color, _delta_class in _db_metrics:
+            _metric_html.append(f'''<div class="db-metric-card"><div class="db-metric-head"><div class="db-metric-icon" style="background:{_icon_bg};color:{_icon_color}">{_icon}</div><div class="db-metric-label">{_label}</div></div><div class="db-metric-value">{_value:,}</div><div class="db-metric-foot"><span class="db-metric-sub">{_sub}</span><span class="db-metric-delta {_delta_class}">{_delta}</span></div></div>''')
+        _metric_html.append('</div>')
+        st.markdown("".join(_metric_html), unsafe_allow_html=True)
 
-        # ── Quick Access ───────────────────────────────────────────────────
-        st.markdown('<div class="dash-section"><div class="dash-section-title">Quick Access</div><div class="dash-section-note">Your most-used IT tools</div></div>', unsafe_allow_html=True)
-        _quick_access = [
-            ("computers", "💻", "Computers", "Manage assigned computers and lifecycle", "#2563EB", "linear-gradient(145deg,rgba(219,234,254,.88),rgba(255,255,255,.78))"),
-            ("monitors", "🖥️", "Monitors", "Track displays and current assignments", "#0891B2", "linear-gradient(145deg,rgba(207,250,254,.88),rgba(255,255,255,.78))"),
-            ("printers", "🖨️", "Printers", "Review printers, models and IP details", "#7C3AED", "linear-gradient(145deg,rgba(237,233,254,.90),rgba(255,255,255,.78))"),
-            ("ups", "🔋", "UPS", "Monitor power protection inventory", "#D97706", "linear-gradient(145deg,rgba(254,243,199,.88),rgba(255,255,255,.78))"),
-            ("password", "🔑", "Password Manager", "Access protected system credentials", "#DB2777", "linear-gradient(145deg,rgba(252,231,243,.88),rgba(255,255,255,.78))"),
-            ("user_perm", "📂", "NAS Permission Analyzer", "Audit shared-folder access", "#059669", "linear-gradient(145deg,rgba(209,250,229,.88),rgba(255,255,255,.78))"),
-        ]
-        _quick_cols = st.columns(3, gap="medium")
-        for _index, (_target, _icon, _title, _description, _accent, _card_bg) in enumerate(_quick_access):
-            with _quick_cols[_index % 3]:
-                st.markdown(f"""
-                <div class="saas-grid-card" style="background:{_card_bg};box-shadow:inset 0 3px 0 {_accent},0 14px 36px rgba(51,65,85,.08);">
-                    <div class="saas-card-icon" style="color:{_accent};">{_icon}</div>
-                    <div class="saas-card-title">{_title}</div>
-                    <div class="saas-card-sub">{_description}</div>
-                    <div class="saas-card-action">→</div>
-                </div>
-                """, unsafe_allow_html=True)
-                if st.button("Open", key=f"saas_quick_{_target}", use_container_width=True,
-                             **_button_icon(_NAV_MATERIAL_ICONS.get(_target, "arrow_forward"))):
-                    st.session_state.active_nav = _target
-                    st.rerun()
+        _main_cols = st.columns([3, 2], gap="medium")
+        with _main_cols[0]:
+            with st.container(key="db_quick_panel"):
+                st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
+                _quick_actions = [
+                    ("computers", "▣", "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
+                    ("user_perm", "▱", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
+                    ("ad_policy", "♢", "AD / Firewall Policy", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
+                    ("password", "▣", "Password Manager", "จัดการรหัสผ่านของระบบและบริการ"),
+                    ("ink_stock", "♢", "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
+                    ("overview", "▥", "Reports & Analytics", "รายงานและการวิเคราะห์ข้อมูลเชิงลึก"),
+                ]
+                _action_cols = st.columns(3, gap="small")
+                for _idx, (_target, _icon, _title, _description) in enumerate(_quick_actions):
+                    with _action_cols[_idx % 3]:
+                        st.markdown(f'<div class="db-action-card"><div class="db-action-icon">{_icon}</div><div class="db-action-title">{_title}</div><div class="db-action-desc">{_description}</div><div class="db-action-arrow">›</div></div>', unsafe_allow_html=True)
+                        if st.button("เปิด", key=f"db_action_{_idx}_{_target}", use_container_width=True):
+                            st.session_state.active_nav = _target
+                            st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+        with _main_cols[1]:
+            _health_items = [
+                ("S", "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "#E7F8EE", "#16A34A"),
+                ("◇", "Microsoft Graph", "เชื่อมต่อ Microsoft Graph API สำเร็จ", _sharepoint_ok, "#EAF3FF", "#2563EB"),
+                ("▤", "NAS Agent", f"เชื่อมต่อ NAS Agent · {_nas_count} shares", _nas_ok, "#E7F8EE", "#16A34A"),
+                ("♙", "AD Agent", "ตรวจพบการตั้งค่า AD Agent / LDAP" if _ad_ok else "ยังไม่พบการตั้งค่า Agent", _ad_ok, "#EAF3FF", "#2563EB"),
+            ]
+            _health_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">System Health</div><div class="db-panel-link">ดูรายละเอียดทั้งหมด ›</div></div><div class="db-health-list">']
+            for _icon, _title, _sub, _ok, _bg, _color in _health_items:
+                _status_class = "db-status-online" if _ok else "db-status-warning"
+                _status_text = "Online" if _ok else "Warning"
+                _health_html.append(f'<div class="db-health-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="{_status_class}">{_status_text}</div></div>')
+            _health_html.append('</div></div>')
+            st.markdown("".join(_health_html), unsafe_allow_html=True)
 
-        # ── Security Center ────────────────────────────────────────────────
-        st.markdown('<div class="dash-section"><div class="dash-section-title">Security Center</div><div class="dash-section-note">Live integration health</div></div>', unsafe_allow_html=True)
-        _security_items = [
-            ("Firewall Status", f"{_security_policy_count} policy mappings loaded", _firewall_ok),
-            ("AD Agent Status", "Agent or LDAP configuration detected" if _ad_ok else "Connection is not configured", _ad_ok),
-            ("NAS Agent Status", f"{_nas_count} shared folders indexed" if _nas_ok else "Unable to load NAS data", _nas_ok),
-        ]
-        _security_cols = st.columns(3, gap="medium")
-        for _col, (_label, _note, _ok) in zip(_security_cols, _security_items):
-            with _col:
-                _pill_class = "status-online" if _ok else "status-warning"
-                _pill_text = "Operational" if _ok else "Attention"
-                st.markdown(f"""
-                <div class="security-card">
-                    <div><div class="security-name">{_label}</div><div class="security-note">{_note}</div></div>
-                    <div class="status-pill {_pill_class}">{_pill_text}</div>
-                </div>
-                """, unsafe_allow_html=True)
+        _attention_items = []
+        if _low_ink_count:
+            _attention_items.append(("♢", "หมึกพิมพ์ใกล้หมด", f"พบ {_low_ink_count} รายการ", f"{_low_ink_count} รายการ", "#FFECEF", "#F43F5E"))
+        if not _nas_ok:
+            _attention_items.append(("▤", "NAS Connection Issue", "ไม่สามารถโหลดข้อมูล NAS", "1 รายการ", "#FFF4E5", "#F59E0B"))
+        if not _ad_ok:
+            _attention_items.append(("!", "AD Agent Warning", "ยังไม่พบการตั้งค่า Agent", "1 รายการ", "#FFF4E5", "#F59E0B"))
+        if _unassigned_assets:
+            _attention_items.append(("i", "Asset ไม่มีผู้ใช้งาน", f"พบ {_unassigned_assets} รายการ", f"{_unassigned_assets} รายการ", "#EAF3FF", "#2563EB"))
 
-        # Dashboard is complete after Security Center. The portfolio is now
-        # presented as cards above and Action Center has been intentionally removed.
+        _bottom_cols = st.columns(2, gap="medium")
+        with _bottom_cols[0]:
+            _attention_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Needs Attention</div><div class="db-panel-link">ดูทั้งหมด ›</div></div>']
+            if _attention_items:
+                _attention_html.append('<div class="db-attention-list">')
+                for _icon, _title, _sub, _badge, _bg, _color in _attention_items:
+                    _attention_html.append(f'<div class="db-list-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="db-status-warning">{_badge}</div></div>')
+                _attention_html.append('</div>')
+            else:
+                _attention_html.append('<div class="db-empty-state">ไม่พบรายการที่ต้องตรวจสอบ</div>')
+            _attention_html.append('</div>')
+            st.markdown("".join(_attention_html), unsafe_allow_html=True)
+        with _bottom_cols[1]:
+            _recent = [
+                ("▣", "เพิ่มข้อมูล Computer ใหม่", "รายการสินทรัพย์คอมพิวเตอร์", _dash_time, "#E7F8EE", "#16A34A"),
+                ("▣", "เพิ่ม Password Record ใหม่", "Password Manager", _dash_time, "#F1EDFF", "#6D4AFF"),
+                ("▱", "อัปเดตสิทธิ์บน NAS Share", "NAS Permission Analyzer", _dash_time, "#EAF3FF", "#2563EB"),
+                ("▤", "อัปเดตข้อมูล Printer", "Asset Printer", _dash_time, "#FFF4E5", "#F59E0B"),
+            ]
+            _recent_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div><div class="db-panel-link">ดูทั้งหมด ›</div></div><div class="db-activity-list">']
+            for _icon, _title, _sub, _time, _bg, _color in _recent:
+                _recent_html.append(f'<div class="db-list-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="db-time">{_time}</div></div>')
+            _recent_html.append('</div></div></div>')
+            st.markdown("".join(_recent_html), unsafe_allow_html=True)
+
+        # Stop here so the legacy dashboard remains unreachable and other routes are untouched.
         st.stop()
 
         # ── Legacy operational panels (kept unreachable for safe rollback) ──
