@@ -964,7 +964,7 @@ def graph_find_user(user_identity: str):
     if not ident:
         return None
 
-    select_cols = "id,displayName,userPrincipalName,mail,mailNickname"
+    select_cols = "id,displayName,userPrincipalName,mail,mailNickname,jobTitle,department,companyName"
 
     # 1) ถ้าเป็น email/upn ให้เรียกตรงก่อน
     if "@" in ident:
@@ -2824,6 +2824,36 @@ def get_sidebar_nav_badges():
     return badges
 
 
+@st.cache_data(ttl=900, show_spinner=False)
+def get_sidebar_profile_title(user_identity: str):
+    """Return the user's current AD job title without changing auth logic."""
+    identity = str(user_identity or "").strip()
+    if not identity:
+        return ""
+    if _ad_agent_enabled():
+        try:
+            summary = get_ad_agent_policy_summary(identity)
+            user_obj = summary.get("user", {}) if isinstance(summary, dict) else {}
+            title = str(user_obj.get("title") or user_obj.get("jobTitle") or "").strip()
+            if title:
+                return title
+        except Exception:
+            pass
+    if _ldap_enabled():
+        try:
+            user_obj = ldap_find_user(identity) or {}
+            title = str(user_obj.get("title") or "").strip()
+            if title:
+                return title
+        except Exception:
+            pass
+    try:
+        user_obj = graph_find_user(identity) or {}
+        return str(user_obj.get("jobTitle") or user_obj.get("title") or "").strip()
+    except Exception:
+        return ""
+
+
 # =============================================================================
 # THEME LOADER (SAFE REFACTOR)
 # ใช้โหลด Theme หลายชุดพร้อมกัน
@@ -3735,11 +3765,12 @@ else:
     compact = False
     st.session_state.sidebar_compact = False
 
-    profile_dept = "OPG Human Resource" if admin_mode else (
+    _profile_fallback = "OPG Human Resource" if admin_mode else (
         "Information Technology" if email and "optimal" in email.lower()
         else (email.split("@")[-1].replace(".co.th", "").replace(".com", "").title() if email and "@" in email
               else "Corporate Operations")
     )
+    profile_dept = get_sidebar_profile_title(email or name) or _profile_fallback
 
     # Inject sidebar CSS inside sidebar (wins over global MODERN_THEME)
     st.sidebar.markdown("""
@@ -4611,25 +4642,6 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="top-appbar">
-        <div class="top-brand">
-            <div class="top-brand-mark">DR</div>
-            <div>
-                <div class="top-brand-name">DocumentReportUnified</div>
-                <div class="top-brand-sub">Enterprise IT Management Platform</div>
-            </div>
-        </div>
-        <div class="top-user">
-            <div class="top-user-copy">
-                <div class="top-user-name">{name}</div>
-                <div class="top-user-role"><span class="top-online"></span>{profile_dept}</div>
-            </div>
-            <div class="top-user-avatar">{initials}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
     def _top_category(nav_key: str) -> str:
         if nav_key in ("computers", "monitors", "printers", "projector", "ups", "misc"):
             return "assets"
@@ -4653,29 +4665,6 @@ else:
             ("admin", "ผู้ดูแลระบบ", "admin_users"),
         ]
 
-    _top_cols = st.columns([1] * len(_top_items) + [0.72], gap="small")
-    for _col, (_cat, _label, _target) in zip(_top_cols[:-1], _top_items):
-        with _col:
-            if st.button(_label, key=f"topnav_{_cat}", use_container_width=True,
-                         type="primary" if _current_category == _cat else "secondary"):
-                st.session_state.active_nav = _target
-                st.rerun()
-    with _top_cols[-1]:
-        if st.button("ออกจากระบบ", key="top_logout", use_container_width=True):
-            expire_time = datetime.datetime.now() - datetime.timedelta(days=1)
-            for cookie_key in ("user_name", "user_email"):
-                try:
-                    cookie_manager.delete(cookie_key, key=f"top_logout_delete_{cookie_key}")
-                except Exception:
-                    pass
-                cookie_manager.set(cookie_key, "", expires_at=expire_time, max_age=0,
-                                   key=f"top_logout_set_{cookie_key}")
-            st.session_state.is_auth = False
-            st.session_state.skip_cookie_login = True
-            st.session_state.user_name = ""
-            st.session_state.user_email = ""
-            st.rerun()
-
     _subnav = {
         "assets": [("computers", "คอมพิวเตอร์"), ("monitors", "จอภาพ"), ("printers", "เครื่องพิมพ์"),
                    ("projector", "โปรเจกเตอร์"), ("ups", "UPS"), ("misc", "อุปกรณ์อื่น")],
@@ -4684,16 +4673,7 @@ else:
         "admin": [("admin_users", "ผู้ใช้งาน"), ("admin_settings", "ตั้งค่า"), ("admin_logs", "Activity Logs")],
     }.get(_current_category, [])
 
-    if _subnav:
-        st.markdown('<div class="top-sub-label">เมนูย่อย</div>', unsafe_allow_html=True)
-        _sub_cols = st.columns(len(_subnav), gap="small")
-        for _col, (_key, _label) in zip(_sub_cols, _subnav):
-            with _col:
-                if st.button(_label, key=f"topsub_{_key}", use_container_width=True,
-                             type="primary" if st.session_state.active_nav == _key else "secondary"):
-                    st.session_state.active_nav = _key
-                    st.rerun()
-    st.markdown('<div class="top-nav-rule"></div>', unsafe_allow_html=True)
+    # The legacy top navigation is no longer rendered; the sidebar owns routing.
 
     _nav = st.session_state.active_nav
 
@@ -4748,7 +4728,7 @@ else:
         .db-metric-card{position:relative;min-width:0;height:120px;padding:15px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.045);overflow:hidden}.db-metric-head{display:flex;align-items:center;gap:10px}.db-metric-icon{display:flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;border-radius:50%}.db-metric-icon svg{width:20px;height:20px;stroke:currentColor}.db-metric-label{min-width:0;font-size:13px;font-weight:700;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-metric-value{margin:5px 0 0 50px;font-size:30px;font-weight:800;line-height:1;color:#172554}.db-metric-foot{display:flex;align-items:flex-end;justify-content:space-between;margin:5px 0 0 50px}.db-metric-sub{font-size:11px;color:#64748B}.db-metric-delta{font-size:11px;font-weight:700;color:#94A3B8}.db-metric-delta:empty{display:none}
         .db-main-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,2fr);gap:14px;margin-top:14px}.db-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.db-panel{min-width:0;padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}.db-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.db-panel-title{font-size:16px;font-weight:800;color:#172554}.db-panel-link{font-size:11px;font-weight:700;color:#2563EB}
         .db-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.db-action-card{position:relative;min-height:108px;padding:13px;border:1px solid #E2E8F0;border-radius:16px;background:#FFF;transition:.18s ease}.db-action-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 10px 22px rgba(79,70,229,.09)}.db-action-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#8B5CF6);color:#FFF}.db-action-icon svg{width:21px;height:21px;stroke:currentColor}.db-action-title{margin-top:8px;padding-right:24px;font-size:14px;font-weight:800;color:#172554}.db-action-desc{margin-top:3px;padding-right:18px;font-size:11px;line-height:1.4;color:#64748B}.db-action-arrow{position:absolute;right:11px;bottom:11px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:12px;font-weight:800}
-        .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:16px}.db-row-icon svg{width:17px;height:17px;stroke:currentColor}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
+        .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:11px;min-height:56px;padding:9px 11px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(255,255,255,.85);border-radius:13px;box-shadow:0 6px 14px rgba(15,23,42,.06)}.db-row-icon svg{width:21px;height:21px;stroke:currentColor}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
         [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
         [class*="st-key-db_card_action_"] .stButton>button{position:relative!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:126px!important;padding:16px 48px 16px 16px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;color:#172554!important;box-shadow:none!important;text-align:left!important;white-space:pre-line!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
@@ -4807,20 +4787,21 @@ else:
                 "folder": '<path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
                 "lock": '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',
                 "drop": '<path d="M12 2s7 7.2 7 13a7 7 0 0 1-14 0c0-5.8 7-13 7-13Z"/><path d="M9 16a3 3 0 0 0 3 2"/>',
+                "sharepoint": '<circle cx="8" cy="12" r="5"/><circle cx="16.5" cy="7" r="3"/><circle cx="17" cy="17" r="3.5"/><path d="M11.5 9.5 14 8M12 14l2.2 1.4"/>',
+                "graph": '<circle cx="12" cy="4" r="2.5"/><circle cx="5" cy="17" r="2.5"/><circle cx="19" cy="17" r="2.5"/><path d="m10.7 6.2-4.4 8.6M13.3 6.2l4.4 8.6M7.5 17h9"/>',
+                "server": '<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M11 6.5h7M11 17.5h7"/>',
+                "directory": '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M3 20c0-3.4 2.7-6 6-6s6 2.6 6 6M14 15c3.6-.8 7 1.1 7 5"/>',
             }
             return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{paths[kind]}</svg>'
 
         st.markdown(f"""
         <div class="db-shell">
-          <div class="db-topbar">
-            <div class="db-top-card"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span class="db-date-label">{_dash_date}</span><span>{_dash_time}</span></div>
-          </div>
           <div class="db-hero">
             <div class="db-hero-copy">
               <div class="db-hero-badge">IT CONTROL CENTER</div>
               <div class="db-hero-title">DocumentReportUnified</div>
               <div class="db-hero-subtitle">Enterprise IT Management Platform</div>
-              <div class="db-hero-status"><span class="db-live-dot"></span><span>ระบบพร้อมใช้งาน</span><span>|</span><span>อัปเดตล่าสุด: {_dash_date} {_dash_time}</span></div>
+              <div class="db-hero-status"><span class="db-live-dot"></span><span>ระบบพร้อมใช้งาน</span><span>|</span><span>อัปเดตล่าสุด: {_dash_time}</span></div>
             </div>
             <div class="db-hero-visual">
               <svg class="db-hero-art" viewBox="0 0 330 130" fill="none" aria-hidden="true">
@@ -4874,10 +4855,10 @@ else:
                                 st.rerun()
         with _main_cols[1]:
             _health_items = [
-                ("S", "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "#E7F8EE", "#16A34A"),
-                ("◇", "Microsoft Graph", "เชื่อมต่อ Microsoft Graph API สำเร็จ", _sharepoint_ok, "#EAF3FF", "#2563EB"),
-                ("▤", "NAS Agent", f"เชื่อมต่อ NAS Agent · {_nas_count} shares", _nas_ok, "#E7F8EE", "#16A34A"),
-                ("♙", "AD Agent", "ตรวจพบการตั้งค่า AD Agent / LDAP" if _ad_ok else "ยังไม่พบการตั้งค่า Agent", _ad_ok, "#EAF3FF", "#2563EB"),
+                (_db_svg("sharepoint"), "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "linear-gradient(135deg,#DDF8EA,#F0FDF7)", "#0F9D68"),
+                (_db_svg("graph"), "Microsoft Graph", "เชื่อมต่อ Microsoft Graph API สำเร็จ", _sharepoint_ok, "linear-gradient(135deg,#E0ECFF,#F2F5FF)", "#2563EB"),
+                (_db_svg("server"), "NAS Agent", f"เชื่อมต่อ NAS Agent · {_nas_count} shares", _nas_ok, "linear-gradient(135deg,#DCFCE7,#F0FDF4)", "#16A34A"),
+                (_db_svg("directory"), "AD Agent", "ตรวจพบการตั้งค่า AD Agent / LDAP" if _ad_ok else "ยังไม่พบการตั้งค่า Agent", _ad_ok, "linear-gradient(135deg,#E0F2FE,#EEF2FF)", "#4F46E5"),
             ]
             _health_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">System Health</div><div class="db-panel-link">สถานะปัจจุบัน</div></div><div class="db-health-list">']
             for _icon, _title, _sub, _ok, _bg, _color in _health_items:
@@ -6428,7 +6409,3 @@ else:
                 for idx, row in df_pw.iterrows():
                     with card_cols[idx % 2]:
                         render_password_card(row, selected_sheet, idx, admin_mode, df_pw, drive_id, pw_sheets)
-                        # แสดง edit dialog
-                        if admin_mode and st.session_state.get(f"pw_edit_row_{selected_sheet}_{idx}"):
-                            st.session_state.pop(f"pw_edit_row_{selected_sheet}_{idx}")
-                            edit_password_dialog(row, idx, selected_sheet, df_pw, drive_id, pw_sheets)
