@@ -5189,24 +5189,26 @@ else:
         df_hw = load_sp_data(sub)
 
         if sub == "Computer Asset":
-            # UI OWNER: Computer Asset only.  SharePoint and CRUD functions remain unchanged.
+            # UI REVISION: CA-ENTERPRISE-2026-06-22-R3
+            # Compact single-row filters, fixed right-aligned pagination, and no column manager.
+            # UI OWNER: Computer Asset only. SharePoint and CRUD functions remain unchanged.
             st.markdown("""
             <div class="ca-page"></div>
             <style>
             .stApp:has(.ca-page) [data-testid="stMainBlockContainer"]{background:#F8FAFC;padding-top:1rem!important}
-            .stApp:has(.ca-page) [data-testid="stVerticalBlock"]{gap:.75rem}.ca-page{display:none}
-            .ca-header{height:110px;box-sizing:border-box;display:flex;align-items:center;gap:18px;padding:20px 24px;margin-bottom:16px;background:#FFF;border:1px solid #E2E8F0;border-radius:24px;box-shadow:0 12px 32px rgba(15,23,42,.06)}
-            .ca-header-icon{width:66px;height:66px;flex:0 0 66px;display:grid;place-items:center;color:#4F46E5;background:#F3F5FF;border:1px solid #E0E7FF;border-radius:20px}.ca-header-icon svg{width:38px;height:38px;stroke:currentColor}
-            .ca-header h1{margin:0 0 5px!important;color:#0F172A!important;font-size:27px!important;font-weight:800;letter-spacing:-.035em}.ca-header p{margin:0!important;color:#64748B!important;font-size:13px!important}
-            .ca-metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:16px}.ca-card{height:120px;box-sizing:border-box;position:relative;padding:16px 15px;background:#FFF;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 9px 24px rgba(15,23,42,.045);overflow:hidden}.ca-card:after{content:"";position:absolute;inset:auto 0 0;height:3px;background:var(--tone)}
-            .ca-card-icon{position:absolute;right:13px;top:14px;width:48px;height:48px;display:grid;place-items:center;border-radius:50%;color:var(--tone);background:var(--soft)}.ca-card-icon svg{width:25px;height:25px;stroke:currentColor}.ca-card-label{max-width:calc(100% - 48px);color:#475569;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-card-value{margin-top:8px;color:#0F172A;font-size:28px;line-height:1;font-weight:850;letter-spacing:-.04em}.ca-card-foot{position:absolute;left:15px;right:15px;bottom:13px;display:flex;justify-content:space-between;color:#64748B;font-size:12px}.ca-card-foot strong{color:var(--tone)}
-            .ca-search-panel{padding:13px 15px 4px;margin-bottom:14px;background:#FFF;border:1px solid #E2E8F0;border-radius:18px;box-shadow:0 8px 22px rgba(15,23,42,.045)}.ca-search-panel-title{margin-bottom:8px;color:#334155;font-size:12px;font-weight:750}.ca-filter-row{display:none}
-            .stApp:has(.ca-page) .stTextInput input,.stApp:has(.ca-page) .stSelectbox div[data-baseweb="select"]>div{height:52px!important;min-height:52px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;font-size:12px!important}.stApp:has(.ca-page) .stButton>button,.stApp:has(.ca-page) .stDownloadButton>button{height:42px;min-height:42px;border-radius:12px;border-color:#E2E8F0;font-size:12px;font-weight:700}.stApp:has(.ca-page) button[kind="primary"]{color:#FFF!important;border:0!important;background:linear-gradient(135deg,#3B82F6,#7C3AED)!important;box-shadow:0 8px 18px rgba(99,102,241,.22)}
+            .stApp:has(.ca-page) [data-testid="stVerticalBlock"]{gap:.58rem}.ca-page{display:none}
+            .ca-header{height:102px;box-sizing:border-box;display:flex;align-items:center;gap:16px;padding:17px 22px;margin-bottom:12px;background:#FFF;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 10px 26px rgba(15,23,42,.055)}
+            .ca-header-icon{width:58px;height:58px;flex:0 0 58px;display:grid;place-items:center;color:#4F46E5;background:#F3F5FF;border:1px solid #E0E7FF;border-radius:17px}.ca-header-icon svg{width:33px;height:33px;stroke:currentColor}
+            .ca-header h1{margin:0 0 4px!important;color:#0F172A!important;font-size:25px!important;font-weight:800;letter-spacing:-.035em}.ca-header p{margin:0!important;color:#64748B!important;font-size:12.5px!important}
+            .ca-metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px}.ca-card{height:106px;box-sizing:border-box;position:relative;padding:14px;background:#FFF;border:1px solid #E2E8F0;border-radius:17px;box-shadow:0 7px 18px rgba(15,23,42,.04);overflow:hidden}.ca-card:after{content:"";position:absolute;inset:auto 0 0;height:3px;background:var(--tone)}
+            .ca-card-icon{position:absolute;right:12px;top:12px;width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:var(--tone);background:var(--soft)}.ca-card-icon svg{width:22px;height:22px;stroke:currentColor}.ca-card-label{max-width:calc(100% - 44px);min-height:27px;color:#475569;font-size:11px;line-height:1.25;font-weight:700;overflow:hidden}.ca-card-value{margin-top:1px;color:#0F172A;font-size:25px;line-height:1;font-weight:850;letter-spacing:-.04em}.ca-card-foot{position:absolute;left:14px;right:14px;bottom:11px;display:flex;justify-content:space-between;color:#64748B;font-size:10.5px}.ca-card-foot strong{color:var(--tone)}
+            .ca-search-panel{display:none}.ca-search-panel-title{margin:2px 0 7px;padding:0 2px;color:#334155;font-size:12px;font-weight:800}.ca-filter-row{display:none}
+            .stApp:has(.ca-page) .stTextInput input,.stApp:has(.ca-page) .stSelectbox div[data-baseweb="select"]>div{height:44px!important;min-height:44px!important;border:1px solid #DDE5EF!important;border-radius:12px!important;background:#FFF!important;font-size:12px!important}.stApp:has(.ca-page) .stButton>button,.stApp:has(.ca-page) .stDownloadButton>button{height:40px;min-height:40px;border-radius:11px;border-color:#E2E8F0;font-size:12px;font-weight:700}.stApp:has(.ca-page) button[kind="primary"]{color:#FFF!important;border:0!important;background:linear-gradient(135deg,#3B82F6,#7C3AED)!important;box-shadow:0 7px 16px rgba(99,102,241,.20)}
             .ca-action-bar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#FFF;border:1px solid #E2E8F0;border-bottom:0;border-radius:18px 18px 0 0;color:#334155;font-size:12px;font-weight:750}.ca-action-title{display:flex;align-items:center;gap:8px}.ca-action-title span{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#EEF2FF;color:#4F46E5}
-            .ca-table{background:#FFF;border:1px solid #E2E8F0;border-radius:0 0 18px 18px;box-shadow:0 10px 26px rgba(15,23,42,.05);overflow:hidden}.ca-table-scroll{overflow:auto;max-height:610px}.ca-table table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11px;color:#334155}.ca-table th{position:sticky;top:0;z-index:2;height:50px;padding:0 11px;text-align:left;background:#F8FAFC;color:#475569;font-size:10.5px;font-weight:800;border-bottom:1px solid #E2E8F0;white-space:nowrap}.ca-table td{height:48px;box-sizing:border-box;padding:0 11px;border-bottom:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-table tbody tr:hover td{background:#F8FAFF}
+            .ca-table{background:#FFF;border:1px solid #E2E8F0;border-radius:0 0 17px 17px;box-shadow:0 8px 22px rgba(15,23,42,.045);overflow:hidden}.ca-table-scroll{overflow:auto;max-height:560px}.ca-table table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11px;color:#334155}.ca-table th{position:sticky;top:0;z-index:2;height:44px;padding:0 11px;text-align:left;background:#F8FAFC;color:#475569;font-size:10.5px;font-weight:800;border-bottom:1px solid #E2E8F0;white-space:nowrap}.ca-table td{height:44px;box-sizing:border-box;padding:0 11px;border-bottom:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-table tbody tr:hover td{background:#F8FAFF}
             .ca-status{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800}.ca-status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.ca-status-online{background:#ECFDF5;color:#059669}.ca-status-offline{background:#FEF2F2;color:#DC2626}.ca-status-nouser{background:#FFF7ED;color:#D97706}.ca-row-actions{display:flex;gap:5px}.ca-row-action{width:25px;height:25px;display:grid;place-items:center;border:1px solid #E2E8F0;border-radius:8px;font-size:12px}.ca-view{color:#2563EB;background:#EFF6FF}.ca-edit{color:#7C3AED;background:#F5F3FF}.ca-delete{color:#EF4444;background:#FEF2F2}
             .ca-table-footer{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;border-top:1px solid #E2E8F0;color:#64748B;font-size:11px}.ca-pages{display:flex;gap:5px}.ca-pages span{min-width:28px;height:28px;display:grid;place-items:center;border:1px solid #E2E8F0;border-radius:8px}.ca-pages .active{color:#FFF;border-color:#6366F1;background:linear-gradient(135deg,#6366F1,#7C3AED)}
-            .ca-analytics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px}.ca-chart-card,.ca-recent-card{height:265px;box-sizing:border-box;padding:16px;background:#FFF;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 9px 24px rgba(15,23,42,.045);overflow:hidden}.ca-chart-title{margin-bottom:13px;color:#0F172A;font-size:13px;font-weight:800}.ca-donut-layout{display:flex;align-items:center;gap:14px;height:190px}.ca-donut{width:128px;height:128px;flex:0 0 128px;border-radius:50%;position:relative;background:conic-gradient(var(--d1) 0 var(--p1),var(--d2) var(--p1) var(--p2),var(--d3) var(--p2) 100%)}.ca-donut:after{content:"";position:absolute;inset:24px;border-radius:50%;background:#FFF}.ca-legend{display:grid;gap:10px;min-width:0}.ca-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:10px}.ca-legend-row i{width:8px;height:8px;border-radius:50%}.ca-legend-row b{color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+            .ca-analytics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}.ca-chart-card,.ca-recent-card{height:235px;box-sizing:border-box;padding:15px;background:#FFF;border:1px solid #E2E8F0;border-radius:17px;box-shadow:0 7px 18px rgba(15,23,42,.04);overflow:hidden}.ca-chart-title{margin-bottom:11px;color:#0F172A;font-size:12.5px;font-weight:800}.ca-donut-layout{display:flex;align-items:center;gap:12px;height:164px}.ca-donut{width:112px;height:112px;flex:0 0 112px;border-radius:50%;position:relative;background:conic-gradient(var(--d1) 0 var(--p1),var(--d2) var(--p1) var(--p2),var(--d3) var(--p2) 100%)}.ca-donut:after{content:"";position:absolute;inset:22px;border-radius:50%;background:#FFF}.ca-legend{display:grid;gap:9px;min-width:0}.ca-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:10px}.ca-legend-row i{width:8px;height:8px;border-radius:50%}.ca-legend-row b{color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
             .ca-bars{display:grid;gap:12px}.ca-bar-row{display:grid;grid-template-columns:78px 1fr 24px;align-items:center;gap:8px;color:#475569;font-size:10px}.ca-bar-track{height:7px;background:#EEF2FF;border-radius:99px;overflow:hidden}.ca-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#3B82F6,#8B5CF6)}.ca-bar-row strong{text-align:right}.ca-recent-list{display:grid;gap:11px}.ca-recent-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding-bottom:9px;border-bottom:1px solid #F1F5F9;font-size:10px}.ca-recent-name{color:#334155;font-weight:750}.ca-recent-state,.ca-recent-time{color:#94A3B8}
             @media(max-width:1180px){.ca-metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ca-analytics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.ca-header{height:auto;min-height:110px;padding:18px}.ca-header-icon{width:56px;height:56px;flex-basis:56px}.ca-header h1{font-size:23px!important}.ca-metric-grid,.ca-analytics{grid-template-columns:1fr}.ca-chart-card,.ca-recent-card{height:auto;min-height:245px}.ca-table-footer{height:auto;padding:11px;gap:8px;align-items:flex-start;flex-direction:column}}
             </style>""", unsafe_allow_html=True)
@@ -5247,36 +5249,32 @@ else:
             st.markdown('<div class="ca-metric-grid">'+''.join(f'<div class="ca-card" style="--tone:{tone};--soft:{soft}"><div class="ca-card-label">{label}</div><div class="ca-card-value">{value:,}</div><div class="ca-card-icon">{_ca_icons[i]}</div><div class="ca-card-foot"><span>เครื่อง</span><strong>{_ca_pct(value,_ca_total):.2f}%</strong></div></div>' for i,(label,value,tone,soft) in enumerate(_ca_metrics))+'</div>',unsafe_allow_html=True)
 
             _ca_departments=sorted({_ca_value(r,"Department","field_2") for _,r in df_hw.iterrows()}); _ca_locations=sorted({_ca_value(r,"Location","field_4") for _,r in df_hw.iterrows()}); _ca_oses=sorted({_ca_value(r,"OS","OperatingSystem","field_11") for _,r in df_hw.iterrows()})
-            st.markdown('<div class="ca-search-panel"><div class="ca-search-panel-title">⌕ ค้นหาและกรองข้อมูล</div>',unsafe_allow_html=True)
-            f1,f2,f3,f4,f5=st.columns([2.2,1,1,1,1])
+            st.markdown('<div class="ca-search-panel-title">⌕ ค้นหาและกรองข้อมูล</div>',unsafe_allow_html=True)
+            f1,f2,f3,f4,f5,f6,f7=st.columns([2.35,1,1,1,1,.9,1.05])
             with f1: _ca_search=st.text_input("ค้นหา",placeholder="ค้นหา Computer, User, IP, Location",label_visibility="collapsed",key="ca_search")
             with f2: _ca_sf=st.selectbox("Status",["ทั้งหมด","Online","Offline","No User"],label_visibility="collapsed",key="ca_status")
             with f3: _ca_of=st.selectbox("OS",["ทั้งหมด"]+_ca_oses,label_visibility="collapsed",key="ca_os")
             with f4: _ca_df=st.selectbox("Department",["ทั้งหมด"]+_ca_departments,label_visibility="collapsed",key="ca_department")
             with f5: _ca_lf=st.selectbox("Location",["ทั้งหมด"]+_ca_locations,label_visibility="collapsed",key="ca_location")
-            _ca_fb1,_ca_fb2,_ca_fb3=st.columns([5,1,1])
-            with _ca_fb2: st.button("⌕ ค้นหา",use_container_width=True,type="primary",key="ca_search_button")
-            with _ca_fb3:
+            with f6: st.button("⌕ ค้นหา",use_container_width=True,type="primary",key="ca_search_button")
+            with f7:
                 if st.button("↻ ล้างตัวกรอง",use_container_width=True,key="ca_reset"):
                     for _ca_key in ("ca_search","ca_status","ca_os","ca_department","ca_location"):
                         st.session_state.pop(_ca_key,None)
                     st.rerun()
-            st.markdown('</div>',unsafe_allow_html=True)
             _ca_filtered=df_hw.copy()
             if _ca_search: _ca_filtered=_ca_filtered[_ca_filtered.astype(str).apply(lambda c:c.str.contains(_ca_search,case=False,na=False)).any(axis=1)]
             if _ca_sf!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_status(r)[0]==_ca_sf,axis=1)]
             if _ca_of!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"OS","OperatingSystem","field_11")==_ca_of,axis=1)]
             if _ca_df!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"Department","field_2")==_ca_df,axis=1)]
             if _ca_lf!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"Location","field_4")==_ca_lf,axis=1)]
-            a1,a2,a3,a4=st.columns([1.35,1,1.15,3.8])
+            a1,a2,_ca_action_space,a3=st.columns([1.25,.9,3.2,1.8])
             with a1:
                 if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
             with a2: st.download_button("⇩ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
             _ca_column_defs={"computer":"Computer Name","user":"User","department":"Department","ip":"IP Address","os":"OS","model":"Model","location":"Location","status":"Status","seen":"Last Seen"}
-            with a3:
-                _ca_visible_columns=st.multiselect("จัดการคอลัมน์",list(_ca_column_defs),default=list(_ca_column_defs),format_func=lambda key:_ca_column_defs[key],label_visibility="collapsed",placeholder="⚙ จัดการคอลัมน์",key="ca_visible_columns")
-                if not _ca_visible_columns: _ca_visible_columns=list(_ca_column_defs)
-            with a4: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A","Last Seen ล่าสุด"],label_visibility="collapsed",key="ca_sort")
+            _ca_visible_columns=list(_ca_column_defs)
+            with a3: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A","Last Seen ล่าสุด"],label_visibility="collapsed",key="ca_sort")
 
             _ca_records=[]
             for idx,row in _ca_filtered.iterrows():
@@ -5297,22 +5295,23 @@ else:
             _ca_from=(_ca_page-1)*10+1 if _ca_records else 0; _ca_to=min(_ca_page*10,len(_ca_records))
             st.markdown(f'<div class="ca-table"><div class="ca-table-scroll"><table style="min-width:{max(760,len(_ca_visible_columns)*125)}px"><thead><tr>{_ca_headers}</tr></thead><tbody>{"".join(_ca_body) or f"<tr><td colspan=\"{len(_ca_visible_columns)}\" style=\"text-align:center;color:#94A3B8\">ไม่พบข้อมูล</td></tr>"}</tbody></table></div><div class="ca-table-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><span>หน้า {_ca_page} / {_ca_page_count}</span></div></div>',unsafe_allow_html=True)
 
-            _ca_nav=st.columns([1,1,1,1,1,6])
-            with _ca_nav[0]:
-                if st.button("«",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
+            _ca_nav=st.columns([6,.65,.65,.65,.65,.65])
             with _ca_nav[1]:
+                if st.button("«",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
+            with _ca_nav[2]:
                 if st.button("‹",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
-            with _ca_nav[2]: st.button(str(_ca_page),use_container_width=True,type="primary",key="ca_current",disabled=True)
             with _ca_nav[3]:
-                if st.button("›",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
+                st.button(str(_ca_page),use_container_width=True,type="primary",key="ca_current",disabled=True)
             with _ca_nav[4]:
+                if st.button("›",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
+            with _ca_nav[5]:
                 if st.button("»",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
 
             # Keep the existing View/Edit/Delete CRUD flow reachable without
             # duplicating or changing its SharePoint implementation.
             if admin_mode and _ca_records:
                 _ca_action_map={f'{item[2]["computer"]} · {item[2]["user"]}':item for item in _ca_records}
-                _ca_action_cols=st.columns([5,1,1])
+                _ca_action_cols=st.columns([5.4,.8,1.05])
                 with _ca_action_cols[0]: _ca_selected=st.selectbox("เลือกรายการเพื่อดำเนินการ",list(_ca_action_map),label_visibility="collapsed",key="ca_selected_asset")
                 _ca_selected_row=_ca_action_map[_ca_selected][1]
                 with _ca_action_cols[1]:
@@ -6380,4 +6379,3 @@ else:
                         if admin_mode and st.session_state.get(f"pw_edit_row_{selected_sheet}_{idx}"):
                             st.session_state.pop(f"pw_edit_row_{selected_sheet}_{idx}")
                             edit_password_dialog(row, idx, selected_sheet, df_pw, drive_id, pw_sheets)
-
