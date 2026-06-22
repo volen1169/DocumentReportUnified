@@ -5275,7 +5275,8 @@ else:
         <div class="adp-page-marker"></div>
         <style>
         .stApp:has(.adp-page-marker) [data-testid="stMainBlockContainer"] {
-            background:#F8FAFC;
+            background:#F7F9FD;
+            padding-top:0!important;
         }
         .adp-hero {
             height:132px; min-height:132px; box-sizing:border-box; padding:22px 26px;
@@ -5285,7 +5286,8 @@ else:
               radial-gradient(circle at 88% 18%,rgba(56,189,248,.38),transparent 21%),
               radial-gradient(circle at 78% 120%,rgba(139,92,246,.72),transparent 36%),
               linear-gradient(128deg,#1E40AF 0%,#3949C6 50%,#6D3DEB 100%);
-            box-shadow:0 14px 34px rgba(79,70,229,.16);
+            border:1px solid rgba(255,255,255,.24);
+            box-shadow:0 16px 36px rgba(49,46,129,.18);
         }
         .adp-hero:after {
             content:""; position:absolute; width:210px; height:210px; right:35px; top:-84px;
@@ -5301,6 +5303,7 @@ else:
         .adp-hero-icon svg{width:38px;height:38px;display:block;filter:drop-shadow(0 4px 8px rgba(15,23,42,.18))}
         .adp-hero-copy {position:relative; z-index:1; min-width:0}
         .adp-hero h1 {font-size:28px!important; line-height:1.15; margin:0 0 9px!important; color:#fff!important; letter-spacing:-.025em}
+        .adp-hero h1 a,.adp-hero h1 svg{display:none!important}
         .adp-hero p,.stMarkdown .adp-hero p {font-size:13px!important; line-height:1.5; margin:0!important; color:rgba(255,255,255,.88)!important}
         .adp-hero-art {position:absolute;z-index:1;right:34px;top:7px;width:230px;height:118px;color:#BAE6FD;opacity:.94}
         .adp-hero-art svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 10px 18px rgba(30,64,175,.20))}
@@ -5314,25 +5317,26 @@ else:
             min-height:46px; box-sizing:border-box; display:flex; align-items:center; gap:10px;
             margin:0 0 10px; padding:8px 14px; border-radius:13px;
             color:#405174; font-size:12.5px; line-height:1.45;
-            background:linear-gradient(90deg,#EEF2FF,#F5F7FF); border:1px solid #DCE4FA;
+            background:linear-gradient(90deg,#F1F5FF 0%,#F8FAFF 100%); border:1px solid #D8E1F5;
+            box-shadow:0 2px 8px rgba(79,70,229,.025);
         }
         .adp-info-icon {color:#4F46E5; font-size:16px; flex:0 0 auto}
         .adp-info-banner code {font-size:11px; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:6px}
-        .adp-stat-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin:10px 0}
+        .adp-stat-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:14px 0 8px}
         .adp-stat-card {
             height:94px; box-sizing:border-box; display:flex; align-items:center; gap:12px;
             padding:14px 16px; min-width:0; background:#FFFFFF; border:1px solid #E2E8F0;
-            border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.04);
+            border-radius:14px; box-shadow:0 7px 18px rgba(30,41,59,.055);
         }
-        .adp-stat-icon {width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:#EEF2FF;color:#6366F1}
+        .adp-stat-icon {width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:linear-gradient(145deg,#EEF2FF,#E8EDFF);color:#5B5FF0;border:1px solid #E1E7FF}
         .adp-stat-icon svg{width:21px;height:21px;display:block;stroke:currentColor}
         .adp-stat-copy {min-width:0;overflow:hidden}
         .adp-stat-label {font-size:10.5px;line-height:1.2;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
-        .adp-stat-value {font-size:18px;line-height:1.25;font-weight:750;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .adp-summary-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 10px}
-        .adp-summary-card {height:90px;box-sizing:border-box;padding:13px 17px;background:#fff;border:1px solid #E2E8F0;border-radius:14px;box-shadow:0 4px 14px rgba(15,23,42,.03)}
-        .adp-summary-card:first-child {background:linear-gradient(135deg,#fff,#F7F5FF);border-color:#DDD6FE}
-        .adp-summary-card:last-child {background:linear-gradient(135deg,#fff,#F0F9FF);border-color:#D7ECF8}
+        .adp-stat-value {font-size:18px;line-height:1.25;font-weight:720;color:#16213A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .adp-summary-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 12px}
+        .adp-summary-card {height:90px;box-sizing:border-box;padding:14px 18px;background:#fff;border:1px solid #E2E8F0;border-radius:14px;box-shadow:0 6px 16px rgba(30,41,59,.04)}
+        .adp-summary-card:first-child {background:linear-gradient(135deg,#FFFFFF 0%,#F7F5FF 100%);border-color:#DCD7FE}
+        .adp-summary-card:last-child {background:linear-gradient(135deg,#FFFFFF 0%,#F0F9FF 100%);border-color:#D4EAF7}
         .adp-summary-card{position:relative;overflow:hidden}
         .adp-summary-icon{position:absolute;right:17px;top:17px;width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:#F0EDFF;color:#6366F1}
         .adp-summary-card:last-child .adp-summary-icon{background:#EAF7FF;color:#0284C7}
@@ -5343,14 +5347,14 @@ else:
         .adp-table-title {display:flex;align-items:center;gap:8px;font-size:13px;font-weight:750;color:#1E293B;margin:0 0 9px}
         .adp-table-title .adp-stat-icon svg{width:14px;height:14px}
         .adp-field-label {font-size:11px;font-weight:700;color:#334155;margin:0 0 5px}
-        .adp-table-wrap {background:#fff;border:1px solid #E2E8F0;border-radius:15px;padding:12px;box-shadow:0 5px 16px rgba(15,23,42,.035);margin-top:0;overflow:hidden}
+        .adp-table-wrap {background:#fff;border:1px solid #DEE5EF;border-radius:15px;padding:13px 14px 14px;box-shadow:0 8px 22px rgba(30,41,59,.05);margin-top:2px;overflow:hidden}
         .adp-policy-table {width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid #E2E8F0;border-radius:10px;overflow:hidden;font-size:10.5px;color:#334155}
-        .adp-policy-table th {height:34px;box-sizing:border-box;padding:6px 8px;text-align:left;background:#F8FAFC;color:#52617A;font-size:10px;font-weight:800;border-right:1px solid #E2E8F0;border-bottom:1px solid #DCE3ED;white-space:nowrap}
+        .adp-policy-table th {height:34px;box-sizing:border-box;padding:6px 8px;text-align:left;background:#F5F7FB;color:#52617A;font-size:10px;font-weight:800;border-right:1px solid #E2E8F0;border-bottom:1px solid #DCE3ED;white-space:nowrap}
         .adp-policy-table td {height:36px;box-sizing:border-box;padding:6px 8px;border-right:1px solid #EDF1F5;border-bottom:1px solid #E8EDF3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
         .adp-policy-table tr:last-child td{border-bottom:0}.adp-policy-table th:last-child,.adp-policy-table td:last-child{border-right:0}
         .adp-source-pill {display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:18px;padding:0 6px;border-radius:999px;background:#EDE9FE;color:#4F46E5;font-size:9.5px;font-weight:800}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:8px;padding:0;background:transparent;border-radius:13px;width:min(600px,100%);max-width:100%;margin-bottom:4px}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:58px;flex:1;position:relative;justify-content:flex-start;padding:0 12px 0 46px;border:1px solid #E2E8F0;border-radius:12px;background:#fff;color:#64748B;font-size:12px;font-weight:750;box-shadow:0 3px 10px rgba(15,23,42,.025)}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:58px;flex:1;position:relative;justify-content:flex-start;padding:0 12px 0 46px;border:1px solid #DDE4EE;border-radius:12px;background:#FFFFFF;color:#64748B;font-size:12px;font-weight:750;box-shadow:0 4px 12px rgba(30,41,59,.035)}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] p {font-size:12px!important;font-weight:750!important;color:inherit!important;margin:0 0 15px!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:before {content:"";position:absolute;left:15px;top:18px;width:20px;height:20px;background:currentColor;opacity:.9;mask-repeat:no-repeat;mask-position:center;mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='8' r='3' fill='black'/%3E%3Cpath d='M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6v1H3zM16 8h5v2h-5zM17.5 5.5h2v7h-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='8' r='3' fill='black'/%3E%3Cpath d='M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6v1H3zM16 8h5v2h-5zM17.5 5.5h2v7h-2z' fill='black'/%3E%3C/svg%3E")}
@@ -5358,7 +5362,7 @@ else:
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E")}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:after {position:absolute;left:46px;top:34px;color:#94A3B8;font-size:9.5px;font-weight:550;white-space:nowrap}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"ค้นหานโยบายของผู้ใช้"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"ค้นหาผู้ใช้ตาม Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"ตรวจสอบการแม็ป Policy"}
-        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF,#F7F5FF)!important;color:#4F46E5!important;border-color:#A5B4FC!important;box-shadow:inset 0 2px 0 #6366F1,0 5px 14px rgba(79,70,229,.08)!important}
+        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF,#F6F5FF)!important;color:#4F46E5!important;border-color:#9DA8FF!important;box-shadow:inset 0 2px 0 #6366F1,0 7px 16px rgba(79,70,229,.10)!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] {padding-top:8px!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-highlight"],
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-border"] {display:none!important}
@@ -5366,13 +5370,14 @@ else:
         .stApp:has(.adp-page-marker) .stSelectbox div[data-baseweb="select"]>div {height:42px!important;min-height:42px!important;border-radius:10px!important;border-color:#DCE3ED!important;font-size:12px!important}
         .stApp:has(.adp-page-marker) .stButton>button {height:42px!important;min-height:42px!important;border-radius:10px!important;font-size:12px!important}
         .stApp:has(.adp-page-marker) .stButton>button p {color:inherit!important;font-size:inherit!important}
-        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"] {border:1px solid #E2E8F0!important;border-radius:14px!important;background:#FFFFFF!important;box-shadow:0 4px 14px rgba(15,23,42,.035)!important}
+        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"] {border:1px solid #DCE3ED!important;border-radius:14px!important;background:#FFFFFF!important;box-shadow:0 7px 18px rgba(30,41,59,.045)!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]>div {padding:12px 14px!important}
         .stApp:has(.adp-page-marker) [data-testid="stDataFrame"] {border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:none!important}
-        .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#fff;border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:0 3px 10px rgba(15,23,42,.025);overflow:hidden;margin-top:2px}
-        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary {min-height:40px;padding-top:2px;padding-bottom:2px;font-size:12px;font-weight:700;color:#334155}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#FFFFFF!important;border:1px solid #DEE5EF!important;border-radius:12px!important;box-shadow:0 4px 12px rgba(30,41,59,.035);overflow:hidden;margin-top:3px}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary {min-height:40px;padding-top:2px;padding-bottom:2px;font-size:12px;font-weight:700;color:#334155;background:#FFFFFF!important}
+        .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary:hover{background:#F8FAFF!important}
         .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary p {font-size:12px!important;color:#334155!important}
-        .stApp:has(.adp-page-marker) [data-testid="stVerticalBlock"] {gap:.35rem}
+        .stApp:has(.adp-page-marker) [data-testid="stVerticalBlock"] {gap:.58rem}
         @media(max-width:900px){.adp-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adp-hero{height:132px;min-height:132px}.adp-hero:after,.adp-hero-art{display:none}.adp-policy-table th:nth-child(5),.adp-policy-table td:nth-child(5),.adp-policy-table th:nth-child(6),.adp-policy-table td:nth-child(6){display:none}}
         @media(max-width:640px){.adp-hero{padding:22px 18px;gap:14px}.adp-hero-icon{width:54px;height:54px;flex-basis:54px;font-size:27px}.adp-hero h1{font-size:28px!important}.adp-hero p{font-size:14px}.adp-stat-grid,.adp-summary-grid{grid-template-columns:1fr}.adp-stat-card{height:108px}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]{height:50px;padding:0 9px;font-size:12px}}
         </style>
