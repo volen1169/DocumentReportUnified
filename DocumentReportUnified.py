@@ -4728,19 +4728,6 @@ else:
     # 📊 Overview Dashboard
     # -------------------------------------------------------
     if main_menu == "📊 Overview Dashboard":
-        _db_requested_nav = st.query_params.get("db_nav")
-        if isinstance(_db_requested_nav, list):
-            _db_requested_nav = _db_requested_nav[0] if _db_requested_nav else None
-        _db_allowed_nav = {"overview", "computers", "user_perm", "ad_policy", "password", "ink_stock"}
-        if _db_requested_nav in _db_allowed_nav:
-            try:
-                del st.query_params["db_nav"]
-            except Exception:
-                pass
-            if _db_requested_nav != "overview":
-                st.session_state.active_nav = _db_requested_nav
-                st.rerun()
-
         st.markdown("""
         <style>
         /* Dashboard-only visual system. All reusable classes use the db- prefix. */
@@ -4759,7 +4746,11 @@ else:
         .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:16px}.db-row-icon svg{width:17px;height:17px;stroke:currentColor}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
         [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
-        a.db-action-card{display:block;color:inherit!important;text-decoration:none!important;cursor:pointer}.db-action-card:focus-visible{outline:3px solid rgba(99,102,241,.28);outline-offset:2px}
+        [class*="st-key-db_card_action_"] .stButton>button{position:relative!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:126px!important;padding:16px 48px 16px 16px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;color:#172554!important;box-shadow:none!important;text-align:left!important;white-space:pre-line!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+        [class*="st-key-db_card_action_"] .stButton>button:after{content:'›';position:absolute;right:13px;bottom:13px;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:15px;font-weight:800}
+        [class*="st-key-db_card_action_"] .stButton>button:hover{transform:translateY(-2px)!important;border-color:#A5B4FC!important;background:#FFF!important;color:#172554!important;box-shadow:0 10px 22px rgba(79,70,229,.09)!important}
+        [class*="st-key-db_card_action_"] .stButton>button p{width:100%!important;margin:0!important;white-space:pre-line!important;text-align:left!important;font-size:12px!important;line-height:1.55!important;color:#64748B!important;font-weight:500!important}
+        [class*="st-key-db_card_action_"] .stButton>button p:first-line{font-size:15px!important;font-weight:800!important;color:#172554!important}
         [data-testid="stAppViewContainer"],section[data-testid="stMain"]{background:linear-gradient(135deg,#F8FBFF 0%,#F6F8FF 55%,#FBF9FF 100%)!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:8px!important}
         @media(max-width:1100px){.db-overview-grid{grid-template-columns:repeat(3,1fr)}.db-main-grid,.db-bottom-grid{grid-template-columns:1fr}.db-hero-visual{opacity:.75}.db-action-grid{grid-template-columns:repeat(3,1fr)}}
         @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}}
@@ -4856,18 +4847,26 @@ else:
             with st.container(key="db_quick_panel"):
                 st.markdown('<div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
                 _quick_actions = [
-                    ("computers", _db_svg("computer"), "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
-                    ("user_perm", _db_svg("folder"), "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
-                    ("ad_policy", _db_svg("lock"), "AD / Firewall Policy", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
-                    ("password", _db_svg("lock"), "Password Manager", "จัดการรหัสผ่านของระบบและบริการ"),
-                    ("ink_stock", _db_svg("drop"), "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
-                    ("overview", _db_svg("monitor"), "Reports & Analytics", "รายงานและการวิเคราะห์ข้อมูลเชิงลึก"),
+                    ("computers", "🖥️", "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
+                    ("user_perm", "📁", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
+                    ("ad_policy", "🛡️", "AD / Firewall Policy", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
+                    ("password", "🔐", "Password Manager", "จัดการรหัสผ่านของระบบและบริการ"),
+                    ("ink_stock", "💧", "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
+                    ("overview", "📊", "Reports & Analytics", "รายงานและการวิเคราะห์ข้อมูลเชิงลึก"),
                 ]
-                _action_html = ['<div class="db-action-grid">']
+                _action_cols = st.columns(3, gap="small")
                 for _idx, (_target, _icon, _title, _description) in enumerate(_quick_actions):
-                    _action_html.append(f'<a class="db-action-card" href="?db_nav={_target}" target="_self" aria-label="เปิด {_title}"><div class="db-action-icon">{_icon}</div><div class="db-action-title">{_title}</div><div class="db-action-desc">{_description}</div><div class="db-action-arrow">›</div></a>')
-                _action_html.append('</div>')
-                st.markdown("".join(_action_html), unsafe_allow_html=True)
+                    with _action_cols[_idx % 3]:
+                        if st.button(
+                            f"{_icon}  {_title}\n{_description}",
+                            key=f"db_card_action_{_idx}_{_target}",
+                            use_container_width=True,
+                        ):
+                            if _target == "overview":
+                                st.toast("Reports & Analytics แสดงอยู่ใน Dashboard นี้", icon="📊")
+                            else:
+                                st.session_state.active_nav = _target
+                                st.rerun()
         with _main_cols[1]:
             _health_items = [
                 ("S", "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "#E7F8EE", "#16A34A"),
