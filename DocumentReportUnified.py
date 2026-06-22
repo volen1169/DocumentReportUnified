@@ -5334,6 +5334,10 @@ else:
         }
         .adp-stat-icon {width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:linear-gradient(145deg,#EEF2FF,#E8EDFF);color:#5B5FF0;border:1px solid #E1E7FF}
         .adp-stat-icon svg{width:21px;height:21px;display:block;stroke:currentColor}
+        .adp-stat-grid .adp-stat-card:nth-child(1) .adp-stat-icon{background:linear-gradient(145deg,#F3F0FF,#ECE8FF);color:#6D5DF8;border-color:#E5DEFF}
+        .adp-stat-grid .adp-stat-card:nth-child(2) .adp-stat-icon{background:linear-gradient(145deg,#EFF6FF,#E7F0FF);color:#2563EB;border-color:#D9E8FF}
+        .adp-stat-grid .adp-stat-card:nth-child(3) .adp-stat-icon{background:linear-gradient(145deg,#F5F1FF,#EEE9FF);color:#7C3AED;border-color:#E7DEFF}
+        .adp-stat-grid .adp-stat-card:nth-child(4) .adp-stat-icon{background:linear-gradient(145deg,#ECFDF5,#E5F8EF);color:#059669;border-color:#D4F1E3}
         .adp-stat-copy {min-width:0;overflow:hidden}
         .adp-stat-label {font-size:10.5px;line-height:1.2;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
         .adp-stat-value {font-size:18px;line-height:1.25;font-weight:720;color:#16213A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -5357,7 +5361,7 @@ else:
         .adp-policy-table td {height:36px;box-sizing:border-box;padding:6px 8px;border-right:1px solid #EDF1F5;border-bottom:1px solid #E8EDF3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
         .adp-policy-table tr:last-child td{border-bottom:0}.adp-policy-table th:last-child,.adp-policy-table td:last-child{border-right:0}
         .adp-source-pill {display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:18px;padding:0 6px;border-radius:999px;background:#EDE9FE;color:#4F46E5;font-size:9.5px;font-weight:800}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:8px;padding:0;background:transparent;border-radius:13px;width:min(600px,100%);max-width:100%;margin-bottom:4px}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-list"] {gap:8px;padding:0;background:transparent;border-radius:13px;width:min(600px,100%);max-width:100%;margin-bottom:0}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] {height:58px;flex:1;position:relative;justify-content:flex-start;padding:0 12px 0 46px;border:1px solid #DDE4EE;border-radius:12px;background:#FFFFFF;color:#64748B;font-size:12px;font-weight:750;box-shadow:0 4px 12px rgba(30,41,59,.035)}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"] p {font-size:12px!important;font-weight:750!important;color:inherit!important;margin:0 0 15px!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:before {content:"";position:absolute;left:15px;top:18px;width:20px;height:20px;background:currentColor;opacity:.9;mask-repeat:no-repeat;mask-position:center;mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain}
@@ -5366,8 +5370,8 @@ else:
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E")}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:after {position:absolute;left:46px;top:34px;color:#94A3B8;font-size:9.5px;font-weight:550;white-space:nowrap}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"ค้นหานโยบายของผู้ใช้"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"ค้นหาผู้ใช้ตาม Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"ตรวจสอบการแม็ป Policy"}
-        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF,#F6F5FF)!important;color:#4F46E5!important;border-color:#9DA8FF!important;box-shadow:inset 0 2px 0 #6366F1,0 7px 16px rgba(79,70,229,.10)!important}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] {padding-top:8px!important}
+        .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:#FFFFFF!important;color:#4F46E5!important;border-color:#9DA8FF!important;border-bottom-color:#FFFFFF!important;border-radius:12px 12px 0 0!important;box-shadow:inset 0 2px 0 #6366F1,0 5px 12px rgba(79,70,229,.08)!important;z-index:2}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] {padding-top:0!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-highlight"],
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-border"] {display:none!important}
         .stApp:has(.adp-page-marker) .stTextInput input,
@@ -5376,6 +5380,12 @@ else:
         .stApp:has(.adp-page-marker) .stButton>button p {color:inherit!important;font-size:inherit!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"] {border:1px solid #DCE3ED!important;border-radius:14px!important;background:#FFFFFF!important;box-shadow:0 7px 18px rgba(30,41,59,.045)!important}
         .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]>div {padding:12px 14px!important}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"]>div>div:first-child div[data-testid="stVerticalBlockBorderWrapper"]{margin-top:-1px;border-radius:0 14px 14px 14px!important}
+        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]:has(.adp-table-footer-marker){margin-top:-9px;border-radius:0 0 14px 14px!important;border-top-color:#EEF2F7!important;box-shadow:0 7px 18px rgba(30,41,59,.035)!important}
+        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]:has(.adp-table-footer-marker)>div{padding:6px 10px!important}
+        .stApp:has(.adp-page-marker) div[data-testid="stVerticalBlockBorderWrapper"]:has(.adp-table-footer-marker) .stButton>button{height:30px!important;min-height:30px!important;border-radius:9px!important;font-size:10.5px!important;box-shadow:none!important}
+        .adp-table-footer-marker{display:flex;align-items:center;gap:7px;height:30px;color:#64748B;font-size:10.5px}
+        .adp-table-footer-marker svg{width:15px;height:15px;stroke:#7EA5DF}
         .stApp:has(.adp-page-marker) [data-testid="stDataFrame"] {border:1px solid #E2E8F0!important;border-radius:12px!important;box-shadow:none!important}
         .stApp:has(.adp-page-marker) [data-testid="stExpander"] {background:#FFFFFF!important;border:1px solid #DEE5EF!important;border-radius:12px!important;box-shadow:0 4px 12px rgba(30,41,59,.035);overflow:hidden;margin-top:3px}
         .stApp:has(.adp-page-marker) [data-testid="stExpander"] summary {min-height:40px;padding-top:2px;padding-bottom:2px;font-size:12px;font-weight:700;color:#334155;background:#FFFFFF!important}
@@ -5512,6 +5522,39 @@ else:
 
                         if policies:
                             adp_policy_table(policies)
+                            adp_now = datetime.datetime.now(
+                                datetime.timezone(datetime.timedelta(hours=7))
+                            )
+                            adp_thai_months = [
+                                "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+                                "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",
+                            ]
+                            adp_updated_text = (
+                                f"{adp_now.day} {adp_thai_months[adp_now.month - 1]} "
+                                f"{adp_now.year} {adp_now:%H:%M}"
+                            )
+                            with st.container(border=True):
+                                footer_info, footer_refresh = st.columns([0.84, 0.16])
+                                with footer_info:
+                                    st.markdown(
+                                        f'''<div class="adp-table-footer-marker">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                                        <span>อัปเดตล่าสุด: {adp_updated_text}</span></div>''',
+                                        unsafe_allow_html=True,
+                                    )
+                                with footer_refresh:
+                                    if st.button(
+                                        "⟳  รีเฟรชข้อมูล",
+                                        use_container_width=True,
+                                        key="ad_policy_refresh_data",
+                                    ):
+                                        ldap_find_user.clear()
+                                        get_ldap_group_names_for_user.clear()
+                                        get_ad_agent_policy_summary.clear()
+                                        graph_find_user.clear()
+                                        get_ad_group_names_for_user.clear()
+                                        load_firewall_policy_mapping.clear()
+                                        st.rerun()
                         else:
                             st.info("ไม่พบ Internet Policy Group สำหรับ User นี้")
                     else:
