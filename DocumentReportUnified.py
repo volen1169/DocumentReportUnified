@@ -5278,6 +5278,10 @@ else:
             background:#F7F9FD;
             padding-top:0!important;
         }
+        .stApp:has(.adp-page-marker) [data-testid="stHeader"],
+        .stApp:has(.adp-page-marker) [data-testid="stToolbar"] {
+            display:none!important;
+        }
         .adp-hero {
             height:132px; min-height:132px; box-sizing:border-box; padding:22px 26px;
             margin:0 0 14px; border-radius:18px; color:#fff;
@@ -5508,26 +5512,8 @@ else:
 
                         if policies:
                             adp_policy_table(policies)
-                            for policy in policies:
-                                with st.expander(f"{policy.get('Policy Internet', '-')} - {policy.get('Policy Name', '-')}"):
-                                    c_allowed, c_blocked = st.columns(2)
-                                    with c_allowed:
-                                        st.markdown("**Allowed**")
-                                        st.write(policy.get("Allowed") or "-")
-                                    with c_blocked:
-                                        st.markdown("**Blocked**")
-                                        st.write(policy.get("Blocked") or "-")
-                                    st.markdown("**Description**")
-                                    st.write(policy.get("Description") or "-")
-                                    st.caption(f"Firewall Rule: {policy.get('Firewall Rule', '-') or '-'} | Owner: {policy.get('Owner', '-') or '-'} | Source: {policy.get('Source', '-')}")
                         else:
                             st.info("ไม่พบ Internet Policy Group สำหรับ User นี้")
-
-                        with st.expander("AD Groups ทั้งหมด"):
-                            if groups:
-                                st.dataframe(pd.DataFrame({"AD Group": groups}), use_container_width=True, hide_index=True)
-                            else:
-                                st.write("-")
                     else:
                         st.error(f"ยังดึงข้อมูล AD / Entra ID ไม่ได้: {policy_summary.get('error', '')}")
 
