@@ -392,6 +392,18 @@ SYNOACL_PATH = ""  # Deprecated: Streamlit ไม่เรียก synoacltool 
 SHAREPOINT_FOLDER = "Update IT documents"
 PASSWORD_FILE_NAME = "Password.xlsx"
 
+# Software Dashboard uses separate workbooks in the same SharePoint folder.
+# The dictionary key is the canonical category name consumed by the dashboard.
+SOFTWARE_FILE_MAP = {
+    "Group Email": "Software_Group_Email.xlsx",
+    "Office 365": "Software_Office365.xlsx",
+    "PDF": "Software_PDF.xlsx",
+    "Windows": "Software_Windows.xlsx",
+    "Offboarded Employees": "Software_Offboarded_Employees.xlsx",
+    "Antivirus Security": "Software_Antivirus_Security.xlsx",
+    "Developer Tools": "Software_Developer_Tools.xlsx",
+}
+
 # ✅ Admin List — เพิ่ม/ลด email ได้ที่นี่
 ADMIN_EMAILS = [
     "itsupport@poonyaruk.co.th",
@@ -1437,6 +1449,56 @@ def load_password_excel():
         return {"_error": f"HTTP {file_res.status_code} - ไม่พบไฟล์ที่ path: {SHAREPOINT_FOLDER}/{PASSWORD_FILE_NAME}", "_url": file_url}, drive_id
     except Exception as e:
         return {"_error": str(e)}, None
+
+@st.cache_data(ttl=1800)
+def load_software_excels():
+    """Load each software category from its own SharePoint Excel workbook.
+
+    Missing or unreadable files are reported separately and never replaced with
+    sample rows. All non-empty worksheets inside a workbook are combined into
+    the workbook's canonical software category.
+    """
+    token = get_access_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    software_sheets = {}
+    errors = {}
+    try:
+        site_id = get_sp_site_id()
+        drive_res = requests.get(
+            f"{GRAPH_URL}/sites/{site_id}/drive",
+            headers=headers,
+            timeout=30,
+        )
+        drive_res.raise_for_status()
+        drive_id = drive_res.json().get("id")
+        if not drive_id:
+            return {}, {"SharePoint Drive": "ไม่พบ Drive ID"}
+
+        for category_name, file_name in SOFTWARE_FILE_MAP.items():
+            file_url = f"{GRAPH_URL}/drives/{drive_id}/root:/{SHAREPOINT_FOLDER}/{file_name}:/content"
+            try:
+                file_res = requests.get(file_url, headers=headers, timeout=45)
+                if file_res.status_code != 200:
+                    errors[file_name] = f"HTTP {file_res.status_code}"
+                    continue
+                workbook = load_workbook(io.BytesIO(file_res.content), data_only=True)
+                frames = []
+                for worksheet in workbook.worksheets:
+                    frame = parse_password_sheet(worksheet)
+                    if not frame.empty:
+                        frame = frame.copy()
+                        frame["Source File"] = file_name
+                        frame["Source Sheet"] = worksheet.title
+                        frames.append(frame)
+                if frames:
+                    software_sheets[category_name] = pd.concat(frames, ignore_index=True, sort=False)
+                else:
+                    software_sheets[category_name] = pd.DataFrame()
+            except Exception as file_error:
+                errors[file_name] = str(file_error)
+        return software_sheets, errors
+    except Exception as error:
+        return {}, {"SharePoint": str(error)}
 
 def upload_password_excel(drive_id, sheets_dict):
     """
@@ -4832,10 +4894,10 @@ else:
 
         with st.spinner("กำลังรวบรวมข้อมูล Software จากระบบเดิม..."):
             try:
-                _sw_result = load_password_excel()
-                _sw_sheets, _sw_drive_id = _sw_result if isinstance(_sw_result, tuple) else ({}, None)
+                _sw_result = load_software_excels()
+                _sw_sheets, _sw_errors = _sw_result if isinstance(_sw_result, tuple) else ({}, {})
             except Exception:
-                _sw_sheets, _sw_drive_id = {}, None
+                _sw_sheets, _sw_errors = {}, {"Software": "ไม่สามารถโหลดข้อมูลได้"}
         _sw_sheets = {str(k): v.copy() for k, v in (_sw_sheets or {}).items() if k != "_error" and isinstance(v, pd.DataFrame)}
 
         _configs = [
@@ -4846,8 +4908,6 @@ else:
             {"key":"offboarded","title":"พนักงานลาออก","nav":"software_offboarded","icon":"offboard","tokens":["พนักงานลาออก","ลาออก","resign","offboard","former employee"]},
             {"key":"security","title":"Antivirus / Security","nav":"password","icon":"security","tokens":["antivirus","security","endpoint","eset","symantec"]},
             {"key":"developer","title":"Developer Tools","nav":"password","icon":"developer","tokens":["developer","visual studio","github","source code"]},
-            {"key":"database","title":"Database","nav":"password","icon":"database","tokens":["database","sql","oracle"]},
-            {"key":"other","title":"Other Software","nav":"password","icon":"other","tokens":["software","license","application"]},
         ]
         _assigned = set()
         _category_data = []
@@ -4907,14 +4967,13 @@ else:
             st.markdown(f'<div class="sw-dashboard"><div class="sw-header"><div class="sw-header-icon">{_sw_svg("software")}</div><div><div class="sw-header-title">Software Dashboard</div><div class="sw-header-sub">จัดการบัญชี License และซอฟต์แวร์ที่ใช้งานในองค์กร</div></div></div></div>', unsafe_allow_html=True)
         with _tools_col:
             _sw_query = st.text_input("ค้นหา", placeholder="ค้นหา Software, Publisher, License, Serial...", label_visibility="collapsed", key="sw_search_input")
-            _tool_items = st.columns([0.28, 0.72])
+            _tool_items = st.columns([0.22, 0.78])
             with _tool_items[0]:
-                st.markdown('<div class="sw-notification" title="การแจ้งเตือน"><span></span></div>', unsafe_allow_html=True)
+                _sw_badge = '<span></span>' if _sw_errors else ''
+                st.markdown(f'<div class="sw-notification" title="สถานะไฟล์ Software">{_sw_badge}</div>', unsafe_allow_html=True)
             with _tool_items[1]:
-                if admin_mode:
-                    _first_sheet = next(((n, f) for c in _category_data for n, f in c["sheets"]), None)
-                    if _first_sheet and st.button("＋ เพิ่ม Software", key="sw_add_software", use_container_width=True, type="primary"):
-                        add_password_dialog(_first_sheet[0], _first_sheet[1], _sw_drive_id, _sw_sheets)
+                _loaded_files = sum(name in _sw_sheets for name in SOFTWARE_FILE_MAP)
+                st.caption(f"โหลดไฟล์สำเร็จ {_loaded_files}/{len(SOFTWARE_FILE_MAP)} ไฟล์")
 
         if _sw_query.strip():
             _needle = _norm(_sw_query)
@@ -4941,7 +5000,7 @@ else:
 
         st.markdown('''<style>
         .sw-dashboard{color:#0F172A}.sw-header{display:flex;align-items:center;gap:18px;min-height:94px}.sw-header-icon,.sw-kpi-icon,.sw-category-icon{display:grid;place-items:center;flex:none}.sw-header-icon{width:64px;height:64px;border-radius:19px;color:#6366F1;background:linear-gradient(145deg,#E0E7FF,#F3E8FF);box-shadow:0 10px 24px rgba(99,102,241,.12)}.sw-header-icon svg{width:32px;height:32px}.sw-header-title{font-size:32px;font-weight:850;letter-spacing:-.035em}.sw-header-sub{margin-top:5px;color:#64748B;font-size:14px}
-        [class*="st-key-sw_search_input"] input{height:48px!important;border:1px solid #E2E8F0!important;border-radius:15px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important}.sw-notification{height:46px;border:1px solid #E2E8F0;border-radius:14px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.04);position:relative}.sw-notification:before{content:'';position:absolute;left:50%;top:50%;width:16px;height:18px;transform:translate(-50%,-50%);border:2px solid #334155;border-radius:9px 9px 5px 5px}.sw-notification span{position:absolute;right:13px;top:8px;width:8px;height:8px;border-radius:50%;background:#EF4444}.st-key-sw_add_software .stButton>button{height:46px!important;border:0!important;border-radius:14px!important;background:linear-gradient(135deg,#4F46E5,#7C3AED)!important;box-shadow:0 8px 20px rgba(99,102,241,.25)!important}
+        [class*="st-key-sw_search_input"] input{height:48px!important;border:1px solid #E2E8F0!important;border-radius:15px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important}.sw-notification{height:46px;border:1px solid #E2E8F0;border-radius:14px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.04);position:relative}.sw-notification:before{content:'';position:absolute;left:50%;top:50%;width:16px;height:18px;transform:translate(-50%,-50%);border:2px solid #334155;border-radius:9px 9px 5px 5px}.sw-notification span{position:absolute;right:13px;top:8px;width:8px;height:8px;border-radius:50%;background:#EF4444}
         .sw-kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px;margin:14px 0 18px}.sw-kpi-card{position:relative;min-height:126px;padding:17px 16px;border:1px solid #E2E8F0;border-radius:20px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.055)}.sw-kpi-icon{position:absolute;right:14px;top:14px;width:48px;height:48px;border-radius:50%}.sw-kpi-icon svg{width:24px;height:24px}.sw-kpi-label{padding-right:48px;font-size:13px;font-weight:800}.sw-kpi-value{margin-top:17px;font-size:31px;line-height:1;font-weight:900;letter-spacing:-.04em}.sw-kpi-sub{margin-top:10px;color:#64748B;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sw-section-title{margin:2px 0 11px;font-size:18px;font-weight:850}.sw-main-grid{display:grid;grid-template-columns:minmax(0,2.05fr) minmax(300px,.95fr);gap:16px;align-items:start}.sw-category-panel,.sw-chart-panel,.sw-license-panel,.sw-publisher-panel,.sw-expiring-panel,.sw-activity-panel{border:1px solid #E2E8F0;border-radius:20px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045)}.sw-category-panel{padding:16px}.sw-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.sw-category-card{position:relative;min-height:118px;padding:14px 14px 12px;border:1px solid #E2E8F0;border-radius:17px;background:#FFF;transition:.18s ease}.sw-category-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 12px 24px rgba(99,102,241,.09)}.sw-category-head{display:flex;align-items:center;gap:12px}.sw-category-icon{width:46px;height:46px;border-radius:14px}.sw-category-icon svg{width:25px;height:25px}.sw-category-title{font-size:14px;font-weight:850}.sw-category-count{margin-top:2px;color:#64748B;font-size:11px}.sw-category-stats{display:flex;gap:12px;margin-top:12px;font-size:10px;color:#64748B}.sw-category-stats b{font-size:10px}.sw-progress{height:5px;margin-top:10px;border-radius:99px;background:#EEF2F7;overflow:hidden}.sw-progress span{display:block;height:100%;border-radius:inherit}.sw-right-stack{display:grid;gap:13px}.sw-license-panel,.sw-publisher-panel,.sw-activity-panel,.sw-chart-panel,.sw-expiring-panel{padding:16px}.sw-panel-title{font-size:14px;font-weight:850}.sw-donut-wrap{display:flex;align-items:center;gap:18px;margin-top:14px}.sw-donut{display:grid;place-items:center;width:122px;height:122px;flex:none;border-radius:50%;position:relative}.sw-donut:after{content:'';position:absolute;inset:22px;border-radius:50%;background:#FFF}.sw-donut-center{position:relative;z-index:1;text-align:center;font-size:11px;color:#64748B}.sw-donut-center b{display:block;color:#0F172A;font-size:22px}.sw-legend{flex:1;display:grid;gap:10px}.sw-legend-row,.sw-publisher-row,.sw-activity-row{display:flex;align-items:center;justify-content:space-between;gap:9px;font-size:11px}.sw-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}.sw-publisher-list,.sw-activity-list{display:grid;gap:0;margin-top:10px}.sw-publisher-row,.sw-activity-row{padding:9px 0;border-top:1px solid #EEF2F7}.sw-publisher-row:first-child,.sw-activity-row:first-child{border-top:0}.sw-bottom-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}.sw-empty-state{display:grid;place-items:center;min-height:110px;padding:22px;color:#94A3B8;text-align:center;font-size:12px;border:1px dashed #CBD5E1;border-radius:14px;background:#F8FAFC}.sw-expiring-table{width:100%;margin-top:12px;border-collapse:collapse;font-size:11px}.sw-expiring-table th,.sw-expiring-table td{padding:9px 8px;border-bottom:1px solid #E2E8F0;text-align:left}.sw-expiring-table th{color:#64748B;background:#F8FAFC}.sw-trend-bars{display:flex;align-items:end;gap:10px;height:130px;margin-top:14px;padding:5px 4px 22px;border-bottom:1px solid #E2E8F0}.sw-trend-col{display:flex;flex:1;align-items:center;justify-content:end;flex-direction:column;height:100%;gap:4px}.sw-trend-bar{width:14px;min-height:3px;border-radius:7px 7px 2px 2px;background:linear-gradient(#6366F1,#8B5CF6)}.sw-trend-label{font-size:9px;color:#94A3B8;white-space:nowrap}.sw-trend-value{font-size:9px;color:#475569}
         [class*="st-key-sw_cat_btn_"]{margin-top:-45px;padding:0 12px 9px;position:relative;z-index:3}[class*="st-key-sw_cat_btn_"] .stButton>button{height:30px!important;min-height:30px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#4F46E5!important;justify-content:flex-end!important;font-size:11px!important;box-shadow:none!important}
         @media(max-width:1200px){.sw-kpi-grid{grid-template-columns:repeat(3,1fr)}.sw-main-grid{grid-template-columns:1fr}.sw-category-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.sw-kpi-grid{grid-template-columns:repeat(2,1fr)}.sw-category-grid,.sw-bottom-grid{grid-template-columns:1fr}.sw-header-title{font-size:27px}}
