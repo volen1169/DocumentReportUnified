@@ -4768,14 +4768,32 @@ else:
 
     def _render_hardware_command_center():
         """Enterprise hardware command center built only from existing asset data."""
+        def _hd_svg(kind):
+            _paths = {
+                "dashboard": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="m7 12 3-3 2 2 5-5"/>',
+                "assets": '<rect x="4" y="4" width="16" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+                "online": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M8 10l3 3 5-6"/>',
+                "maintenance": '<path d="m14.7 6.3 3-3a4 4 0 0 1-5 5L5 16l-2 5 5-2 7.7-7.7a4 4 0 0 1 5-5l-3 3"/>',
+                "offline": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M9 8l6 6M15 8l-6 6"/>',
+                "warranty": '<path d="M12 3 20 6v6c0 5-3.3 8-8 10-4.7-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/>',
+                "computer": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+                "monitor": '<rect x="3" y="3" width="18" height="15" rx="2"/><path d="M7 21h10"/>',
+                "printer": '<path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7" rx="1"/><path d="M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/>',
+                "projector": '<rect x="3" y="6" width="18" height="11" rx="2"/><circle cx="15.5" cy="11.5" r="3"/><path d="M7 17v3M17 17v3M6 10h3"/>',
+                "ups": '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 7h4M9 16h6M12 12v4"/>',
+                "cctv": '<path d="m4 8 12-4 2 6-12 4-2-6Z"/><path d="m15 11 3 4M18 15h3M9 13v5M6 21h8"/>',
+                "access": '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M15 12h.01"/>',
+            }
+            return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{_paths[kind]}</svg>'
+
         _hd_categories = [
-            ("computers", "Computers", "Computer Asset", "🖥️", "#3B82F6", "#EAF3FF"),
-            ("monitors", "Monitors", "Asset Monitor", "▣", "#7C3AED", "#F2ECFF"),
-            ("printers", "Printers", "Asset Printer", "▤", "#C026D3", "#FAE8FF"),
-            ("projector", "Projector", "Asset Projector", "◫", "#DB2777", "#FCE7F3"),
-            ("ups", "UPS", "Asset UPS", "▥", "#10B981", "#E7F8EE"),
-            ("cctv", "CCTV", "Asset CCTV", "◉", "#F59E0B", "#FFF4E5"),
-            ("access_control", "Access Control", "Asset Access Control", "▯", "#4F46E5", "#EEF2FF"),
+            ("computers", "Computers", "Computer Asset", _hd_svg("computer"), "#3B82F6", "#EAF3FF"),
+            ("monitors", "Monitors", "Asset Monitor", _hd_svg("monitor"), "#7C3AED", "#F2ECFF"),
+            ("printers", "Printers", "Asset Printer", _hd_svg("printer"), "#C026D3", "#FAE8FF"),
+            ("projector", "Projector", "Asset Projector", _hd_svg("projector"), "#DB2777", "#FCE7F3"),
+            ("ups", "UPS", "Asset UPS", _hd_svg("ups"), "#10B981", "#E7F8EE"),
+            ("cctv", "CCTV", "Asset CCTV", _hd_svg("cctv"), "#F59E0B", "#FFF4E5"),
+            ("access_control", "Access Control", "Asset Access Control", _hd_svg("access"), "#4F46E5", "#EEF2FF"),
         ]
 
         def _hd_load(list_name):
@@ -4797,7 +4815,7 @@ else:
             if _hd_frames["access_control"].empty:
                 _hd_frames["access_control"] = _hd_misc[_misc_text.str.contains("access control|door|ประตู|สแกน", regex=True)].copy()
 
-        st.markdown('<div class="hd-dashboard"><div class="hd-header"><div class="hd-header-icon">▣</div><div><div class="hd-header-title">Hardware Dashboard</div><div class="hd-header-sub">ศูนย์รวมสินทรัพย์และอุปกรณ์ทั้งหมดขององค์กร</div></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="hd-dashboard"><div class="hd-header"><div class="hd-header-icon">{_hd_svg("dashboard")}</div><div><div class="hd-header-title">Hardware Dashboard</div><div class="hd-header-sub">ศูนย์รวมสินทรัพย์และอุปกรณ์ทั้งหมดขององค์กร</div></div></div></div>', unsafe_allow_html=True)
         _hd_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
 
         def _hd_text(value):
@@ -4898,19 +4916,20 @@ else:
 
         _hd_total_trend = [sum(_hd_trend[state][idx] for state in _hd_trend) for idx in range(6)]
         _hd_kpis = [
-            ("Total Assets", _hd_total, "รายการจาก SharePoint", "▣", "#3B82F6", "#EAF3FF"),
-            ("Online", _hd_online, "สถานะ Active / Online", "✓", "#10B981", "#E7F8EE"),
-            ("Under Maintenance", _hd_maintenance, "สถานะ Repair / Maintenance", "⚒", "#F59E0B", "#FFF4E5"),
-            ("Offline", _hd_offline, "สถานะ Inactive / Offline", "×", "#EF4444", "#FEECEF"),
-            ("Warranty Expiring", _hd_warranty_count, "วันที่หมดประกันภายใน 90 วัน", "♢", "#A855F7", "#F3E8FF"),
+            ("Total Assets", _hd_total, "รายการจาก SharePoint", _hd_svg("assets"), "#3B82F6", "#EAF3FF"),
+            ("Online", _hd_online, "สถานะ Active / Online", _hd_svg("online"), "#10B981", "#E7F8EE"),
+            ("Under Maintenance", _hd_maintenance, "สถานะ Repair / Maintenance", _hd_svg("maintenance"), "#F59E0B", "#FFF4E5"),
+            ("Offline", _hd_offline, "สถานะ Inactive / Offline", _hd_svg("offline"), "#EF4444", "#FEECEF"),
+            ("Warranty Expiring", _hd_warranty_count, "วันที่หมดประกันภายใน 90 วัน", _hd_svg("warranty"), "#A855F7", "#F3E8FF"),
         ]
 
         st.markdown("""
         <style>
-        .hd-dashboard{color:#0F172A}.hd-header{display:flex;align-items:center;gap:14px;min-height:70px}.hd-header-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#E0E7FF,#F3E8FF);color:#4F46E5;font-size:27px;box-shadow:0 9px 20px rgba(79,70,229,.10)}.hd-header-title{font-size:30px;font-weight:850;letter-spacing:-.04em}.hd-header-sub{margin-top:4px;color:#64748B;font-size:13px}.hd-search{display:none}
-        .hd-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0}.hd-kpi-card{position:relative;height:124px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:13px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-note{margin-top:9px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:19px}
-        .hd-section-title{margin:0 0 11px;font-size:15px;font-weight:850;color:#334155}.hd-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.hd-category-card{min-height:126px}.hd-category-head{display:flex;align-items:center;gap:11px}.hd-category-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px;font-size:21px}.hd-category-title{font-size:13px;font-weight:850}.hd-category-total{margin-top:3px;color:#64748B;font-size:10px}.hd-category-status{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0 6px;color:#64748B;font-size:9px}.hd-category-status b{display:block;margin-top:2px;font-size:11px}.hd-category-unknown{margin-bottom:8px;color:#94A3B8;font-size:8.5px}.hd-progress{height:6px;border-radius:999px;background:#EDF2F7;overflow:hidden}.hd-progress>span{display:block;height:100%;border-radius:999px}.hd-category-action{display:flex;align-items:center;justify-content:space-between;gap:10px}.hd-category-action .stButton{margin:0!important}.hd-category-action button{width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;color:#4F46E5!important;background:#FFF!important}
-        [class*="st-key-hd_category_card_"]{padding:13px!important;border:1px solid #E2E8F0!important;border-radius:17px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important;transition:.18s ease!important}[class*="st-key-hd_category_card_"]:hover{transform:translateY(-2px);border-color:#C7D2FE!important;box-shadow:0 12px 25px rgba(79,70,229,.09)!important}
+        .hd-dashboard{color:#0F172A}.hd-header{display:flex;align-items:center;gap:14px;min-height:70px}.hd-header-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#E0E7FF,#F3E8FF);color:#4F46E5;box-shadow:0 9px 20px rgba(79,70,229,.10)}.hd-header-icon svg{width:29px;height:29px}.hd-header-title{font-size:30px;font-weight:850;letter-spacing:-.04em}.hd-header-sub{margin-top:4px;color:#64748B;font-size:13px}.hd-search{display:none}
+        .hd-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0}.hd-kpi-card{position:relative;height:124px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:13px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-note{margin-top:9px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%}.hd-kpi-icon svg{width:21px;height:21px}
+        .hd-section-title{margin:0 0 11px;font-size:15px;font-weight:850;color:#334155}.hd-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.hd-category-card{min-height:126px}.hd-category-head{display:flex;align-items:center;gap:11px}.hd-category-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px}.hd-category-icon svg{width:23px;height:23px}.hd-category-title{font-size:13px;font-weight:850}.hd-category-total{margin-top:3px;color:#64748B;font-size:10px}.hd-category-status{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0 6px;color:#64748B;font-size:9px}.hd-category-status b{display:block;margin-top:2px;font-size:11px}.hd-category-unknown{margin-bottom:8px;color:#94A3B8;font-size:8.5px}.hd-progress{height:6px;border-radius:999px;background:#EDF2F7;overflow:hidden}.hd-progress>span{display:block;height:100%;border-radius:999px}
+        [class*="st-key-hd_category_card_"]{position:relative!important;padding:13px 13px 40px!important;border:1px solid #E2E8F0!important;border-radius:17px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important;transition:.18s ease!important}[class*="st-key-hd_category_card_"]:hover{transform:translateY(-2px);border-color:#C7D2FE!important;box-shadow:0 12px 25px rgba(79,70,229,.09)!important}
+        [class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"]{position:absolute!important;right:12px!important;bottom:8px!important;width:30px!important;height:30px!important;z-index:5!important}[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] .stButton,[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] button{width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;margin:0!important;border-radius:50%!important;color:#4F46E5!important;background:#FFF!important;box-shadow:0 4px 10px rgba(79,70,229,.08)!important}
         .hd-chart-panel,.hd-table-panel,.hd-activity-panel{padding:14px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045)}.hd-chart-panel{min-height:210px}.hd-chart-title{margin-bottom:10px;font-size:12px;font-weight:850}.hd-donut-layout{display:flex;align-items:center;gap:14px}.hd-donut{position:relative;width:118px;height:118px;flex:0 0 118px;border-radius:50%}.hd-donut:after{content:'';position:absolute;inset:22px;border-radius:50%;background:#FFF}.hd-donut-center{position:absolute;z-index:2;inset:0;display:grid;place-content:center;text-align:center;font-size:10px;color:#64748B}.hd-donut-center b{font-size:21px;color:#0F172A}.hd-legend{display:grid;gap:8px;flex:1}.hd-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:9px}.hd-legend-row i{width:8px;height:8px;border-radius:50%}.hd-legend-row b{color:#334155}.hd-trend{margin-top:10px}.hd-trend svg{width:100%;height:130px}.hd-trend-labels{display:flex;justify-content:space-between;color:#94A3B8;font-size:8px}.hd-chart-summary{margin-top:8px;color:#94A3B8;font-size:9px;text-align:right}
         .hd-table-panel{min-height:280px}.hd-table{width:100%;border-collapse:collapse;font-size:10px}.hd-table th{padding:9px 8px;text-align:left;color:#64748B;background:#F8FAFC;border-bottom:1px solid #E2E8F0}.hd-table td{padding:10px 8px;border-bottom:1px solid #EDF2F7;color:#334155}.hd-table tr:last-child td{border-bottom:0}.hd-pill{display:inline-flex;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:800}.hd-pill-green{background:#E7F8EE;color:#10B981}.hd-pill-yellow{background:#FFF4E5;color:#F59E0B}.hd-pill-red{background:#FEECEF;color:#EF4444}.hd-empty{display:grid;place-items:center;min-height:150px;color:#94A3B8;font-size:11px}.hd-activity-list{display:grid}.hd-activity-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #EDF2F7}.hd-activity-row:last-child{border-bottom:0}.hd-activity-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:13px}.hd-activity-title{font-size:10px;font-weight:800}.hd-activity-sub,.hd-activity-time{margin-top:2px;color:#64748B;font-size:8.5px}.hd-activity-time{text-align:right;white-space:nowrap}
         @media(max-width:1200px){.hd-kpi-grid{grid-template-columns:repeat(3,1fr)}.hd-category-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.hd-kpi-grid{grid-template-columns:repeat(2,1fr)}.hd-category-grid{grid-template-columns:1fr}.hd-header-title{font-size:24px}.hd-kpi-value{font-size:30px}}@media(max-width:430px){.hd-kpi-grid{grid-template-columns:1fr}}
