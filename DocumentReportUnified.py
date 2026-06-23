@@ -4775,7 +4775,6 @@ else:
                 "online": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M8 10l3 3 5-6"/>',
                 "maintenance": '<path d="m14.7 6.3 3-3a4 4 0 0 1-5 5L5 16l-2 5 5-2 7.7-7.7a4 4 0 0 1 5-5l-3 3"/>',
                 "offline": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M9 8l6 6M15 8l-6 6"/>',
-                "warranty": '<path d="M12 3 20 6v6c0 5-3.3 8-8 10-4.7-2-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-5"/>',
                 "computer": '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
                 "monitor": '<rect x="3" y="3" width="18" height="15" rx="2"/><path d="M7 21h10"/>',
                 "printer": '<path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7" rx="1"/><path d="M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/>',
@@ -4866,7 +4865,6 @@ else:
         _hd_maintenance = sum(1 for *_, state in _hd_records if state == "maintenance")
         _hd_offline = sum(1 for *_, state in _hd_records if state == "offline")
 
-        _hd_warranties = []
         _hd_locations = {}
         _hd_activity = []
         _hd_month_start = pd.Timestamp(_hd_now.replace(day=1, hour=0, minute=0, second=0, microsecond=0, tzinfo=None))
@@ -4876,17 +4874,6 @@ else:
         for _key, _label, _row_index, _row, _state in _hd_records:
             _location = _hd_row_value(_row, ("Location", "Site", "Branch", "Company", "field_1"), ("location", "site", "branch", "company", "สถานที่", "บริษัท")) or "ไม่ระบุ"
             _hd_locations[_location] = _hd_locations.get(_location, 0) + 1
-
-            _warranty_raw = _hd_row_value(_row, ("WarrantyExpire", "WarrantyExpiry", "WarrantyEndDate", "ExpireDate", "Warranty"), ("warranty", "expire", "expiry", "หมดประกัน"))
-            if _warranty_raw:
-                _warranty_date = pd.to_datetime(_warranty_raw, errors="coerce", dayfirst=True)
-                if not pd.isna(_warranty_date):
-                    if getattr(_warranty_date, "tzinfo", None) is not None:
-                        _warranty_date = _warranty_date.tz_localize(None)
-                    _days_left = int((_warranty_date.normalize() - pd.Timestamp(_hd_now.date())).days)
-                    if 0 <= _days_left <= 90:
-                        _asset_name = _hd_row_value(_row, ("Title", "ComputerName", "Hostname", "field_6", "AssetName", "Name", "Model", "field_2"), ("hostname", "asset name", "title", "model")) or f"{_label} #{_row_index}"
-                        _hd_warranties.append((_days_left, _asset_name, _label, _warranty_date))
 
             _modified_raw = _hd_row_value(_row, ("Modified", "LastModified", "Updated", "LastSeen"), ("modified", "updated", "last seen"))
             _created_raw = _hd_row_value(_row, ("Created", "CreatedDate"), ("created",))
@@ -4910,9 +4897,7 @@ else:
                         pass
                 _hd_activity.append((_modified, _action, _asset_name, _editor, _state))
 
-        _hd_warranties.sort(key=lambda item: item[0])
         _hd_activity.sort(key=lambda item: item[0], reverse=True)
-        _hd_warranty_count = len(_hd_warranties)
 
         _hd_total_trend = [sum(_hd_trend[state][idx] for state in _hd_trend) for idx in range(6)]
         _hd_kpis = [
@@ -4920,13 +4905,12 @@ else:
             ("Online", _hd_online, "สถานะ Active / Online", _hd_svg("online"), "#10B981", "#E7F8EE"),
             ("Under Maintenance", _hd_maintenance, "สถานะ Repair / Maintenance", _hd_svg("maintenance"), "#F59E0B", "#FFF4E5"),
             ("Offline", _hd_offline, "สถานะ Inactive / Offline", _hd_svg("offline"), "#EF4444", "#FEECEF"),
-            ("Warranty Expiring", _hd_warranty_count, "วันที่หมดประกันภายใน 90 วัน", _hd_svg("warranty"), "#A855F7", "#F3E8FF"),
         ]
 
         st.markdown("""
         <style>
         .hd-dashboard{color:#0F172A}.hd-header{display:flex;align-items:center;gap:14px;min-height:70px}.hd-header-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#E0E7FF,#F3E8FF);color:#4F46E5;box-shadow:0 9px 20px rgba(79,70,229,.10)}.hd-header-icon svg{width:29px;height:29px}.hd-header-title{font-size:30px;font-weight:850;letter-spacing:-.04em}.hd-header-sub{margin-top:4px;color:#64748B;font-size:13px}.hd-search{display:none}
-        .hd-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0}.hd-kpi-card{position:relative;height:124px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:13px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-note{margin-top:9px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%}.hd-kpi-icon svg{width:21px;height:21px}
+        .hd-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.hd-kpi-card{position:relative;height:124px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:13px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-note{margin-top:9px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%}.hd-kpi-icon svg{width:21px;height:21px}
         .hd-section-title{margin:0 0 11px;font-size:15px;font-weight:850;color:#334155}.hd-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.hd-category-card{min-height:126px}.hd-category-head{display:flex;align-items:center;gap:11px}.hd-category-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px}.hd-category-icon svg{width:23px;height:23px}.hd-category-title{font-size:13px;font-weight:850}.hd-category-total{margin-top:3px;color:#64748B;font-size:10px}.hd-category-status{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0 6px;color:#64748B;font-size:9px}.hd-category-status b{display:block;margin-top:2px;font-size:11px}.hd-category-unknown{margin-bottom:8px;color:#94A3B8;font-size:8.5px}.hd-progress{height:6px;border-radius:999px;background:#EDF2F7;overflow:hidden}.hd-progress>span{display:block;height:100%;border-radius:999px}
         [class*="st-key-hd_category_card_"]{position:relative!important;padding:13px 13px 40px!important;border:1px solid #E2E8F0!important;border-radius:17px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important;transition:.18s ease!important}[class*="st-key-hd_category_card_"]:hover{transform:translateY(-2px);border-color:#C7D2FE!important;box-shadow:0 12px 25px rgba(79,70,229,.09)!important}
         [class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"]{position:absolute!important;right:12px!important;bottom:8px!important;width:30px!important;height:30px!important;z-index:5!important}[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] .stButton,[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] button{width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;margin:0!important;border-radius:50%!important;color:#4F46E5!important;background:#FFF!important;box-shadow:0 4px 10px rgba(79,70,229,.08)!important}
@@ -4985,7 +4969,7 @@ else:
             _month_labels = "".join(f'<span>{month.strftime("%b %y")}</span>' for month in _hd_months)
             st.markdown(f'<div class="hd-chart-panel hd-trend"><div class="hd-chart-title">Asset Updates by Current Status (6 เดือนล่าสุด)</div><svg viewBox="0 0 575 125" preserveAspectRatio="none"><path d="M25 22H550M25 66H550M25 110H550" stroke="#E8EDF4" stroke-width="1"/>{_hd_poly(_hd_trend["online"], "#3B82F6")}{_hd_poly(_hd_trend["maintenance"], "#F59E0B")}{_hd_poly(_hd_trend["offline"], "#EF4444")}</svg><div class="hd-trend-labels">{_month_labels}</div><div class="hd-chart-summary">อิงวันที่ Modified เท่านั้น · ● Online &nbsp; <span style="color:#F59E0B">● Maintenance</span> &nbsp; <span style="color:#EF4444">● Offline</span></div></div>', unsafe_allow_html=True)
 
-        _hd_bottom = st.columns([1.2, 0.9, 0.9], gap="medium")
+        _hd_bottom = st.columns([1.15, 0.85], gap="medium")
         with _hd_bottom[0]:
             _top_categories = sorted(_hd_category_stats, key=lambda item: item["total"], reverse=True)[:5]
             _rows = []
@@ -4993,16 +4977,6 @@ else:
                 _rows.append(f'<tr><td><b>{_cat["label"]}</b></td><td>{_cat["total"]}</td><td><span class="hd-pill hd-pill-green">{_cat["online"]}</span></td><td><span class="hd-pill hd-pill-red">{_cat["offline"]}</span></td><td><span class="hd-pill hd-pill-yellow">{_cat["maintenance"]}</span></td><td>{_cat["unknown"]}</td></tr>')
             st.markdown(f'<div class="hd-table-panel"><div class="hd-chart-title">Top 5 Assets by Category</div><table class="hd-table"><thead><tr><th>Category</th><th>Total</th><th>Online</th><th>Offline</th><th>Maintenance</th><th>ไม่ระบุ</th></tr></thead><tbody>{"".join(_rows)}</tbody></table></div>', unsafe_allow_html=True)
         with _hd_bottom[1]:
-            if _hd_warranties:
-                _warranty_rows = []
-                for _days, _asset, _category, _date in _hd_warranties[:5]:
-                    _tone = "hd-pill-red" if _days <= 30 else ("hd-pill-yellow" if _days <= 60 else "hd-pill-green")
-                    _warranty_rows.append(f'<tr><td><b>{html.escape(_asset)}</b></td><td>{html.escape(_category)}</td><td>{_date.strftime("%d/%m/%Y")}</td><td><span class="hd-pill {_tone}">{_days}</span></td></tr>')
-                _warranty_body = f'<table class="hd-table"><thead><tr><th>Asset</th><th>Category</th><th>Expire Date</th><th>Days Left</th></tr></thead><tbody>{"".join(_warranty_rows)}</tbody></table>'
-            else:
-                _warranty_body = '<div class="hd-empty">ไม่พบ Warranty ที่หมดอายุภายใน 90 วัน</div>'
-            st.markdown(f'<div class="hd-table-panel"><div class="hd-chart-title">Warranty Expiring Soon</div>{_warranty_body}</div>', unsafe_allow_html=True)
-        with _hd_bottom[2]:
             if _hd_activity:
                 _activity_rows = []
                 for _modified, _action, _asset, _editor, _state in _hd_activity[:5]:
