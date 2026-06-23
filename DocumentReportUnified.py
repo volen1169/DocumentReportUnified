@@ -4830,7 +4830,8 @@ else:
 
     def _render_software_file_module(title, subtitle, icon, category_name):
         """Render a read-only detail page from one dedicated software workbook."""
-        page_header(icon, title, subtitle)
+        if category_name != "Office 365":
+            page_header(icon, title, subtitle)
         with st.spinner("กำลังโหลดไฟล์ Software จาก SharePoint..."):
             _software_sheets, _software_errors = load_software_excels()
         _software_df = _software_sheets.get(category_name)
@@ -4840,6 +4841,107 @@ else:
             st.info(f"ยังไม่พบข้อมูลในไฟล์ {_expected_file}")
             if _file_error:
                 st.caption(f"ตำแหน่งที่ตรวจสอบ: {SHAREPOINT_FOLDER}/{_expected_file} · {_file_error}")
+            return
+
+        if category_name == "Office 365":
+            def _o365_column(*names):
+                _lookup = {str(c).strip().lower(): c for c in _software_df.columns}
+                return next((_lookup[n.lower()] for n in names if n.lower() in _lookup), None)
+
+            _name_col = _o365_column("Name", "Account", "Email", "Software Name")
+            _password_col = _o365_column("Password")
+            _company_col = _o365_column("Company")
+            _users_col = _o365_column("Number of Users", "Users", "Quantity")
+            _user_list_col = _o365_column("User List", "List")
+            _plan_col = _o365_column("License Plan", "Plan", "Product Name")
+            _status_col = _o365_column("Status", "License Status")
+            _expiry_col = _o365_column("Expiry Date", "Expire Date", "License Expiry")
+            _cost_col = _o365_column("Cost", "Price", "Amount")
+            _publisher_col = _o365_column("Publisher", "Vendor")
+
+            _o365_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7))).replace(tzinfo=None)
+            _o365_total = len(_software_df)
+            _o365_active = int(_software_df[_status_col].fillna("").astype(str).str.strip().str.lower().isin(["active", "licensed", "valid"]).sum()) if _status_col else 0
+            _o365_users = pd.to_numeric(_software_df[_users_col], errors="coerce").sum(min_count=1) if _users_col else None
+            _o365_cost = pd.to_numeric(_software_df[_cost_col], errors="coerce").sum(min_count=1) if _cost_col else None
+            _expiry_values = pd.to_datetime(_software_df[_expiry_col], errors="coerce", dayfirst=True) if _expiry_col else pd.Series(dtype="datetime64[ns]")
+            _days_left = (_expiry_values.dt.normalize() - pd.Timestamp(_o365_now.date())).dt.days if not _expiry_values.empty else pd.Series(dtype="float64")
+            _o365_expiring = int(_days_left.between(0, 90, inclusive="both").sum()) if not _days_left.empty else 0
+
+            _office_svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m7 5 9-3 4 3v14l-4 3-9-3V5Z"/><path d="M7 5H4v14h3M16 7v10"/></svg>'
+            st.markdown(f'''<div class="o365-page"><div class="o365-header"><div class="o365-brand-icon">{_office_svg}</div><div class="o365-heading"><div class="o365-eyebrow">MICROSOFT 365 ACCOUNT CENTER</div><div class="o365-title">Office 365</div><div class="o365-subtitle">จัดการบัญชี ผู้ใช้งาน และสถานะ License ขององค์กร</div></div><div class="o365-source"><span></span>เชื่อมต่อ SharePoint สำเร็จ<small>{html.escape(_expected_file)}</small></div></div></div>''', unsafe_allow_html=True)
+
+            _refresh_col, _space_col = st.columns([0.16, 0.84])
+            with _refresh_col:
+                if st.button("↻ รีเฟรชข้อมูล", key="o365_refresh", use_container_width=True):
+                    load_software_excels.clear()
+                    st.rerun()
+
+            _o365_metrics = [
+                ("บัญชีทั้งหมด", f"{_o365_total:,}", "Accounts", "#6366F1", "#EEF2FF"),
+                ("Active / Licensed", f"{_o365_active:,}" if _status_col else "-", "พร้อมใช้งาน", "#10B981", "#E7F8EF"),
+                ("ผู้ใช้งานที่รองรับ", f"{int(_o365_users):,}" if pd.notna(_o365_users) else "-", "Assigned users", "#3B82F6", "#EAF3FF"),
+                ("ใกล้หมดอายุ", f"{_o365_expiring:,}" if _expiry_col else "-", "ภายใน 90 วัน", "#F59E0B", "#FFF4E5"),
+                ("ค่าใช้จ่ายรวม", f"฿{float(_o365_cost):,.0f}" if pd.notna(_o365_cost) else "-", "จากข้อมูล Cost", "#8B5CF6", "#F3E8FF"),
+            ]
+            st.markdown('<div class="o365-kpi-grid">' + ''.join(
+                f'<div class="o365-kpi"><div class="o365-kpi-dot" style="color:{color};background:{bg}"></div><div class="o365-kpi-label">{label}</div><div class="o365-kpi-value">{value}</div><div class="o365-kpi-sub">{sub}</div></div>'
+                for label, value, sub, color, bg in _o365_metrics
+            ) + '</div>', unsafe_allow_html=True)
+
+            _filter_search, _filter_company, _filter_status, _filter_password = st.columns([0.43, 0.21, 0.20, 0.16], gap="small")
+            with _filter_search:
+                _o365_search = st.text_input("ค้นหา", placeholder="ค้นหา Account, Company, Plan, User...", label_visibility="collapsed", key="o365_search")
+            with _filter_company:
+                _companies = sorted({str(v).strip() for v in _software_df[_company_col].dropna() if str(v).strip()}) if _company_col else []
+                _selected_company = st.selectbox("Company", ["ทุกบริษัท"] + _companies, label_visibility="collapsed", key="o365_company")
+            with _filter_status:
+                _statuses = sorted({str(v).strip() for v in _software_df[_status_col].dropna() if str(v).strip()}) if _status_col else []
+                _selected_status = st.selectbox("Status", ["ทุกสถานะ"] + _statuses, label_visibility="collapsed", key="o365_status")
+            with _filter_password:
+                _show_password = st.checkbox("แสดง Password", value=False, disabled=not admin_mode, key="o365_show_password")
+
+            _office_view = _software_df.copy()
+            if _o365_search.strip():
+                _mask = _office_view.fillna("").astype(str).agg(" ".join, axis=1).str.contains(re.escape(_o365_search.strip()), case=False, na=False)
+                _office_view = _office_view[_mask]
+            if _company_col and _selected_company != "ทุกบริษัท":
+                _office_view = _office_view[_office_view[_company_col].fillna("").astype(str) == _selected_company]
+            if _status_col and _selected_status != "ทุกสถานะ":
+                _office_view = _office_view[_office_view[_status_col].fillna("").astype(str) == _selected_status]
+
+            _table_rows = []
+            for _, _row in _office_view.iterrows():
+                _account = html.escape(str(_row.get(_name_col, "-") or "-")) if _name_col else "-"
+                _company = html.escape(str(_row.get(_company_col, "-") or "-")) if _company_col else "-"
+                _plan = html.escape(str(_row.get(_plan_col, "-") or "-")) if _plan_col else "-"
+                _users = html.escape(str(_row.get(_users_col, "-") or "-")) if _users_col else "-"
+                _user_list = html.escape(str(_row.get(_user_list_col, "-") or "-")) if _user_list_col else "-"
+                _status = str(_row.get(_status_col, "-") or "-") if _status_col else "-"
+                _status_key = _status.strip().lower()
+                _status_class = "active" if _status_key in ("active", "licensed", "valid") else "inactive"
+                _expiry_raw = _row.get(_expiry_col) if _expiry_col else None
+                _expiry_date = pd.to_datetime(_expiry_raw, errors="coerce", dayfirst=True)
+                _expiry = _expiry_date.strftime("%d/%m/%Y") if pd.notna(_expiry_date) else "-"
+                _password = html.escape(str(_row.get(_password_col, "") or "")) if _password_col and _show_password and admin_mode else "••••••••"
+                _table_rows.append(f'''<tr><td><div class="o365-account"><span>{_account[:1].upper() if _account else "O"}</span><div><b>{_account}</b><small>{_publisher_col and html.escape(str(_row.get(_publisher_col, ""))) or "Microsoft 365"}</small></div></div></td><td><span class="o365-company">{_company}</span></td><td>{_plan}</td><td class="o365-users">{_users}<small>{_user_list}</small></td><td><span class="o365-status { _status_class }">{html.escape(_status)}</span></td><td>{_expiry}</td><td><code>{_password}</code></td></tr>''')
+
+            _plan_counts = _office_view[_plan_col].fillna("ไม่ระบุ").astype(str).value_counts().head(6) if _plan_col else pd.Series(dtype="int64")
+            _max_plan = int(_plan_counts.max()) if not _plan_counts.empty else 1
+            _plan_html = ''.join(f'<div class="o365-plan-row"><div><span>{html.escape(str(plan))}</span><b>{int(count)}</b></div><div><i style="width:{max(4, int(count)/_max_plan*100)}%"></i></div></div>' for plan, count in _plan_counts.items())
+            _content_left, _content_right = st.columns([0.76, 0.24], gap="medium")
+            with _content_left:
+                _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">ไม่พบข้อมูลตามตัวกรอง</div></td></tr>'
+                st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} รายการ</span></div><small>ข้อมูลล่าสุดจาก SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+            with _content_right:
+                st.markdown(f'''<div class="o365-side-panel"><div class="o365-panel-head"><div><b>License Plans</b><span>สัดส่วนตามข้อมูลจริง</span></div></div><div class="o365-plan-list">{_plan_html or '<div class="o365-empty">ยังไม่มีข้อมูล License Plan</div>'}</div></div><div class="o365-side-panel o365-summary"><div class="o365-panel-head"><div><b>Account Health</b><span>ภาพรวมสถานะบัญชี</span></div></div><div class="o365-health"><div><span>Active rate</span><b>{round(_o365_active/_o365_total*100) if _o365_total else 0}%</b></div><div><span>Companies</span><b>{len(_companies)}</b></div><div><span>Expiring soon</span><b>{_o365_expiring}</b></div></div></div>''', unsafe_allow_html=True)
+
+            st.markdown('''<style>
+            .o365-page{color:#0F172A}.o365-header{position:relative;display:flex;align-items:center;gap:18px;min-height:142px;padding:27px 30px;margin-bottom:10px;overflow:hidden;border:1px solid #DDD6FE;border-radius:26px;background:linear-gradient(120deg,#FFFFFF 0%,#F5F3FF 58%,#EEF2FF 100%);box-shadow:0 15px 35px rgba(79,70,229,.10)}.o365-header:after{content:'';position:absolute;right:-60px;top:-95px;width:250px;height:250px;border-radius:50%;background:linear-gradient(145deg,rgba(99,102,241,.16),rgba(139,92,246,.05))}.o365-brand-icon{display:grid;place-items:center;width:68px;height:68px;flex:none;border-radius:20px;color:#FFF;background:linear-gradient(145deg,#F97316,#EA580C);box-shadow:0 12px 25px rgba(234,88,12,.22)}.o365-brand-icon svg{width:34px;height:34px}.o365-heading{position:relative;z-index:1}.o365-eyebrow{margin-bottom:5px;color:#6366F1;font-size:10px;font-weight:900;letter-spacing:.11em}.o365-title{font-size:32px;line-height:1;font-weight:900;letter-spacing:-.04em}.o365-subtitle{margin-top:9px;color:#64748B;font-size:13px}.o365-source{position:relative;z-index:1;margin-left:auto;margin-right:20px;padding:12px 15px;border:1px solid rgba(16,185,129,.18);border-radius:14px;color:#047857;background:rgba(255,255,255,.72);font-size:11px;font-weight:700}.o365-source span{display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%;background:#10B981}.o365-source small{display:block;margin:4px 0 0 15px;color:#64748B;font-weight:500}
+            .st-key-o365_refresh .stButton>button{height:36px!important;border:1px solid #C7D2FE!important;border-radius:11px!important;color:#4F46E5!important;background:#FFF!important;font-size:11px!important}.o365-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:8px 0 15px}.o365-kpi{position:relative;padding:16px 17px;min-height:104px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.045)}.o365-kpi-dot{position:absolute;right:15px;top:15px;width:12px;height:12px;border:4px solid currentColor;border-radius:50%;box-shadow:0 0 0 7px var(--ring,#F8FAFC)}.o365-kpi-label{padding-right:30px;color:#475569;font-size:11px;font-weight:800}.o365-kpi-value{margin-top:10px;font-size:28px;line-height:1;font-weight:900;letter-spacing:-.04em}.o365-kpi-sub{margin-top:8px;color:#94A3B8;font-size:10px}
+            [class*="st-key-o365_search"] input,[class*="st-key-o365_company"] div[data-baseweb="select"]>div,[class*="st-key-o365_status"] div[data-baseweb="select"]>div{min-height:43px!important;border-color:#E2E8F0!important;border-radius:13px!important;background:#FFF!important}.o365-table-panel,.o365-side-panel{border:1px solid #E2E8F0;border-radius:19px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045);overflow:hidden}.o365-panel-head{display:flex;justify-content:space-between;align-items:center;padding:16px 17px;border-bottom:1px solid #EEF2F7}.o365-panel-head b{display:block;font-size:14px}.o365-panel-head span,.o365-panel-head small{display:block;margin-top:3px;color:#94A3B8;font-size:10px}.o365-table-scroll{overflow:auto;max-height:540px}.o365-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:11px}.o365-table th{position:sticky;top:0;z-index:2;padding:11px 13px;color:#64748B;background:#F8FAFC;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em}.o365-table td{padding:11px 13px;border-top:1px solid #EEF2F7;color:#334155}.o365-table tbody tr:hover{background:#FAFAFF}.o365-account{display:flex;align-items:center;gap:9px}.o365-account>span{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;color:#4F46E5;background:#EEF2FF;font-weight:900}.o365-account b{display:block;color:#0F172A}.o365-account small,.o365-users small{display:block;margin-top:3px;max-width:145px;overflow:hidden;color:#94A3B8;text-overflow:ellipsis}.o365-company{padding:5px 8px;border-radius:8px;color:#4338CA;background:#EEF2FF;font-weight:800}.o365-status{padding:5px 9px;border-radius:99px;font-weight:800}.o365-status.active{color:#047857;background:#ECFDF5}.o365-status.inactive{color:#B91C1C;background:#FEF2F2}.o365-table code{padding:4px 7px;border-radius:7px;color:#475569;background:#F1F5F9;font-family:inherit}.o365-side-panel{padding-bottom:12px}.o365-side-panel+.o365-side-panel{margin-top:13px}.o365-plan-list{padding:7px 16px}.o365-plan-row{padding:9px 0}.o365-plan-row>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px}.o365-plan-row>div:last-child{height:5px;margin-top:7px;border-radius:99px;background:#EEF2F7;overflow:hidden}.o365-plan-row i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6366F1,#8B5CF6)}.o365-health{display:grid;gap:0;padding:6px 16px}.o365-health>div{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #EEF2F7;color:#64748B;font-size:11px}.o365-health>div:last-child{border-bottom:0}.o365-health b{color:#0F172A}.o365-empty{padding:30px;color:#94A3B8;text-align:center;font-size:11px}
+            @media(max-width:1100px){.o365-kpi-grid{grid-template-columns:repeat(3,1fr)}.o365-source{display:none}}@media(max-width:700px){.o365-header{padding:20px}.o365-title{font-size:27px}.o365-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+            </style>''', unsafe_allow_html=True)
             return
 
         _detail_search = st.text_input(
