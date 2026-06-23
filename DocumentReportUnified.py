@@ -1450,7 +1450,7 @@ def load_password_excel():
     except Exception as e:
         return {"_error": str(e)}, None
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=60)
 def load_software_excels():
     """Load each software category from its own SharePoint Excel workbook.
 
@@ -4828,6 +4828,48 @@ else:
                     st.session_state.pop(f"pw_edit_row_{_module_sheet_name}_{_module_idx}")
                     edit_password_dialog(_module_row, _module_idx, _module_sheet_name, _module_df, _module_drive_id, _module_sheets)
 
+    def _render_software_file_module(title, subtitle, icon, category_name):
+        """Render a read-only detail page from one dedicated software workbook."""
+        page_header(icon, title, subtitle)
+        with st.spinner("กำลังโหลดไฟล์ Software จาก SharePoint..."):
+            _software_sheets, _software_errors = load_software_excels()
+        _software_df = _software_sheets.get(category_name)
+        _expected_file = SOFTWARE_FILE_MAP.get(category_name, "-")
+        if _software_df is None or _software_df.empty:
+            _file_error = _software_errors.get(_expected_file) if isinstance(_software_errors, dict) else None
+            st.info(f"ยังไม่พบข้อมูลในไฟล์ {_expected_file}")
+            if _file_error:
+                st.caption(f"ตำแหน่งที่ตรวจสอบ: {SHAREPOINT_FOLDER}/{_expected_file} · {_file_error}")
+            return
+
+        _detail_search = st.text_input(
+            "ค้นหาข้อมูล",
+            placeholder=f"ค้นหาใน {title}...",
+            key=f"software_detail_search_{category_name}",
+        )
+        _detail_df = _software_df.copy()
+        if _detail_search.strip():
+            _detail_mask = _detail_df.fillna("").astype(str).agg(" ".join, axis=1).str.contains(
+                re.escape(_detail_search.strip()), case=False, na=False
+            )
+            _detail_df = _detail_df[_detail_mask]
+
+        _status_column = next((c for c in _detail_df.columns if str(c).strip().lower() in ("status", "license status")), None)
+        _user_count_column = next((c for c in _detail_df.columns if str(c).strip().lower() == "number of users"), None)
+        _active_count = 0
+        if _status_column:
+            _active_count = int(_detail_df[_status_column].fillna("").astype(str).str.lower().isin(["active", "licensed", "valid"]).sum())
+        _user_total = None
+        if _user_count_column:
+            _user_total = pd.to_numeric(_detail_df[_user_count_column], errors="coerce").sum(min_count=1)
+
+        _metric_columns = st.columns(3)
+        _metric_columns[0].metric("รายการทั้งหมด", len(_detail_df))
+        _metric_columns[1].metric("Active / Licensed", _active_count if _status_column else "-")
+        _metric_columns[2].metric("จำนวนผู้ใช้งาน", int(_user_total) if pd.notna(_user_total) else "-")
+        st.caption(f"แหล่งข้อมูล: {SHAREPOINT_FOLDER}/{_expected_file}")
+        st.dataframe(_detail_df, use_container_width=True, hide_index=True, height=min(650, 82 + max(len(_detail_df), 1) * 36))
+
     def _render_software_command_center():
         """Software dashboard composed only from the existing password workbook."""
         def _sw_svg(kind):
@@ -5655,14 +5697,19 @@ else:
 
     elif main_menu == "💿 Software Module":
         _software_config = {
-            "Group E-mail": ("✉️", ["group email", "group e mail", "group mail", "email group", "email"]),
-            "Office 365": ("☁️", ["office 365", "office365", "microsoft 365", "m365"]),
-            "PDF": ("📄", ["pdf", "adobe", "acrobat"]),
-            "Windows": ("⊞", ["windows"]),
-            "พนักงานลาออก": ("👤", ["พนักงานลาออก", "ลาออก", "resign", "offboard", "former"]),
+            "Group E-mail": ("✉️", "Group Email"),
+            "Office 365": ("☁️", "Office 365"),
+            "PDF": ("📄", "PDF"),
+            "Windows": ("⊞", "Windows"),
+            "พนักงานลาออก": ("👤", "Offboarded Employees"),
         }
-        _software_icon, _software_keywords = _software_config.get(_hw_sub_override, ("💿", [_hw_sub_override]))
-        _render_password_sheet_module(_hw_sub_override, "ข้อมูล License และบัญชีจากแหล่งข้อมูลเดิม", _software_icon, _software_keywords)
+        _software_icon, _software_category = _software_config.get(_hw_sub_override, ("💿", _hw_sub_override))
+        _render_software_file_module(
+            _hw_sub_override,
+            "ข้อมูล License และบัญชีจากไฟล์ Software แยกบน SharePoint",
+            _software_icon,
+            _software_category,
+        )
 
     elif main_menu == "🏢 Vendor List":
         _render_password_sheet_module("Vendor List", "ข้อมูลผู้ขาย ผู้ให้บริการ และช่องทางติดต่อ", "🏢", ["vendor", "supplier", "ผู้ขาย"])
