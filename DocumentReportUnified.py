@@ -7207,5 +7207,10 @@ else:
             if df_pw.empty: st.warning("ไม่มีข้อมูลในชีทนี้")
             else:
                 card_cols = st.columns(2)
+                def _render_password_sheet_row(row_index, row_data):
+                    render_password_card(row_data, selected_sheet, row_index, admin_mode, df_pw, drive_id, pw_sheets)
+                    if admin_mode and st.session_state.get(f"pw_edit_row_{selected_sheet}_{row_index}"):
+                        st.session_state.pop(f"pw_edit_row_{selected_sheet}_{row_index}")
+                        edit_password_dialog(row_data, row_index, selected_sheet, df_pw, drive_id, pw_sheets)
                 for idx, row in df_pw.iterrows():
-                    with card_cols[idx % 2]:
+                    with card_cols[idx % 2]: _render_password_sheet_row(idx, row)
