@@ -4316,29 +4316,6 @@ else:
     _nav_leaf("vendor_list", "🏢", "Vendor List")
     _nav_leaf("ink_stock", "💧", "Ink Stock")
 
-    _hardware_nav_keys = {"hardware_dashboard", "computers", "monitors", "printers", "projector", "ups", "misc", "cctv", "access_control"}
-    if st.session_state.active_nav in _hardware_nav_keys:
-        st.sidebar.markdown("""
-        <style>
-        .hd-shortcuts{margin:16px 2px 7px;padding:0 8px;color:#64748B;font-size:10px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
-        [class*="st-key-hd_shortcut_"] .stButton>button{height:38px!important;min-height:38px!important;padding:0 11px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#475569!important;font-size:12px!important;font-weight:650!important;box-shadow:none!important;justify-content:flex-start!important}
-        [class*="st-key-hd_shortcut_"] .stButton>button:hover{background:#EEF2FF!important;color:#4F46E5!important;transform:none!important}
-        </style><div class="hd-shortcuts">Shortcuts</div>
-        """, unsafe_allow_html=True)
-        if st.sidebar.button("＋  Add Asset", key="hd_shortcut_add", use_container_width=True):
-            add_computer_dialog("Computer Asset")
-        if st.sidebar.button("▣  Asset Report", key="hd_shortcut_report", use_container_width=True):
-            st.session_state.active_nav = "hardware_dashboard"
-            st.rerun()
-        if st.sidebar.button("⚒  Maintenance", key="hd_shortcut_maintenance", use_container_width=True):
-            st.session_state.active_nav = "hardware_dashboard"
-            st.session_state.hd_search = "Repair"
-            st.rerun()
-        if st.sidebar.button("⇩  Export Data", key="hd_shortcut_export", use_container_width=True):
-            st.session_state.active_nav = "hardware_dashboard"
-            st.session_state.hd_export_requested = True
-            st.rerun()
-
     st.sidebar.markdown("---")
 
     st.sidebar.markdown('<div class="nav-signout">', unsafe_allow_html=True)
@@ -4820,31 +4797,8 @@ else:
             if _hd_frames["access_control"].empty:
                 _hd_frames["access_control"] = _hd_misc[_misc_text.str.contains("access control|door|ประตู|สแกน", regex=True)].copy()
 
-        _hd_header_left, _hd_header_right = st.columns([1.15, 1], gap="large")
-        with _hd_header_left:
-            st.markdown('<div class="hd-dashboard"><div class="hd-header"><div class="hd-header-icon">▣</div><div><div class="hd-header-title">Hardware Dashboard</div><div class="hd-header-sub">ศูนย์รวมสินทรัพย์และอุปกรณ์ทั้งหมดขององค์กร</div></div></div></div>', unsafe_allow_html=True)
-        with _hd_header_right:
-            st.markdown('<span class="hd-search" aria-hidden="true"></span>', unsafe_allow_html=True)
-            _hd_search = st.text_input("ค้นหา Hardware", placeholder="ค้นหา Asset, IP, Serial, Location...", label_visibility="collapsed", key="hd_search")
-            _hd_tools = st.columns([0.55, 1.35, 0.8, 1.25], gap="small")
-            with _hd_tools[0]:
-                st.markdown('<div class="hd-tool-chip hd-notification" title="Notifications">♧</div>', unsafe_allow_html=True)
-            _hd_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
-            with _hd_tools[1]:
-                st.markdown(f'<div class="hd-tool-chip">▣ {_hd_now.strftime("%d/%m/%Y")}</div>', unsafe_allow_html=True)
-            with _hd_tools[2]:
-                st.markdown(f'<div class="hd-tool-chip">◷ {_hd_now.strftime("%H:%M")}</div>', unsafe_allow_html=True)
-            with _hd_tools[3]:
-                if st.button("＋ เพิ่ม Asset", key="hd_add_asset", use_container_width=True, type="primary"):
-                    add_computer_dialog("Computer Asset")
-
-        if _hd_search.strip():
-            _hd_term = _hd_search.strip().lower()
-            for _key in list(_hd_frames):
-                _frame = _hd_frames[_key]
-                if not _frame.empty:
-                    _mask = _frame.fillna("").astype(str).agg(" ".join, axis=1).str.lower().str.contains(re.escape(_hd_term), regex=True)
-                    _hd_frames[_key] = _frame[_mask].copy()
+        st.markdown('<div class="hd-dashboard"><div class="hd-header"><div class="hd-header-icon">▣</div><div><div class="hd-header-title">Hardware Dashboard</div><div class="hd-header-sub">ศูนย์รวมสินทรัพย์และอุปกรณ์ทั้งหมดขององค์กร</div></div></div></div>', unsafe_allow_html=True)
+        _hd_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
 
         def _hd_text(value):
             if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -4868,24 +4822,21 @@ else:
 
         def _hd_status(row):
             raw = _hd_row_value(row, ("Status", "AssetStatus", "ComputerStatus", "state"), ("status", "สถานะ")).lower()
+            if not raw:
+                return "unknown"
             if any(token in raw for token in ("repair", "maintenance", "ซ่อม", "ปรับปรุง")):
                 return "maintenance"
             if any(token in raw for token in ("inactive", "offline", "down", "เสีย", "ยกเลิก")):
                 return "offline"
-            return "online"
-
-        def _hd_number(value):
-            try:
-                cleaned = re.sub(r"[^0-9.\-]", "", str(value or ""))
-                return float(cleaned) if cleaned else 0.0
-            except Exception:
-                return 0.0
+            if any(token in raw for token in ("active", "online", "normal", "ใช้งาน", "ปกติ", "พร้อม")):
+                return "online"
+            return "unknown"
 
         _hd_category_stats = []
         _hd_records = []
         for _key, _label, _list_name, _icon, _tone, _soft in _hd_categories:
             _frame = _hd_frames[_key]
-            _counts = {"online": 0, "maintenance": 0, "offline": 0}
+            _counts = {"online": 0, "maintenance": 0, "offline": 0, "unknown": 0}
             for _row_index, _row in _frame.iterrows():
                 _state = _hd_status(_row)
                 _counts[_state] += 1
@@ -4898,16 +4849,13 @@ else:
         _hd_offline = sum(1 for *_, state in _hd_records if state == "offline")
 
         _hd_warranties = []
-        _hd_total_value = 0.0
         _hd_locations = {}
         _hd_activity = []
         _hd_month_start = pd.Timestamp(_hd_now.replace(day=1, hour=0, minute=0, second=0, microsecond=0, tzinfo=None))
         _hd_months = [_hd_month_start - pd.DateOffset(months=offset) for offset in range(5, -1, -1)]
-        _hd_trend = {"online": [0] * 6, "maintenance": [0] * 6, "offline": [0] * 6}
+        _hd_trend = {"online": [0] * 6, "maintenance": [0] * 6, "offline": [0] * 6, "unknown": [0] * 6}
 
         for _key, _label, _row_index, _row, _state in _hd_records:
-            _price = _hd_row_value(_row, ("AssetValue", "Value", "Price", "Unit_Price", "Cost", "PurchasePrice"), ("price", "value", "cost", "ราคา", "มูลค่า"))
-            _hd_total_value += _hd_number(_price)
             _location = _hd_row_value(_row, ("Location", "Site", "Branch", "Company", "field_1"), ("location", "site", "branch", "company", "สถานที่", "บริษัท")) or "ไม่ระบุ"
             _hd_locations[_location] = _hd_locations.get(_location, 0) + 1
 
@@ -4948,45 +4896,30 @@ else:
         _hd_activity.sort(key=lambda item: item[0], reverse=True)
         _hd_warranty_count = len(_hd_warranties)
 
-        def _hd_money(value):
-            if value >= 1_000_000:
-                return f"฿ {value / 1_000_000:.2f}M"
-            if value >= 1_000:
-                return f"฿ {value / 1_000:.1f}K"
-            return f"฿ {value:,.0f}"
-
-        def _hd_spark(values, color):
-            _max_value = max(max(values or [0]), 1)
-            _points = " ".join(f"{index * 20},{24 - (value / _max_value * 18):.1f}" for index, value in enumerate(values))
-            return f'<svg class="hd-spark" viewBox="0 0 100 28" preserveAspectRatio="none"><polyline points="{_points}" fill="none" stroke="{color}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'
-
         _hd_total_trend = [sum(_hd_trend[state][idx] for state in _hd_trend) for idx in range(6)]
         _hd_kpis = [
-            ("Total Assets", _hd_total, "รายการ", "▣", "#3B82F6", "#EAF3FF", _hd_total_trend),
-            ("Online", _hd_online, f"รายการ ({(_hd_online / max(_hd_total, 1) * 100):.1f}%)", "✓", "#10B981", "#E7F8EE", _hd_trend["online"]),
-            ("Under Maintenance", _hd_maintenance, f"รายการ ({(_hd_maintenance / max(_hd_total, 1) * 100):.1f}%)", "⚒", "#F59E0B", "#FFF4E5", _hd_trend["maintenance"]),
-            ("Offline", _hd_offline, f"รายการ ({(_hd_offline / max(_hd_total, 1) * 100):.1f}%)", "×", "#EF4444", "#FEECEF", _hd_trend["offline"]),
-            ("Warranty Expiring", _hd_warranty_count, "ภายใน 90 วัน", "♢", "#A855F7", "#F3E8FF", [0, 0, 0, 0, 0, _hd_warranty_count]),
-            ("Total Asset Value", _hd_money(_hd_total_value), "มูลค่ารวมโดยประมาณ", "▱", "#06B6D4", "#E6FAFD", _hd_total_trend),
+            ("Total Assets", _hd_total, "รายการจาก SharePoint", "▣", "#3B82F6", "#EAF3FF"),
+            ("Online", _hd_online, "สถานะ Active / Online", "✓", "#10B981", "#E7F8EE"),
+            ("Under Maintenance", _hd_maintenance, "สถานะ Repair / Maintenance", "⚒", "#F59E0B", "#FFF4E5"),
+            ("Offline", _hd_offline, "สถานะ Inactive / Offline", "×", "#EF4444", "#FEECEF"),
+            ("Warranty Expiring", _hd_warranty_count, "วันที่หมดประกันภายใน 90 วัน", "♢", "#A855F7", "#F3E8FF"),
         ]
 
         st.markdown("""
         <style>
         .hd-dashboard{color:#0F172A}.hd-header{display:flex;align-items:center;gap:14px;min-height:70px}.hd-header-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#E0E7FF,#F3E8FF);color:#4F46E5;font-size:27px;box-shadow:0 9px 20px rgba(79,70,229,.10)}.hd-header-title{font-size:30px;font-weight:850;letter-spacing:-.04em}.hd-header-sub{margin-top:4px;color:#64748B;font-size:13px}.hd-search{display:none}
-        .hd-tool-chip{height:42px;display:flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid #E2E8F0;border-radius:12px;background:#FFF;color:#334155;font-size:11px;font-weight:750;box-shadow:0 5px 14px rgba(15,23,42,.035)}.hd-notification{font-size:18px}.hd-kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:14px 0}.hd-kpi-card{position:relative;height:140px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:9px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-value.hd-money{font-size:26px}.hd-kpi-note{margin-top:7px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:19px}.hd-spark{position:absolute;left:15px;right:15px;bottom:10px;width:calc(100% - 30px);height:26px}
-        .hd-section-title{margin:0 0 11px;font-size:15px;font-weight:850;color:#334155}.hd-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.hd-category-card{min-height:126px}.hd-category-head{display:flex;align-items:center;gap:11px}.hd-category-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px;font-size:21px}.hd-category-title{font-size:13px;font-weight:850}.hd-category-total{margin-top:3px;color:#64748B;font-size:10px}.hd-category-status{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0 8px;color:#64748B;font-size:9px}.hd-category-status b{display:block;margin-top:2px;font-size:11px}.hd-progress{height:6px;border-radius:999px;background:#EDF2F7;overflow:hidden}.hd-progress>span{display:block;height:100%;border-radius:999px}.hd-category-action{display:flex;align-items:center;justify-content:space-between;gap:10px}.hd-category-action .stButton{margin:0!important}.hd-category-action button{width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;color:#4F46E5!important;background:#FFF!important}
+        .hd-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0}.hd-kpi-card{position:relative;height:124px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:13px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-note{margin-top:9px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:19px}
+        .hd-section-title{margin:0 0 11px;font-size:15px;font-weight:850;color:#334155}.hd-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.hd-category-card{min-height:126px}.hd-category-head{display:flex;align-items:center;gap:11px}.hd-category-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px;font-size:21px}.hd-category-title{font-size:13px;font-weight:850}.hd-category-total{margin-top:3px;color:#64748B;font-size:10px}.hd-category-status{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0 6px;color:#64748B;font-size:9px}.hd-category-status b{display:block;margin-top:2px;font-size:11px}.hd-category-unknown{margin-bottom:8px;color:#94A3B8;font-size:8.5px}.hd-progress{height:6px;border-radius:999px;background:#EDF2F7;overflow:hidden}.hd-progress>span{display:block;height:100%;border-radius:999px}.hd-category-action{display:flex;align-items:center;justify-content:space-between;gap:10px}.hd-category-action .stButton{margin:0!important}.hd-category-action button{width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;color:#4F46E5!important;background:#FFF!important}
         [class*="st-key-hd_category_card_"]{padding:13px!important;border:1px solid #E2E8F0!important;border-radius:17px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important;transition:.18s ease!important}[class*="st-key-hd_category_card_"]:hover{transform:translateY(-2px);border-color:#C7D2FE!important;box-shadow:0 12px 25px rgba(79,70,229,.09)!important}
         .hd-chart-panel,.hd-table-panel,.hd-activity-panel{padding:14px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045)}.hd-chart-panel{min-height:210px}.hd-chart-title{margin-bottom:10px;font-size:12px;font-weight:850}.hd-donut-layout{display:flex;align-items:center;gap:14px}.hd-donut{position:relative;width:118px;height:118px;flex:0 0 118px;border-radius:50%}.hd-donut:after{content:'';position:absolute;inset:22px;border-radius:50%;background:#FFF}.hd-donut-center{position:absolute;z-index:2;inset:0;display:grid;place-content:center;text-align:center;font-size:10px;color:#64748B}.hd-donut-center b{font-size:21px;color:#0F172A}.hd-legend{display:grid;gap:8px;flex:1}.hd-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:9px}.hd-legend-row i{width:8px;height:8px;border-radius:50%}.hd-legend-row b{color:#334155}.hd-trend{margin-top:10px}.hd-trend svg{width:100%;height:130px}.hd-trend-labels{display:flex;justify-content:space-between;color:#94A3B8;font-size:8px}.hd-chart-summary{margin-top:8px;color:#94A3B8;font-size:9px;text-align:right}
         .hd-table-panel{min-height:280px}.hd-table{width:100%;border-collapse:collapse;font-size:10px}.hd-table th{padding:9px 8px;text-align:left;color:#64748B;background:#F8FAFC;border-bottom:1px solid #E2E8F0}.hd-table td{padding:10px 8px;border-bottom:1px solid #EDF2F7;color:#334155}.hd-table tr:last-child td{border-bottom:0}.hd-pill{display:inline-flex;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:800}.hd-pill-green{background:#E7F8EE;color:#10B981}.hd-pill-yellow{background:#FFF4E5;color:#F59E0B}.hd-pill-red{background:#FEECEF;color:#EF4444}.hd-empty{display:grid;place-items:center;min-height:150px;color:#94A3B8;font-size:11px}.hd-activity-list{display:grid}.hd-activity-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #EDF2F7}.hd-activity-row:last-child{border-bottom:0}.hd-activity-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:13px}.hd-activity-title{font-size:10px;font-weight:800}.hd-activity-sub,.hd-activity-time{margin-top:2px;color:#64748B;font-size:8.5px}.hd-activity-time{text-align:right;white-space:nowrap}
-        [class*="st-key-hd_add_asset"] button{height:42px!important;min-height:42px!important;font-size:11px!important}[class*="st-key-hd_search"] input{height:42px!important;min-height:42px!important;border-radius:12px!important;background:#FFF!important}
         @media(max-width:1200px){.hd-kpi-grid{grid-template-columns:repeat(3,1fr)}.hd-category-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.hd-kpi-grid{grid-template-columns:repeat(2,1fr)}.hd-category-grid{grid-template-columns:1fr}.hd-header-title{font-size:24px}.hd-kpi-value{font-size:30px}}@media(max-width:430px){.hd-kpi-grid{grid-template-columns:1fr}}
         </style>
         """, unsafe_allow_html=True)
 
         _hd_kpi_html = ['<div class="hd-kpi-grid">']
-        for _label, _value, _note, _icon, _tone, _soft, _series in _hd_kpis:
-            _money_class = " hd-money" if isinstance(_value, str) and _value.startswith("฿") else ""
-            _hd_kpi_html.append(f'<div class="hd-kpi-card"><div class="hd-kpi-label">{_label}</div><div class="hd-kpi-value{_money_class}">{_value}</div><div class="hd-kpi-note">{_note}</div><div class="hd-kpi-icon" style="color:{_tone};background:{_soft}">{_icon}</div>{_hd_spark(_series, _tone)}</div>')
+        for _label, _value, _note, _icon, _tone, _soft in _hd_kpis:
+            _hd_kpi_html.append(f'<div class="hd-kpi-card"><div class="hd-kpi-label">{_label}</div><div class="hd-kpi-value">{_value}</div><div class="hd-kpi-note">{_note}</div><div class="hd-kpi-icon" style="color:{_tone};background:{_soft}">{_icon}</div></div>')
         _hd_kpi_html.append('</div>')
         st.markdown("".join(_hd_kpi_html), unsafe_allow_html=True)
 
@@ -4998,7 +4931,8 @@ else:
                 with _hd_category_cols[_cat_index % 3]:
                     with st.container(key=f"hd_category_card_{_cat['key']}"):
                         _online_pct = (_cat["online"] / max(_cat["total"], 1)) * 100
-                        st.markdown(f'<div class="hd-category-card"><div class="hd-category-head"><div class="hd-category-icon" style="color:{_cat["tone"]};background:{_cat["soft"]}">{_cat["icon"]}</div><div><div class="hd-category-title">{_cat["label"]}</div><div class="hd-category-total">{_cat["total"]} รายการ</div></div></div><div class="hd-category-status"><span>Online<b style="color:#10B981">{_cat["online"]}</b></span><span>Offline<b style="color:#EF4444">{_cat["offline"]}</b></span><span>Maintenance<b style="color:#F59E0B">{_cat["maintenance"]}</b></span></div><div class="hd-progress"><span style="width:{_online_pct:.1f}%;background:{_cat["tone"]}"></span></div></div>', unsafe_allow_html=True)
+                        _unknown_note = f'<div class="hd-category-unknown">ไม่ระบุ Status: {_cat["unknown"]} รายการ</div>' if _cat["unknown"] else '<div class="hd-category-unknown">Status จากข้อมูลจริงครบถ้วน</div>'
+                        st.markdown(f'<div class="hd-category-card"><div class="hd-category-head"><div class="hd-category-icon" style="color:{_cat["tone"]};background:{_cat["soft"]}">{_cat["icon"]}</div><div><div class="hd-category-title">{_cat["label"]}</div><div class="hd-category-total">{_cat["total"]} รายการ</div></div></div><div class="hd-category-status"><span>Online<b style="color:#10B981">{_cat["online"]}</b></span><span>Offline<b style="color:#EF4444">{_cat["offline"]}</b></span><span>Maintenance<b style="color:#F59E0B">{_cat["maintenance"]}</b></span></div>{_unknown_note}<div class="hd-progress"><span style="width:{_online_pct:.1f}%;background:{_cat["tone"]}"></span></div></div>', unsafe_allow_html=True)
                         if st.button("›", key=f"hd_open_{_cat['key']}", help=f"เปิด {_cat['label']}"):
                             st.session_state.active_nav = _cat["key"]
                             st.rerun()
@@ -5019,29 +4953,26 @@ else:
         with _hd_main_right:
             _hd_donut_cols = st.columns(2, gap="small")
             with _hd_donut_cols[0]:
-                st.markdown(_hd_donut("Status Overview", [("Online", _hd_online), ("Maintenance", _hd_maintenance), ("Offline", _hd_offline)], _hd_total, "Total"), unsafe_allow_html=True)
+                _hd_known_status_total = _hd_online + _hd_maintenance + _hd_offline
+                st.markdown(_hd_donut("Status Overview", [("Online", _hd_online), ("Maintenance", _hd_maintenance), ("Offline", _hd_offline)], _hd_known_status_total, "มี Status"), unsafe_allow_html=True)
             with _hd_donut_cols[1]:
                 _top_locations = sorted(_hd_locations.items(), key=lambda item: item[1], reverse=True)[:4]
-                st.markdown(_hd_donut("Asset by Location", _top_locations, sum(value for _, value in _top_locations), "Assets"), unsafe_allow_html=True)
+                st.markdown(_hd_donut("Asset by Location", _top_locations, sum(value for _, value in _top_locations), "มี Location"), unsafe_allow_html=True)
 
             def _hd_poly(values, color):
                 _max_value = max(max(_hd_total_trend or [0]), max(values or [0]), 1)
                 _points = " ".join(f"{25 + index * 105},{110 - (value / _max_value * 88):.1f}" for index, value in enumerate(values))
                 return f'<polyline points="{_points}" fill="none" stroke="{color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
             _month_labels = "".join(f'<span>{month.strftime("%b %y")}</span>' for month in _hd_months)
-            st.markdown(f'<div class="hd-chart-panel hd-trend"><div class="hd-chart-title">Asset Trend (6 เดือนล่าสุด)</div><svg viewBox="0 0 575 125" preserveAspectRatio="none"><path d="M25 22H550M25 66H550M25 110H550" stroke="#E8EDF4" stroke-width="1"/>{_hd_poly(_hd_trend["online"], "#3B82F6")}{_hd_poly(_hd_trend["maintenance"], "#F59E0B")}{_hd_poly(_hd_trend["offline"], "#EF4444")}</svg><div class="hd-trend-labels">{_month_labels}</div><div class="hd-chart-summary">● Online &nbsp; <span style="color:#F59E0B">● Maintenance</span> &nbsp; <span style="color:#EF4444">● Offline</span></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hd-chart-panel hd-trend"><div class="hd-chart-title">Asset Updates by Current Status (6 เดือนล่าสุด)</div><svg viewBox="0 0 575 125" preserveAspectRatio="none"><path d="M25 22H550M25 66H550M25 110H550" stroke="#E8EDF4" stroke-width="1"/>{_hd_poly(_hd_trend["online"], "#3B82F6")}{_hd_poly(_hd_trend["maintenance"], "#F59E0B")}{_hd_poly(_hd_trend["offline"], "#EF4444")}</svg><div class="hd-trend-labels">{_month_labels}</div><div class="hd-chart-summary">อิงวันที่ Modified เท่านั้น · ● Online &nbsp; <span style="color:#F59E0B">● Maintenance</span> &nbsp; <span style="color:#EF4444">● Offline</span></div></div>', unsafe_allow_html=True)
 
         _hd_bottom = st.columns([1.2, 0.9, 0.9], gap="medium")
         with _hd_bottom[0]:
             _top_categories = sorted(_hd_category_stats, key=lambda item: item["total"], reverse=True)[:5]
             _rows = []
             for _cat in _top_categories:
-                _cat_value = 0.0
-                for _record_key, _, _, _record_row, _ in _hd_records:
-                    if _record_key == _cat["key"]:
-                        _cat_value += _hd_number(_hd_row_value(_record_row, ("AssetValue", "Value", "Price", "Unit_Price", "Cost", "PurchasePrice"), ("price", "value", "cost", "ราคา", "มูลค่า")))
-                _rows.append(f'<tr><td><b>{_cat["label"]}</b></td><td>{_cat["total"]}</td><td><span class="hd-pill hd-pill-green">{_cat["online"]}</span></td><td><span class="hd-pill hd-pill-red">{_cat["offline"]}</span></td><td><span class="hd-pill hd-pill-yellow">{_cat["maintenance"]}</span></td><td>{_hd_money(_cat_value)}</td></tr>')
-            st.markdown(f'<div class="hd-table-panel"><div class="hd-chart-title">Top 5 Assets by Category</div><table class="hd-table"><thead><tr><th>Category</th><th>Total</th><th>Online</th><th>Offline</th><th>Maintenance</th><th>Value</th></tr></thead><tbody>{"".join(_rows)}</tbody></table></div>', unsafe_allow_html=True)
+                _rows.append(f'<tr><td><b>{_cat["label"]}</b></td><td>{_cat["total"]}</td><td><span class="hd-pill hd-pill-green">{_cat["online"]}</span></td><td><span class="hd-pill hd-pill-red">{_cat["offline"]}</span></td><td><span class="hd-pill hd-pill-yellow">{_cat["maintenance"]}</span></td><td>{_cat["unknown"]}</td></tr>')
+            st.markdown(f'<div class="hd-table-panel"><div class="hd-chart-title">Top 5 Assets by Category</div><table class="hd-table"><thead><tr><th>Category</th><th>Total</th><th>Online</th><th>Offline</th><th>Maintenance</th><th>ไม่ระบุ</th></tr></thead><tbody>{"".join(_rows)}</tbody></table></div>', unsafe_allow_html=True)
         with _hd_bottom[1]:
             if _hd_warranties:
                 _warranty_rows = []
