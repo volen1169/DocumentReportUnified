@@ -4126,6 +4126,8 @@ else:
     _ST_BUTTON_HAS_ICON = False
     _NAV_MATERIAL_ICONS = {
         "overview": "space_dashboard", "ad_policy": "policy",
+        "hardware_dashboard": "devices", "software_dashboard": "apps",
+        "permission_dashboard": "verified_user", "vendor_list": "storefront",
         "computers": "computer", "monitors": "desktop_windows",
         "printers": "print", "projector": "videocam",
         "ups": "battery_charging_full", "misc": "devices_other",
@@ -4139,6 +4141,8 @@ else:
     }
     _NAV_FALLBACK_ICONS = {
         "overview": "🏠", "ad_policy": "🛡️", "computers": "💻", "monitors": "🖥️",
+        "hardware_dashboard": "🖥️", "software_dashboard": "💿",
+        "permission_dashboard": "🔐", "vendor_list": "🏢",
         "printers": "🖨️", "projector": "📽️", "ups": "🔋", "misc": "📦",
         "password": "🔐", "user_perm": "📂", "ink_stock": "💧",
         "admin_users": "👥", "admin_settings": "⚙️", "admin_logs": "🕘",
@@ -4210,7 +4214,17 @@ else:
             st.rerun()
 
     def _nav_leaf(nav_key: str, icon: str, text: str, badge_text: str = ""):
-        active = st.session_state.active_nav == nav_key
+        _parent_nav = {
+            "computers": "hardware_dashboard", "monitors": "hardware_dashboard",
+            "printers": "hardware_dashboard", "projector": "hardware_dashboard",
+            "ups": "hardware_dashboard", "misc": "hardware_dashboard",
+            "cctv": "hardware_dashboard", "access_control": "hardware_dashboard",
+            "software_group_email": "software_dashboard", "software_office365": "software_dashboard",
+            "software_pdf": "software_dashboard", "software_windows": "software_dashboard",
+            "software_offboarded": "software_dashboard",
+            "user_perm": "permission_dashboard", "ad_policy": "permission_dashboard",
+        }
+        active = st.session_state.active_nav == nav_key or _parent_nav.get(st.session_state.active_nav) == nav_key
         label = text
         if not _ST_BUTTON_HAS_ICON:
             label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
@@ -4293,39 +4307,14 @@ else:
 
     st.sidebar.markdown('<p class="nav-section-label hide-when-compact">WORKSPACE</p>', unsafe_allow_html=True)
 
-    # Card Navigation Style (Option B)
+    # Flat enterprise navigation. Module details live inside each dashboard.
     _nav_leaf("overview", "⌂", "Dashboard")
-    if admin_mode:
-        _nav_leaf("ad_policy", "🌐", "AD / Firewall Policy")
-
-    # Asset modules moved to Dashboard cards
-    _group_toggle("open_grp_assets", "📦", "Asset Management")
-    if st.session_state.open_grp_assets:
-        _nav_item("computers", "🖥", "Computers", "computers", "blue", sub=True)
-        _nav_item("monitors", "🖵", "Monitors", "monitors", "blue", sub=True)
-        _nav_item("printers", "🖨", "Printers", "printers", "blue", sub=True)
-        _nav_item("projector", "📽", "Projectors", "projector", "blue", sub=True)
-        _nav_item("ups", "🔋", "UPS", "ups", "blue", sub=True)
-        _nav_item("misc", "📦", "Miscellaneous", "misc", "blue", sub=True)
-
-    if admin_mode:
-        _group_toggle("open_grp_security", "🔒", "Security")
-        if st.session_state.open_grp_security:
-            _nav_item("password", "🔑", "Password Manager", "password", "blue", sub=True)
-            _nav_item("user_perm", "📂", "NAS Permission Analyzer", "user_perm", "blue", sub=True)
-
-        _group_toggle("open_grp_inventory", "📁", "Inventory")
-        if st.session_state.open_grp_inventory:
-            _nav_item("ink_stock", "🖊", "Ink Stock", "ink_stock", "blue", sub=True)
-
-        # removed duplicate reports menu
-
-
-        _group_toggle("open_grp_admin", "⚙", "Administration")
-        if st.session_state.open_grp_admin:
-            _nav_item("admin_users", "👥", "Users", sub=True)
-            _nav_item("admin_settings", "⚙", "Settings", sub=True)
-            _nav_item("admin_logs", "📜", "Activity Logs", sub=True)
+    _nav_leaf("hardware_dashboard", "🖥", "Hardware")
+    _nav_leaf("software_dashboard", "💿", "Software")
+    _nav_leaf("permission_dashboard", "🔐", "Permission")
+    _nav_leaf("password", "🔑", "Password")
+    _nav_leaf("vendor_list", "🏢", "Vendor List")
+    _nav_leaf("ink_stock", "💧", "Ink Stock")
 
     st.sidebar.markdown("---")
 
@@ -4680,15 +4669,26 @@ else:
     # ── ROUTE ────────────────────────────────────────────────────────────────
     _ROUTE = {
         "overview":   ("📊 Overview Dashboard",  None),
+        "hardware_dashboard": ("🖥 Hardware Dashboard", None),
+        "software_dashboard": ("💿 Software Dashboard", None),
+        "permission_dashboard": ("🔐 Permission Dashboard", None),
         "computers":  ("💻 Hardware Asset",       "Computer Asset"),
         "monitors":   ("💻 Hardware Asset",       "Asset Monitor"),
         "projector":  ("💻 Hardware Asset",       "Asset Projector"),
         "printers":   ("💻 Hardware Asset",       "Asset Printer"),
         "ups":        ("💻 Hardware Asset",       "Asset UPS"),
         "misc":       ("💻 Hardware Asset",       "Asset Misc"),
+        "cctv":       ("💻 Hardware Asset",       "Asset CCTV"),
+        "access_control": ("💻 Hardware Asset",    "Asset Access Control"),
+        "software_group_email": ("💿 Software Module", "Group E-mail"),
+        "software_office365": ("💿 Software Module", "Office 365"),
+        "software_pdf": ("💿 Software Module", "PDF"),
+        "software_windows": ("💿 Software Module", "Windows"),
+        "software_offboarded": ("💿 Software Module", "พนักงานลาออก"),
         "email":      ("🔑 Password Information", None),
         "domain":     ("🔑 Password Information", None),
         "vendor":     ("🔑 Password Information", None),
+        "vendor_list": ("🏢 Vendor List", None),
         "user_perm":  ("📂 NAS Drive Check",      None),
         "password":   ("🔑 Password Information", None),
         "ink_stock":  ("🖨️ Stock หมึกพิมพ์",       None),
@@ -4702,12 +4702,69 @@ else:
     main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav in ("ink_history", "consumables"))
 
-    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "💻 Hardware Asset"):
+    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "🖥 Hardware Dashboard", "💻 Hardware Asset"):
         st.session_state.active_nav = "overview"
         _nav = "overview"
         main_menu, _hw_sub_override = _ROUTE["overview"]
         show_ink_history_only = False
         st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Dashboard และ Hardware Asset เท่านั้น")
+
+    def _render_module_hub(title, subtitle, icon, modules):
+        """Render a flat module dashboard without adding sidebar submenus."""
+        st.markdown("""
+        <style>
+        .hub-hero{position:relative;overflow:hidden;padding:25px 28px;margin-bottom:16px;border-radius:24px;color:#FFF;background:linear-gradient(125deg,#2563EB,#6366F1 56%,#8B5CF6);box-shadow:0 16px 38px rgba(79,70,229,.20)}
+        .hub-hero:after{content:'';position:absolute;width:260px;height:260px;right:-75px;top:-135px;border-radius:50%;background:rgba(255,255,255,.10)}.hub-title{font-size:28px;font-weight:850;letter-spacing:-.035em}.hub-sub{margin-top:5px;font-size:13px;color:rgba(255,255,255,.82)}
+        [class*="st-key-hub_card_"] .stButton>button{position:relative!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:132px!important;padding:18px 48px 18px 18px!important;border:1px solid #E2E8F0!important;border-radius:18px!important;background:#FFF!important;color:#172554!important;text-align:left!important;white-space:pre-line!important;box-shadow:0 7px 20px rgba(15,23,42,.045)!important}
+        [class*="st-key-hub_card_"] .stButton>button:after{content:'›';position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:27px;height:27px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:16px;background:#FFF}
+        [class*="st-key-hub_card_"] .stButton>button:hover{transform:translateY(-3px)!important;border-color:#A5B4FC!important;box-shadow:0 14px 30px rgba(79,70,229,.11)!important}.hub-note{margin:14px 0 8px;color:#64748B;font-size:12px}
+        [class*="st-key-hub_card_"] .stButton>button p{width:100%;white-space:pre-line!important;text-align:left!important;color:#64748B!important;font-size:12px!important;line-height:1.55!important;font-weight:500!important}[class*="st-key-hub_card_"] .stButton>button p:first-line{color:#172554!important;font-size:15px!important;font-weight:850!important}
+        </style>
+        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="hub-hero"><div class="hub-title">{icon} {title}</div><div class="hub-sub">{subtitle}</div></div>', unsafe_allow_html=True)
+        _hub_cols = st.columns(3, gap="medium")
+        for _hub_index, (_target, _item_icon, _item_title, _item_desc) in enumerate(modules):
+            with _hub_cols[_hub_index % 3]:
+                if st.button(f"{_item_icon}  {_item_title}\n{_item_desc}", key=f"hub_card_{title}_{_hub_index}_{_target}", use_container_width=True):
+                    st.session_state.active_nav = _target
+                    st.rerun()
+
+    def _render_password_sheet_module(title, subtitle, icon, keywords):
+        """Reuse the existing password workbook safely for software/vendor modules."""
+        page_header(icon, title, subtitle)
+        with st.spinner("กำลังโหลดข้อมูล..."):
+            _module_result = load_password_excel()
+            _module_sheets, _module_drive_id = _module_result if isinstance(_module_result, tuple) else ({}, None)
+        if not _module_sheets or "_error" in _module_sheets:
+            st.error("ไม่สามารถโหลดข้อมูลจาก SharePoint ได้")
+            return
+        _module_sheet_name = None
+        for _candidate in _module_sheets:
+            _candidate_key = str(_candidate).lower().replace("_", " ").replace("-", " ")
+            if any(str(_keyword).lower() in _candidate_key for _keyword in keywords):
+                _module_sheet_name = _candidate
+                break
+        if not _module_sheet_name:
+            st.info(f"ยังไม่พบหมวดข้อมูลสำหรับ {title} ในไฟล์ปัจจุบัน")
+            return
+        _module_df = _module_sheets[_module_sheet_name].copy()
+        _module_header, _module_add = st.columns([0.8, 0.2])
+        with _module_header:
+            st.subheader(f"{get_sheet_icon(_module_sheet_name)} {_module_sheet_name}")
+            st.caption(f"พบข้อมูลทั้งหมด {len(_module_df)} รายการ")
+        with _module_add:
+            if admin_mode and st.button("➕ เพิ่มรายการ", key=f"module_add_{_nav}", use_container_width=True, type="primary"):
+                add_password_dialog(_module_sheet_name, _module_df, _module_drive_id, _module_sheets)
+        if _module_df.empty:
+            st.info("ยังไม่มีข้อมูลในหมวดนี้")
+            return
+        _module_cols = st.columns(2)
+        for _module_pos, (_module_idx, _module_row) in enumerate(_module_df.iterrows()):
+            with _module_cols[_module_pos % 2]:
+                render_password_card(_module_row, _module_sheet_name, _module_idx, admin_mode, _module_df, _module_drive_id, _module_sheets)
+                if admin_mode and st.session_state.get(f"pw_edit_row_{_module_sheet_name}_{_module_idx}"):
+                    st.session_state.pop(f"pw_edit_row_{_module_sheet_name}_{_module_idx}")
+                    edit_password_dialog(_module_row, _module_idx, _module_sheet_name, _module_df, _module_drive_id, _module_sheets)
 
     # -------------------------------------------------------
     # 📊 Overview Dashboard
@@ -4833,12 +4890,12 @@ else:
             with st.container(key="db_quick_panel"):
                 st.markdown('<div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
                 _quick_actions = [
-                    ("computers", "🖥️", "Computer Asset", "จัดการข้อมูลเครื่องคอมพิวเตอร์ทั้งหมด"),
-                    ("user_perm", "📁", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึงใน NAS Shares"),
-                    ("ad_policy", "🛡️", "AD / Firewall Policy", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
-                    ("password", "🔐", "Password Manager", "จัดการรหัสผ่านของระบบและบริการ"),
+                    ("hardware_dashboard", "🖥️", "Hardware", "Computers, Monitors, Printers และอุปกรณ์ทั้งหมด"),
+                    ("software_dashboard", "💿", "Software", "License, Office 365, Windows และบัญชีผู้ใช้"),
+                    ("permission_dashboard", "🔐", "Permission", "NAS Permission และ AD / Firewall Policy"),
+                    ("password", "🔑", "Password", "จัดการรหัสผ่านของระบบและบริการ"),
+                    ("vendor_list", "🏢", "Vendor List", "ข้อมูลผู้ขาย ผู้ให้บริการ และช่องทางติดต่อ"),
                     ("ink_stock", "💧", "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
-                    ("overview", "📊", "Reports & Analytics", "รายงานและการวิเคราะห์ข้อมูลเชิงลึก"),
                 ]
                 _action_cols = st.columns(3, gap="small")
                 for _idx, (_target, _icon, _title, _description) in enumerate(_quick_actions):
@@ -4848,11 +4905,8 @@ else:
                             key=f"db_card_action_{_idx}_{_target}",
                             use_container_width=True,
                         ):
-                            if _target == "overview":
-                                st.toast("Reports & Analytics แสดงอยู่ใน Dashboard นี้", icon="📊")
-                            else:
-                                st.session_state.active_nav = _target
-                                st.rerun()
+                            st.session_state.active_nav = _target
+                            st.rerun()
         with _main_cols[1]:
             _health_items = [
                 (_db_svg("sharepoint"), "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "linear-gradient(135deg,#DDF8EA,#F0FDF7)", "#0F9D68"),
@@ -5021,6 +5075,64 @@ else:
             """, unsafe_allow_html=True)
 
     
+    # -------------------------------------------------------
+    # Module landing dashboards
+    # -------------------------------------------------------
+    elif main_menu == "🖥 Hardware Dashboard":
+        _render_module_hub(
+            "Hardware Dashboard",
+            "ศูนย์รวมสินทรัพย์และอุปกรณ์ทั้งหมดขององค์กร",
+            "🖥️",
+            [
+                ("computers", "💻", "Computers", f"{nav_badges.get('computers', 0)} รายการ"),
+                ("monitors", "🖥️", "Monitors", f"{nav_badges.get('monitors', 0)} รายการ"),
+                ("printers", "🖨️", "Printers", f"{nav_badges.get('printers', 0)} รายการ"),
+                ("projector", "📽️", "Projector", f"{nav_badges.get('projector', 0)} รายการ"),
+                ("ups", "🔋", "UPS", f"{nav_badges.get('ups', 0)} รายการ"),
+                ("cctv", "📹", "CCTV", "กล้องวงจรปิดและอุปกรณ์บันทึกภาพ"),
+                ("access_control", "🚪", "Access Control", "ระบบควบคุมประตูและการเข้าออก"),
+            ],
+        )
+
+    elif main_menu == "💿 Software Dashboard":
+        _render_module_hub(
+            "Software Dashboard",
+            "จัดการบัญชี License และซอฟต์แวร์ที่ใช้งานในองค์กร",
+            "💿",
+            [
+                ("software_group_email", "✉️", "Group E-mail", "บัญชีกลุ่มและอีเมลส่วนกลาง"),
+                ("software_office365", "☁️", "Office 365", "Microsoft 365 และ License"),
+                ("software_pdf", "📄", "PDF", "Adobe Acrobat และโปรแกรม PDF"),
+                ("software_windows", "⊞", "Windows", "Windows License และ Activation"),
+                ("software_offboarded", "👤", "พนักงานลาออก", "บัญชีและ License ที่ต้องดำเนินการ"),
+            ],
+        )
+
+    elif main_menu == "🔐 Permission Dashboard":
+        _render_module_hub(
+            "Permission Dashboard",
+            "ตรวจสอบสิทธิ์การเข้าถึงระบบและนโยบายเครือข่าย",
+            "🔐",
+            [
+                ("user_perm", "📁", "NAS Permission", "ตรวจสอบสิทธิ์การเข้าถึง NAS Shares"),
+                ("ad_policy", "🛡️", "AD / Firewall", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
+            ],
+        )
+
+    elif main_menu == "💿 Software Module":
+        _software_config = {
+            "Group E-mail": ("✉️", ["group email", "group e mail", "group mail", "email group", "email"]),
+            "Office 365": ("☁️", ["office 365", "office365", "microsoft 365", "m365"]),
+            "PDF": ("📄", ["pdf", "adobe", "acrobat"]),
+            "Windows": ("⊞", ["windows"]),
+            "พนักงานลาออก": ("👤", ["พนักงานลาออก", "ลาออก", "resign", "offboard", "former"]),
+        }
+        _software_icon, _software_keywords = _software_config.get(_hw_sub_override, ("💿", [_hw_sub_override]))
+        _render_password_sheet_module(_hw_sub_override, "ข้อมูล License และบัญชีจากแหล่งข้อมูลเดิม", _software_icon, _software_keywords)
+
+    elif main_menu == "🏢 Vendor List":
+        _render_password_sheet_module("Vendor List", "ข้อมูลผู้ขาย ผู้ให้บริการ และช่องทางติดต่อ", "🏢", ["vendor", "supplier", "ผู้ขาย"])
+
     # -------------------------------------------------------
     # 💻 Hardware Asset
     # -------------------------------------------------------
@@ -5886,9 +5998,13 @@ else:
         st.markdown("---")
 
         # ---- Sidebar filters ----
-        comp_filter  = st.sidebar.selectbox("🏢 บริษัท:", ["ALL"] + COMPANY_OPTIONS, key="ink_company_filter")
-        color_filter = st.sidebar.selectbox("🎨 สี:", ["ALL"] + INK_COLOR_OPTIONS, key="ink_color_filter")
-        show_history = st.sidebar.checkbox("📜 แสดงประวัติการเบิก", value=show_ink_history_only, key="ink_show_history")
+        _ink_filter_cols = st.columns(3, gap="small")
+        with _ink_filter_cols[0]:
+            comp_filter = st.selectbox("🏢 บริษัท:", ["ALL"] + COMPANY_OPTIONS, key="ink_company_filter")
+        with _ink_filter_cols[1]:
+            color_filter = st.selectbox("🎨 สี:", ["ALL"] + INK_COLOR_OPTIONS, key="ink_color_filter")
+        with _ink_filter_cols[2]:
+            show_history = st.checkbox("📜 แสดงประวัติการเบิก", value=show_ink_history_only, key="ink_show_history")
 
         # ---- Admin: add button ----
         if admin_mode:
@@ -6386,7 +6502,7 @@ else:
             st.info(f"💡 ตรวจสอบ: ชื่อโฟลเดอร์ = '{SHAREPOINT_FOLDER}' / ชื่อไฟล์ = '{PASSWORD_FILE_NAME}'")
         else:
             sheet_names = list(pw_sheets.keys())
-            selected_sheet = st.sidebar.selectbox("📋 หมวดหมู่:", sheet_names, key="pw_sheet_select")
+            selected_sheet = st.selectbox("📋 หมวดหมู่:", sheet_names, key="pw_sheet_select")
             df_pw = pw_sheets[selected_sheet].copy()
             sheet_icon = get_sheet_icon(selected_sheet)
 
@@ -6409,3 +6525,7 @@ else:
                 for idx, row in df_pw.iterrows():
                     with card_cols[idx % 2]:
                         render_password_card(row, selected_sheet, idx, admin_mode, df_pw, drive_id, pw_sheets)
+                        # แสดง edit dialog
+                        if admin_mode and st.session_state.get(f"pw_edit_row_{selected_sheet}_{idx}"):
+                            st.session_state.pop(f"pw_edit_row_{selected_sheet}_{idx}")
+                            edit_password_dialog(row, idx, selected_sheet, df_pw, drive_id, pw_sheets)
