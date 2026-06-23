@@ -4913,7 +4913,7 @@ else:
         .hd-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.hd-kpi-card{position:relative;height:124px;padding:15px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05);overflow:hidden}.hd-kpi-label{font-size:12px;font-weight:800;color:#334155}.hd-kpi-value{margin-top:13px;font-size:36px;line-height:1;font-weight:850;letter-spacing:-.05em;color:#0F172A;white-space:nowrap}.hd-kpi-note{margin-top:9px;color:#64748B;font-size:10px}.hd-kpi-icon{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:50%}.hd-kpi-icon svg{width:21px;height:21px}
         .hd-section-title{margin:0 0 11px;font-size:15px;font-weight:850;color:#334155}.hd-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.hd-category-card{min-height:126px}.hd-category-head{display:flex;align-items:center;gap:11px}.hd-category-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px}.hd-category-icon svg{width:23px;height:23px}.hd-category-title{font-size:13px;font-weight:850}.hd-category-total{margin-top:3px;color:#64748B;font-size:10px}.hd-category-status{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0 6px;color:#64748B;font-size:9px}.hd-category-status b{display:block;margin-top:2px;font-size:11px}.hd-category-unknown{margin-bottom:8px;color:#94A3B8;font-size:8.5px}.hd-progress{height:6px;border-radius:999px;background:#EDF2F7;overflow:hidden}.hd-progress>span{display:block;height:100%;border-radius:999px}
         [class*="st-key-hd_category_card_"]{position:relative!important;padding:13px 13px 40px!important;border:1px solid #E2E8F0!important;border-radius:17px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important;transition:.18s ease!important}[class*="st-key-hd_category_card_"]:hover{transform:translateY(-2px);border-color:#C7D2FE!important;box-shadow:0 12px 25px rgba(79,70,229,.09)!important}
-        [class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"]{position:absolute!important;right:12px!important;bottom:8px!important;width:30px!important;height:30px!important;z-index:5!important}[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] .stButton,[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] button{width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;margin:0!important;border-radius:50%!important;color:#4F46E5!important;background:#FFF!important;box-shadow:0 4px 10px rgba(79,70,229,.08)!important}
+        [class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"]{position:absolute!important;right:13px!important;bottom:10px!important;width:auto!important;height:24px!important;z-index:5!important}[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] .stButton,[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] button{width:auto!important;height:24px!important;min-height:24px!important;padding:0 2px!important;margin:0!important;border:0!important;border-radius:0!important;color:#4F46E5!important;background:transparent!important;box-shadow:none!important;font-size:10px!important;font-weight:800!important}[class*="st-key-hd_category_card_"] [class*="st-key-hd_open_"] button:hover{color:#7C3AED!important;background:transparent!important;transform:translateX(2px)!important}
         [class*="st-key-hd_category_card_access_control"] .hd-category-card{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(260px,1fr);grid-template-rows:auto auto auto;align-items:center;column-gap:24px;min-height:78px}[class*="st-key-hd_category_card_access_control"] .hd-category-head{grid-column:1;grid-row:1/3}[class*="st-key-hd_category_card_access_control"] .hd-category-status{grid-column:2;grid-row:1;margin:0 40px 3px 0}[class*="st-key-hd_category_card_access_control"] .hd-category-unknown{grid-column:2;grid-row:2;margin:0 40px 5px 0}[class*="st-key-hd_category_card_access_control"] .hd-progress{grid-column:1/3;grid-row:3;margin-top:7px}
         .hd-chart-panel,.hd-table-panel,.hd-activity-panel{padding:14px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045)}.hd-chart-panel{min-height:210px}.hd-chart-title{margin-bottom:10px;font-size:12px;font-weight:850}.hd-donut-layout{display:flex;align-items:center;gap:14px}.hd-donut{position:relative;width:118px;height:118px;flex:0 0 118px;border-radius:50%}.hd-donut:after{content:'';position:absolute;inset:22px;border-radius:50%;background:#FFF}.hd-donut-center{position:absolute;z-index:2;inset:0;display:grid;place-content:center;text-align:center;font-size:10px;color:#64748B}.hd-donut-center b{font-size:21px;color:#0F172A}.hd-legend{display:grid;gap:8px;flex:1}.hd-legend-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:#64748B;font-size:9px}.hd-legend-row i{width:8px;height:8px;border-radius:50%}.hd-legend-row b{color:#334155}.hd-trend{margin-top:10px}.hd-trend svg{width:100%;height:130px}.hd-trend-labels{display:flex;justify-content:space-between;color:#94A3B8;font-size:8px}.hd-chart-summary{margin-top:8px;color:#94A3B8;font-size:9px;text-align:right}
         .hd-table-panel{min-height:280px}.hd-table{width:100%;border-collapse:collapse;font-size:10px}.hd-table th{padding:9px 8px;text-align:left;color:#64748B;background:#F8FAFC;border-bottom:1px solid #E2E8F0}.hd-table td{padding:10px 8px;border-bottom:1px solid #EDF2F7;color:#334155}.hd-table tr:last-child td{border-bottom:0}.hd-pill{display:inline-flex;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:800}.hd-pill-green{background:#E7F8EE;color:#10B981}.hd-pill-yellow{background:#FFF4E5;color:#F59E0B}.hd-pill-red{background:#FEECEF;color:#EF4444}.hd-empty{display:grid;place-items:center;min-height:150px;color:#94A3B8;font-size:11px}.hd-activity-list{display:grid}.hd-activity-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #EDF2F7}.hd-activity-row:last-child{border-bottom:0}.hd-activity-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:13px}.hd-activity-title{font-size:10px;font-weight:800}.hd-activity-sub,.hd-activity-time{margin-top:2px;color:#64748B;font-size:8.5px}.hd-activity-time{text-align:right;white-space:nowrap}
@@ -4928,7 +4928,7 @@ else:
         _hd_kpi_html.append('</div>')
         st.markdown("".join(_hd_kpi_html), unsafe_allow_html=True)
 
-        _hd_main_left, _hd_main_right = st.columns([1.15, 1], gap="medium")
+        _hd_main_left = st.container()
         with _hd_main_left:
             st.markdown('<div class="hd-section-title">สรุปประเภทอุปกรณ์</div>', unsafe_allow_html=True)
             def _render_hd_category_card(_cat):
@@ -4936,7 +4936,7 @@ else:
                     _online_pct = (_cat["online"] / max(_cat["total"], 1)) * 100
                     _unknown_note = f'<div class="hd-category-unknown">ไม่ระบุ Status: {_cat["unknown"]} รายการ</div>' if _cat["unknown"] else '<div class="hd-category-unknown">Status จากข้อมูลจริงครบถ้วน</div>'
                     st.markdown(f'<div class="hd-category-card"><div class="hd-category-head"><div class="hd-category-icon" style="color:{_cat["tone"]};background:{_cat["soft"]}">{_cat["icon"]}</div><div><div class="hd-category-title">{_cat["label"]}</div><div class="hd-category-total">{_cat["total"]} รายการ</div></div></div><div class="hd-category-status"><span>Online<b style="color:#10B981">{_cat["online"]}</b></span><span>Offline<b style="color:#EF4444">{_cat["offline"]}</b></span><span>Maintenance<b style="color:#F59E0B">{_cat["maintenance"]}</b></span></div>{_unknown_note}<div class="hd-progress"><span style="width:{_online_pct:.1f}%;background:{_cat["tone"]}"></span></div></div>', unsafe_allow_html=True)
-                    if st.button("›", key=f"hd_open_{_cat['key']}", help=f"เปิด {_cat['label']}"):
+                    if st.button("เปิดรายการ →", key=f"hd_open_{_cat['key']}", help=f"เปิด {_cat['label']}"):
                         st.session_state.active_nav = _cat["key"]
                         st.rerun()
 
@@ -4946,6 +4946,10 @@ else:
                     _render_hd_category_card(_cat)
             if len(_hd_category_stats) > 6:
                 _render_hd_category_card(_hd_category_stats[6])
+
+        # Hardware Dashboard intentionally ends after the category command grid.
+        # Detail pages remain reachable through each card's action button.
+        return
 
         def _hd_donut(title, items, total, center_label):
             _colors = ["#10B981", "#F59E0B", "#EF4444", "#4F46E5", "#A855F7", "#38BDF8", "#F97316"]
@@ -6748,3 +6752,10 @@ else:
                 st.warning("ไม่มีข้อมูลในชีทนี้")
             else:
                 card_cols = st.columns(2)
+                for idx, row in df_pw.iterrows():
+                    with card_cols[idx % 2]:
+                        render_password_card(row, selected_sheet, idx, admin_mode, df_pw, drive_id, pw_sheets)
+                        # แสดง edit dialog
+                        if admin_mode and st.session_state.get(f"pw_edit_row_{selected_sheet}_{idx}"):
+                            st.session_state.pop(f"pw_edit_row_{selected_sheet}_{idx}")
+                            edit_password_dialog(row, idx, selected_sheet, df_pw, drive_id, pw_sheets)
