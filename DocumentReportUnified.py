@@ -6759,3 +6759,8 @@ else:
                 card_cols = st.columns(2)
                 for idx, row in df_pw.iterrows():
                     with card_cols[idx % 2]:
+                        render_password_card(row, selected_sheet, idx, admin_mode, df_pw, drive_id, pw_sheets)
+                        # แสดง edit dialog
+                        if admin_mode and st.session_state.get(f"pw_edit_row_{selected_sheet}_{idx}"):
+                            st.session_state.pop(f"pw_edit_row_{selected_sheet}_{idx}")
+                            edit_password_dialog(row, idx, selected_sheet, df_pw, drive_id, pw_sheets)
