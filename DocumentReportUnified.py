@@ -4766,6 +4766,257 @@ else:
                     st.session_state.pop(f"pw_edit_row_{_module_sheet_name}_{_module_idx}")
                     edit_password_dialog(_module_row, _module_idx, _module_sheet_name, _module_df, _module_drive_id, _module_sheets)
 
+    def _render_software_command_center():
+        """Software dashboard composed only from the existing password workbook."""
+        def _sw_svg(kind):
+            _paths = {
+                "software": '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v4M21 12h-4M12 21v-4M3 12h4"/>',
+                "total": '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+                "licensed": '<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>',
+                "expiring": '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+                "unlicensed": '<path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v4M12 17h.01"/>',
+                "cost": '<circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.6-.8-1.7-1.3-3-1.3-1.7 0-3 1-3 2.3 0 3.5 6 1.5 6 5 0 1.3-1.3 2.3-3 2.3-1.3 0-2.5-.5-3.2-1.4M12 5v14"/>',
+                "compliance": '<path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/>',
+                "mail": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+                "office": '<path d="m7 5 9-3 4 3v14l-4 3-9-3V5Z"/><path d="M7 5H4v14h3M16 7v10"/>',
+                "pdf": '<path d="M6 2h8l4 4v16H6V2Z"/><path d="M14 2v5h5M9 12h6M9 16h6"/>',
+                "windows": '<path d="m3 5 8-1v8H3V5Zm10-1 8-1v9h-8V4ZM3 14h8v8l-8-1v-7Zm10 0h8v9l-8-1v-8Z"/>',
+                "offboard": '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-4 2-7 6-7 2 0 3.4.7 4.4 1.8M15 18h7M19 14l4 4-4 4"/>',
+                "security": '<path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/>',
+                "developer": '<path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/>',
+                "database": '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+                "other": '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+            }
+            return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{_paths[kind]}</svg>'
+
+        def _norm(value):
+            return re.sub(r"[^a-z0-9ก-๙]+", " ", str(value).lower()).strip()
+
+        def _field(columns, names, contains=()):
+            _lookup = {_norm(c): c for c in columns}
+            for _name in names:
+                if _norm(_name) in _lookup:
+                    return _lookup[_norm(_name)]
+            for _column in columns:
+                _key = _norm(_column)
+                if any(_token in _key for _token in contains):
+                    return _column
+            return None
+
+        def _date(value):
+            if value is None or str(value).strip() in ("", "nan", "NaT", "-"):
+                return None
+            try:
+                _parsed = pd.to_datetime(value, errors="coerce", dayfirst=True)
+                return None if pd.isna(_parsed) else _parsed.to_pydatetime()
+            except Exception:
+                return None
+
+        def _money(value):
+            if value is None or str(value).strip() in ("", "nan", "-"):
+                return None
+            try:
+                _clean = re.sub(r"[^0-9.\-]", "", str(value).replace(",", ""))
+                return float(_clean) if _clean not in ("", "-", ".") else None
+            except Exception:
+                return None
+
+        def _fmt_money(value):
+            if value is None:
+                return "-"
+            if abs(value) >= 1000000:
+                return f"฿ {value / 1000000:.2f}M"
+            if abs(value) >= 1000:
+                return f"฿ {value / 1000:.1f}K"
+            return f"฿ {value:,.0f}"
+
+        with st.spinner("กำลังรวบรวมข้อมูล Software จากระบบเดิม..."):
+            try:
+                _sw_result = load_password_excel()
+                _sw_sheets, _sw_drive_id = _sw_result if isinstance(_sw_result, tuple) else ({}, None)
+            except Exception:
+                _sw_sheets, _sw_drive_id = {}, None
+        _sw_sheets = {str(k): v.copy() for k, v in (_sw_sheets or {}).items() if k != "_error" and isinstance(v, pd.DataFrame)}
+
+        _configs = [
+            {"key":"group_email","title":"Group E-mail","nav":"software_group_email","icon":"mail","tokens":["group email","group e mail","group mail","email group"]},
+            {"key":"office365","title":"Office 365","nav":"software_office365","icon":"office","tokens":["office 365","office365","microsoft 365","m365"]},
+            {"key":"pdf","title":"PDF","nav":"software_pdf","icon":"pdf","tokens":["pdf","adobe","acrobat"]},
+            {"key":"windows","title":"Windows","nav":"software_windows","icon":"windows","tokens":["windows"]},
+            {"key":"offboarded","title":"พนักงานลาออก","nav":"software_offboarded","icon":"offboard","tokens":["พนักงานลาออก","ลาออก","resign","offboard","former employee"]},
+            {"key":"security","title":"Antivirus / Security","nav":"password","icon":"security","tokens":["antivirus","security","endpoint","eset","symantec"]},
+            {"key":"developer","title":"Developer Tools","nav":"password","icon":"developer","tokens":["developer","visual studio","github","source code"]},
+            {"key":"database","title":"Database","nav":"password","icon":"database","tokens":["database","sql","oracle"]},
+            {"key":"other","title":"Other Software","nav":"password","icon":"other","tokens":["software","license","application"]},
+        ]
+        _assigned = set()
+        _category_data = []
+        for _cfg in _configs:
+            _matched = []
+            for _sheet_name, _frame in _sw_sheets.items():
+                if _sheet_name in _assigned:
+                    continue
+                _sheet_key = _norm(_sheet_name)
+                if any(_norm(token) in _sheet_key for token in _cfg["tokens"]):
+                    _matched.append((_sheet_name, _frame))
+                    _assigned.add(_sheet_name)
+            _cfg = dict(_cfg)
+            _cfg["sheets"] = _matched
+            _category_data.append(_cfg)
+
+        _rows = []
+        _today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7))).replace(tzinfo=None)
+        for _cfg in _category_data:
+            for _sheet_name, _frame in _cfg["sheets"]:
+                for _idx, _row in _frame.iterrows():
+                    if not any(str(v).strip() not in ("", "nan", "None") for v in _row.tolist()):
+                        continue
+                    _columns = list(_frame.columns)
+                    _status_col = _field(_columns, ["Status", "License Status", "State"], ("license status", "status", "สถานะ"))
+                    _license_col = _field(_columns, ["License", "License Key", "Product Key", "Serial", "Subscription"], ("license", "product key", "serial", "subscription", "key"))
+                    _expiry_col = _field(_columns, ["Expiry Date", "Expire Date", "License Expiry", "End Date", "Renewal Date"], ("expiry", "expire", "หมดอายุ", "end date", "renewal"))
+                    _cost_col = _field(_columns, ["Cost", "Price", "License Cost", "Amount"], ("cost", "price", "ราคา", "มูลค่า", "amount"))
+                    _publisher_col = _field(_columns, ["Publisher", "Vendor", "Manufacturer", "Company", "Brand"], ("publisher", "vendor", "manufacturer", "brand"))
+                    _modified_col = _field(_columns, ["Modified", "Updated", "Last Modified", "Created"], ("modified", "updated", "created", "วันที่แก้ไข"))
+                    _name_col = _field(_columns, ["Software", "Software Name", "Product", "Application", "Name", "Title", "Account"], ("software name", "product", "application", "name", "title"))
+                    _status_text = _norm(_row.get(_status_col, "")) if _status_col else ""
+                    _expiry = _date(_row.get(_expiry_col)) if _expiry_col else None
+                    _days = (_expiry.date() - _today.date()).days if _expiry else None
+                    if _days is not None and 0 <= _days <= 90:
+                        _state = "expiring"
+                    elif any(x in _status_text for x in ("unlicensed", "inactive", "expired", "ไม่มี license", "ไม่ได้ใช้งาน")):
+                        _state = "unlicensed"
+                    elif any(x in _status_text for x in ("licensed", "active", "valid", "ใช้งาน")):
+                        _state = "licensed"
+                    elif _license_col and str(_row.get(_license_col, "")).strip() not in ("", "nan", "None", "-"):
+                        _state = "licensed"
+                    else:
+                        _state = "unknown"
+                    _rows.append({
+                        "category": _cfg["key"], "category_title": _cfg["title"], "sheet": _sheet_name, "index": _idx,
+                        "state": _state, "expiry": _expiry, "days": _days,
+                        "cost": _money(_row.get(_cost_col)) if _cost_col else None,
+                        "publisher": str(_row.get(_publisher_col, "")).strip() if _publisher_col else "",
+                        "modified": _date(_row.get(_modified_col)) if _modified_col else None,
+                        "name": str(_row.get(_name_col, "")).strip() if _name_col else str(_sheet_name),
+                        "search": " ".join(str(v) for v in _row.tolist()),
+                    })
+
+        _search_col, _tools_col = st.columns([0.62, 0.38], gap="medium")
+        with _search_col:
+            st.markdown(f'<div class="sw-dashboard"><div class="sw-header"><div class="sw-header-icon">{_sw_svg("software")}</div><div><div class="sw-header-title">Software Dashboard</div><div class="sw-header-sub">จัดการบัญชี License และซอฟต์แวร์ที่ใช้งานในองค์กร</div></div></div></div>', unsafe_allow_html=True)
+        with _tools_col:
+            _sw_query = st.text_input("ค้นหา", placeholder="ค้นหา Software, Publisher, License, Serial...", label_visibility="collapsed", key="sw_search_input")
+            _tool_items = st.columns([0.28, 0.72])
+            with _tool_items[0]:
+                st.markdown('<div class="sw-notification" title="การแจ้งเตือน"><span></span></div>', unsafe_allow_html=True)
+            with _tool_items[1]:
+                if admin_mode:
+                    _first_sheet = next(((n, f) for c in _category_data for n, f in c["sheets"]), None)
+                    if _first_sheet and st.button("＋ เพิ่ม Software", key="sw_add_software", use_container_width=True, type="primary"):
+                        add_password_dialog(_first_sheet[0], _first_sheet[1], _sw_drive_id, _sw_sheets)
+
+        if _sw_query.strip():
+            _needle = _norm(_sw_query)
+            _visible_rows = [r for r in _rows if _needle in _norm(r["search"] + " " + r["sheet"] + " " + r["category_title"])]
+        else:
+            _visible_rows = _rows
+
+        _total = len(_visible_rows)
+        _licensed = sum(r["state"] == "licensed" for r in _visible_rows)
+        _expiring = sum(r["state"] == "expiring" for r in _visible_rows)
+        _unlicensed = sum(r["state"] == "unlicensed" for r in _visible_rows)
+        _known = _licensed + _expiring + _unlicensed
+        _cost_values = [r["cost"] for r in _visible_rows if r["cost"] is not None]
+        _total_cost = sum(_cost_values) if _cost_values else None
+        _compliance = round((_licensed / _total) * 100) if _total and _known else None
+        _kpis = [
+            ("Total Software", str(_total), "รายการจากข้อมูลจริง", "total", "#7C3AED", "#F1EBFF"),
+            ("Licensed", str(_licensed) if _known else "-", "สถานะ Licensed / Active", "licensed", "#10B981", "#E5F8EF"),
+            ("Expiring Soon", str(_expiring) if _known else "-", "หมดอายุภายใน 90 วัน", "expiring", "#F59E0B", "#FFF3E3"),
+            ("Unlicensed", str(_unlicensed) if _known else "-", "สถานะ Unlicensed / Inactive", "unlicensed", "#EF4444", "#FDEBEC"),
+            ("Total Cost", _fmt_money(_total_cost), "รวมจากฟิลด์ Cost / Price", "cost", "#3B82F6", "#EAF3FF"),
+            ("Compliance Score", f"{_compliance}%" if _compliance is not None else "-", "Licensed / Total Software", "compliance", "#10B981", "#E5F8EF"),
+        ]
+
+        st.markdown('''<style>
+        .sw-dashboard{color:#0F172A}.sw-header{display:flex;align-items:center;gap:18px;min-height:94px}.sw-header-icon,.sw-kpi-icon,.sw-category-icon{display:grid;place-items:center;flex:none}.sw-header-icon{width:64px;height:64px;border-radius:19px;color:#6366F1;background:linear-gradient(145deg,#E0E7FF,#F3E8FF);box-shadow:0 10px 24px rgba(99,102,241,.12)}.sw-header-icon svg{width:32px;height:32px}.sw-header-title{font-size:32px;font-weight:850;letter-spacing:-.035em}.sw-header-sub{margin-top:5px;color:#64748B;font-size:14px}
+        [class*="st-key-sw_search_input"] input{height:48px!important;border:1px solid #E2E8F0!important;border-radius:15px!important;background:#FFF!important;box-shadow:0 6px 18px rgba(15,23,42,.04)!important}.sw-notification{height:46px;border:1px solid #E2E8F0;border-radius:14px;background:#FFF;box-shadow:0 6px 18px rgba(15,23,42,.04);position:relative}.sw-notification:before{content:'';position:absolute;left:50%;top:50%;width:16px;height:18px;transform:translate(-50%,-50%);border:2px solid #334155;border-radius:9px 9px 5px 5px}.sw-notification span{position:absolute;right:13px;top:8px;width:8px;height:8px;border-radius:50%;background:#EF4444}.st-key-sw_add_software .stButton>button{height:46px!important;border:0!important;border-radius:14px!important;background:linear-gradient(135deg,#4F46E5,#7C3AED)!important;box-shadow:0 8px 20px rgba(99,102,241,.25)!important}
+        .sw-kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px;margin:14px 0 18px}.sw-kpi-card{position:relative;min-height:126px;padding:17px 16px;border:1px solid #E2E8F0;border-radius:20px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.055)}.sw-kpi-icon{position:absolute;right:14px;top:14px;width:48px;height:48px;border-radius:50%}.sw-kpi-icon svg{width:24px;height:24px}.sw-kpi-label{padding-right:48px;font-size:13px;font-weight:800}.sw-kpi-value{margin-top:17px;font-size:31px;line-height:1;font-weight:900;letter-spacing:-.04em}.sw-kpi-sub{margin-top:10px;color:#64748B;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sw-section-title{margin:2px 0 11px;font-size:18px;font-weight:850}.sw-main-grid{display:grid;grid-template-columns:minmax(0,2.05fr) minmax(300px,.95fr);gap:16px;align-items:start}.sw-category-panel,.sw-chart-panel,.sw-license-panel,.sw-publisher-panel,.sw-expiring-panel,.sw-activity-panel{border:1px solid #E2E8F0;border-radius:20px;background:#FFF;box-shadow:0 8px 24px rgba(15,23,42,.045)}.sw-category-panel{padding:16px}.sw-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.sw-category-card{position:relative;min-height:118px;padding:14px 14px 12px;border:1px solid #E2E8F0;border-radius:17px;background:#FFF;transition:.18s ease}.sw-category-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 12px 24px rgba(99,102,241,.09)}.sw-category-head{display:flex;align-items:center;gap:12px}.sw-category-icon{width:46px;height:46px;border-radius:14px}.sw-category-icon svg{width:25px;height:25px}.sw-category-title{font-size:14px;font-weight:850}.sw-category-count{margin-top:2px;color:#64748B;font-size:11px}.sw-category-stats{display:flex;gap:12px;margin-top:12px;font-size:10px;color:#64748B}.sw-category-stats b{font-size:10px}.sw-progress{height:5px;margin-top:10px;border-radius:99px;background:#EEF2F7;overflow:hidden}.sw-progress span{display:block;height:100%;border-radius:inherit}.sw-right-stack{display:grid;gap:13px}.sw-license-panel,.sw-publisher-panel,.sw-activity-panel,.sw-chart-panel,.sw-expiring-panel{padding:16px}.sw-panel-title{font-size:14px;font-weight:850}.sw-donut-wrap{display:flex;align-items:center;gap:18px;margin-top:14px}.sw-donut{display:grid;place-items:center;width:122px;height:122px;flex:none;border-radius:50%;position:relative}.sw-donut:after{content:'';position:absolute;inset:22px;border-radius:50%;background:#FFF}.sw-donut-center{position:relative;z-index:1;text-align:center;font-size:11px;color:#64748B}.sw-donut-center b{display:block;color:#0F172A;font-size:22px}.sw-legend{flex:1;display:grid;gap:10px}.sw-legend-row,.sw-publisher-row,.sw-activity-row{display:flex;align-items:center;justify-content:space-between;gap:9px;font-size:11px}.sw-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}.sw-publisher-list,.sw-activity-list{display:grid;gap:0;margin-top:10px}.sw-publisher-row,.sw-activity-row{padding:9px 0;border-top:1px solid #EEF2F7}.sw-publisher-row:first-child,.sw-activity-row:first-child{border-top:0}.sw-bottom-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}.sw-empty-state{display:grid;place-items:center;min-height:110px;padding:22px;color:#94A3B8;text-align:center;font-size:12px;border:1px dashed #CBD5E1;border-radius:14px;background:#F8FAFC}.sw-expiring-table{width:100%;margin-top:12px;border-collapse:collapse;font-size:11px}.sw-expiring-table th,.sw-expiring-table td{padding:9px 8px;border-bottom:1px solid #E2E8F0;text-align:left}.sw-expiring-table th{color:#64748B;background:#F8FAFC}.sw-trend-bars{display:flex;align-items:end;gap:10px;height:130px;margin-top:14px;padding:5px 4px 22px;border-bottom:1px solid #E2E8F0}.sw-trend-col{display:flex;flex:1;align-items:center;justify-content:end;flex-direction:column;height:100%;gap:4px}.sw-trend-bar{width:14px;min-height:3px;border-radius:7px 7px 2px 2px;background:linear-gradient(#6366F1,#8B5CF6)}.sw-trend-label{font-size:9px;color:#94A3B8;white-space:nowrap}.sw-trend-value{font-size:9px;color:#475569}
+        [class*="st-key-sw_cat_btn_"]{margin-top:-45px;padding:0 12px 9px;position:relative;z-index:3}[class*="st-key-sw_cat_btn_"] .stButton>button{height:30px!important;min-height:30px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#4F46E5!important;justify-content:flex-end!important;font-size:11px!important;box-shadow:none!important}
+        @media(max-width:1200px){.sw-kpi-grid{grid-template-columns:repeat(3,1fr)}.sw-main-grid{grid-template-columns:1fr}.sw-category-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.sw-kpi-grid{grid-template-columns:repeat(2,1fr)}.sw-category-grid,.sw-bottom-grid{grid-template-columns:1fr}.sw-header-title{font-size:27px}}
+        </style>''', unsafe_allow_html=True)
+        st.markdown('<div class="sw-kpi-grid">' + "".join(
+            f'<div class="sw-kpi-card"><div class="sw-kpi-icon" style="color:{c};background:{bg}">{_sw_svg(i)}</div><div class="sw-kpi-label">{html.escape(l)}</div><div class="sw-kpi-value">{html.escape(v)}</div><div class="sw-kpi-sub">{html.escape(s)}</div></div>'
+            for l, v, s, i, c, bg in _kpis) + '</div>', unsafe_allow_html=True)
+
+        _left, _right = st.columns([2.05, 0.95], gap="medium")
+        with _left:
+            st.markdown('<div class="sw-section-title">หมวดหมู่ซอฟต์แวร์</div>', unsafe_allow_html=True)
+            _cat_cols = st.columns(3, gap="small")
+            for _cat_pos, _cfg in enumerate(_category_data):
+                _cat_rows = [r for r in _visible_rows if r["category"] == _cfg["key"]]
+                if _cfg["key"] not in ("group_email", "office365", "pdf", "windows", "offboarded") and not _cfg["sheets"]:
+                    continue
+                _cat_total = len(_cat_rows)
+                _cat_licensed = sum(r["state"] == "licensed" for r in _cat_rows)
+                _cat_expiring = sum(r["state"] == "expiring" for r in _cat_rows)
+                _cat_unlicensed = sum(r["state"] == "unlicensed" for r in _cat_rows)
+                _cat_pct = round((_cat_licensed / _cat_total) * 100) if _cat_total else 0
+                _colors = {"group_email":"#7C3AED","office365":"#F97316","pdf":"#EF4444","windows":"#3B82F6","offboarded":"#64748B","security":"#10B981","developer":"#8B5CF6","database":"#3B82F6","other":"#64748B"}
+                _cat_color = _colors[_cfg["key"]]
+                with _cat_cols[_cat_pos % 3]:
+                    st.markdown(f'''<div class="sw-category-card"><div class="sw-category-head"><div class="sw-category-icon" style="color:{_cat_color};background:{_cat_color}16">{_sw_svg(_cfg["icon"])}</div><div><div class="sw-category-title">{html.escape(_cfg["title"])}</div><div class="sw-category-count">{_cat_total} รายการ</div></div></div><div class="sw-category-stats"><span><b style="color:#10B981">{_cat_licensed}</b> Licensed</span><span><b style="color:#F59E0B">{_cat_expiring}</b> Expiring</span><span><b style="color:#EF4444">{_cat_unlicensed}</b> Unlicensed</span></div><div class="sw-progress"><span style="width:{_cat_pct}%;background:{_cat_color}"></span></div></div>''', unsafe_allow_html=True)
+                    if st.button("ดูรายละเอียด  →", key=f"sw_cat_btn_{_cfg['key']}", use_container_width=True):
+                        st.session_state.active_nav = _cfg["nav"]
+                        st.rerun()
+        with _right:
+            if _known:
+                _lic_pct = (_licensed / _known) * 100
+                _exp_pct = (_expiring / _known) * 100
+                _donut = f"conic-gradient(#10B981 0 {_lic_pct:.2f}%,#F59E0B {_lic_pct:.2f}% {_lic_pct + _exp_pct:.2f}%,#EF4444 {_lic_pct + _exp_pct:.2f}% 100%)"
+                st.markdown(f'''<div class="sw-license-panel"><div class="sw-panel-title">License Status Overview</div><div class="sw-donut-wrap"><div class="sw-donut" style="background:{_donut}"><div class="sw-donut-center"><b>{_known}</b>Total Software</div></div><div class="sw-legend"><div class="sw-legend-row"><span><i class="sw-dot" style="background:#10B981"></i>Licensed</span><b>{_licensed}</b></div><div class="sw-legend-row"><span><i class="sw-dot" style="background:#F59E0B"></i>Expiring Soon</span><b>{_expiring}</b></div><div class="sw-legend-row"><span><i class="sw-dot" style="background:#EF4444"></i>Unlicensed</span><b>{_unlicensed}</b></div></div></div></div>''', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="sw-license-panel"><div class="sw-panel-title">License Status Overview</div><div class="sw-empty-state">ยังไม่มีข้อมูลสถานะ License</div></div>', unsafe_allow_html=True)
+            _publishers = {}
+            for _row in _visible_rows:
+                if _row["publisher"] and _row["publisher"].lower() not in ("nan", "none", "-"):
+                    _publishers[_row["publisher"]] = _publishers.get(_row["publisher"], 0) + 1
+            if _publishers:
+                _publisher_html = "".join(f'<div class="sw-publisher-row"><span>{html.escape(str(k))}</span><b>{v}</b></div>' for k, v in sorted(_publishers.items(), key=lambda x: x[1], reverse=True)[:5])
+                st.markdown(f'<div class="sw-publisher-panel"><div class="sw-panel-title">Top Publishers</div><div class="sw-publisher-list">{_publisher_html}</div></div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="sw-publisher-panel"><div class="sw-panel-title">Top Publishers</div><div class="sw-empty-state">ยังไม่มีข้อมูล Publisher / Vendor</div></div>', unsafe_allow_html=True)
+            _activities = sorted([r for r in _visible_rows if r["modified"]], key=lambda r: r["modified"], reverse=True)[:5]
+            if _activities:
+                _activity_html = "".join(f'<div class="sw-activity-row"><span><b>{html.escape(r["name"] or r["sheet"])}</b><br><small>{html.escape(r["sheet"])}</small></span><time>{r["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>' for r in _activities)
+                st.markdown(f'<div class="sw-activity-panel"><div class="sw-panel-title">Recent Activities</div><div class="sw-activity-list">{_activity_html}</div></div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="sw-activity-panel"><div class="sw-panel-title">Recent Activities</div><div class="sw-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div>', unsafe_allow_html=True)
+
+        _bottom_left, _bottom_right = st.columns([1.1, 0.9], gap="medium")
+        with _bottom_left:
+            _dated = [r for r in _visible_rows if r["modified"]]
+            if _dated:
+                _months = []
+                for _offset in range(5, -1, -1):
+                    _year = _today.year + ((_today.month - 1 - _offset) // 12)
+                    _month = ((_today.month - 1 - _offset) % 12) + 1
+                    _months.append((_year, _month))
+                _month_counts = [sum(r["modified"].year == y and r["modified"].month == m for r in _dated) for y, m in _months]
+                _max_count = max(_month_counts) or 1
+                _bars = "".join(f'<div class="sw-trend-col"><span class="sw-trend-value">{count}</span><span class="sw-trend-bar" style="height:{max(3, round(count/_max_count*90))}px"></span><span class="sw-trend-label">{m:02d}/{str(y)[2:]}</span></div>' for (y,m),count in zip(_months,_month_counts))
+                st.markdown(f'<div class="sw-chart-panel"><div class="sw-panel-title">License Activity Trend (6 เดือนล่าสุด)</div><div class="sw-trend-bars">{_bars}</div></div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="sw-chart-panel"><div class="sw-panel-title">License Trend (6 เดือนล่าสุด)</div><div class="sw-empty-state">ยังไม่มีข้อมูลวันที่ย้อนหลังสำหรับสร้างกราฟ</div></div>', unsafe_allow_html=True)
+        with _bottom_right:
+            _expiry_rows = sorted([r for r in _visible_rows if r["expiry"] and r["days"] is not None and r["days"] >= 0], key=lambda r: r["days"])[:6]
+            if _expiry_rows:
+                _expiry_html = "".join(f'<tr><td>{html.escape(r["name"] or "-")}</td><td>{html.escape(r["publisher"] or "-")}</td><td>{r["expiry"].strftime("%d/%m/%Y")}</td><td>{r["days"]}</td></tr>' for r in _expiry_rows)
+                st.markdown(f'<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><table class="sw-expiring-table"><thead><tr><th>Software</th><th>Publisher</th><th>Expire Date</th><th>Days Left</th></tr></thead><tbody>{_expiry_html}</tbody></table></div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><div class="sw-empty-state">ไม่พบรายการที่ใกล้หมดอายุ</div></div>', unsafe_allow_html=True)
+
     def _render_hardware_command_center():
         """Enterprise hardware command center built only from existing asset data."""
         def _hd_svg(kind):
@@ -5330,18 +5581,7 @@ else:
         _render_hardware_command_center()
 
     elif main_menu == "💿 Software Dashboard":
-        _render_module_hub(
-            "Software Dashboard",
-            "จัดการบัญชี License และซอฟต์แวร์ที่ใช้งานในองค์กร",
-            "💿",
-            [
-                ("software_group_email", "✉️", "Group E-mail", "บัญชีกลุ่มและอีเมลส่วนกลาง"),
-                ("software_office365", "☁️", "Office 365", "Microsoft 365 และ License"),
-                ("software_pdf", "📄", "PDF", "Adobe Acrobat และโปรแกรม PDF"),
-                ("software_windows", "⊞", "Windows", "Windows License และ Activation"),
-                ("software_offboarded", "👤", "พนักงานลาออก", "บัญชีและ License ที่ต้องดำเนินการ"),
-            ],
-        )
+        _render_software_command_center()
 
     elif main_menu == "🔐 Permission Dashboard":
         _render_module_hub(
