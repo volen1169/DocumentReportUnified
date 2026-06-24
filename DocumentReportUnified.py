@@ -4828,9 +4828,198 @@ else:
                     st.session_state.pop(f"pw_edit_row_{_module_sheet_name}_{_module_idx}")
                     edit_password_dialog(_module_row, _module_idx, _module_sheet_name, _module_df, _module_drive_id, _module_sheets)
 
+    def _render_group_email_dashboard(group_df, expected_file):
+        """Enterprise Group E-mail dashboard backed only by its dedicated workbook."""
+        def _ge_norm(value):
+            return re.sub(r"[^a-z0-9ก-๙]+", " ", str(value).strip().lower()).strip()
+
+        def _ge_column(*names, contains=()):
+            lookup = {_ge_norm(column): column for column in group_df.columns}
+            for name in names:
+                if _ge_norm(name) in lookup:
+                    return lookup[_ge_norm(name)]
+            for column in group_df.columns:
+                key = _ge_norm(column)
+                if any(_ge_norm(token) in key for token in contains):
+                    return column
+            return None
+
+        def _ge_date(value):
+            if value is None or str(value).strip().lower() in ("", "none", "nan", "nat", "-"):
+                return None
+            parsed = pd.to_datetime(value, errors="coerce", dayfirst=True)
+            return None if pd.isna(parsed) else parsed.to_pydatetime()
+
+        record_col = _ge_column("Record ID", "ID", "No.")
+        group_col = _ge_column("Group E-mail", "Group Email", "Group Mail", "Name", "Account")
+        display_col = _ge_column("Display Name", "Group Name", "Title")
+        email_col = _ge_column("Email", "Mail", "Owner Email")
+        company_col = _ge_column("Company", "Organization")
+        license_col = _ge_column("License Type", "License Plan", "Plan", "Product Name")
+        start_col = _ge_column("Start Date", "Created Date", "Purchase Date")
+        expiry_col = _ge_column("Expiry Date", "Expire Date", "License Expiry", "End Date")
+        users_col = _ge_column("Users", "Number of Users", "User Count", "Members", "Member Count")
+        status_col = _ge_column("Status", "License Status", "State")
+        modified_col = _ge_column("Modified", "Updated", "Last Modified", "Created")
+
+        now_bkk = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7))).replace(tzinfo=None)
+        records = []
+        for row_index, row in group_df.iterrows():
+            status_text = _ge_norm(row.get(status_col, "")) if status_col else ""
+            expiry = _ge_date(row.get(expiry_col)) if expiry_col else None
+            days_left = (expiry.date() - now_bkk.date()).days if expiry else None
+            if days_left is not None and days_left < 0:
+                state = "expired"
+            elif any(token in status_text for token in ("inactive", "disabled", "ไม่ได้ใช้งาน", "ยกเลิก")):
+                state = "inactive"
+            elif days_left is not None and 0 <= days_left <= 90:
+                state = "expiring"
+            elif any(token in status_text for token in ("active", "licensed", "valid", "ใช้งาน")):
+                state = "active"
+            else:
+                state = "unknown"
+            users_value = pd.to_numeric(pd.Series([row.get(users_col)]), errors="coerce").iloc[0] if users_col else None
+            records.append({
+                "index": row_index,
+                "record_id": row.get(record_col, len(records) + 1) if record_col else len(records) + 1,
+                "group": str(row.get(group_col, "") or "-") if group_col else "-",
+                "display": str(row.get(display_col, "") or "-") if display_col else "-",
+                "email": str(row.get(email_col, "") or "-") if email_col else "-",
+                "company": str(row.get(company_col, "") or "-") if company_col else "-",
+                "license": str(row.get(license_col, "") or "-") if license_col else "-",
+                "start": _ge_date(row.get(start_col)) if start_col else None,
+                "expiry": expiry,
+                "days": days_left,
+                "users": users_value,
+                "status": str(row.get(status_col, "") or "-") if status_col else "-",
+                "state": state,
+                "modified": _ge_date(row.get(modified_col)) if modified_col else None,
+                "search": " ".join(str(value) for value in row.tolist()),
+            })
+
+        total = len(records)
+        active = sum(record["state"] == "active" for record in records)
+        expiring = sum(record["state"] == "expiring" for record in records)
+        expired = sum(record["state"] == "expired" for record in records)
+        inactive = sum(record["state"] == "inactive" for record in records)
+        users_values = [record["users"] for record in records if pd.notna(record["users"])]
+        total_users = int(sum(users_values)) if users_values else None
+
+        mail_svg = '<svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><defs><linearGradient id="geMailGradient" x1="3" y1="4" x2="25" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#60A5FA"/><stop offset=".48" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs><rect x="2.5" y="5" width="23" height="18" rx="5" fill="url(#geMailGradient)"/><path d="m4.5 8 9.5 7 9.5-7" stroke="#FFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21.5" cy="20.5" r="4.2" fill="#FFF"/><circle cx="20.3" cy="19.5" r="1.25" fill="#6366F1"/><path d="M18.6 22.7c.25-1.35 1-2.15 1.75-2.15s1.5.8 1.75 2.15" stroke="#6366F1" stroke-width="1.2" stroke-linecap="round"/><circle cx="23.3" cy="19.7" r=".9" fill="#8B5CF6"/></svg>'
+        search_svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>'
+        date_text = now_bkk.strftime("%d/%m/%Y")
+        time_text = now_bkk.strftime("%H:%M")
+        st.markdown(f'''<div class="ge-page"><section class="ge-header ge-hero"><div class="ge-hero-icon">{mail_svg}</div><div><div class="ge-hero-badge">GROUP COMMUNICATION CENTER</div><h1>Group E-mail</h1><p>ข้อมูล License และบัญชีจากไฟล์ Software แยกบน SharePoint</p></div><div class="ge-hero-tools"><div class="ge-date">{date_text}</div><div class="ge-time">{time_text}</div></div></section></div>''', unsafe_allow_html=True)
+
+        kpi_items = [
+            ("รายการทั้งหมด", str(total), "รายการ", "records", "#7C3AED", "#F3E8FF"),
+            ("Active / Licensed", str(active) if status_col else "-", "พร้อมใช้งาน", "active", "#10B981", "#E7F8EF"),
+            ("Expiring Soon", str(expiring) if expiry_col else "-", "ภายใน 90 วัน", "clock", "#F59E0B", "#FFF4E5"),
+            ("Expired / Inactive", str(expired + inactive) if (expiry_col or status_col) else "-", "หมดอายุหรือปิดใช้งาน", "warning", "#EF4444", "#FEECEF"),
+            ("จำนวนผู้ใช้งาน", f"{total_users:,}" if total_users is not None else "-", "ผู้ใช้งานรวม", "users", "#3B82F6", "#EAF3FF"),
+        ]
+        icon_paths = {
+            "records": '<rect x="5" y="4" width="12" height="15" rx="2"/><path d="M9 8h5M9 12h5M9 16h3"/><path d="M17 8h3v12H9v-1"/>',
+            "active": '<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>',
+            "clock": '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+            "warning": '<path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v4M12 17h.01"/>',
+            "users": '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 20c0-4 2.3-7 6-7s6 3 6 7M15 14c3.5 0 5.5 2 6 5"/>',
+        }
+        kpi_html = ''.join(f'''<div class="ge-kpi-card"><div class="ge-kpi-icon" style="color:{tone};background:{soft}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{icon_paths[kind]}</svg></div><div class="ge-kpi-label">{label}</div><div class="ge-kpi-value">{value}</div><div class="ge-kpi-sub">{sub}</div></div>''' for label, value, sub, kind, tone, soft in kpi_items)
+        st.markdown(f'<div class="ge-kpi-grid">{kpi_html}</div>', unsafe_allow_html=True)
+
+        def _ge_reset():
+            st.session_state.ge_search = ""
+            st.session_state.ge_license = "ทั้งหมด"
+            st.session_state.ge_status = "ทั้งหมด"
+
+        license_values = sorted({record["license"] for record in records if record["license"] not in ("", "-")})
+        status_values = sorted({record["status"] for record in records if record["status"] not in ("", "-")})
+        with st.container(key="ge_filter_panel"):
+            st.markdown('<div class="ge-filter-panel ge-searchbar"><div class="ge-filter-title">ค้นหาข้อมูล</div></div>', unsafe_allow_html=True)
+            filter_left, filter_license, filter_status, filter_reset, filter_search = st.columns([0.42, 0.19, 0.17, 0.10, 0.12], gap="small")
+            with filter_left:
+                search_value = st.text_input("ค้นหา", placeholder="ค้นหา Group E-mail, Email, License, Company...", label_visibility="collapsed", key="ge_search")
+            with filter_license:
+                selected_license = st.selectbox("License Type", ["ทั้งหมด"] + license_values, label_visibility="collapsed", key="ge_license")
+            with filter_status:
+                selected_status = st.selectbox("Status", ["ทั้งหมด"] + status_values, label_visibility="collapsed", key="ge_status")
+            with filter_reset:
+                st.button("รีเซ็ต", key="ge_reset", use_container_width=True, on_click=_ge_reset)
+            with filter_search:
+                st.button("ค้นหา", key="ge_submit", use_container_width=True, type="primary")
+
+        visible = records
+        if search_value.strip():
+            needle = _ge_norm(search_value)
+            visible = [record for record in visible if needle in _ge_norm(record["search"])]
+        if selected_license != "ทั้งหมด":
+            visible = [record for record in visible if record["license"] == selected_license]
+        if selected_status != "ทั้งหมด":
+            visible = [record for record in visible if record["status"] == selected_status]
+
+        status_colors = {"active": ("Active", "green"), "expiring": ("Expiring", "orange"), "expired": ("Expired", "red"), "inactive": ("Inactive", "gray"), "unknown": ("ไม่ระบุ", "gray")}
+        table_rows = []
+        for record in visible:
+            status_label, status_tone = status_colors[record["state"]]
+            start_text = record["start"].strftime("%d/%m/%Y") if record["start"] else "-"
+            expiry_text = record["expiry"].strftime("%d/%m/%Y") if record["expiry"] else "-"
+            users_text = f"{int(record['users']):,}" if pd.notna(record["users"]) else "-"
+            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td><td class="ge-action">•••</td></tr>''')
+        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="11"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
+
+        known_total = active + expiring + expired + inactive
+        if known_total:
+            active_pct = active / known_total * 100
+            expiring_pct = expiring / known_total * 100
+            expired_pct = expired / known_total * 100
+            inactive_start = active_pct + expiring_pct + expired_pct
+            donut_bg = f"conic-gradient(#10B981 0 {active_pct:.2f}%,#F59E0B {active_pct:.2f}% {active_pct + expiring_pct:.2f}%,#EF4444 {active_pct + expiring_pct:.2f}% {inactive_start:.2f}%,#64748B {inactive_start:.2f}% 100%)"
+            status_panel = f'''<div class="ge-chart-panel"><div class="ge-panel-title">License Status Overview</div><div class="ge-donut-layout"><div class="ge-donut" style="background:{donut_bg}"><div><b>{known_total}</b><span>Total</span></div></div><div class="ge-legend"><p><i style="background:#10B981"></i><span>Active</span><b>{active}</b></p><p><i style="background:#F59E0B"></i><span>Expiring Soon</span><b>{expiring}</b></p><p><i style="background:#EF4444"></i><span>Expired</span><b>{expired}</b></p><p><i style="background:#64748B"></i><span>Inactive</span><b>{inactive}</b></p></div></div></div>'''
+        else:
+            status_panel = '<div class="ge-chart-panel"><div class="ge-panel-title">License Status Overview</div><div class="ge-empty-state">ยังไม่มีข้อมูลสถานะ License</div></div>'
+
+        company_stats = {}
+        for record in records:
+            company = record["company"]
+            if company in ("", "-"):
+                continue
+            company_stats.setdefault(company, {"records": 0, "users": 0})
+            company_stats[company]["records"] += 1
+            if pd.notna(record["users"]):
+                company_stats[company]["users"] += int(record["users"])
+        top_companies = sorted(company_stats.items(), key=lambda item: item[1]["records"], reverse=True)[:5]
+        max_company = max((value["records"] for _, value in top_companies), default=1)
+        company_html = ''.join(f'''<div class="ge-company-row"><div><b>{html.escape(company)}</b><span>{stats["users"]:,} Users</span></div><div class="ge-company-bar"><i style="width:{stats["records"] / max_company * 100:.1f}%"></i></div><strong>{stats["records"]} Group</strong></div>''' for company, stats in top_companies)
+        company_body = company_html or '<div class="ge-empty-state">ยังไม่มีข้อมูล Company</div>'
+        company_panel = f'<div class="ge-company-panel"><div class="ge-panel-title">Top Companies</div>{company_body}</div>'
+
+        expiring_records = sorted([record for record in records if record["days"] is not None and 0 <= record["days"] <= 90], key=lambda record: record["days"])[:5]
+        expiring_html = ''.join(f'''<div class="ge-expiring-row"><div class="ge-expiring-icon">{search_svg}</div><div><b>{html.escape(record["company"])}</b><span>{html.escape(record["license"])}</span></div><div><b>{record["expiry"].strftime("%d/%m/%Y")}</b><span>เหลือ {record["days"]} วัน</span></div></div>''' for record in expiring_records)
+        expiring_body = expiring_html or '<div class="ge-empty-state">ไม่พบรายการที่ใกล้หมดอายุ</div>'
+        expiring_panel = f'<div class="ge-expiring-panel"><div class="ge-panel-title">กำลังจะหมดอายุ <small>ภายใน 90 วัน</small></div>{expiring_body}</div>'
+
+        main_left, main_right = st.columns([0.72, 0.28], gap="medium")
+        with main_left:
+            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+            activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
+            if activities:
+                activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
+                st.markdown(f'<div class="ge-activity-panel"><div class="ge-panel-title">Recent Activity</div>{activity_html}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="ge-activity-panel"><div class="ge-panel-title">Recent Activity</div><div class="ge-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div>', unsafe_allow_html=True)
+        with main_right:
+            st.markdown(status_panel + company_panel + expiring_panel, unsafe_allow_html=True)
+
+        st.markdown('''<style>
+        .ge-page{color:#0F172A}.ge-hero{position:relative;display:flex;align-items:center;gap:20px;height:160px;padding:25px 28px;margin-bottom:18px;overflow:hidden;border-radius:28px;color:#FFF;background:linear-gradient(125deg,#2563EB,#4F46E5 55%,#8B5CF6);box-shadow:0 18px 38px rgba(79,70,229,.22)}.ge-hero:after{content:'';position:absolute;right:-70px;top:-110px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),rgba(255,255,255,0) 70%)}.ge-hero-icon{position:relative;z-index:1;display:grid;place-items:center;width:72px;height:72px;flex:none;border:1px solid rgba(255,255,255,.28);border-radius:21px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px)}.ge-hero-icon svg{width:43px;height:43px}.ge-hero-badge{font-size:9px;font-weight:900;letter-spacing:.13em;color:#C7D2FE}.ge-hero h1{margin:5px 0 0;color:#FFF;font-size:36px;line-height:1;font-weight:900;letter-spacing:-.04em}.ge-hero p{margin:10px 0 0;color:rgba(255,255,255,.8);font-size:15px}.ge-hero-tools{position:relative;z-index:1;display:flex;gap:9px;margin-left:auto}.ge-date,.ge-time{padding:11px 14px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:rgba(255,255,255,.13);font-size:11px;font-weight:800}.ge-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:17px}.ge-kpi-card{position:relative;height:130px;padding:17px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 23px rgba(15,23,42,.05)}.ge-kpi-icon{position:absolute;right:15px;top:15px;display:grid;place-items:center;width:52px;height:52px;border-radius:16px}.ge-kpi-icon svg{width:27px;height:27px}.ge-kpi-label{padding-right:54px;color:#334155;font-size:13px;font-weight:850}.ge-kpi-value{margin-top:17px;font-size:34px;line-height:1;font-weight:900;letter-spacing:-.04em}.ge-kpi-sub{margin-top:10px;color:#64748B;font-size:11px}
+        [class*="st-key-ge_filter_panel"]{padding:14px 16px 9px!important;margin-bottom:14px!important;border:1px solid #E2E8F0!important;border-radius:18px!important;background:#FFF!important;box-shadow:0 7px 20px rgba(15,23,42,.045)!important}.ge-filter-title{margin-bottom:11px;color:#334155;font-size:13px;font-weight:850}[class*="st-key-ge_search"] input,[class*="st-key-ge_license"] div[data-baseweb="select"]>div,[class*="st-key-ge_status"] div[data-baseweb="select"]>div{height:45px!important;min-height:45px!important;border-color:#E2E8F0!important;border-radius:13px!important;background:#FFF!important}[class*="st-key-ge_reset"] button,[class*="st-key-ge_submit"] button{height:45px!important;min-height:45px!important;border-radius:13px!important}.ge-table-panel,.ge-chart-panel,.ge-company-panel,.ge-expiring-panel,.ge-activity-panel{border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045)}.ge-table-panel{overflow:hidden}.ge-table-head{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid #EDF2F7}.ge-table-head b,.ge-panel-title{font-size:14px;font-weight:850}.ge-table-head span{display:block;margin-top:3px;color:#94A3B8;font-size:10px}.ge-table-scroll{overflow:auto;max-height:470px}.ge-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:10px}.ge-table th{position:sticky;top:0;z-index:2;height:42px;padding:0 10px;color:#64748B;background:#F8FAFC;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.03em}.ge-table td{height:50px;padding:0 10px;border-top:1px solid #EDF2F7;color:#334155}.ge-table tbody tr:hover{background:#FAFAFF}.ge-company-badge{padding:4px 7px;border-radius:7px;color:#4338CA;background:#EEF2FF;font-weight:800}.ge-status{padding:5px 9px;border-radius:99px;font-size:9px;font-weight:850}.ge-status-green{color:#047857;background:#ECFDF5}.ge-status-orange{color:#B45309;background:#FFF7ED}.ge-status-red{color:#B91C1C;background:#FEF2F2}.ge-status-gray{color:#475569;background:#F1F5F9}.ge-action{color:#6366F1;font-weight:900}.ge-chart-panel,.ge-company-panel,.ge-expiring-panel{padding:16px;margin-bottom:13px}.ge-donut-layout{display:flex;align-items:center;gap:15px;margin-top:14px}.ge-donut{position:relative;display:grid;place-items:center;width:124px;height:124px;flex:none;border-radius:50%}.ge-donut:after{content:'';position:absolute;inset:23px;border-radius:50%;background:#FFF}.ge-donut>div{position:relative;z-index:1;text-align:center}.ge-donut b{display:block;font-size:23px}.ge-donut span{color:#64748B;font-size:10px}.ge-legend{display:grid;gap:9px;flex:1}.ge-legend p{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;margin:0;color:#64748B;font-size:10px}.ge-legend i{width:8px;height:8px;border-radius:50%}.ge-legend b{color:#334155}.ge-company-row{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-company-row:last-child{border-bottom:0}.ge-company-row b{font-size:10px}.ge-company-row span{display:block;margin-top:2px;color:#94A3B8;font-size:8px}.ge-company-row strong{font-size:9px}.ge-company-bar{height:5px;border-radius:99px;background:#EEF2F7}.ge-company-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6366F1,#8B5CF6)}.ge-panel-title small{margin-left:4px;color:#94A3B8;font-size:9px;font-weight:500}.ge-expiring-row{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-expiring-row:last-child{border-bottom:0}.ge-expiring-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;color:#F59E0B;background:#FFF4E5}.ge-expiring-icon svg{width:16px;height:16px}.ge-expiring-row b{font-size:9px}.ge-expiring-row span{display:block;margin-top:2px;color:#94A3B8;font-size:8px}.ge-expiring-row>div:last-child{text-align:right}.ge-expiring-row>div:last-child span{color:#F59E0B}.ge-activity-panel{margin-top:14px;padding:16px}.ge-activity-row{display:grid;grid-template-columns:35px 1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-activity-row:last-child{border-bottom:0}.ge-activity-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#EEF2FF}.ge-activity-icon svg{width:22px;height:22px}.ge-activity-row b{font-size:10px}.ge-activity-row span,.ge-activity-row time{display:block;margin-top:2px;color:#64748B;font-size:8.5px}.ge-empty-state{display:grid;place-items:center;min-height:130px;padding:22px;color:#94A3B8;text-align:center;font-size:11px;border:1px dashed #CBD5E1;border-radius:13px;background:#F8FAFC}
+        @media(max-width:1200px){.ge-kpi-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:900px){.ge-kpi-grid{grid-template-columns:repeat(2,1fr)}.ge-hero-tools{display:none}}@media(max-width:600px){.ge-kpi-grid{grid-template-columns:1fr}.ge-hero{height:auto;min-height:150px;padding:20px}.ge-hero h1{font-size:30px}}
+        </style>''', unsafe_allow_html=True)
+
     def _render_software_file_module(title, subtitle, icon, category_name):
         """Render a read-only detail page from one dedicated software workbook."""
-        if category_name != "Office 365":
+        if category_name not in ("Office 365", "Group Email"):
             page_header(icon, title, subtitle)
         with st.spinner("กำลังโหลดไฟล์ Software จาก SharePoint..."):
             _software_sheets, _software_errors = load_software_excels()
@@ -4841,6 +5030,10 @@ else:
             st.info(f"ยังไม่พบข้อมูลในไฟล์ {_expected_file}")
             if _file_error:
                 st.caption(f"ตำแหน่งที่ตรวจสอบ: {SHAREPOINT_FOLDER}/{_expected_file} · {_file_error}")
+            return
+
+        if category_name == "Group Email":
+            _render_group_email_dashboard(_software_df, _expected_file)
             return
 
         if category_name == "Office 365":
