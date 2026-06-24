@@ -5147,33 +5147,117 @@ else:
             </style>''', unsafe_allow_html=True)
             return
 
-        _detail_search = st.text_input(
-            "ค้นหาข้อมูล",
-            placeholder=f"ค้นหาใน {title}...",
-            key=f"software_detail_search_{category_name}",
-        )
-        _detail_df = _software_df.copy()
-        if _detail_search.strip():
-            _detail_mask = _detail_df.fillna("").astype(str).agg(" ".join, axis=1).str.contains(
-                re.escape(_detail_search.strip()), case=False, na=False
-            )
-            _detail_df = _detail_df[_detail_mask]
+        def _sd_col(*names):
+            lookup = {re.sub(r"[^a-z0-9]+", " ", str(column).lower()).strip(): column for column in _software_df.columns}
+            return next((lookup[re.sub(r"[^a-z0-9]+", " ", name.lower()).strip()] for name in names if re.sub(r"[^a-z0-9]+", " ", name.lower()).strip() in lookup), None)
 
-        _status_column = next((c for c in _detail_df.columns if str(c).strip().lower() in ("status", "license status")), None)
-        _user_count_column = next((c for c in _detail_df.columns if str(c).strip().lower() == "number of users"), None)
-        _active_count = 0
-        if _status_column:
-            _active_count = int(_detail_df[_status_column].fillna("").astype(str).str.lower().isin(["active", "licensed", "valid"]).sum())
-        _user_total = None
-        if _user_count_column:
-            _user_total = pd.to_numeric(_detail_df[_user_count_column], errors="coerce").sum(min_count=1)
+        status_column = _sd_col("Status", "License Status", "Activation Status", "State")
+        expiry_column = _sd_col("Expiry Date", "Expire Date", "License Expiry", "End Date", "Disable Date")
+        cost_column = _sd_col("Cost", "Price", "Amount", "License Cost")
+        company_column = _sd_col("Company", "Department", "Publisher", "Vendor")
+        modified_column = _sd_col("Modified", "Updated", "Last Modified", "Created")
+        user_column = _sd_col("Number of Users", "Users", "Quantity", "Assigned To")
+        now_detail = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7))).replace(tzinfo=None)
+        detail_df = _software_df.copy()
+        state_values = []
+        days_values = []
+        for _, detail_row in detail_df.iterrows():
+            status_text = str(detail_row.get(status_column, "")).strip().lower() if status_column else ""
+            expiry_value = pd.to_datetime(detail_row.get(expiry_column), errors="coerce", dayfirst=True) if expiry_column else pd.NaT
+            days_left = (expiry_value.date() - now_detail.date()).days if pd.notna(expiry_value) else None
+            if days_left is not None and days_left < 0:
+                state = "expired"
+            elif any(token in status_text for token in ("inactive", "disabled", "offboard", "resigned", "ลาออก", "ยกเลิก")):
+                state = "inactive"
+            elif days_left is not None and 0 <= days_left <= 90:
+                state = "expiring"
+            elif any(token in status_text for token in ("active", "licensed", "valid", "activated", "ใช้งาน")):
+                state = "active"
+            else:
+                state = "unknown"
+            state_values.append(state)
+            days_values.append(days_left)
+        detail_df["_Dashboard State"] = state_values
+        detail_df["_Days Left"] = days_values
 
-        _metric_columns = st.columns(3)
-        _metric_columns[0].metric("รายการทั้งหมด", len(_detail_df))
-        _metric_columns[1].metric("Active / Licensed", _active_count if _status_column else "-")
-        _metric_columns[2].metric("จำนวนผู้ใช้งาน", int(_user_total) if pd.notna(_user_total) else "-")
-        st.caption(f"แหล่งข้อมูล: {SHAREPOINT_FOLDER}/{_expected_file}")
-        st.dataframe(_detail_df, use_container_width=True, hide_index=True, height=min(650, 82 + max(len(_detail_df), 1) * 36))
+        total_records = len(detail_df)
+        active_records = int((detail_df["_Dashboard State"] == "active").sum())
+        expiring_records = int((detail_df["_Dashboard State"] == "expiring").sum())
+        inactive_records = int(detail_df["_Dashboard State"].isin(["expired", "inactive"]).sum())
+        cost_values = pd.to_numeric(detail_df[cost_column], errors="coerce") if cost_column else pd.Series(dtype="float64")
+        total_cost = cost_values.sum(min_count=1) if not cost_values.empty else None
+        assigned_values = pd.to_numeric(detail_df[user_column], errors="coerce") if user_column else pd.Series(dtype="float64")
+        assigned_total = assigned_values.sum(min_count=1) if not assigned_values.empty else None
+        if category_name == "Offboarded Employees":
+            fifth_label, fifth_value, fifth_sub = "Completed / Disabled", str(inactive_records) if status_column else "-", "ดำเนินการแล้ว"
+        elif pd.notna(assigned_total):
+            fifth_label, fifth_value, fifth_sub = "จำนวนผู้ใช้งาน", f"{int(assigned_total):,}", "Assigned users"
+        else:
+            fifth_label, fifth_value, fifth_sub = "ค่าใช้จ่ายรวม", f"฿{float(total_cost):,.0f}" if pd.notna(total_cost) else "-", "ข้อมูล Cost / Price"
+
+        sd_metrics = [
+            ("รายการทั้งหมด", str(total_records), "รายการจากข้อมูลจริง", "#6366F1", "#EEF2FF"),
+            ("Active / Licensed", str(active_records) if status_column else "-", "พร้อมใช้งาน", "#10B981", "#E7F8EF"),
+            ("Expiring Soon", str(expiring_records) if expiry_column else "-", "ภายใน 90 วัน", "#F59E0B", "#FFF4E5"),
+            ("Expired / Inactive", str(inactive_records) if (status_column or expiry_column) else "-", "หมดอายุหรือปิดใช้งาน", "#EF4444", "#FEECEF"),
+            (fifth_label, fifth_value, fifth_sub, "#3B82F6", "#EAF3FF"),
+        ]
+        st.markdown('<div class="sd-kpi-grid">' + ''.join(f'<div class="sd-kpi-card"><div class="sd-kpi-icon" style="color:{tone};background:{soft}"></div><div class="sd-kpi-label">{html.escape(label)}</div><div class="sd-kpi-value">{html.escape(value)}</div><div class="sd-kpi-sub">{html.escape(sub)}</div></div>' for label, value, sub, tone, soft in sd_metrics) + '</div>', unsafe_allow_html=True)
+
+        filter_search, filter_status, filter_company = st.columns([0.55, 0.20, 0.25], gap="small")
+        with filter_search:
+            search_detail = st.text_input("ค้นหา", placeholder=f"ค้นหาใน {title}...", label_visibility="collapsed", key=f"sd_search_{category_name}")
+        statuses = sorted({str(value).strip() for value in detail_df[status_column].dropna() if str(value).strip()}) if status_column else []
+        companies = sorted({str(value).strip() for value in detail_df[company_column].dropna() if str(value).strip()}) if company_column else []
+        with filter_status:
+            status_filter = st.selectbox("Status", ["ทุกสถานะ"] + statuses, label_visibility="collapsed", key=f"sd_status_{category_name}")
+        with filter_company:
+            company_filter = st.selectbox("Company", ["ทั้งหมด"] + companies, label_visibility="collapsed", key=f"sd_company_{category_name}")
+        visible_df = detail_df.copy()
+        if search_detail.strip():
+            mask = visible_df.fillna("").astype(str).agg(" ".join, axis=1).str.contains(re.escape(search_detail.strip()), case=False, na=False)
+            visible_df = visible_df[mask]
+        if status_column and status_filter != "ทุกสถานะ":
+            visible_df = visible_df[visible_df[status_column].fillna("").astype(str) == status_filter]
+        if company_column and company_filter != "ทั้งหมด":
+            visible_df = visible_df[visible_df[company_column].fillna("").astype(str) == company_filter]
+
+        display_columns = [column for column in _software_df.columns if column not in ("Source File", "Source Sheet")][:10]
+        header_html = ''.join(f'<th>{html.escape(str(column))}</th>' for column in display_columns)
+        body_rows = []
+        for row_index, row in visible_df.iterrows():
+            cells = ''.join(f'<td>{html.escape(str(row.get(column, "-") if pd.notna(row.get(column)) else "-"))}</td>' for column in display_columns)
+            state = row.get("_Dashboard State", "unknown")
+            state_label = {"active":"Active","expiring":"Expiring","expired":"Expired","inactive":"Inactive","unknown":"ไม่ระบุ"}.get(state, "ไม่ระบุ")
+            body_rows.append(f'<tr>{cells}<td><span class="sd-status sd-{state}">{state_label}</span></td></tr>')
+        body_html = ''.join(body_rows) if body_rows else f'<tr><td colspan="{len(display_columns)+1}"><div class="sd-empty">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
+
+        known_total = active_records + expiring_records + inactive_records
+        active_pct = active_records / max(known_total, 1) * 100
+        expiring_pct = expiring_records / max(known_total, 1) * 100
+        donut_bg = f"conic-gradient(#10B981 0 {active_pct:.2f}%,#F59E0B {active_pct:.2f}% {active_pct+expiring_pct:.2f}%,#EF4444 {active_pct+expiring_pct:.2f}% 100%)" if known_total else "#E2E8F0"
+        company_counts = visible_df[company_column].fillna("ไม่ระบุ").astype(str).value_counts().head(5) if company_column else pd.Series(dtype="int64")
+        company_rows = ''.join(f'<div class="sd-rank-row"><span>{html.escape(str(name))}</span><b>{int(count)}</b></div>' for name, count in company_counts.items()) or '<div class="sd-empty">ยังไม่มีข้อมูล Company / Publisher</div>'
+        expiry_view = visible_df[visible_df["_Days Left"].apply(lambda value: value is not None and 0 <= value <= 90)].sort_values("_Days Left").head(5)
+        expiry_rows = ''.join(f'<div class="sd-expiry-row"><span>{html.escape(str(row.get(display_columns[0], "-")))}</span><b>{int(row["_Days Left"])} วัน</b></div>' for _, row in expiry_view.iterrows()) or '<div class="sd-empty">ไม่พบรายการที่ใกล้หมดอายุ</div>'
+
+        detail_left, detail_right = st.columns([0.72, 0.28], gap="medium")
+        with detail_left:
+            st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>รายการ {html.escape(title)} ทั้งหมด</b><span>{len(visible_df)} รายการ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
+            activity_rows = visible_df[visible_df[modified_column].notna()].copy() if modified_column else pd.DataFrame()
+            if not activity_rows.empty:
+                activity_rows["_Modified"] = pd.to_datetime(activity_rows[modified_column], errors="coerce", dayfirst=True)
+                activity_rows = activity_rows.sort_values("_Modified", ascending=False).head(5)
+                activity_html = ''.join(f'<div class="sd-activity-row"><span>{html.escape(str(row.get(display_columns[0], "-")))}</span><time>{row["_Modified"].strftime("%d/%m/%Y %H:%M") if pd.notna(row["_Modified"]) else "-"}</time></div>' for _, row in activity_rows.iterrows())
+                st.markdown(f'<div class="sd-activity-panel"><div class="sd-panel-head"><b>Recent Activity</b></div>{activity_html}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="sd-activity-panel"><div class="sd-panel-head"><b>Recent Activity</b></div><div class="sd-empty">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div>', unsafe_allow_html=True)
+        with detail_right:
+            st.markdown(f'<div class="sd-side-panel"><div class="sd-panel-head"><b>Status Overview</b></div><div class="sd-donut-wrap"><div class="sd-donut" style="background:{donut_bg}"><div><b>{known_total}</b><span>Total</span></div></div><div class="sd-legend"><p><i style="background:#10B981"></i>Active <b>{active_records}</b></p><p><i style="background:#F59E0B"></i>Expiring <b>{expiring_records}</b></p><p><i style="background:#EF4444"></i>Expired / Inactive <b>{inactive_records}</b></p></div></div></div><div class="sd-side-panel"><div class="sd-panel-head"><b>Top Company / Publisher</b></div>{company_rows}</div><div class="sd-side-panel"><div class="sd-panel-head"><b>Expiring Soon</b></div>{expiry_rows}</div>', unsafe_allow_html=True)
+
+        st.markdown('''<style>
+        .sd-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:14px 0}.sd-kpi-card{position:relative;height:126px;padding:17px;border:1px solid #E2E8F0;border-radius:21px;background:#FFF;box-shadow:0 8px 22px rgba(15,23,42,.05)}.sd-kpi-icon{position:absolute;right:15px;top:15px;width:46px;height:46px;border-radius:15px}.sd-kpi-label{padding-right:48px;color:#475569;font-size:11px;font-weight:850}.sd-kpi-value{margin-top:18px;font-size:32px;line-height:1;font-weight:900}.sd-kpi-sub{margin-top:10px;color:#94A3B8;font-size:10px}[class*="st-key-sd_search_"] input,[class*="st-key-sd_status_"] div[data-baseweb="select"]>div,[class*="st-key-sd_company_"] div[data-baseweb="select"]>div{height:44px!important;min-height:44px!important;border-color:#E2E8F0!important;border-radius:13px!important;background:#FFF!important}.sd-table-panel,.sd-activity-panel,.sd-side-panel{border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045);overflow:hidden}.sd-panel-head{display:flex;justify-content:space-between;padding:15px 16px;border-bottom:1px solid #EDF2F7}.sd-panel-head b{font-size:13px}.sd-panel-head span{color:#94A3B8;font-size:10px}.sd-table-scroll{overflow:auto;max-height:490px}.sd-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:10px}.sd-table th{position:sticky;top:0;padding:11px 10px;color:#64748B;background:#F8FAFC;text-align:left;font-size:9px}.sd-table td{height:48px;padding:0 10px;border-top:1px solid #EDF2F7;color:#334155}.sd-table tr:hover{background:#FAFAFF}.sd-status{padding:5px 8px;border-radius:99px;font-size:9px;font-weight:800}.sd-active{color:#047857;background:#ECFDF5}.sd-expiring{color:#B45309;background:#FFF7ED}.sd-expired{color:#B91C1C;background:#FEF2F2}.sd-inactive,.sd-unknown{color:#475569;background:#F1F5F9}.sd-side-panel{padding-bottom:12px;margin-bottom:13px}.sd-donut-wrap{display:flex;align-items:center;gap:13px;padding:15px}.sd-donut{position:relative;display:grid;place-items:center;width:110px;height:110px;flex:none;border-radius:50%}.sd-donut:after{content:'';position:absolute;inset:21px;border-radius:50%;background:#FFF}.sd-donut>div{position:relative;z-index:1;text-align:center}.sd-donut b{display:block;font-size:21px}.sd-donut span{color:#64748B;font-size:9px}.sd-legend{display:grid;gap:8px;flex:1}.sd-legend p{display:grid;grid-template-columns:7px 1fr auto;gap:6px;margin:0;color:#64748B;font-size:9px}.sd-legend i{width:7px;height:7px;border-radius:50%}.sd-rank-row,.sd-expiry-row,.sd-activity-row{display:flex;justify-content:space-between;gap:12px;padding:10px 15px;border-bottom:1px solid #EDF2F7;font-size:10px}.sd-rank-row:last-child,.sd-expiry-row:last-child,.sd-activity-row:last-child{border-bottom:0}.sd-expiry-row b{color:#F59E0B}.sd-activity-panel{margin-top:14px}.sd-activity-row time{color:#64748B;font-size:9px}.sd-empty{display:grid;place-items:center;min-height:115px;padding:20px;color:#94A3B8;text-align:center;font-size:10px}@media(max-width:1100px){.sd-kpi-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.sd-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+        </style>''', unsafe_allow_html=True)
 
     def _render_software_command_center():
         """Software dashboard composed only from the existing password workbook."""
