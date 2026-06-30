@@ -273,6 +273,7 @@ div[data-testid="stVerticalBlock"]{
 # =============================================================================
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import paramiko
 import re
@@ -281,6 +282,7 @@ import datetime
 import inspect
 import html
 import uuid
+import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -3302,8 +3304,8 @@ if not st.session_state.is_auth:
         .oauth-brand h1{color:#0F172A;font-size:2rem;font-weight:850;margin:0 0 8px;letter-spacing:-1px}
         .oauth-brand p{color:#475569;font-size:.94rem;margin:0;font-weight:600}
         .oauth-login-card{border:1px solid rgba(226,232,240,.96);border-radius:22px;padding:18px;background:rgba(255,255,255,.76);box-shadow:0 20px 54px rgba(79,70,229,.13)}
-        div[data-testid="stLinkButton"] a{min-height:56px!important;border-radius:16px!important;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%)!important;color:#fff!important;font-weight:850!important;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28)!important;border:none!important;transition:all .2s ease!important}
-        div[data-testid="stLinkButton"] a:hover{transform:translateY(-2px)!important;box-shadow:0 22px 42px rgba(99,102,241,.35)!important}
+        .st-key-oauth_signin_btn .stButton button{min-height:56px!important;border-radius:16px!important;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%)!important;color:#fff!important;font-weight:850!important;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28)!important;border:none!important;transition:all .2s ease!important}
+        .st-key-oauth_signin_btn .stButton button:hover{transform:translateY(-2px)!important;box-shadow:0 22px 42px rgba(99,102,241,.35)!important}
         .oauth-login-note{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55}
         .oauth-ms-icon{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
         .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
@@ -3323,7 +3325,16 @@ if not st.session_state.is_auth:
 
         _login_url = build_ms_oauth_login_url()
         st.markdown('<div class="oauth-login-card">', unsafe_allow_html=True)
-        st.link_button("▦  Sign in with Microsoft", _login_url, use_container_width=True)
+        if st.button("▦  Sign in with Microsoft", use_container_width=True, key="oauth_signin_btn"):
+            components.html(
+                f"""
+                <script>
+                window.top.location.href = {json.dumps(_login_url)};
+                </script>
+                """,
+                height=0,
+            )
+            st.stop()
         st.markdown(
             f'''<p class="oauth-login-note">Microsoft 365 sign-in with Multi-Factor Authentication support<br>
             <a href="{html.escape(_login_url)}" target="_self">Open Microsoft sign-in manually</a></p></div>''',
