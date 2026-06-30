@@ -3304,8 +3304,8 @@ if not st.session_state.is_auth:
         .oauth-brand h1{color:#0F172A;font-size:2rem;font-weight:850;margin:0 0 8px;letter-spacing:-1px}
         .oauth-brand p{color:#475569;font-size:.94rem;margin:0;font-weight:600}
         .oauth-login-card{border:1px solid rgba(226,232,240,.96);border-radius:22px;padding:18px;background:rgba(255,255,255,.76);box-shadow:0 20px 54px rgba(79,70,229,.13)}
-        .st-key-oauth_signin_btn .stButton button{min-height:56px!important;border-radius:16px!important;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%)!important;color:#fff!important;font-weight:850!important;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28)!important;border:none!important;transition:all .2s ease!important}
-        .st-key-oauth_signin_btn .stButton button:hover{transform:translateY(-2px)!important;box-shadow:0 22px 42px rgba(99,102,241,.35)!important}
+        .oauth-direct-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:850;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);border:none;cursor:pointer;font-size:1rem;transition:all .2s ease}
+        .oauth-direct-button:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(99,102,241,.35)}
         .oauth-login-note{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55}
         .oauth-ms-icon{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
         .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
@@ -3324,20 +3324,23 @@ if not st.session_state.is_auth:
         """, unsafe_allow_html=True)
 
         _login_url = build_ms_oauth_login_url()
-        st.markdown('<div class="oauth-login-card">', unsafe_allow_html=True)
-        if st.button("▦  Sign in with Microsoft", use_container_width=True, key="oauth_signin_btn"):
-            components.html(
-                f"""
-                <script>
-                window.top.location.href = {json.dumps(_login_url)};
-                </script>
-                """,
-                height=0,
-            )
-            st.stop()
+        _login_url_attr = html.escape(_login_url, quote=True)
         st.markdown(
-            f'''<p class="oauth-login-note">Microsoft 365 sign-in with Multi-Factor Authentication support<br>
-            <a href="{html.escape(_login_url)}" target="_self">Open Microsoft sign-in manually</a></p></div>''',
+            f'''
+            <div class="oauth-login-card">
+                <form action="{_login_url_attr}" method="get" target="_top">
+                    <button class="oauth-direct-button" type="submit">
+                        <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
+                        Sign in with Microsoft
+                    </button>
+                </form>
+                <p class="oauth-login-note">
+                    Microsoft 365 sign-in with Multi-Factor Authentication support<br>
+                    If the button does not open, use this link:
+                    <a href="{_login_url_attr}" target="_top" rel="noopener">Open Microsoft sign-in</a>
+                </p>
+            </div>
+            ''',
             unsafe_allow_html=True,
         )
 
@@ -3349,8 +3352,8 @@ if not st.session_state.is_auth:
 
 
         st.markdown("""
-        <p style="color:rgba(255,255,255,.25);font-size:.75rem;text-align:center;margin-top:20px;">
-            โ๏ธ Secure Microsoft 365 Access &nbsp;ยท&nbsp; Optimal Group ยฉ 2025</p>
+        <p style="color:rgba(15,23,42,.22);font-size:.75rem;text-align:center;margin-top:20px;">
+            Secure Microsoft 365 Access - Optimal Group 2026</p>
         """, unsafe_allow_html=True)
 
 # =============================================================================
