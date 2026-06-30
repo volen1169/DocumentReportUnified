@@ -678,9 +678,9 @@ def _clear_query_params_safe():
         except Exception:
             pass
 
-def build_ms_oauth_login_url():
+def build_ms_oauth_login_url(popup=False):
     """Build Microsoft interactive OAuth login URL that supports MFA."""
-    oauth_state = uuid.uuid4().hex
+    oauth_state = f"popup-{uuid.uuid4().hex}" if popup else uuid.uuid4().hex
     st.session_state["oauth_state"] = oauth_state
     app = msal.ConfidentialClientApplication(
         CLIENT_ID,
@@ -709,6 +709,7 @@ def handle_ms_oauth_callback(cookie_manager):
         return False
 
     returned_state = _query_value(params, "state")
+    popup_flow = str(returned_state).startswith("popup-")
     expected_state = st.session_state.get("oauth_state", "")
     if expected_state and returned_state and returned_state != expected_state:
         st.session_state["login_error"] = "OAuth state เนเธกเนเธ•เธฃเธเธเธฑเธ เธเธฃเธธเธ“เธฒเธฅเธญเธ Sign in เนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ"
@@ -763,8 +764,48 @@ def handle_ms_oauth_callback(cookie_manager):
     st.session_state.pop("oauth_state", None)
     cookie_manager.set("user_name", name, key="auth_token")
     cookie_manager.set("user_email", email, key="auth_email")
+    if popup_flow:
+        st.session_state["oauth_close_popup"] = True
     _clear_query_params_safe()
     return True
+
+def render_oauth_popup_complete():
+    """Render a tiny callback page that notifies the main page and closes the popup."""
+    components.html(
+        """
+        <!doctype html>
+        <html>
+        <head>
+        <style>
+            html,body{margin:0;height:100%;font-family:Inter,Arial,sans-serif;background:linear-gradient(135deg,#EFF8FF,#EEF2FF 48%,#F5F3FF);display:grid;place-items:center;color:#0F172A}
+            .card{width:min(420px,calc(100vw - 32px));background:rgba(255,255,255,.88);border:1px solid #E2E8F0;border-radius:24px;box-shadow:0 28px 70px rgba(79,70,229,.18);padding:28px;text-align:center}
+            .icon{width:64px;height:64px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,#10B981,#3B82F6);display:grid;place-items:center;color:white;font-size:30px}
+            h1{font-size:22px;margin:0 0 8px;font-weight:850}
+            p{margin:0;color:#64748B;line-height:1.55}
+            button{margin-top:18px;border:0;border-radius:14px;padding:12px 18px;background:#4F46E5;color:white;font-weight:800;cursor:pointer}
+        </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="icon">✓</div>
+                <h1>Sign-in complete</h1>
+                <p>This popup will close automatically. The main dashboard will refresh.</p>
+                <button onclick="finishLogin()">Close popup</button>
+            </div>
+            <script>
+                function finishLogin(){
+                    try { localStorage.setItem("dru_oauth_success", String(Date.now())); } catch(e) {}
+                    try { if (window.opener && !window.opener.closed) { window.opener.location.reload(); } } catch(e) {}
+                    window.close();
+                    setTimeout(function(){ document.body.querySelector("p").textContent = "You can close this tab and return to the main dashboard."; }, 600);
+                }
+                setTimeout(finishLogin, 900);
+            </script>
+        </body>
+        </html>
+        """,
+        height=520,
+    )
 
 # =============================================================================
 # SECTION 02.1 : AD / FIREWALL INTERNET POLICY
@@ -3104,16 +3145,19 @@ if saved_user and not st.session_state.get('is_auth') and not st.session_state.g
 
 if not st.session_state.get("is_auth"):
     if handle_ms_oauth_callback(cookie_manager):
+        if st.session_state.pop("oauth_close_popup", False):
+            render_oauth_popup_complete()
+            st.stop()
         st.rerun()
 
 # =============================================================================
 # THEME : GLOBAL
-# เนเธเนเธเธฑเธเธ—เธฑเนเธเธฃเธฐเธเธ
+# ใช้กับทั้งระบบ
 # =============================================================================
 # ===== MODERN UI THEME =====
 # =============================================================================
 # THEME : GLOBAL
-# เนเธเนเธเธฑเธเธ—เธฑเนเธเธฃเธฐเธเธ
+# ใช้กับทั้งระบบ
 # =============================================================================
 MODERN_THEME = """
 <style>
@@ -3130,7 +3174,7 @@ html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif !
 </style>
 """
 
-# โ”€โ”€ BASE CSS (always) โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+# BASE CSS (always)
 load_theme(MODERN_THEME,SIDEBAR_V32_THEME)
 
 st.markdown("""
@@ -3143,20 +3187,20 @@ footer { visibility: hidden; }
 
 # =============================================================================
 # THEME : LOGIN
-# CSS เธชเธณเธซเธฃเธฑเธเธซเธเนเธฒ Login เน€เธ—เนเธฒเธเธฑเนเธ
+# CSS สำหรับหน้า Login เท่านั้น
 # =============================================================================
 
 # โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 # # THEME BLOCK : LOGIN
-# เนเธเน UI Login เธ—เธฑเนเธเธซเธกเธ”เนเธเธเนเธงเธเธ”เนเธฒเธเธฅเนเธฒเธเธเธตเน
+# แก้ UI Login ทั้งหมดในช่วงด้านล่างนี้
 
 # LOGIN PAGE
 # โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
 if not st.session_state.is_auth:
     # -----------------------------------------------------------------------------
 # CSS THEME BLOCK
-# เธ–เนเธฒเธ•เนเธญเธเธเธฒเธฃเนเธขเธเน€เธเนเธ LOGIN_THEME/SIDEBAR_THEME เนเธเธญเธเธฒเธเธ•
-# เนเธซเนเน€เธฃเธดเนเธกเธเธฒเธ Style Block เธเธตเน
+# ถ้าต้องการแยกเป็น LOGIN_THEME/SIDEBAR_THEME ในอนาคต
+# ให้เริ่มจาก Style Block นี้
 # -----------------------------------------------------------------------------
     st.markdown("""
     <style>
@@ -3281,7 +3325,7 @@ if not st.session_state.is_auth:
 </style>
     """, unsafe_allow_html=True)
 
-    # V5 login polish โ€” same indigo / purple / sky palette as the application.
+    # V5 login polish - same indigo / purple / sky palette as the application.
     st.markdown("""
     <style>
     [data-testid="stMainBlockContainer"]{max-width:1160px!important;padding:clamp(2rem,7vh,5rem) 1rem 3rem!important}
@@ -3323,7 +3367,7 @@ if not st.session_state.is_auth:
         </div>
         """, unsafe_allow_html=True)
 
-        _login_url = build_ms_oauth_login_url()
+        _login_url = build_ms_oauth_login_url(popup=True)
         _login_url_attr = html.escape(_login_url, quote=True)
         components.html(
             f'''
@@ -3348,16 +3392,38 @@ if not st.session_state.is_auth:
                         Sign in with Microsoft
                     </button>
                     <p class="oauth-login-note">
-                        Microsoft 365 sign-in with Multi-Factor Authentication support<br>
-                        If the button does not open, use this link:
+                        Microsoft 365 popup sign-in with Multi-Factor Authentication support<br>
+                        If the popup is blocked, use this link:
                         <a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open Microsoft sign-in</a>
                     </p>
                 </div>
                 <script>
                     const loginUrl = {json.dumps(_login_url)};
+                    let loginPopup = null;
+                    function startPopupWatcher() {{
+                        const watcher = setInterval(function() {{
+                            try {{
+                                if (localStorage.getItem("dru_oauth_success")) {{
+                                    localStorage.removeItem("dru_oauth_success");
+                                    clearInterval(watcher);
+                                    window.parent.location.reload();
+                                }}
+                            }} catch(e) {{}}
+                            try {{
+                                if (loginPopup && loginPopup.closed) {{
+                                    clearInterval(watcher);
+                                    setTimeout(function() {{ window.parent.location.reload(); }}, 500);
+                                }}
+                            }} catch(e) {{}}
+                        }}, 700);
+                    }}
                     document.getElementById("ms-login").addEventListener("click", function() {{
                         try {{
-                            window.open(loginUrl, "_blank", "noopener,noreferrer");
+                            loginPopup = window.open(loginUrl, "druMicrosoftLogin", "width=520,height=720,menubar=no,toolbar=no,location=yes,status=no,scrollbars=yes,resizable=yes");
+                            if (!loginPopup) {{
+                                window.open(loginUrl, "_blank", "noopener,noreferrer");
+                            }}
+                            startPopupWatcher();
                         }} catch (e) {{
                             window.location.href = loginUrl;
                         }}
