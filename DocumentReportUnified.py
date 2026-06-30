@@ -3296,44 +3296,47 @@ if not st.session_state.is_auth:
     with center_col:
         st.markdown("""
         <style>
-        .oauth-login-card{border:1px solid rgba(226,232,240,.96);border-radius:20px;padding:18px;background:rgba(255,255,255,.72);box-shadow:0 16px 42px rgba(79,70,229,.10)}
-        .oauth-login-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:800;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);transition:all .2s ease}
+        .oauth-brand{text-align:center;margin-bottom:24px}
+        .oauth-shield{width:72px;height:72px;margin:0 auto 16px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(135deg,#2563EB,#6366F1 55%,#8B5CF6);box-shadow:0 16px 38px rgba(99,102,241,.36)}
+        .oauth-shield svg{width:34px;height:34px;stroke:#fff}
+        .oauth-brand h1{color:#0F172A;font-size:2rem;font-weight:850;margin:0 0 8px;letter-spacing:-1px}
+        .oauth-brand p{color:#475569;font-size:.94rem;margin:0;font-weight:600}
+        .oauth-login-card{border:1px solid rgba(226,232,240,.96);border-radius:22px;padding:18px;background:rgba(255,255,255,.76);box-shadow:0 20px 54px rgba(79,70,229,.13)}
+        .oauth-login-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:850;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);transition:all .2s ease}
         .oauth-login-btn:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(99,102,241,.35)}
         .oauth-login-note{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55}
         .oauth-ms-icon{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
         .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
         .oauth-login-error{margin-top:16px;padding:14px 16px;border-radius:16px;color:#B91C1C;background:#FEE2E2;border:1px solid #FECACA;font-size:.9rem;line-height:1.55}
         </style>
+        <div class="oauth-brand">
+            <div class="oauth-shield">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3l7 3v5c0 4.4-2.8 8-7 10-4.2-2-7-5.6-7-10V6l7-3z"></path>
+                    <path d="M8.8 12.2l2.1 2.1 4.6-5"></path>
+                </svg>
+            </div>
+            <h1>DocumentReportUnified</h1>
+            <p>Enterprise IT Management Platform</p>
+        </div>
         """, unsafe_allow_html=True)
 
         _login_url = build_ms_oauth_login_url()
         st.markdown(f"""
         <div class="oauth-login-card">
-            <a class="oauth-login-btn" href="{html.escape(_login_url)}">
+            <a class="oauth-login-btn" href="{html.escape(_login_url)}" target="_top" rel="noopener">
                 <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
                 Sign in with Microsoft
             </a>
-            <p class="oauth-login-note">เนเธเนเธเธฑเธเธเธต Microsoft 365 เธเธญเธเธญเธเธเนเธเธฃเนเธฅเธฐเธฃเธญเธเธฃเธฑเธ Multi-Factor Authentication</p>
+            <p class="oauth-login-note">Microsoft 365 sign-in with Multi-Factor Authentication support</p>
         </div>
         """, unsafe_allow_html=True)
 
         if st.session_state.get("login_error"):
             st.markdown(
-                f'<div class="oauth-login-error">โ {html.escape(str(st.session_state.get("login_error")))}</div>',
+                f'<div class="oauth-login-error">Login error: {html.escape(str(st.session_state.get("login_error")))}</div>',
                 unsafe_allow_html=True,
             )
-
-        st.markdown("""
-        <div style="text-align:center; margin-bottom:28px;">
-            <div style="width:72px;height:72px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
-                        border-radius:20px;display:inline-flex;align-items:center;justify-content:center;
-                        font-size:2rem;box-shadow:0 8px 28px rgba(99,102,241,.55);margin-bottom:16px;">๐ก๏ธ</div>
-            <h1 style="color:#0f172a;font-size:2rem;font-weight:800;margin:0 0 8px;letter-spacing:-1px;">
-                DocumentReportUnified</h1>
-            <p style="color:#475569;font-size:.92rem;margin:0;font-weight:500;">
-                Enterprise IT Management Platform</p>
-        </div>
-        """, unsafe_allow_html=True)
 
 
         st.markdown("""
