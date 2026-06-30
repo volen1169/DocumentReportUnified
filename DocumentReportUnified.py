@@ -3,7 +3,7 @@
 # V4.4 FUNCTION DOCUMENTATION EDITION
 #
 # GOAL
-#   เธ—เธณเนเธซเนเธเนเธเธซเธฒเนเธฅเธฐเนเธเนเนเธเนเธเนเธ”เนเธ”เนเธเนเธฒเธขเธ—เธตเนเธชเธธเธ”เธชเธณเธซเธฃเธฑเธเธกเธเธธเธฉเธขเนเนเธฅเธฐ AI
+#   ทำให้ค้นหาและแก้ไขโค้ดได้ง่ายที่สุดสำหรับมนุษย์และ AI
 #
 # SEARCH TAGS
 #   FUNCTION :
@@ -22,11 +22,11 @@
 # V4.3 DEEP COMMENT EDITION
 #
 # COMMENT STANDARD
-#   PURPOSE      = เธ—เธณเธซเธเนเธฒเธ—เธตเนเธญเธฐเนเธฃ
-#   USED BY      = เธ–เธนเธเน€เธฃเธตเธขเธเธเธฒเธเธชเนเธงเธเนเธซเธ
-#   DEPENDENCY   = เธเธถเนเธเธเธฒเธญเธฐเนเธฃ
-#   UI OWNER     = เธซเธเนเธฒเธเธญเธ—เธตเนเน€เธเธตเนเธขเธงเธเนเธญเธ
-#   CSS OWNER    = CSS เธ—เธตเนเน€เธเธตเนเธขเธงเธเนเธญเธ
+#   PURPOSE      = ทำหน้าที่อะไร
+#   USED BY      = ถูกเรียกจากส่วนไหน
+#   DEPENDENCY   = พึ่งพาอะไร
+#   UI OWNER     = หน้าจอที่เกี่ยวข้อง
+#   CSS OWNER    = CSS ที่เกี่ยวข้อง
 # =============================================================================
 
 
@@ -57,7 +57,7 @@
 # THEME : SIDEBAR
 #
 # PURPOSE
-#   เธเธงเธเธเธธเธกเธซเธเนเธฒเธ•เธฒ Sidebar เธ—เธฑเนเธเธซเธกเธ”
+#   ควบคุมหน้าตา Sidebar ทั้งหมด
 #
 # COMPONENTS
 #   - Background
@@ -78,7 +78,7 @@
 
 # =============================================================================
 # V3.1 DESIGN SYSTEM
-# เนเธเนเธฃเธงเธกเธชเธตเธซเธฅเธฑเธเธเธญเธเธฃเธฐเธเธเนเธซเน Sidebar เนเธฅเธฐ Login เนเธเน Theme เน€เธ”เธตเธขเธงเธเธฑเธ
+# ใช้รวมสีหลักของระบบให้ Sidebar และ Login ใช้ Theme เดียวกัน
 # =============================================================================
 COLORS = {
     "primary": "#6366F1",     # Indigo
@@ -3325,23 +3325,48 @@ if not st.session_state.is_auth:
 
         _login_url = build_ms_oauth_login_url()
         _login_url_attr = html.escape(_login_url, quote=True)
-        st.markdown(
+        components.html(
             f'''
-            <div class="oauth-login-card">
-                <form action="{_login_url_attr}" method="get" target="_top">
-                    <button class="oauth-direct-button" type="submit">
+            <!doctype html>
+            <html>
+            <head>
+            <style>
+                html,body{{margin:0;padding:0;background:transparent;font-family:Inter,Arial,sans-serif;}}
+                .oauth-login-card{{border:1px solid rgba(226,232,240,.96);border-radius:22px;padding:18px;background:rgba(255,255,255,.76);box-shadow:0 20px 54px rgba(79,70,229,.13);}}
+                .oauth-direct-button{{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:850;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;box-sizing:border-box;}}
+                .oauth-direct-button:hover{{transform:translateY(-2px);box-shadow:0 22px 42px rgba(99,102,241,.35);}}
+                .oauth-login-note{{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55;}}
+                .oauth-login-note a{{color:#4F46E5;font-weight:700;text-decoration:none;}}
+                .oauth-ms-icon{{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;}}
+                .oauth-ms-icon span:nth-child(1){{background:#F25022}}.oauth-ms-icon span:nth-child(2){{background:#7FBA00}}.oauth-ms-icon span:nth-child(3){{background:#00A4EF}}.oauth-ms-icon span:nth-child(4){{background:#FFB900}}
+            </style>
+            </head>
+            <body>
+                <div class="oauth-login-card">
+                    <button class="oauth-direct-button" id="ms-login" type="button">
                         <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
                         Sign in with Microsoft
                     </button>
-                </form>
-                <p class="oauth-login-note">
-                    Microsoft 365 sign-in with Multi-Factor Authentication support<br>
-                    If the button does not open, use this link:
-                    <a href="{_login_url_attr}" target="_top" rel="noopener">Open Microsoft sign-in</a>
-                </p>
-            </div>
+                    <p class="oauth-login-note">
+                        Microsoft 365 sign-in with Multi-Factor Authentication support<br>
+                        If the button does not open, use this link:
+                        <a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open Microsoft sign-in</a>
+                    </p>
+                </div>
+                <script>
+                    const loginUrl = {json.dumps(_login_url)};
+                    document.getElementById("ms-login").addEventListener("click", function() {{
+                        try {{
+                            window.open(loginUrl, "_blank", "noopener,noreferrer");
+                        }} catch (e) {{
+                            window.location.href = loginUrl;
+                        }}
+                    }});
+                </script>
+            </body>
+            </html>
             ''',
-            unsafe_allow_html=True,
+            height=150,
         )
 
         if st.session_state.get("login_error"):
