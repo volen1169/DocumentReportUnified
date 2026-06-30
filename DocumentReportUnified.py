@@ -280,6 +280,7 @@ import textwrap
 import datetime
 import inspect
 import html
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -308,6 +309,11 @@ SHAREPOINT_DOMAIN = "optimalcoth.sharepoint.com"
 SITE_NAME = "InformationTechnology"
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 GRAPH_URL = "https://graph.microsoft.com/v1.0"
+OAUTH_REDIRECT_URI = st.secrets.get(
+    "OAUTH_REDIRECT_URI",
+    st.secrets.get("REDIRECT_URI", "https://documentreportunified.streamlit.app"),
+)
+OAUTH_LOGIN_SCOPES = ["User.Read"]
 
 
 def _secret_bool(name: str, default=False) -> bool:
@@ -645,6 +651,118 @@ def check_ms_login(username, password):
         email = claims.get("preferred_username", username)
         return True, name, email
     return False, result.get("error_description", "ล็อกอินไม่สำเร็จ"), ""
+
+def _query_value(params, key, default=""):
+    value = params.get(key, default)
+    if isinstance(value, (list, tuple)):
+        return value[0] if value else default
+    return value if value is not None else default
+
+def _get_query_params_safe():
+    try:
+        return dict(st.query_params)
+    except Exception:
+        try:
+            return st.experimental_get_query_params()
+        except Exception:
+            return {}
+
+def _clear_query_params_safe():
+    try:
+        st.query_params.clear()
+    except Exception:
+        try:
+            st.experimental_set_query_params()
+        except Exception:
+            pass
+
+def build_ms_oauth_login_url():
+    """Build Microsoft interactive OAuth login URL that supports MFA."""
+    oauth_state = uuid.uuid4().hex
+    st.session_state["oauth_state"] = oauth_state
+    app = msal.ConfidentialClientApplication(
+        CLIENT_ID,
+        authority=AUTHORITY,
+        client_credential=CLIENT_SECRET,
+    )
+    return app.get_authorization_request_url(
+        scopes=OAUTH_LOGIN_SCOPES,
+        state=oauth_state,
+        redirect_uri=OAUTH_REDIRECT_URI,
+        prompt="select_account",
+    )
+
+def handle_ms_oauth_callback(cookie_manager):
+    """Process Microsoft OAuth callback and populate existing app session/cookies."""
+    params = _get_query_params_safe()
+    error = _query_value(params, "error")
+    if error:
+        description = _query_value(params, "error_description", error)
+        st.session_state["login_error"] = description
+        _clear_query_params_safe()
+        return False
+
+    code = _query_value(params, "code")
+    if not code:
+        return False
+
+    returned_state = _query_value(params, "state")
+    expected_state = st.session_state.get("oauth_state", "")
+    if expected_state and returned_state and returned_state != expected_state:
+        st.session_state["login_error"] = "OAuth state ไม่ตรงกัน กรุณาลอง Sign in ใหม่อีกครั้ง"
+        _clear_query_params_safe()
+        return False
+
+    app = msal.ConfidentialClientApplication(
+        CLIENT_ID,
+        authority=AUTHORITY,
+        client_credential=CLIENT_SECRET,
+    )
+    result = app.acquire_token_by_authorization_code(
+        code,
+        scopes=OAUTH_LOGIN_SCOPES,
+        redirect_uri=OAUTH_REDIRECT_URI,
+    )
+
+    if "access_token" not in result:
+        st.session_state["login_error"] = result.get(
+            "error_description",
+            "Microsoft OAuth login ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        )
+        _clear_query_params_safe()
+        return False
+
+    claims = result.get("id_token_claims", {}) or {}
+    name = claims.get("name", "")
+    email = claims.get("preferred_username") or claims.get("upn") or ""
+
+    if not email:
+        try:
+            me = requests.get(
+                f"{GRAPH_URL}/me",
+                headers={"Authorization": f"Bearer {result['access_token']}"},
+                timeout=15,
+            )
+            if me.ok:
+                payload = me.json()
+                name = name or payload.get("displayName", "")
+                email = payload.get("mail") or payload.get("userPrincipalName") or email
+        except Exception:
+            pass
+
+    email = email or "unknown@local"
+    name = name or email
+
+    st.session_state.is_auth = True
+    st.session_state.skip_cookie_login = False
+    st.session_state.user_name = name
+    st.session_state.user_email = email
+    st.session_state.pop("login_error", None)
+    st.session_state.pop("oauth_state", None)
+    cookie_manager.set("user_name", name, key="auth_token")
+    cookie_manager.set("user_email", email, key="auth_email")
+    _clear_query_params_safe()
+    return True
 
 # =============================================================================
 # SECTION 02.1 : AD / FIREWALL INTERNET POLICY
@@ -2982,6 +3100,10 @@ if saved_user and not st.session_state.get('is_auth') and not st.session_state.g
     st.session_state.user_name  = saved_user
     st.session_state.user_email = saved_email or ""
 
+if not st.session_state.get("is_auth"):
+    if handle_ms_oauth_callback(cookie_manager):
+        st.rerun()
+
 # =============================================================================
 # THEME : GLOBAL
 # ใช้กับทั้งระบบ
@@ -3173,6 +3295,35 @@ if not st.session_state.is_auth:
     _, center_col, _ = st.columns([1, 1.4, 1])
     with center_col:
         st.markdown("""
+        <style>
+        .oauth-login-card{border:1px solid rgba(226,232,240,.96);border-radius:20px;padding:18px;background:rgba(255,255,255,.72);box-shadow:0 16px 42px rgba(79,70,229,.10)}
+        .oauth-login-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:800;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);transition:all .2s ease}
+        .oauth-login-btn:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(99,102,241,.35)}
+        .oauth-login-note{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55}
+        .oauth-ms-icon{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
+        .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
+        .oauth-login-error{margin-top:16px;padding:14px 16px;border-radius:16px;color:#B91C1C;background:#FEE2E2;border:1px solid #FECACA;font-size:.9rem;line-height:1.55}
+        </style>
+        """, unsafe_allow_html=True)
+
+        _login_url = build_ms_oauth_login_url()
+        st.markdown(f"""
+        <div class="oauth-login-card">
+            <a class="oauth-login-btn" href="{html.escape(_login_url)}">
+                <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
+                Sign in with Microsoft
+            </a>
+            <p class="oauth-login-note">ใช้บัญชี Microsoft 365 ขององค์กรและรองรับ Multi-Factor Authentication</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.session_state.get("login_error"):
+            st.markdown(
+                f'<div class="oauth-login-error">❌ {html.escape(str(st.session_state.get("login_error")))}</div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown("""
         <div style="text-align:center; margin-bottom:28px;">
             <div style="width:72px;height:72px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
                         border-radius:20px;display:inline-flex;align-items:center;justify-content:center;
@@ -3184,6 +3335,7 @@ if not st.session_state.is_auth:
         </div>
         """, unsafe_allow_html=True)
 
+        """
         with st.form("login_form"):
             u = st.text_input("📧 Microsoft 365 Email", placeholder="yourname@optimal.co.th")
             p = st.text_input("🔒 Password", type="password", placeholder="••••••••••••")
@@ -3204,6 +3356,8 @@ if not st.session_state.is_auth:
                         st.rerun()
                     else:
                         st.error(f"❌ {name}")
+
+        """
 
         st.markdown("""
         <p style="color:rgba(255,255,255,.25);font-size:.75rem;text-align:center;margin-top:20px;">
