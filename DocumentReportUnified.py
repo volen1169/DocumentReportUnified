@@ -99,7 +99,7 @@ COLORS = {
 # =============================================================================
 # =============================================================================
 # THEME : SIDEBAR
-# เธเธทเนเธเธซเธฅเธฑเธ Sidebar / Active Menu / Profile Card / Badge
+# พื้นหลัง Sidebar / Active Menu / Profile Card / Badge
 # =============================================================================
 SIDEBAR_V32_THEME = """
 <style>
@@ -197,7 +197,7 @@ div[data-testid="stVerticalBlock"]{
 
 /* ========================================================================= */
 /* DEBUG REMOVE NAVIGATION WHITE BOX                                         */
-/* เนเธเนเธ•เธฃเธงเธเธงเนเธฒเธเธฅเนเธญเธเธเธฒเธงเธกเธฒเธเธฒเธเธเธธเนเธก Secondary เธซเธฃเธทเธญเนเธกเน                          */
+/* ใช้ตรวจว่ากล่องขาวมาจากปุ่ม Secondary หรือไม่                          */
 /* ========================================================================= */
 
 [data-testid="stSidebar"] .stButton > button[kind="secondary"]{
@@ -213,14 +213,14 @@ div[data-testid="stVerticalBlock"]{
     box-shadow: none !important;
 }
 
-/* เธฅเนเธฒเธ wrapper เธฃเธญเธเธเธธเนเธก */
+/* ล้าง wrapper รอบปุ่ม */
 [data-testid="stSidebar"] .stButton{
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
 
-/* เธฅเนเธฒเธ element-container เธ—เธตเน Streamlit เธชเธฃเนเธฒเธ */
+/* ล้าง element-container ที่ Streamlit สร้าง */
 [data-testid="stSidebar"] div[data-testid="stElementContainer"]{
     background: transparent !important;
     border: none !important;
@@ -253,19 +253,19 @@ div[data-testid="stVerticalBlock"]{
 
 # =============================================================================
 # SIDEBAR V3.1 ROADMAP
-# 1. เธเธฃเธฑเธ Sidebar เนเธซเนเนเธเนเนเธ—เธเน€เธ”เธตเธขเธงเธเธฑเธ Login
-# 2. เธเธฃเธฑเธ Active Menu เน€เธเนเธ Gradient
-# 3. เธเธฃเธฑเธ Badge Counter
-# 4. เธเธฃเธฑเธ Profile Card
+# 1. ปรับ Sidebar ให้ใช้โทนเดียวกับ Login
+# 2. ปรับ Active Menu เป็น Gradient
+# 3. ปรับ Badge Counter
+# 4. ปรับ Profile Card
 # =============================================================================
 
 
 # =============================================================================
 # THEME ARCHITECTURE (PHASE 2A)
 # =============================================================================
-# GLOBAL_THEME      -> CSS เนเธเนเธ—เธฑเนเธเธฃเธฐเธเธ
-# LOGIN_THEME       -> เธซเธเนเธฒ Login
-# SIDEBAR_THEME     -> Sidebar เนเธฅเธฐ Navigation
+# GLOBAL_THEME      -> CSS ใช้ทั้งระบบ
+# LOGIN_THEME       -> หน้า Login
+# SIDEBAR_THEME     -> Sidebar และ Navigation
 # DASHBOARD_THEME   -> Dashboard Cards / Metrics
 # HARDWARE_THEME    -> Asset Cards
 # PASSWORD_THEME    -> Password Manager
@@ -299,7 +299,7 @@ except Exception:
 
 # =============================================================================
 # SECTION 01 : CONFIGURATION
-# เธเนเธฒเธ•เธฑเนเธเธ•เนเธเธฃเธฐเธเธ / SharePoint / NAS / Admin / Dropdown เธ•เนเธฒเธเน
+# ค่าตั้งต้นระบบ / SharePoint / NAS / Admin / Dropdown ต่างๆ
 # =============================================================================
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -360,17 +360,17 @@ AD_AGENT_TOKEN = st.secrets.get("AD_AGENT_TOKEN", "")
 
 # NAS Config
 # -----------------------------------------------------------------------------
-# เนเธซเธกเธ”เน€เธ”เธดเธก: SSH เน€เธเนเธฒ NAS เนเธ”เธขเธ•เธฃเธ (เนเธเนเนเธ”เนเน€เธเธเธฒเธฐเธเธฃเธ“เธต NAS เน€เธเธดเธ” SSH เธเธฒเธเธ เธฒเธขเธเธญเธ/VPN)
-# เนเธซเธกเธ”เนเธซเธกเน: Synology DSM API เธเนเธฒเธ Cloudflare Tunnel
+# โหมดเดิม: SSH เข้า NAS โดยตรง (ใช้ได้เฉพาะกรณี NAS เปิด SSH จากภายนอก/VPN)
+# โหมดใหม่: Synology DSM API ผ่าน Cloudflare Tunnel
 #
-# เนเธเธฐเธเธณเธชเธณเธซเธฃเธฑเธ Streamlit Cloud:
+# แนะนำสำหรับ Streamlit Cloud:
 # NAS_AGENT_URL = "https://nas-agent.poonyaruk.co.th"
-# NAS_USER     = "เธเธทเนเธญเธเธนเนเนเธเน NAS"
-# NAS_PASSWORD = "เธฃเธซเธฑเธชเธเนเธฒเธ NAS"
+# NAS_USER     = "ชื่อผู้ใช้ NAS"
+# NAS_PASSWORD = "รหัสผ่าน NAS"
 # NAS_MODE     = "agent"
 # -----------------------------------------------------------------------------
 NAS_IP = st.secrets.get("NAS_IP", "")
-NAS_PORT = int(st.secrets.get("NAS_PORT", 22))        # เธฃเธญเธเธฃเธฑเธ SSH port custom เน€เธเนเธ 2222
+NAS_PORT = int(st.secrets.get("NAS_PORT", 22))        # รองรับ SSH port custom เช่น 2222
 SSH_USER = st.secrets.get("SSH_USER", "")
 SSH_PWD = st.secrets.get("SSH_PWD", "")
 
@@ -380,21 +380,21 @@ NAS_PASSWORD = st.secrets.get("NAS_PASSWORD", SSH_PWD)
 NAS_MODE = st.secrets.get("NAS_MODE", "api" if NAS_BASE_URL else "ssh").lower().strip()
 
 # NAS Local API Agent Config
-# เนเธเนเธชเธณเธซเธฃเธฑเธเธญเนเธฒเธ ACL เธเธฃเธดเธเธเธฒเธ synoacltool เธเนเธฒเธ Agent เธ—เธตเนเธฃเธฑเธเธญเธขเธนเนเธเธ NAS
-# Streamlit Secrets เธ•เธฑเธงเธญเธขเนเธฒเธ:
+# ใช้สำหรับอ่าน ACL จริงจาก synoacltool ผ่าน Agent ที่รันอยู่บน NAS
+# Streamlit Secrets ตัวอย่าง:
 # NAS_AGENT_URL   = "https://nas-agent.poonyaruk.co.th"
-# NAS_AGENT_TOKEN = "เธฃเธซเธฑเธชเน€เธ”เธตเธขเธงเธเธฑเธ NAS_AGENT_TOKEN เนเธ Docker"
+# NAS_AGENT_TOKEN = "รหัสเดียวกับ NAS_AGENT_TOKEN ใน Docker"
 NAS_AGENT_URL = st.secrets.get("NAS_AGENT_URL", "").rstrip("/")
 NAS_AGENT_TOKEN = st.secrets.get("NAS_AGENT_TOKEN", "")
 NAS_AGENT_MODE = st.secrets.get("NAS_AGENT_MODE", "agent" if NAS_AGENT_URL else "").lower().strip()
 
-# Force Agent-first mode: เธเนเธญเธเธเธฑเธ Streamlit เนเธเน€เธฃเธตเธขเธ DSM domain เน€เธ”เธดเธก (nas-api) เธ•เธญเธเนเธเน NAS Agent
+# Force Agent-first mode: ป้องกัน Streamlit ไปเรียก DSM domain เดิม (nas-api) ตอนใช้ NAS Agent
 AGENT_ONLY_MODE = NAS_MODE in ("agent", "nas_agent", "nas-agent") or NAS_AGENT_MODE == "agent"
 NAS_SHARES_SECRET = st.secrets.get("NAS_SHARES", "")
 
 MAX_THREADS = 6
 NAS_TIMEOUT = int(st.secrets.get("NAS_TIMEOUT", 30))
-SYNOACL_PATH = ""  # Deprecated: Streamlit เนเธกเนเน€เธฃเธตเธขเธ synoacltool เน€เธญเธเนเธฅเนเธง เนเธเน NAS Agent เนเธ—เธ
+SYNOACL_PATH = ""  # Deprecated: Streamlit ไม่เรียก synoacltool เองแล้ว ใช้ NAS Agent แทน
 
 # Password File Config
 SHAREPOINT_FOLDER = "Update IT documents"
@@ -412,7 +412,7 @@ SOFTWARE_FILE_MAP = {
     "Developer Tools": "Software_Developer_Tools.xlsx",
 }
 
-# โ… Admin List โ€” เน€เธเธดเนเธก/เธฅเธ” email เนเธ”เนเธ—เธตเนเธเธตเน
+# ✅ Admin List — เพิ่ม/ลด email ได้ที่นี่
 ADMIN_EMAILS = [
     "itsupport@poonyaruk.co.th",
     "IT_Network@poonyaruk.co.th",
@@ -422,9 +422,9 @@ ADMIN_EMAILS = [
 
 # Internet Policy Mapping
 # -----------------------------------------------------------------------------
-# เนเธเนเธชเธณเธซเธฃเธฑเธเนเธชเธ”เธเธชเธดเธ—เธเธดเนเธญเธญเธ Internet เธเธฒเธ AD / Firewall Group
-# เนเธเธงเธเธดเธ”: เนเธซเน AD Group เน€เธเนเธ Source of Truth เนเธฅเนเธง Firewall เนเธฅเธฐเธฃเธฐเธเธเธเธตเนเธญเนเธฒเธเธเธฒเธ Group เน€เธ”เธตเธขเธงเธเธฑเธ
-# เธ–เนเธฒเธเธฃเธดเธฉเธฑเธ—เธกเธต Policy เน€เธเธดเนเธก เนเธซเนเน€เธเธดเนเธกเธเธทเนเธญ Group เนเธฅเธฐเธเธณเธญเธเธดเธเธฒเธขเธ—เธตเนเธเธตเนเนเธ”เนเน€เธฅเธข
+# ใช้สำหรับแสดงสิทธิ์ออก Internet จาก AD / Firewall Group
+# แนวคิด: ให้ AD Group เป็น Source of Truth แล้ว Firewall และระบบนี้อ่านจาก Group เดียวกัน
+# ถ้าบริษัทมี Policy เพิ่ม ให้เพิ่มชื่อ Group และคำอธิบายที่นี่ได้เลย
 # -----------------------------------------------------------------------------
 FW_POLICY_PREFIXES = ("FW_", "Firewall_", "Internet_")
 FIREWALL_POLICY_MAPPING_LIST = st.secrets.get("FIREWALL_POLICY_MAPPING_LIST", "Firewall Policy Mapping")
@@ -447,7 +447,7 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Allowed": "Web, Email, Business apps, YouTube, Facebook, Social media",
         "Blocked": "-",
         "Firewall Rule": "FW_Officer_A",
-        "Description": "เนเธเนเธเธฒเธ Internet เนเธ”เนเน€เธ•เนเธกเธ•เธฒเธก policy เธเธเธฑเธเธเธฒเธเธเธฅเธธเนเธก A",
+        "Description": "ใช้งาน Internet ได้เต็มตาม policy พนักงานกลุ่ม A",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -457,7 +457,7 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Allowed": "Web, Email, Business apps",
         "Blocked": "Facebook, TikTok, Instagram, Social media",
         "Firewall Rule": "FW_Officer_B",
-        "Description": "เนเธเนเธเธฒเธ Internet เธ—เธฑเนเธงเนเธเนเธ”เน เนเธ•เนเธเธฅเนเธญเธ Social Media",
+        "Description": "ใช้งาน Internet ทั่วไปได้ แต่บล็อก Social Media",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -467,7 +467,7 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Allowed": "Web, Email, Business apps, YouTube",
         "Blocked": "Facebook, TikTok, Instagram",
         "Firewall Rule": "FW_Officer_C",
-        "Description": "เนเธเนเธเธฒเธเธ—เธฑเนเธงเนเธเนเธฅเธฐ YouTube เนเธ”เน เนเธ•เนเธขเธฑเธเธเธฅเนเธญเธ Social Media เธญเธทเนเธ",
+        "Description": "ใช้งานทั่วไปและ YouTube ได้ แต่ยังบล็อก Social Media อื่น",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -477,7 +477,7 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Allowed": "Web, Email, Business apps, Facebook",
         "Blocked": "YouTube, TikTok, Instagram",
         "Firewall Rule": "FW_Officer_D",
-        "Description": "เนเธเนเธเธฒเธเธ—เธฑเนเธงเนเธเนเธฅเธฐ Facebook เนเธ”เน",
+        "Description": "ใช้งานทั่วไปและ Facebook ได้",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -487,7 +487,7 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Allowed": "Web, Email, Business apps, YouTube, Facebook",
         "Blocked": "TikTok, Instagram",
         "Firewall Rule": "FW_Officer_E",
-        "Description": "เนเธเนเธเธฒเธเธ—เธฑเนเธงเนเธเธเธฃเนเธญเธก YouTube เนเธฅเธฐ Facebook เนเธ”เน",
+        "Description": "ใช้งานทั่วไปพร้อม YouTube และ Facebook ได้",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -495,9 +495,9 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Policy Name": "Net True",
         "Internet Level": "Manager Access",
         "Allowed": "Web, Email, Business apps, approved management access",
-        "Blocked": "เธ•เธฒเธก policy firewall",
+        "Blocked": "ตาม policy firewall",
         "Firewall Rule": "FW_Manager",
-        "Description": "Policy เธชเธณเธซเธฃเธฑเธเธฃเธฐเธ”เธฑเธ Manager",
+        "Description": "Policy สำหรับระดับ Manager",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -505,9 +505,9 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Policy Name": "IT Internet Policy",
         "Internet Level": "IT Admin Access",
         "Allowed": "All standard access, admin tools, remote support, vendor sites",
-        "Blocked": "เธ•เธฒเธก security baseline",
+        "Blocked": "ตาม security baseline",
         "Firewall Rule": "FW_IT",
-        "Description": "เธชเธดเธ—เธเธดเน Internet เธชเธณเธซเธฃเธฑเธเธ—เธตเธก IT",
+        "Description": "สิทธิ์ Internet สำหรับทีม IT",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -515,9 +515,9 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Policy Name": "Management Internet Policy",
         "Internet Level": "Management Access",
         "Allowed": "Business apps, web, email, executive-approved services",
-        "Blocked": "เธ•เธฒเธก policy firewall",
+        "Blocked": "ตาม policy firewall",
         "Firewall Rule": "FW_MD",
-        "Description": "เธชเธดเธ—เธเธดเน Internet เธชเธณเธซเธฃเธฑเธเธเธนเนเธเธฃเธดเธซเธฒเธฃ",
+        "Description": "สิทธิ์ Internet สำหรับผู้บริหาร",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -525,9 +525,9 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Policy Name": "Supervisor Internet Policy",
         "Internet Level": "Supervisor Access",
         "Allowed": "Web, Email, Business apps, approved team resources",
-        "Blocked": "Social media เธ•เธฒเธกเธเนเธญเธเธณเธซเธเธ”",
+        "Blocked": "Social media ตามข้อกำหนด",
         "Firewall Rule": "FW_Supervisor_B",
-        "Description": "เธชเธดเธ—เธเธดเน Internet เธชเธณเธซเธฃเธฑเธ Supervisor",
+        "Description": "สิทธิ์ Internet สำหรับ Supervisor",
         "Owner": "IT",
         "Last Updated": "",
     },
@@ -535,19 +535,19 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Policy Name": "Conference Room Internet Policy",
         "Internet Level": "Meeting Room Access",
         "Allowed": "Meeting apps, web, presentation services",
-        "Blocked": "High-risk categories เธ•เธฒเธก policy firewall",
+        "Blocked": "High-risk categories ตาม policy firewall",
         "Firewall Rule": "FW_Conference",
-        "Description": "เธชเธดเธ—เธเธดเน Internet เธชเธณเธซเธฃเธฑเธเธญเธธเธเธเธฃเธ“เนเธซเนเธญเธเธเธฃเธฐเธเธธเธก",
+        "Description": "สิทธิ์ Internet สำหรับอุปกรณ์ห้องประชุม",
         "Owner": "IT",
         "Last Updated": "",
     },
 }
 
 
-# Field mapping เธชเธณเธซเธฃเธฑเธ Computer Asset
+# Field mapping สำหรับ Computer Asset
 COMPUTER_FIELDS = {
-    "field_1": "เธเธฃเธดเธฉเธฑเธ—",
-    "field_3": "เธเธทเนเธญเธเธเธฑเธเธเธฒเธ",
+    "field_1": "บริษัท",
+    "field_3": "ชื่อพนักงาน",
     "field_6": "Hostname",
     "field_7": "Model",
     "field_8": "Serial No.",
@@ -558,18 +558,18 @@ COMPUTER_FIELDS = {
     "Status": "Status",
 }
 
-# Field mapping เธชเธณเธซเธฃเธฑเธ Monitor
+# Field mapping สำหรับ Monitor
 MONITOR_FIELDS = {
-    "field_1": "เธเธฃเธดเธฉเธฑเธ—",
-    "field_3": "เธเธทเนเธญเธเธเธฑเธเธเธฒเธ",
+    "field_1": "บริษัท",
+    "field_3": "ชื่อพนักงาน",
     "field_2": "Brand/Model",
     "field_4": "Serial No.",
     "Status": "Status",
 }
 
-# Field mapping เธชเธณเธซเธฃเธฑเธ Printer
+# Field mapping สำหรับ Printer
 PRINTER_FIELDS = {
-    "Company": "เธเธฃเธดเธฉเธฑเธ—",
+    "Company": "บริษัท",
     "User": "User",
     "Brand_x0020__x002f__x0020_Model": "Brand/Model",
     "S_x002f_N_x0020_No_x002e_": "Serial No.",
@@ -579,34 +579,34 @@ PRINTER_FIELDS = {
 COMPANY_OPTIONS = ["OPT", "SWI", "PRP", "PLC", "EGI", "THK"]
 STATUS_OPTIONS = ["Active", "Inactive", "Spare", "Repair"]
 
-# Field mapping เธชเธณเธซเธฃเธฑเธ Ink Stock
-INK_STOCK_LIST   = "Ink Stock"        # เธเธทเนเธญ SharePoint List เธชเธณเธซเธฃเธฑเธเธชเธ•เนเธญเธเธซเธกเธถเธ
-INK_HISTORY_LIST = "Ink History"      # เธเธทเนเธญ SharePoint List เธชเธณเธซเธฃเธฑเธเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเน€เธเธดเธ
-INK_LOW_THRESHOLD = 3                 # เธเธณเธเธงเธเธ•เนเธณเธชเธธเธ”เธเนเธญเธเนเธเนเธเน€เธ•เธทเธญเธ (default)
+# Field mapping สำหรับ Ink Stock
+INK_STOCK_LIST   = "Ink Stock"        # ชื่อ SharePoint List สำหรับสต็อกหมึก
+INK_HISTORY_LIST = "Ink History"      # ชื่อ SharePoint List สำหรับประวัติการเบิก
+INK_LOW_THRESHOLD = 3                 # จำนวนต่ำสุดก่อนแจ้งเตือน (default)
 INK_COLOR_OPTIONS = ["Black", "Cyan", "Magenta", "Yellow", "Color (Tri)", "Other"]
 INK_STOCK_FIELDS = {
-    "Title":         "เธฃเธธเนเธเธซเธกเธถเธ",
-    "Color":         "เธชเธต",
-    "Printer_Model": "เธฃเธธเนเธเน€เธเธฃเธทเนเธญเธเธเธดเธกเธเน",
-    "Company":       "เธเธฃเธดเธฉเธฑเธ—",
-    "Quantity":      "เธเธณเธเธงเธเธเธเน€เธซเธฅเธทเธญ",
-    "Min_Qty":       "เธเธธเธ”เนเธเนเธเน€เธ•เธทเธญเธ",
-    "Unit_Price":    "เธฃเธฒเธเธฒ/เธเธดเนเธ (เธเธฒเธ—)",
-    "Notes":         "เธซเธกเธฒเธขเน€เธซเธ•เธธ",
+    "Title":         "รุ่นหมึก",
+    "Color":         "สี",
+    "Printer_Model": "รุ่นเครื่องพิมพ์",
+    "Company":       "บริษัท",
+    "Quantity":      "จำนวนคงเหลือ",
+    "Min_Qty":       "จุดแจ้งเตือน",
+    "Unit_Price":    "ราคา/ชิ้น (บาท)",
+    "Notes":         "หมายเหตุ",
 }
 INK_HISTORY_FIELDS = {
-    "Ink_Title":     "เธฃเธธเนเธเธซเธกเธถเธ",
-    "Color":         "เธชเธต",
-    "Qty_Change":    "เธเธณเธเธงเธ (+/-)",
-    "Action":        "เธเธฃเธฐเน€เธ เธ—",
-    "Requester":     "เธเธนเนเน€เธเธดเธ/เน€เธเธดเนเธก",
-    "Note":          "เธซเธกเธฒเธขเน€เธซเธ•เธธ",
-    "Timestamp":     "เธงเธฑเธเน€เธงเธฅเธฒ",
+    "Ink_Title":     "รุ่นหมึก",
+    "Color":         "สี",
+    "Qty_Change":    "จำนวน (+/-)",
+    "Action":        "ประเภท",
+    "Requester":     "ผู้เบิก/เพิ่ม",
+    "Note":          "หมายเหตุ",
+    "Timestamp":     "วันเวลา",
 }
 
 # =============================================================================
 # SECTION 02 : AUTHENTICATION
-# เธฃเธฐเธเธ Login Microsoft 365 / Cookie / เธ•เธฃเธงเธเธชเธญเธเธชเธดเธ—เธเธดเน Admin
+# ระบบ Login Microsoft 365 / Cookie / ตรวจสอบสิทธิ์ Admin
 # =============================================================================
 def get_manager():
     """
@@ -615,7 +615,7 @@ def get_manager():
     Returns
     -------
     CookieManager
-        เนเธเนเธเธฑเธ”เธเธฒเธฃ Login Cookie เนเธฅเธฐ Session Persistence
+        ใช้จัดการ Login Cookie และ Session Persistence
     """
     if "cookie_manager" not in st.session_state:
         st.session_state["cookie_manager"] = stx.CookieManager(key="cookie_mgr_singleton")
@@ -623,7 +623,7 @@ def get_manager():
 
 def is_admin(username: str) -> bool:
     """
-    เธ•เธฃเธงเธเธชเธญเธเธชเธดเธ—เธเธดเน Admin เธเธฒเธ Email
+    ตรวจสอบสิทธิ์ Admin จาก Email
 
     Parameters
     ----------
@@ -652,7 +652,7 @@ def check_ms_login(username, password):
         name = claims.get("name", username)
         email = claims.get("preferred_username", username)
         return True, name, email
-    return False, result.get("error_description", "เธฅเนเธญเธเธญเธดเธเนเธกเนเธชเธณเน€เธฃเนเธ"), ""
+    return False, result.get("error_description", "ล็อกอินไม่สำเร็จ"), ""
 
 def _query_value(params, key, default=""):
     value = params.get(key, default)
@@ -712,7 +712,7 @@ def handle_ms_oauth_callback(cookie_manager):
     popup_flow = str(returned_state).startswith("popup-")
     expected_state = st.session_state.get("oauth_state", "")
     if expected_state and returned_state and returned_state != expected_state:
-        st.session_state["login_error"] = "OAuth state เนเธกเนเธ•เธฃเธเธเธฑเธ เธเธฃเธธเธ“เธฒเธฅเธญเธ Sign in เนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ"
+        st.session_state["login_error"] = "OAuth state ไม่ตรงกัน กรุณาลอง Sign in ใหม่อีกครั้ง"
         _clear_query_params_safe()
         return False
 
@@ -730,7 +730,7 @@ def handle_ms_oauth_callback(cookie_manager):
     if "access_token" not in result:
         st.session_state["login_error"] = result.get(
             "error_description",
-            "Microsoft OAuth login เนเธกเนเธชเธณเน€เธฃเนเธ เธเธฃเธธเธ“เธฒเธฅเธญเธเนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ",
+            "Microsoft OAuth login ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
         )
         _clear_query_params_safe()
         return False
@@ -809,8 +809,8 @@ def render_oauth_popup_complete():
 
 # =============================================================================
 # SECTION 02.1 : AD / FIREWALL INTERNET POLICY
-# เธ”เธถเธ Group Membership เธเธฒเธ Microsoft Entra ID / Active Directory เธเนเธฒเธ Microsoft Graph
-# เนเธฅเนเธงเนเธเธฅเธ Group เธ—เธตเนเธเธถเนเธเธ•เนเธเธ”เนเธงเธข FW_ เน€เธเนเธ Internet Policy
+# ดึง Group Membership จาก Microsoft Entra ID / Active Directory ผ่าน Microsoft Graph
+# แล้วแปลง Group ที่ขึ้นต้นด้วย FW_ เป็น Internet Policy
 # =============================================================================
 def _escape_ldap_filter_value(value: str) -> str:
     """Escape special characters for LDAP filter values."""
@@ -858,9 +858,9 @@ def _source_order():
 
 def _make_ldap_connection():
     if Server is None or Connection is None:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธดเธ”เธ•เธฑเนเธ Python package 'ldap3' เนเธ environment เธ—เธตเนเธฃเธฑเธเนเธญเธ")
+        raise Exception("ยังไม่ได้ติดตั้ง Python package 'ldap3' ใน environment ที่รันแอป")
     if not _ldap_enabled():
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ AD_LDAP_SERVER / AD_BASE_DN / AD_BIND_USER / AD_BIND_PASSWORD")
+        raise Exception("ยังไม่ได้ตั้งค่า AD_LDAP_SERVER / AD_BASE_DN / AD_BIND_USER / AD_BIND_PASSWORD")
 
     server = Server(
         AD_LDAP_SERVER,
@@ -955,7 +955,7 @@ def get_ldap_group_names_for_user(user_identity: str):
 def get_ad_agent_policy_summary(user_identity: str):
     """Read user/group/policy data from an internal AD Agent API if configured."""
     if not _ad_agent_enabled():
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ AD_AGENT_URL")
+        raise Exception("ยังไม่ได้ตั้งค่า AD_AGENT_URL")
 
     headers = {}
     if AD_AGENT_TOKEN:
@@ -975,11 +975,11 @@ def get_ad_agent_policy_summary(user_identity: str):
     if resp.status_code >= 400:
         raise Exception(f"AD Agent HTTP {resp.status_code}: {data}")
     if not isinstance(data, dict):
-        raise Exception("AD Agent response format เนเธกเนเธ–เธนเธเธ•เนเธญเธ")
+        raise Exception("AD Agent response format ไม่ถูกต้อง")
 
     groups = data.get("groups", []) or []
 
-    # เธฃเธญเธเธฃเธฑเธ AD Agent เธ—เธฑเนเธ 2 เธฃเธนเธเนเธเธ:
+    # รองรับ AD Agent ทั้ง 2 รูปแบบ:
     # 1) {"user": {...}, "groups": [...], "policies": [...]}
     # 2) {"displayName": "...", "mail": "...", "groups": [...], "internet_policy": [...]}
     user_obj = data.get("user") if isinstance(data.get("user"), dict) else {}
@@ -1022,11 +1022,11 @@ def get_ad_agent_policy_users(policy_name: str):
     }
     """
     if not _ad_agent_enabled():
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ AD_AGENT_URL")
+        raise Exception("ยังไม่ได้ตั้งค่า AD_AGENT_URL")
 
     policy = str(policy_name or "").strip()
     if not policy:
-        raise Exception("เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธเธเธทเนเธญ Policy เน€เธเนเธ FW_Officer_A")
+        raise Exception("กรุณาระบุชื่อ Policy เช่น FW_Officer_A")
 
     headers = {}
     if AD_AGENT_TOKEN:
@@ -1045,11 +1045,11 @@ def get_ad_agent_policy_users(policy_name: str):
         data = {"error": resp.text[:300]}
 
     if resp.status_code == 404:
-        raise Exception("AD Agent เธขเธฑเธเนเธกเนเธกเธต endpoint /policy-users โ€” เธเธฃเธธเธ“เธฒเธญเธฑเธเน€เธ”เธ• ad_agent.py เธเธ NAS เน€เธเนเธเน€เธงเธญเธฃเนเธเธฑเธเธ—เธตเนเธฃเธญเธเธฃเธฑเธเธเนเธเธซเธฒ Policy")
+        raise Exception("AD Agent ยังไม่มี endpoint /policy-users — กรุณาอัปเดต ad_agent.py บน NAS เป็นเวอร์ชันที่รองรับค้นหา Policy")
     if resp.status_code >= 400:
         raise Exception(f"AD Agent HTTP {resp.status_code}: {data}")
     if not isinstance(data, dict):
-        raise Exception("AD Agent response format เนเธกเนเธ–เธนเธเธ•เนเธญเธ")
+        raise Exception("AD Agent response format ไม่ถูกต้อง")
 
     users = data.get("users", []) or []
     if not isinstance(users, list):
@@ -1067,7 +1067,7 @@ def get_ad_agent_policy_users(policy_name: str):
 
 
 def get_policy_users_summary(policy_name: str):
-    """เธเธทเธเธฃเธฒเธขเธเธทเนเธญ User เธ—เธฑเนเธเธซเธกเธ”เธ—เธตเนเนเธ”เน Policy เธเธตเน."""
+    """คืนรายชื่อ User ทั้งหมดที่ได้ Policy นี้."""
     errors = []
     policy = str(policy_name or "").strip()
 
@@ -1079,10 +1079,10 @@ def get_policy_users_summary(policy_name: str):
             "description": "",
             "users": [],
             "count": 0,
-            "error": "เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธเธเธทเนเธญ Policy",
+            "error": "กรุณาระบุชื่อ Policy",
         }
 
-    # Streamlit Cloud เธเธงเธฃเนเธเน AD Agent เน€เธเนเธเธซเธฅเธฑเธ เน€เธเธฃเธฒเธฐเน€เธเนเธฒ IP เธ เธฒเธขเนเธ/LDAP เธ•เธฃเธเนเธกเนเนเธ”เน
+    # Streamlit Cloud ควรใช้ AD Agent เป็นหลัก เพราะเข้า IP ภายใน/LDAP ตรงไม่ได้
     try:
         if _ad_agent_enabled():
             result = get_ad_agent_policy_users(policy)
@@ -1090,7 +1090,7 @@ def get_policy_users_summary(policy_name: str):
                 return result
             errors.append(f"AD Agent: {result.get('error', '')}")
         else:
-            errors.append("AD Agent skipped: เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ AD_AGENT_URL")
+            errors.append("AD Agent skipped: ยังไม่ได้ตั้งค่า AD_AGENT_URL")
     except Exception as e:
         errors.append(f"AD Agent: {e}")
 
@@ -1101,7 +1101,7 @@ def get_policy_users_summary(policy_name: str):
         "description": FW_POLICY_MAP.get(policy, ""),
         "users": [],
         "count": 0,
-        "error": " | ".join(errors) if errors else "เนเธกเนเธเธเธเนเธญเธกเธนเธฅ Policy",
+        "error": " | ".join(errors) if errors else "ไม่พบข้อมูล Policy",
     }
 
 
@@ -1111,7 +1111,7 @@ def _escape_graph_filter_value(value: str) -> str:
 
 
 def _graph_get(url, *, headers=None, params=None, timeout=30):
-    """เน€เธฃเธตเธขเธ Microsoft Graph เนเธเธเธฃเธงเธก Error เนเธซเนเธ”เธนเธเนเธฒเธข"""
+    """เรียก Microsoft Graph แบบรวม Error ให้ดูง่าย"""
     token = get_access_token()
     req_headers = {"Authorization": f"Bearer {token}"}
     if headers:
@@ -1129,9 +1129,9 @@ def _graph_get(url, *, headers=None, params=None, timeout=30):
 
 @st.cache_data(ttl=1800, show_spinner=False)
 def graph_find_user(user_identity: str):
-    """เธซเธฒ User เธเธฒเธ UPN / Email / Display Name / Account name
+    """หา User จาก UPN / Email / Display Name / Account name
 
-    เธเธทเธเธเนเธฒ dict เธ—เธตเนเธกเธต id, displayName, userPrincipalName, mail
+    คืนค่า dict ที่มี id, displayName, userPrincipalName, mail
     """
     ident = str(user_identity or "").strip()
     if not ident:
@@ -1139,7 +1139,7 @@ def graph_find_user(user_identity: str):
 
     select_cols = "id,displayName,userPrincipalName,mail,mailNickname,jobTitle,department,companyName"
 
-    # 1) เธ–เนเธฒเน€เธเนเธ email/upn เนเธซเนเน€เธฃเธตเธขเธเธ•เธฃเธเธเนเธญเธ
+    # 1) ถ้าเป็น email/upn ให้เรียกตรงก่อน
     if "@" in ident:
         try:
             return _graph_get(
@@ -1149,7 +1149,7 @@ def graph_find_user(user_identity: str):
         except Exception:
             pass
 
-    # 2) เธ–เนเธฒเน€เธเนเธ account name เน€เธเนเธ Ratchaphruek.Ro เนเธซเนเธฅเธญเธเน€เธ•เธดเธก domain เธ—เธตเนเนเธเน login เธญเธขเธนเน
+    # 2) ถ้าเป็น account name เช่น Ratchaphruek.Ro ให้ลองเติม domain ที่ใช้ login อยู่
     login_email = st.session_state.get("user_email", "") if hasattr(st, "session_state") else ""
     login_domain = login_email.split("@")[-1] if "@" in login_email else ""
     if login_domain and "@" not in ident and " " not in ident:
@@ -1161,7 +1161,7 @@ def graph_find_user(user_identity: str):
         except Exception:
             pass
 
-    # 3) เธเนเธเธซเธฒเธเธฒเธ displayName / UPN / mailNickname
+    # 3) ค้นหาจาก displayName / UPN / mailNickname
     safe = _escape_graph_filter_value(ident)
     filters = [
         f"startswith(displayName,'{safe}')",
@@ -1169,7 +1169,7 @@ def graph_find_user(user_identity: str):
         f"startswith(mailNickname,'{safe}')",
     ]
 
-    # เธ–เนเธฒเน€เธเนเธเธเธทเนเธญเนเธเธเธกเธตเธเธธเธ” เนเธซเนเธฅเธญเธเนเธเธฅเธเธเธธเธ”เน€เธเนเธเน€เธงเนเธเธงเธฃเธฃเธเธ”เนเธงเธข
+    # ถ้าเป็นชื่อแบบมีจุด ให้ลองแปลงจุดเป็นเว้นวรรคด้วย
     if "." in ident:
         safe_space = _escape_graph_filter_value(ident.replace(".", " "))
         filters.append(f"startswith(displayName,'{safe_space}')")
@@ -1191,12 +1191,12 @@ def graph_find_user(user_identity: str):
 
 @st.cache_data(ttl=1800, show_spinner=False)
 def get_ad_group_names_for_user(user_identity: str):
-    """เธเธทเธเธฃเธฒเธขเธเธทเนเธญ AD / Entra ID Groups เธ—เธตเน User เน€เธเนเธเธชเธกเธฒเธเธดเธเธญเธขเธนเน
+    """คืนรายชื่อ AD / Entra ID Groups ที่ User เป็นสมาชิกอยู่
 
-    เธ•เนเธญเธเนเธซเน App Registration เธกเธตเธชเธดเธ—เธเธดเน Microsoft Graph เธญเธขเนเธฒเธเธเนเธญเธข:
+    ต้องให้ App Registration มีสิทธิ์ Microsoft Graph อย่างน้อย:
     - User.Read.All
-    - GroupMember.Read.All เธซเธฃเธทเธญ Directory.Read.All
-    เนเธฅเธฐเธเธ” Admin consent เนเธฅเนเธง
+    - GroupMember.Read.All หรือ Directory.Read.All
+    และกด Admin consent แล้ว
     """
     user_obj = graph_find_user(user_identity)
     if not user_obj or not user_obj.get("id"):
@@ -1292,7 +1292,7 @@ def get_firewall_policy_mapping_dict():
 
 
 def get_internet_policies_from_groups(group_names):
-    """เนเธเธฅเธ AD Groups เน€เธเนเธ Internet Policy rows เธเธฃเนเธญเธกเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เธงเนเธฒ Policy เธ—เธณเธญเธฐเนเธฃเนเธ”เนเธเนเธฒเธ"""
+    """แปลง AD Groups เป็น Internet Policy rows พร้อมรายละเอียดว่า Policy ทำอะไรได้บ้าง"""
     mapping = get_firewall_policy_mapping_dict()
     policies = []
 
@@ -1338,18 +1338,18 @@ def get_internet_policies_from_groups(group_names):
 
 
 def get_user_internet_policy_summary(user_identity: str):
-    """เธเธทเธเธชเธฃเธธเธ Internet Policy เธเธญเธ User เธเธฒเธ AD / Agent / Graph เธ•เธฒเธก source เธ—เธตเนเธ•เธฑเนเธเธเนเธฒเนเธงเน"""
+    """คืนสรุป Internet Policy ของ User จาก AD / Agent / Graph ตาม source ที่ตั้งค่าไว้"""
     errors = []
 
     for source in _source_order():
         try:
             if source == "ldap":
                 if not _ldap_enabled():
-                    errors.append("LDAP skipped: เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ LDAP secrets")
+                    errors.append("LDAP skipped: ยังไม่ได้ตั้งค่า LDAP secrets")
                     continue
                 user_obj = ldap_find_user(user_identity)
                 if not user_obj:
-                    errors.append("LDAP: เนเธกเนเธเธ User เนเธ AD Server")
+                    errors.append("LDAP: ไม่พบ User ใน AD Server")
                     continue
                 groups = get_ldap_group_names_for_user(user_identity)
                 policies = get_internet_policies_from_groups(groups)
@@ -1364,7 +1364,7 @@ def get_user_internet_policy_summary(user_identity: str):
 
             if source == "agent":
                 if not _ad_agent_enabled():
-                    errors.append("AD Agent skipped: เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ AD_AGENT_URL")
+                    errors.append("AD Agent skipped: ยังไม่ได้ตั้งค่า AD_AGENT_URL")
                     continue
                 result = get_ad_agent_policy_summary(user_identity)
                 if result.get("ok"):
@@ -1375,7 +1375,7 @@ def get_user_internet_policy_summary(user_identity: str):
             if source == "graph":
                 user_obj = graph_find_user(user_identity)
                 if not user_obj or not user_obj.get("id"):
-                    errors.append("Graph: เนเธกเนเธเธ User เนเธ Entra ID")
+                    errors.append("Graph: ไม่พบ User ใน Entra ID")
                     continue
                 groups = get_ad_group_names_for_user(user_identity)
                 policies = get_internet_policies_from_groups(groups)
@@ -1396,7 +1396,7 @@ def get_user_internet_policy_summary(user_identity: str):
         "user": {},
         "groups": [],
         "policies": [],
-        "error": " | ".join(errors) if errors else "เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธเธฒเธเธ—เธธเธ source",
+        "error": " | ".join(errors) if errors else "ไม่พบข้อมูลจากทุก source",
     }
 
 
@@ -1445,7 +1445,7 @@ def get_asset_user_identity(row, asset_list_name: str = ""):
 
 # =============================================================================
 # SECTION 03 : SHAREPOINT CRUD
-# เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ / เน€เธเธดเนเธก / เนเธเนเนเธ / เธฅเธ เธเนเธญเธกเธนเธฅเธเธฒเธ SharePoint
+# โหลดข้อมูล / เพิ่ม / แก้ไข / ลบ ข้อมูลจาก SharePoint
 # =============================================================================
 @st.cache_data(ttl=3600)
 def get_sp_site_id():
@@ -1466,7 +1466,7 @@ def get_sp_list_id(list_name):
 @st.cache_data(ttl=3600)
 def load_sp_data(target_display_name):
     """
-    เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเธเธฒเธ SharePoint List
+    โหลดข้อมูลจาก SharePoint List
 
     Parameters
     ----------
@@ -1489,7 +1489,7 @@ def load_sp_data(target_display_name):
             rows = []
             for item in items_res.get('value', []):
                 fields = item['fields']
-                fields['_item_id'] = item['id']  # เน€เธเนเธ item ID เธชเธณเธซเธฃเธฑเธ CRUD
+                fields['_item_id'] = item['id']  # เก็บ item ID สำหรับ CRUD
                 rows.append(fields)
             return pd.DataFrame(rows)
     except Exception as e:
@@ -1536,7 +1536,7 @@ def clear_sp_cache():
 
 # =============================================================================
 # SECTION 04 : INK STOCK HELPERS
-# เธเธฑเธเธเนเธเธฑเธเธเธฑเธ”เธเธฒเธฃเธชเธ•เนเธญเธเธซเธกเธถเธเนเธฅเธฐเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเน€เธเธดเธ
+# ฟังก์ชันจัดการสต็อกหมึกและประวัติการเบิก
 # =============================================================================
 def ink_create(fields_dict):
     return sp_create_item(INK_STOCK_LIST, fields_dict)
@@ -1549,7 +1549,7 @@ def ink_delete(item_id):
 
 def ink_adjust_quantity(item_id, current_qty, delta, title, color,
                         requester, note, action_label):
-    """เน€เธเธดเนเธก/เธฅเธ”เธชเธ•เนเธญเธเธซเธกเธถเธเนเธฅเธฐเธเธฑเธเธ—เธถเธ history เนเธ SharePoint"""
+    """เพิ่ม/ลดสต็อกหมึกและบันทึก history ใน SharePoint"""
     new_qty = max(0, current_qty + delta)
     ok, _ = ink_update(item_id, {"Quantity": new_qty})
     if ok:
@@ -1569,7 +1569,7 @@ def ink_adjust_quantity(item_id, current_qty, delta, title, color,
 
 # =============================================================================
 # SECTION 05 : PASSWORD EXCEL
-# เธญเนเธฒเธ/เน€เธเธตเธขเธเนเธเธฅเน Password.xlsx เธเธ SharePoint
+# อ่าน/เขียนไฟล์ Password.xlsx บน SharePoint
 # =============================================================================
 def parse_password_sheet(ws):
     all_rows = list(ws.iter_rows(values_only=True))
@@ -1607,7 +1607,7 @@ def load_password_excel():
                 if not df.empty:
                     sheets[sheet_name] = df
             return sheets, drive_id
-        return {"_error": f"HTTP {file_res.status_code} - เนเธกเนเธเธเนเธเธฅเนเธ—เธตเน path: {SHAREPOINT_FOLDER}/{PASSWORD_FILE_NAME}", "_url": file_url}, drive_id
+        return {"_error": f"HTTP {file_res.status_code} - ไม่พบไฟล์ที่ path: {SHAREPOINT_FOLDER}/{PASSWORD_FILE_NAME}", "_url": file_url}, drive_id
     except Exception as e:
         return {"_error": str(e)}, None
 
@@ -1633,7 +1633,7 @@ def load_software_excels():
         drive_res.raise_for_status()
         drive_id = drive_res.json().get("id")
         if not drive_id:
-            return {}, {"SharePoint Drive": "เนเธกเนเธเธ Drive ID"}
+            return {}, {"SharePoint Drive": "ไม่พบ Drive ID"}
 
         for category_name, file_name in SOFTWARE_FILE_MAP.items():
             file_url = f"{GRAPH_URL}/drives/{drive_id}/root:/{SHAREPOINT_FOLDER}/{file_name}:/content"
@@ -1663,12 +1663,12 @@ def load_software_excels():
 
 def upload_password_excel(drive_id, sheets_dict):
     """
-    เธชเธฃเนเธฒเธ Excel เนเธซเธกเนเธเธฒเธ sheets_dict เนเธฅเนเธงเธญเธฑเธเนเธซเธฅเธ”เธ—เธฑเธเนเธเธฅเนเน€เธ”เธดเธกเธเธ SharePoint
+    สร้าง Excel ใหม่จาก sheets_dict แล้วอัปโหลดทับไฟล์เดิมบน SharePoint
     """
     token = get_access_token()
     headers_auth = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/octet-stream'}
 
-    # เธ”เธฒเธงเธเนเนเธซเธฅเธ”เนเธเธฅเนเน€เธ”เธดเธกเธกเธฒเธเนเธญเธเน€เธเธทเนเธญเธฃเธฑเธเธฉเธฒ format
+    # ดาวน์โหลดไฟล์เดิมมาก่อนเพื่อรักษา format
     site_id = get_sp_site_id()
     dl_headers = {'Authorization': f'Bearer {token}'}
     file_res = requests.get(
@@ -1681,12 +1681,12 @@ def upload_password_excel(drive_id, sheets_dict):
         if sheet_name not in wb.sheetnames:
             continue
         ws = wb[sheet_name]
-        # เธฅเธ data rows เน€เธ”เธดเธก (เน€เธเนเธ header row 1)
+        # ลบ data rows เดิม (เก็บ header row 1)
         for row in ws.iter_rows(min_row=2):
             for cell in row:
                 cell.value = None
 
-        # เน€เธเธตเธขเธเธเนเธญเธกเธนเธฅเนเธซเธกเน
+        # เขียนข้อมูลใหม่
         for r_idx, (_, row) in enumerate(df.iterrows(), start=2):
             for c_idx, val in enumerate(row, start=1):
                 ws.cell(row=r_idx, column=c_idx, value=val if val not in ('None', 'nan', '') else None)
@@ -1704,16 +1704,16 @@ def upload_password_excel(drive_id, sheets_dict):
 
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
-# เน€เธเธทเนเธญเธกเธ•เนเธญ Synology NAS เนเธ”เน 2 เนเธเธ
-#   1) Synology DSM API เธเนเธฒเธ Cloudflare Tunnel  โ เนเธเธฐเธเธณเธชเธณเธซเธฃเธฑเธ Streamlit Cloud
-#   2) SSH เนเธเธเน€เธ”เธดเธก                                โ เนเธเนเน€เธกเธทเนเธญเน€เธเธดเธ” SSH/VPN เน€เธ—เนเธฒเธเธฑเนเธ
+# เชื่อมต่อ Synology NAS ได้ 2 แบบ
+#   1) Synology DSM API ผ่าน Cloudflare Tunnel  ← แนะนำสำหรับ Streamlit Cloud
+#   2) SSH แบบเดิม                                ← ใช้เมื่อเปิด SSH/VPN เท่านั้น
 # =============================================================================
 
 def _nas_api_enabled():
-    """เธเธทเธเธเนเธฒ True เน€เธเธเธฒเธฐเน€เธกเธทเนเธญเน€เธฅเธทเธญเธเนเธเน DSM API เธเธฃเธดเธ เน
+    """คืนค่า True เฉพาะเมื่อเลือกใช้ DSM API จริง ๆ
 
-    เธซเธกเธฒเธขเน€เธซเธ•เธธ: เธ–เนเธฒ NAS_MODE=agent เนเธซเนเธเธดเธ” DSM API fallback เน€เธเธทเนเธญเนเธกเนเนเธซเนเนเธเน€เธฃเธตเธขเธ
-    nas-api.poonyaruk.co.th เธเธถเนเธเน€เธเนเธ DSM route เนเธฅเธฐเธ—เธณเนเธซเน timeout เธเธ Streamlit Cloud
+    หมายเหตุ: ถ้า NAS_MODE=agent ให้ปิด DSM API fallback เพื่อไม่ให้ไปเรียก
+    nas-api.poonyaruk.co.th ซึ่งเป็น DSM route และทำให้ timeout บน Streamlit Cloud
     """
     if AGENT_ONLY_MODE:
         return False
@@ -1721,23 +1721,23 @@ def _nas_api_enabled():
 
 
 def _nas_agent_enabled():
-    """เธเธทเธเธเนเธฒ True เน€เธกเธทเนเธญเธเธณเธซเธเธ” NAS_AGENT_URL เน€เธเธทเนเธญเธญเนเธฒเธ ACL เธเธฃเธดเธเธเนเธฒเธ NAS Local API Agent"""
+    """คืนค่า True เมื่อกำหนด NAS_AGENT_URL เพื่ออ่าน ACL จริงผ่าน NAS Local API Agent"""
     return AGENT_ONLY_MODE or bool(NAS_AGENT_URL)
 
 
 def _safe_json_response(resp, context="NAS API"):
-    """เนเธเธฅเธ Response เน€เธเนเธ JSON เธเธฃเนเธญเธก Error เธ—เธตเนเธญเนเธฒเธเธเนเธฒเธข"""
+    """แปลง Response เป็น JSON พร้อม Error ที่อ่านง่าย"""
     try:
         return resp.json()
     except Exception:
         preview = resp.text[:300] if getattr(resp, "text", None) else ""
-        raise Exception(f"{context} เนเธกเนเนเธ”เนเธ•เธญเธเธเธฅเธฑเธเน€เธเนเธ JSON | HTTP {resp.status_code} | {preview}")
+        raise Exception(f"{context} ไม่ได้ตอบกลับเป็น JSON | HTTP {resp.status_code} | {preview}")
 
 
 def synology_api_info():
-    """เธ—เธ”เธชเธญเธเธงเนเธฒ Synology WebAPI เธเนเธฒเธ Cloudflare Tunnel เนเธเนเธเธฒเธเนเธ”เนเธซเธฃเธทเธญเนเธกเน"""
+    """ทดสอบว่า Synology WebAPI ผ่าน Cloudflare Tunnel ใช้งานได้หรือไม่"""
     if not NAS_BASE_URL:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_BASE_URL เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_BASE_URL ใน Streamlit secrets")
 
     resp = requests.get(
         f"{NAS_BASE_URL}/webapi/query.cgi",
@@ -1756,11 +1756,11 @@ def synology_api_info():
 
 
 def synology_login(session="FileStation"):
-    """Login DSM API เนเธฅเนเธงเธเธทเธเธเนเธฒ SID"""
+    """Login DSM API แล้วคืนค่า SID"""
     if not NAS_BASE_URL:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_BASE_URL เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_BASE_URL ใน Streamlit secrets")
     if not NAS_USER or not NAS_PASSWORD:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_USER / NAS_PASSWORD เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_USER / NAS_PASSWORD ใน Streamlit secrets")
 
     resp = requests.get(
         f"{NAS_BASE_URL}/webapi/auth.cgi",
@@ -1782,7 +1782,7 @@ def synology_login(session="FileStation"):
 
 
 def synology_logout(sid, session="FileStation"):
-    """Logout DSM API เนเธเธ best-effort"""
+    """Logout DSM API แบบ best-effort"""
     if not sid or not NAS_BASE_URL:
         return
     try:
@@ -1802,7 +1802,7 @@ def synology_logout(sid, session="FileStation"):
 
 
 def synology_get_shares_api():
-    """เธ”เธถเธเธฃเธฒเธขเธเธทเนเธญ Shared Folder เธเนเธฒเธ Synology FileStation API"""
+    """ดึงรายชื่อ Shared Folder ผ่าน Synology FileStation API"""
     sid = synology_login("FileStation")
     try:
         resp = requests.get(
@@ -1831,8 +1831,8 @@ def synology_get_shares_api():
 
 def load_nas_data_api():
     """
-    เนเธซเธฅเธ”เธฃเธฒเธขเธเธทเนเธญ Share เธเนเธฒเธ DSM API เน€เธ—เนเธฒเธเธฑเนเธ
-    เนเธเนเน€เธเนเธ fallback เน€เธกเธทเนเธญเธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS Agent
+    โหลดรายชื่อ Share ผ่าน DSM API เท่านั้น
+    ใช้เป็น fallback เมื่อยังไม่ได้ตั้งค่า NAS Agent
     """
     synology_api_info()
     shares = synology_get_shares_api()
@@ -1841,7 +1841,7 @@ def load_nas_data_api():
     for share in shares:
         rows.append({
             "Share": share,
-            "ACL Tags (Raw)": "เน€เธเธทเนเธญเธกเธ•เนเธญเธเนเธฒเธ DSM API เธชเธณเน€เธฃเนเธ โ€” เธญเนเธฒเธ Raw ACL เธ•เนเธญเธเนเธเน NAS Agent เธซเธฃเธทเธญ SSH/synoacltool",
+            "ACL Tags (Raw)": "เชื่อมต่อผ่าน DSM API สำเร็จ — อ่าน Raw ACL ต้องใช้ NAS Agent หรือ SSH/synoacltool",
             "Matched Employees": "",
         })
 
@@ -1849,9 +1849,9 @@ def load_nas_data_api():
 
 
 def nas_agent_health():
-    """เธ•เธฃเธงเธเธชเธญเธ NAS Local API Agent เนเธฅเธฐเธขเธทเธเธขเธฑเธเธงเนเธฒเน€เธเนเธเน€เธงเธญเธฃเนเธเธฑเธ SSH"""
+    """ตรวจสอบ NAS Local API Agent และยืนยันว่าเป็นเวอร์ชัน SSH"""
     if not NAS_AGENT_URL:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_AGENT_URL เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
 
     resp = requests.get(
         f"{NAS_AGENT_URL}/health",
@@ -1867,23 +1867,23 @@ def nas_agent_health():
     service_name = str(data.get("service", ""))
     if service_name and service_name != "nas-agent-ssh":
         raise Exception(
-            "NAS Agent เธขเธฑเธเน€เธเนเธเน€เธงเธญเธฃเนเธเธฑเธเน€เธเนเธฒ "
-            f"(service={service_name}) โ€” เธเธฃเธธเธ“เธฒ restart/recreate container เนเธซเนเน€เธเนเธ nas-agent-ssh"
+            "NAS Agent ยังเป็นเวอร์ชันเก่า "
+            f"(service={service_name}) — กรุณา restart/recreate container ให้เป็น nas-agent-ssh"
         )
 
     return data
 
 
 def nas_agent_get_shares():
-    """เธ”เธถเธเธฃเธฒเธขเธเธทเนเธญ Shared Folder เธเธฒเธ NAS Agent (/shares)
+    """ดึงรายชื่อ Shared Folder จาก NAS Agent (/shares)
 
-    เธ–เนเธฒ Agent เธขเธฑเธเนเธกเนเธกเธต endpoint /shares เธชเธฒเธกเธฒเธฃเธ–เนเธชเน Secrets เน€เธเธดเนเธกเนเธ”เน:
+    ถ้า Agent ยังไม่มี endpoint /shares สามารถใส่ Secrets เพิ่มได้:
     NAS_SHARES = "Share1,Share2,Share3"
     """
     if not NAS_AGENT_URL:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_AGENT_URL เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
     if not NAS_AGENT_TOKEN:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_AGENT_TOKEN เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_TOKEN ใน Streamlit secrets")
 
     headers = {"X-API-Token": NAS_AGENT_TOKEN}
     resp = requests.get(
@@ -1896,7 +1896,7 @@ def nas_agent_get_shares():
         if NAS_SHARES_SECRET:
             return sorted([x.strip() for x in NAS_SHARES_SECRET.split(",") if x.strip()])
         raise Exception(
-            "NAS Agent เธขเธฑเธเนเธกเนเธกเธต endpoint /shares โ€” เธเธฃเธธเธ“เธฒเธญเธฑเธเน€เธ”เธ• nas_agent.py เธซเธฃเธทเธญเน€เธเธดเนเธก NAS_SHARES เนเธ Secrets"
+            "NAS Agent ยังไม่มี endpoint /shares — กรุณาอัปเดต nas_agent.py หรือเพิ่ม NAS_SHARES ใน Secrets"
         )
 
     data = _safe_json_response(resp, "NAS Agent /shares")
@@ -1905,25 +1905,25 @@ def nas_agent_get_shares():
 
     shares = data.get("shares") or data.get("data") or []
     if not isinstance(shares, list):
-        raise Exception(f"NAS Agent /shares เธฃเธนเธเนเธเธเธเนเธญเธกเธนเธฅเนเธกเนเธ–เธนเธเธ•เนเธญเธ: {data}")
+        raise Exception(f"NAS Agent /shares รูปแบบข้อมูลไม่ถูกต้อง: {data}")
 
     return sorted(set(str(x).strip() for x in shares if str(x).strip() and not str(x).strip().startswith("@")))
 
 
 def nas_agent_get_acl_payload(share):
-    """เธ”เธถเธ Permission เธเธฒเธ NAS Agent
+    """ดึง Permission จาก NAS Agent
 
-    เธฃเธญเธเธฃเธฑเธ Agent เน€เธงเธญเธฃเนเธเธฑเธเนเธซเธกเนเธ—เธตเนเธกเธต /share-permissions เธเนเธญเธ
-    เธ–เนเธฒ Agent เธขเธฑเธเนเธกเนเธกเธต endpoint เธเธตเน เธเธฐ fallback เน€เธเนเธ /acl เนเธเธเน€เธ”เธดเธก
+    รองรับ Agent เวอร์ชันใหม่ที่มี /share-permissions ก่อน
+    ถ้า Agent ยังไม่มี endpoint นี้ จะ fallback เป็น /acl แบบเดิม
     """
     if not NAS_AGENT_URL:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_AGENT_URL เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_URL ใน Streamlit secrets")
     if not NAS_AGENT_TOKEN:
-        raise Exception("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ NAS_AGENT_TOKEN เนเธ Streamlit secrets")
+        raise Exception("ยังไม่ได้ตั้งค่า NAS_AGENT_TOKEN ใน Streamlit secrets")
 
     headers = {"X-API-Token": NAS_AGENT_TOKEN}
 
-    # Agent เนเธซเธกเน: เธเธทเธ permissions เธ—เธตเนเนเธขเธ Read/Write เธเธฒเธ Synology share privilege เนเธฅเนเธง
+    # Agent ใหม่: คืน permissions ที่แยก Read/Write จาก Synology share privilege แล้ว
     for endpoint in ("share-permissions", "permissions"):
         try:
             resp = requests.get(
@@ -1941,10 +1941,10 @@ def nas_agent_get_acl_payload(share):
         except requests.exceptions.HTTPError:
             continue
         except Exception:
-            # เธ–เนเธฒ endpoint เนเธซเธกเนเธขเธฑเธเนเธกเนเธเธฃเนเธญเธก เนเธซเนเธฅเธญเธ /acl เธ•เนเธญ
+            # ถ้า endpoint ใหม่ยังไม่พร้อม ให้ลอง /acl ต่อ
             pass
 
-    # Agent เน€เธ”เธดเธก: เธเธทเธ raw synoacltool
+    # Agent เดิม: คืน raw synoacltool
     resp = requests.get(
         f"{NAS_AGENT_URL}/acl",
         params={"share": share},
@@ -1963,7 +1963,7 @@ def nas_agent_get_acl_payload(share):
 
 
 def nas_agent_get_acl_raw(share):
-    """เธ”เธถเธ Raw ACL เธเธฒเธ NAS Agent เธเธถเนเธเธฃเธฑเธ synoacltool เธเธ NAS"""
+    """ดึง Raw ACL จาก NAS Agent ซึ่งรัน synoacltool บน NAS"""
     data = nas_agent_get_acl_payload(share)
     return data.get("stdout") or data.get("acl") or ""
 
@@ -1997,9 +1997,9 @@ def _clean_nas_principal(name: str) -> str:
     return cleaned
 
 def parse_nas_agent_permissions_payload(payload, employee_list=None):
-    """เนเธเธฅเธ payload เธเธฒเธ Agent เน€เธงเธญเธฃเนเธเธฑเธเนเธซเธกเนเน€เธเนเธ ACL Tags เนเธฅเธฐ Matched Employees
+    """แปลง payload จาก Agent เวอร์ชันใหม่เป็น ACL Tags และ Matched Employees
 
-    payload เธ—เธตเนเธฃเธญเธเธฃเธฑเธ:
+    payload ที่รองรับ:
     {
       "permissions": [
         {"entity": "User", "type": "user", "permission": "Read"},
@@ -2025,8 +2025,8 @@ def parse_nas_agent_permissions_payload(payload, employee_list=None):
         perm_raw = str(item.get("permission") or item.get("access") or item.get("perm") or "").strip().lower()
         raw_blob = str(item.get("raw_permission") or item.get("permission_blob") or "").strip()
 
-        # เธ–เนเธฒ Agent เธชเนเธ raw_permission เธกเธฒเธ”เนเธงเธข เนเธซเนเนเธขเธ Read/Write เธเธฒเธ permission blob เธเธฃเธดเธ
-        # Read-only เธเธญเธ Synology เธกเธฑเธเน€เธเนเธ r-x---a-R-c-- เธเธถเนเธเธกเธต c เนเธ•เนเนเธกเนเธเธงเธฃเธเธฑเธเน€เธเนเธ Write
+        # ถ้า Agent ส่ง raw_permission มาด้วย ให้แยก Read/Write จาก permission blob จริง
+        # Read-only ของ Synology มักเป็น r-x---a-R-c-- ซึ่งมี c แต่ไม่ควรนับเป็น Write
         if raw_blob:
             if any(ch in raw_blob for ch in set("wpdDWo")):
                 permission = "Read/Write"
@@ -2052,7 +2052,7 @@ def parse_nas_agent_permissions_payload(payload, employee_list=None):
 
 
 def parse_synoacl_output(raw, employee_list=None):
-    """เนเธเธฅเธเธเธฅเธฅเธฑเธเธเน synoacltool เน€เธเนเธ ACL Tags เนเธฅเธฐ Matched Employees"""
+    """แปลงผลลัพธ์ synoacltool เป็น ACL Tags และ Matched Employees"""
     employee_list = employee_list or []
 
     if not raw:
@@ -2065,7 +2065,7 @@ def parse_synoacl_output(raw, employee_list=None):
         if not line:
             continue
 
-        # เธ•เธฑเธงเธญเธขเนเธฒเธ:
+        # ตัวอย่าง:
         # [0] user:ActiveBackup:allow:rwxpdDaARWc--:fd-- (level:0)
         # [4] group:OPTIMALGROUP\Domain Admins:allow:rwxpdDaARWc--:fd-- (level:0)
         m = re.search(
@@ -2079,9 +2079,9 @@ def parse_synoacl_output(raw, employee_list=None):
         kind = m.group(1).lower()
         principal_name = _clean_nas_principal(m.group(2))
         action = m.group(3).lower()
-        # เธซเนเธฒเธก lower() permission blob เน€เธเธฃเธฒเธฐเธ•เธฑเธงเธเธดเธกเธเนเน€เธฅเนเธ/เนเธซเธเนเธเธญเธ synoacltool เธกเธตเธเธงเธฒเธกเธซเธกเธฒเธขเธ•เนเธฒเธเธเธฑเธ
-        # เธ•เธฑเธงเธญเธขเนเธฒเธ Read-only เธกเธฑเธเธกเธต r/x/a/R/c เธเธถเนเธเน€เธ”เธดเธกเนเธ”เธเธเธฑเธเน€เธเนเธ RW เน€เธเธฃเธฒเธฐเธกเธตเธ•เธฑเธง a
-        # เธเธถเธเธเธฑเธเน€เธเนเธ Read/Write เน€เธเธเธฒเธฐเธชเธดเธ—เธเธดเนเธ—เธตเนเน€เธเธตเนเธขเธงเธเธฑเธเธเธฒเธฃเน€เธเธตเธขเธเธเธฃเธดเธ เน เน€เธ—เนเธฒเธเธฑเนเธ
+        # ห้าม lower() permission blob เพราะตัวพิมพ์เล็ก/ใหญ่ของ synoacltool มีความหมายต่างกัน
+        # ตัวอย่าง Read-only มักมี r/x/a/R/c ซึ่งเดิมโดนจับเป็น RW เพราะมีตัว a
+        # จึงนับเป็น Read/Write เฉพาะสิทธิ์ที่เกี่ยวกับการเขียนจริง ๆ เท่านั้น
         perm_blob = m.group(4).strip()
 
         if not principal_name:
@@ -2121,11 +2121,11 @@ def parse_synoacl_output(raw, employee_list=None):
 
 
 def fetch_acl_agent(share, employee_list):
-    """เธญเนเธฒเธ Permission เธเธญเธ Share เธเนเธฒเธ NAS Agent"""
+    """อ่าน Permission ของ Share ผ่าน NAS Agent"""
     try:
         payload = nas_agent_get_acl_payload(share)
 
-        # เธ–เนเธฒ Agent เนเธซเธกเนเธชเนเธ permissions เธกเธฒ เนเธซเนเนเธเนเธเธฅเธเธตเนเธเนเธญเธ เน€เธเธฃเธฒเธฐเนเธขเธ Read/Write เธเธฒเธ Synology share privilege เนเธ”เนเธ•เธฃเธเธเธงเนเธฒ ACL เธ”เธดเธ
+        # ถ้า Agent ใหม่ส่ง permissions มา ให้ใช้ผลนี้ก่อน เพราะแยก Read/Write จาก Synology share privilege ได้ตรงกว่า ACL ดิบ
         if isinstance(payload, dict) and (payload.get("permissions") or payload.get("data")):
             tags, matched = parse_nas_agent_permissions_payload(payload, employee_list)
         else:
@@ -2134,15 +2134,15 @@ def fetch_acl_agent(share, employee_list):
 
         return share, tags, matched
     except Exception as e:
-        # เน€เธเนเธ error เธฅเธ raw เน€เธเธทเนเธญเนเธซเนเธ”เธนเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เนเธ Popup เนเธ”เน เนเธกเนเธ—เธณเนเธซเนเธ—เธฑเนเธเธซเธเนเธฒเธฅเนเธก
+        # เก็บ error ลง raw เพื่อให้ดูรายละเอียดใน Popup ได้ ไม่ทำให้ทั้งหน้าล่ม
         return share, [f"NAS Agent Error: {e}"], []
 
 
 def load_nas_data_agent():
-    """เนเธซเธฅเธ” NAS Data เนเธเธเธชเธกเธเธนเธฃเธ“เน: Shares เธเธฒเธ DSM API + ACL เธเธฒเธ NAS Agent"""
+    """โหลด NAS Data แบบสมบูรณ์: Shares จาก DSM API + ACL จาก NAS Agent"""
     nas_agent_health()
 
-    # เนเธเน NAS Agent เธ”เธถเธเธฃเธฒเธขเธเธทเนเธญ Share เธเนเธญเธ เน€เธเธทเนเธญเนเธกเนเธ•เนเธญเธเธเธถเนเธ DSM route (nas-api)
+    # ใช้ NAS Agent ดึงรายชื่อ Share ก่อน เพื่อไม่ต้องพึ่ง DSM route (nas-api)
     try:
         shares = nas_agent_get_shares()
     except Exception as agent_share_e:
@@ -2170,11 +2170,11 @@ def load_nas_data_agent():
 
 def create_ssh():
     """
-    เธชเธฃเนเธฒเธ SSH Connection เนเธเธขเธฑเธ Synology NAS
+    สร้าง SSH Connection ไปยัง Synology NAS
 
-    เนเธเนเน€เธเธเธฒเธฐเธเธฃเธ“เธต:
-    - NAS เน€เธเธดเธ” SSH เธเนเธฒเธ VPN/Port Forward/Cloudflare Access TCP เนเธฅเนเธง
-    - เธ•เนเธญเธเธเธฒเธฃเธญเนเธฒเธ ACL เธเนเธฒเธ synoacltool เนเธเธเธฅเธฐเน€เธญเธตเธขเธ”
+    ใช้เฉพาะกรณี:
+    - NAS เปิด SSH ผ่าน VPN/Port Forward/Cloudflare Access TCP แล้ว
+    - ต้องการอ่าน ACL ผ่าน synoacltool แบบละเอียด
     """
 
     ssh = paramiko.SSHClient()
@@ -2215,7 +2215,7 @@ def check_synoacl():
         ssh.close()
         return "/usr/syno/bin/synoacltool" in output
     except Exception as e:
-        st.warning(f"โ ๏ธ เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธทเนเธญเธกเธ•เนเธญ NAS เธเนเธฒเธ SSH เนเธ”เน: {e}")
+        st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน SSH ได้: {e}")
         return False
 
 
@@ -2244,20 +2244,20 @@ def fetch_acl(share, employee_list):
 
 @st.cache_data(ttl=1800)
 def load_nas_data():
-    """เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ NAS เนเธ”เธขเน€เธฅเธทเธญเธ NAS Agent เธเนเธญเธ เนเธฅเนเธง fallback เน€เธเนเธ DSM API เธซเธฃเธทเธญ SSH"""
+    """โหลดข้อมูล NAS โดยเลือก NAS Agent ก่อน แล้ว fallback เป็น DSM API หรือ SSH"""
     if _nas_agent_enabled():
         try:
             return load_nas_data_agent()
         except Exception as e:
-            st.warning(f"โ ๏ธ เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธทเนเธญเธกเธ•เนเธญ NAS Agent เนเธ”เน: {e}")
-            # เธ–เนเธฒเน€เธฅเธทเธญเธ NAS_MODE=agent เธซเนเธฒเธก fallback เนเธ DSM API route เน€เธ”เธดเธก เน€เธเธฃเธฒเธฐเธเธฐเธ—เธณเนเธซเน timeout เธเนเธณ
+            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS Agent ได้: {e}")
+            # ถ้าเลือก NAS_MODE=agent ห้าม fallback ไป DSM API route เดิม เพราะจะทำให้ timeout ซ้ำ
             if AGENT_ONLY_MODE:
                 return None
             if _nas_api_enabled():
                 try:
                     return load_nas_data_api()
                 except Exception as api_e:
-                    st.warning(f"โ ๏ธ เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธทเนเธญเธกเธ•เนเธญ NAS เธเนเธฒเธ DSM API เนเธ”เน: {api_e}")
+                    st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {api_e}")
                     return None
             return None
 
@@ -2265,7 +2265,7 @@ def load_nas_data():
         try:
             return load_nas_data_api()
         except Exception as e:
-            st.warning(f"โ ๏ธ เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธทเนเธญเธกเธ•เนเธญ NAS เธเนเธฒเธ DSM API เนเธ”เน: {e}")
+            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {e}")
             return None
 
     if not check_synoacl():
@@ -2283,7 +2283,7 @@ def load_nas_data():
 
 
 def get_nas_connection_status():
-    """เนเธเนเนเธชเธ”เธเธชเธ–เธฒเธเธฐ NAS เนเธเธเธชเธฑเนเธ เน เนเธ Dashboard/เธซเธเนเธฒ NAS"""
+    """ใช้แสดงสถานะ NAS แบบสั้น ๆ ใน Dashboard/หน้า NAS"""
     if _nas_agent_enabled():
         try:
             health = nas_agent_health()
@@ -2306,7 +2306,7 @@ def get_nas_connection_status():
 
 # =============================================================================
 # SECTION 07 : CARD RENDER
-# เธซเธเนเธฒเธ•เธฒเธเธฒเธฃเนเธ” Computers / Monitors / Printers
+# หน้าตาการ์ด Computers / Monitors / Printers
 # =============================================================================
 def _hw_badge(status):
     cls = {"Active":"badge-active","Inactive":"badge-inactive","Spare":"badge-spare","Repair":"badge-repair"}.get(status,"badge-default")
@@ -2316,7 +2316,7 @@ def _hw_badge(status):
 # =============================================================================
 # FUNCTION : render_card_computer
 # UI OWNER   : Asset Management > Computers
-# PURPOSE    : เธชเธฃเนเธฒเธเธเธฒเธฃเนเธ”เนเธชเธ”เธเธเนเธญเธกเธนเธฅ Computer 1 เธฃเธฒเธขเธเธฒเธฃ
+# PURPOSE    : สร้างการ์ดแสดงข้อมูล Computer 1 รายการ
 # DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
 # CSS OWNER  : HARDWARE_THEME / Card CSS
 # =============================================================================
@@ -2326,32 +2326,32 @@ def render_card_computer(row, key, admin_mode):
         st.markdown(f"""
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
             <div>
-                <div class="hw-card-title">๐‘ค {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">๐ข {row.get('field_1','-')}</div>
+                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
+                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
             </div>
             {_hw_badge(status)}
         </div>
-        <div class="hw-field"><strong>๐’ป Hostname</strong>&nbsp;&nbsp;{row.get('field_6','-')}</div>
-        <div class="hw-field"><strong>๐ท๏ธ Model</strong>&nbsp;&nbsp;{row.get('field_7','-')}</div>
-        <div class="hw-field"><strong>๐’พ RAM</strong>&nbsp;&nbsp;{row.get('field_13','-')}</div>
+        <div class="hw-field"><strong>💻 Hostname</strong>&nbsp;&nbsp;{row.get('field_6','-')}</div>
+        <div class="hw-field"><strong>🏷️ Model</strong>&nbsp;&nbsp;{row.get('field_7','-')}</div>
+        <div class="hw-field"><strong>💾 RAM</strong>&nbsp;&nbsp;{row.get('field_13','-')}</div>
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("๐” เธ”เธนเธเนเธญเธกเธนเธฅ", key=f"comp_view_{key}", use_container_width=True):
+                if st.button("🔍 ดูข้อมูล", key=f"comp_view_{key}", use_container_width=True):
                     show_pop_computer(row.to_dict(), admin_mode=True)
             with c2:
-                if st.button("โ๏ธ เนเธเนเนเธ", key=f"comp_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"comp_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_computer_{key}"] = True
                     st.rerun()
         else:
-            st.caption("๐”’ เธเนเธญเธกเธนเธฅเน€เธเธดเนเธกเน€เธ•เธดเธกเนเธฅเธฐเธเธฒเธฃเนเธเนเนเธเน€เธเธเธฒเธฐเธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ")
+            st.caption("🔒 ข้อมูลเพิ่มเติมและการแก้ไขเฉพาะผู้ดูแลระบบ")
 
 
 # =============================================================================
 # FUNCTION : render_card_monitor
 # UI OWNER   : Asset Management > Monitors
-# PURPOSE    : เธชเธฃเนเธฒเธเธเธฒเธฃเนเธ”เนเธชเธ”เธเธเนเธญเธกเธนเธฅ Monitor 1 เธฃเธฒเธขเธเธฒเธฃ
+# PURPOSE    : สร้างการ์ดแสดงข้อมูล Monitor 1 รายการ
 # DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
 # CSS OWNER  : HARDWARE_THEME / Card CSS
 # =============================================================================
@@ -2361,31 +2361,31 @@ def render_card_monitor(row, key, admin_mode):
         st.markdown(f"""
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
             <div>
-                <div class="hw-card-title">๐‘ค {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">๐ข {row.get('field_1','-')}</div>
+                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
+                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
             </div>
             {_hw_badge(status)}
         </div>
-        <div class="hw-field"><strong>๐–ฅ๏ธ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        {'<div class="hw-field"><strong>๐”ข Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
+        <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("๐” เธ”เธนเธเนเธญเธกเธนเธฅ", key=f"mon_view_{key}", use_container_width=True):
+                if st.button("🔍 ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
                     show_pop_monitor(row.to_dict(), admin_mode=True)
             with c2:
-                if st.button("โ๏ธ เนเธเนเนเธ", key=f"mon_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"mon_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_monitor_{key}"] = True
                     st.rerun()
         else:
-            st.caption("๐”’ เธ”เธนเธเนเธญเธกเธนเธฅเน€เธเธดเธเธฅเธถเธเนเธฅเธฐเนเธเนเนเธเน€เธเธเธฒเธฐเธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ")
+            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
 
 # =============================================================================
 # FUNCTION : render_card_printer
 # UI OWNER   : Asset Management > Printers
-# PURPOSE    : เธชเธฃเนเธฒเธเธเธฒเธฃเนเธ”เนเธชเธ”เธเธเนเธญเธกเธนเธฅ Printer 1 เธฃเธฒเธขเธเธฒเธฃ
+# PURPOSE    : สร้างการ์ดแสดงข้อมูล Printer 1 รายการ
 # DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
 # CSS OWNER  : HARDWARE_THEME / Card CSS
 # =============================================================================
@@ -2393,82 +2393,82 @@ def render_card_printer(row, key, admin_mode):
     with st.container():
         st.markdown(f"""
         <div style="margin-bottom:6px;">
-            <div class="hw-card-title">๐–จ๏ธ {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
-            <div class="hw-card-sub">๐ข {row.get('field_1','-')}</div>
+            <div class="hw-card-title">🖨️ {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
+            <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
         </div>
-        <div class="hw-field"><strong>๐‘ค User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        {'<div class="hw-field"><strong>๐”ข Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
-        {'<div class="hw-field"><strong>๐ IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
+        <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
+        {'<div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("๐” เธ”เธนเธเนเธญเธกเธนเธฅ", key=f"prn_view_{key}", use_container_width=True):
+                if st.button("🔍 ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
                     show_pop_printer(row.to_dict(), admin_mode=True)
             with c2:
-                if st.button("โ๏ธ เนเธเนเนเธ", key=f"prn_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"prn_edit_{key}", use_container_width=True):
                     st.session_state[f"edit_printer_{key}"] = True
                     st.rerun()
         else:
-            st.caption("๐”’ เธ”เธนเธเนเธญเธกเธนเธฅเน€เธเธดเธเธฅเธถเธเนเธฅเธฐเนเธเนเนเธเน€เธเธเธฒเธฐเธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ")
+            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
 
 # =============================================================================
 # SECTION 08 : VIEW DIALOGS
-# Popup เนเธชเธ”เธเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ” Asset
+# Popup แสดงรายละเอียด Asset
 # =============================================================================
-@st.dialog("๐“ เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ” Computer")
+@st.dialog("📋 รายละเอียด Computer")
 def show_pop_computer(data, admin_mode=False):
-    st.markdown(f"### ๐’ป {data.get('field_7', 'Computer')}")
+    st.markdown(f"### 💻 {data.get('field_7', 'Computer')}")
     c1, c2 = st.columns(2)
     with c1:
-        st.write(f"**๐‘ค เธเธเธฑเธเธเธฒเธ:** {data.get('field_3', '-')}")
-        st.write(f"**๐ข เธเธฃเธดเธฉเธฑเธ—:** {data.get('field_1', '-')}")
-        st.write(f"**๐’ป Hostname:** {data.get('field_6', '-')}")
+        st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
+        st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
+        st.write(f"**💻 Hostname:** {data.get('field_6', '-')}")
     with c2:
         if admin_mode:
-            st.write(f"**๐”ข Serial No:** {data.get('field_8', '-')}")
+            st.write(f"**🔢 Serial No:** {data.get('field_8', '-')}")
         else:
-            st.write("**๐”ข Serial No:** ๐”’ เธเนเธญเธเธชเธณเธซเธฃเธฑเธเธเธนเนเนเธเนเธ—เธฑเนเธงเนเธ")
-        st.write(f"**โณ๏ธ เธชเธ–เธฒเธเธฐ:** {data.get('Status', '-')}")
-        st.write(f"**๐’พ RAM:** {data.get('field_13', '-')}")
-        st.write(f"**๐’ฟ Storage C:** {data.get('field_15', '-')}  D: {data.get('field_16', '-')}")
-    with st.expander("๐“ เธ”เธนเธเนเธญเธกเธนเธฅเธ”เธดเธ"):
+            st.write("**🔢 Serial No:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+        st.write(f"**✳️ สถานะ:** {data.get('Status', '-')}")
+        st.write(f"**💾 RAM:** {data.get('field_13', '-')}")
+        st.write(f"**💿 Storage C:** {data.get('field_15', '-')}  D: {data.get('field_16', '-')}")
+    with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
-@st.dialog("๐“ เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ” Monitor")
+@st.dialog("📋 รายละเอียด Monitor")
 def show_pop_monitor(data, admin_mode=False):
-    st.markdown(f"### ๐–ฅ๏ธ {data.get('field_2', 'Monitor')}")
-    st.write(f"**๐‘ค เธเธเธฑเธเธเธฒเธ:** {data.get('field_3', '-')}")
-    st.write(f"**๐ข เธเธฃเธดเธฉเธฑเธ—:** {data.get('field_1', '-')}")
+    st.markdown(f"### 🖥️ {data.get('field_2', 'Monitor')}")
+    st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
+    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
     if admin_mode:
-        st.write(f"**๐”ข Serial No.:** {data.get('field_4', '-')}")
+        st.write(f"**🔢 Serial No.:** {data.get('field_4', '-')}")
     else:
-        st.write("**๐”ข Serial No.:** ๐”’ เธเนเธญเธเธชเธณเธซเธฃเธฑเธเธเธนเนเนเธเนเธ—เธฑเนเธงเนเธ")
-    st.write(f"**โ… เธชเธ–เธฒเธเธฐ:** {data.get('Status', '-')}")
-    with st.expander("๐“ เธ”เธนเธเนเธญเธกเธนเธฅเธ”เธดเธ"):
+        st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+    st.write(f"**✅ สถานะ:** {data.get('Status', '-')}")
+    with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
-@st.dialog("๐“ เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ” Printer")
+@st.dialog("📋 รายละเอียด Printer")
 def show_pop_printer(data, admin_mode=False):
-    st.markdown(f"### ๐–จ๏ธ {data.get('field_2', 'Printer')}")
-    st.write(f"**๐ข เธเธฃเธดเธฉเธฑเธ—:** {data.get('field_1', '-')}")
-    st.write(f"**๐‘ค User:** {data.get('User', '-')}")
+    st.markdown(f"### 🖨️ {data.get('field_2', 'Printer')}")
+    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
+    st.write(f"**👤 User:** {data.get('User', '-')}")
     if admin_mode:
-        st.write(f"**๐”ข Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
-        st.write(f"**๐ IP Address:** {data.get('field_3', '-')}")
+        st.write(f"**🔢 Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
+        st.write(f"**🌐 IP Address:** {data.get('field_3', '-')}")
     else:
-        st.write("**๐”ข Serial No.:** ๐”’ เธเนเธญเธเธชเธณเธซเธฃเธฑเธเธเธนเนเนเธเนเธ—เธฑเนเธงเนเธ")
-        st.write("**๐ IP Address:** ๐”’ เธเนเธญเธเธชเธณเธซเธฃเธฑเธเธเธนเนเนเธเนเธ—เธฑเนเธงเนเธ")
-    with st.expander("๐“ เธ”เธนเธเนเธญเธกเธนเธฅเธ”เธดเธ"):
+        st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+        st.write("**🌐 IP Address:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+    with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
 # =============================================================================
 # SECTION 09 : EDIT DIALOGS
-# Popup เนเธเนเนเธเธเนเธญเธกเธนเธฅ Asset
+# Popup แก้ไขข้อมูล Asset
 # =============================================================================
-@st.dialog("โ๏ธ เนเธเนเนเธ Computer Asset")
+@st.dialog("✏️ แก้ไข Computer Asset")
 def edit_computer_dialog(row, list_name):
-    st.markdown(f"### โ๏ธ เนเธเนเนเธ: {row.get('field_3', '')}")
+    st.markdown(f"### ✏️ แก้ไข: {row.get('field_3', '')}")
     item_id = row.get('_item_id')
     login_account = st.text_input("LoginAccount", value=row.get('LoginAccount', ''))
     department = st.text_input("Department", value=row.get('field_4', ''))
@@ -2489,19 +2489,19 @@ def edit_computer_dialog(row, list_name):
                         value="" if _field_value is None else str(_field_value),
                         key=f"computer_extra_{item_id}_{_field_name}"
                     )
-    company = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    emp_name = st.text_input("๐‘ค เธเธทเนเธญเธเธเธฑเธเธเธฒเธ", value=row.get('field_3', ''))
-    hostname = st.text_input("๐’ป Hostname", value=row.get('field_6', ''))
-    model = st.text_input("๐ท๏ธ Model", value=row.get('field_7', ''))
-    serial = st.text_input("๐”ข Serial No.", value=row.get('field_8', ''))
-    ram = st.text_input("๐’พ RAM", value=row.get('field_13', ''))
-    storage_type = st.text_input("๐’ฟ Storage Type", value=row.get('field_14', ''))
-    storage_c = st.text_input("๐’ฟ Storage C:", value=row.get('field_15', ''))
-    storage_d = st.text_input("๐’ฟ Storage D:", value=row.get('field_16', ''))
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
+    hostname = st.text_input("💻 Hostname", value=row.get('field_6', ''))
+    model = st.text_input("🏷️ Model", value=row.get('field_7', ''))
+    serial = st.text_input("🔢 Serial No.", value=row.get('field_8', ''))
+    ram = st.text_input("💾 RAM", value=row.get('field_13', ''))
+    storage_type = st.text_input("💿 Storage Type", value=row.get('field_14', ''))
+    storage_c = st.text_input("💿 Storage C:", value=row.get('field_15', ''))
+    storage_d = st.text_input("💿 Storage D:", value=row.get('field_16', ''))
     status = st.selectbox("โณ๏ธ Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"field_1": company, "field_3": emp_name,
                       "LoginAccount": login_account, "field_4": department,
                       "field_10": operating_system, "field_6": hostname,
@@ -2511,142 +2511,142 @@ def edit_computer_dialog(row, list_name):
             fields.update(_computer_extra_fields)
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
-                st.success("โ… เธเธฑเธเธ—เธถเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-                st.error(f"โ เธเธฑเธเธ—เธถเธเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+                st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("๐—‘๏ธ เธฅเธเธฃเธฒเธขเธเธฒเธฃเธเธตเน", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
     if st.session_state.get('confirm_delete') == item_id:
-        st.warning("โ ๏ธ เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธ?")
-        if st.button("โ… เธขเธทเธเธขเธฑเธเธฅเธ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = sp_delete_item(list_name, item_id)
             if ok:
-                st.success("โ… เธฅเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop('confirm_delete', None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("โ เธฅเธเนเธกเนเธชเธณเน€เธฃเนเธ")
+                st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("๐—‘๏ธ เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธ Computer Asset")
+@st.dialog("🗑️ ยืนยันการลบ Computer Asset")
 def delete_computer_dialog(row, list_name):
     """UI confirmation only; deletion still uses the existing SharePoint CRUD helper."""
     item_id = row.get('_item_id')
     computer_name = row.get('field_6') or row.get('field_3') or '-'
-    st.warning(f"เธ•เนเธญเธเธเธฒเธฃเธฅเธ **{computer_name}** เธญเธญเธเธเธฒเธ Computer Asset เนเธเนเธซเธฃเธทเธญเนเธกเน?")
-    st.caption("เธเธฒเธฃเธฅเธเนเธกเนเธชเธฒเธกเธฒเธฃเธ–เธขเนเธญเธเธเธฅเธฑเธเนเธ”เน")
+    st.warning(f"ต้องการลบ **{computer_name}** ออกจาก Computer Asset ใช่หรือไม่?")
+    st.caption("การลบไม่สามารถย้อนกลับได้")
     cancel_col, delete_col = st.columns(2)
     with cancel_col:
-        if st.button("เธขเธเน€เธฅเธดเธ", use_container_width=True):
+        if st.button("ยกเลิก", use_container_width=True):
             st.rerun()
     with delete_col:
-        if st.button("๐—‘๏ธ เธขเธทเธเธขเธฑเธเธฅเธ", type="primary", use_container_width=True):
+        if st.button("🗑️ ยืนยันลบ", type="primary", use_container_width=True):
             if sp_delete_item(list_name, item_id):
                 clear_sp_cache()
-                st.success("เธฅเธเธฃเธฒเธขเธเธฒเธฃเธชเธณเน€เธฃเนเธ")
+                st.success("ลบรายการสำเร็จ")
                 st.rerun()
             else:
-                st.error("เธฅเธเธฃเธฒเธขเธเธฒเธฃเนเธกเนเธชเธณเน€เธฃเนเธ")
+                st.error("ลบรายการไม่สำเร็จ")
 
-@st.dialog("โ๏ธ เนเธเนเนเธ Monitor")
+@st.dialog("✏️ แก้ไข Monitor")
 def edit_monitor_dialog(row, list_name):
-    st.markdown(f"### โ๏ธ เนเธเนเนเธ: {row.get('field_2', '')}")
+    st.markdown(f"### ✏️ แก้ไข: {row.get('field_2', '')}")
     item_id = row.get('_item_id')
-    company = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    emp_name = st.text_input("๐‘ค เธเธทเนเธญเธเธเธฑเธเธเธฒเธ", value=row.get('field_3', ''))
-    model = st.text_input("๐ท๏ธ Brand/Model", value=row.get('field_2', ''))
-    serial = st.text_input("๐”ข Serial No.", value=row.get('field_4', ''))
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
+    model = st.text_input("🏷️ Brand/Model", value=row.get('field_2', ''))
+    serial = st.text_input("🔢 Serial No.", value=row.get('field_4', ''))
     status = st.selectbox("โ… Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
-                st.success("โ… เธเธฑเธเธ—เธถเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เธเธฑเธเธ—เธถเธเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("๐—‘๏ธ เธฅเธเธฃเธฒเธขเธเธฒเธฃเธเธตเน", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
     if st.session_state.get('confirm_delete') == item_id:
-        st.warning("โ ๏ธ เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธ?")
-        if st.button("โ… เธขเธทเธเธขเธฑเธเธฅเธ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = sp_delete_item(list_name, item_id)
             if ok:
-                st.success("โ… เธฅเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop('confirm_delete', None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("โ เธฅเธเนเธกเนเธชเธณเน€เธฃเนเธ")
+                st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("โ๏ธ เนเธเนเนเธ Printer")
+@st.dialog("✏️ แก้ไข Printer")
 def edit_printer_dialog(row, list_name):
-    st.markdown(f"### โ๏ธ เนเธเนเนเธ Printer")
+    st.markdown(f"### ✏️ แก้ไข Printer")
     item_id = row.get('_item_id')
-    company = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    user = st.text_input("๐‘ค User", value=row.get('User', ''))
-    model = st.text_input("๐ท๏ธ Brand/Model", value=row.get('Brand_x0020__x002f__x0020_Model', ''))
-    serial = st.text_input("๐”ข Serial No.", value=row.get('S_x002f_N_x0020_No_x002e_', ''))
-    ip = st.text_input("๐ IP Address", value=row.get('field_3', ''))
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    user = st.text_input("👤 User", value=row.get('User', ''))
+    model = st.text_input("🏷️ Brand/Model", value=row.get('Brand_x0020__x002f__x0020_Model', ''))
+    serial = st.text_input("🔢 Serial No.", value=row.get('S_x002f_N_x0020_No_x002e_', ''))
+    ip = st.text_input("🌐 IP Address", value=row.get('field_3', ''))
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"field_1": company, "User": user,
                       "Brand_x0020__x002f__x0020_Model": model,
                       "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
-                st.success("โ… เธเธฑเธเธ—เธถเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เธเธฑเธเธ—เธถเธเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("๐—‘๏ธ เธฅเธเธฃเธฒเธขเธเธฒเธฃเธเธตเน", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
     if st.session_state.get('confirm_delete') == item_id:
-        st.warning("โ ๏ธ เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธ?")
-        if st.button("โ… เธขเธทเธเธขเธฑเธเธฅเธ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = sp_delete_item(list_name, item_id)
             if ok:
-                st.success("โ… เธฅเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop('confirm_delete', None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("โ เธฅเธเนเธกเนเธชเธณเน€เธฃเนเธ")
+                st.error("❌ ลบไม่สำเร็จ")
 
 # =============================================================================
 # SECTION 10 : ADD DIALOGS
-# Popup เน€เธเธดเนเธกเธเนเธญเธกเธนเธฅ Asset
+# Popup เพิ่มข้อมูล Asset
 # =============================================================================
-@st.dialog("โ• เน€เธเธดเนเธก Computer Asset")
+@st.dialog("➕ เพิ่ม Computer Asset")
 def add_computer_dialog(list_name):
     login_account = st.text_input("LoginAccount")
     department = st.text_input("Department")
     operating_system = st.text_input("Operating System")
-    st.markdown("### โ• เน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เนเนเธซเธกเน")
-    company = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—", COMPANY_OPTIONS)
-    emp_name = st.text_input("๐‘ค เธเธทเนเธญเธเธเธฑเธเธเธฒเธ")
-    hostname = st.text_input("๐’ป Hostname")
-    model = st.text_input("๐ท๏ธ Model")
-    serial = st.text_input("๐”ข Serial No.")
-    ram = st.text_input("๐’พ RAM")
-    storage_type = st.text_input("๐’ฟ Storage Type")
-    storage_c = st.text_input("๐’ฟ Storage C:")
-    storage_d = st.text_input("๐’ฟ Storage D:")
+    st.markdown("### ➕ เพิ่มอุปกรณ์ใหม่")
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
+    emp_name = st.text_input("👤 ชื่อพนักงาน")
+    hostname = st.text_input("💻 Hostname")
+    model = st.text_input("🏷️ Model")
+    serial = st.text_input("🔢 Serial No.")
+    ram = st.text_input("💾 RAM")
+    storage_type = st.text_input("💿 Storage Type")
+    storage_c = st.text_input("💿 Storage C:")
+    storage_d = st.text_input("💿 Storage D:")
     status = st.selectbox("โณ๏ธ Status", STATUS_OPTIONS)
-    if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "field_3": emp_name,
                   "LoginAccount": login_account, "field_4": department,
                   "field_10": operating_system, "field_6": hostname,
@@ -2655,67 +2655,67 @@ def add_computer_dialog(list_name):
                   "field_16": storage_d, "Status": status}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
-            st.success("โ… เน€เธเธดเนเธกเธชเธณเน€เธฃเนเธ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เน€เธเธดเนเธกเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-@st.dialog("โ• เน€เธเธดเนเธก Monitor")
+@st.dialog("➕ เพิ่ม Monitor")
 def add_monitor_dialog(list_name):
-    st.markdown("### โ• เน€เธเธดเนเธก Monitor เนเธซเธกเน")
-    company = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—", COMPANY_OPTIONS)
-    emp_name = st.text_input("๐‘ค เธเธทเนเธญเธเธเธฑเธเธเธฒเธ")
-    model = st.text_input("๐ท๏ธ Brand/Model")
-    serial = st.text_input("๐”ข Serial No.")
+    st.markdown("### ➕ เพิ่ม Monitor ใหม่")
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
+    emp_name = st.text_input("👤 ชื่อพนักงาน")
+    model = st.text_input("🏷️ Brand/Model")
+    serial = st.text_input("🔢 Serial No.")
     status = st.selectbox("โ… Status", STATUS_OPTIONS)
-    if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
-            st.success("โ… เน€เธเธดเนเธกเธชเธณเน€เธฃเนเธ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เน€เธเธดเนเธกเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
-@st.dialog("โ• เน€เธเธดเนเธก Printer")
+@st.dialog("➕ เพิ่ม Printer")
 def add_printer_dialog(list_name):
-    st.markdown("### โ• เน€เธเธดเนเธก Printer เนเธซเธกเน")
-    company = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—", COMPANY_OPTIONS)
-    user = st.text_input("๐‘ค User")
-    model = st.text_input("๐ท๏ธ Brand/Model")
-    serial = st.text_input("๐”ข Serial No.")
-    ip = st.text_input("๐ IP Address")
-    if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+    st.markdown("### ➕ เพิ่ม Printer ใหม่")
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS)
+    user = st.text_input("👤 User")
+    model = st.text_input("🏷️ Brand/Model")
+    serial = st.text_input("🔢 Serial No.")
+    ip = st.text_input("🌐 IP Address")
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "User": user,
                   "Brand_x0020__x002f__x0020_Model": model,
                   "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
-            st.success("โ… เน€เธเธดเนเธกเธชเธณเน€เธฃเนเธ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เน€เธเธดเนเธกเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
 # =============================================================================
 # SECTION 11 : PASSWORD MANAGER
-# เนเธชเธ”เธ Password Card / เน€เธเธดเนเธก / เนเธเนเนเธ / เธฅเธ
+# แสดง Password Card / เพิ่ม / แก้ไข / ลบ
 # =============================================================================
 def get_sheet_icon(sheet_name):
-    icon_map = {"server": "๐–ฅ๏ธ", "network": "๐", "sql": "๐—๏ธ",
-                "software": "๐“ฆ", "license": "๐“ฆ", "domain": "๐",
-                "email": "๐“ง", "mail": "๐“ง", "internet": "๐“ก",
-                "wifi": "๐“ถ", "vpn": "๐”’", "firewall": "๐”ฅ"}
+    icon_map = {"server": "🖥️", "network": "🌐", "sql": "🗄️",
+                "software": "📦", "license": "📦", "domain": "🌍",
+                "email": "📧", "mail": "📧", "internet": "📡",
+                "wifi": "📶", "vpn": "🔒", "firewall": "🔥"}
     s = sheet_name.lower()
-    return next((v for k, v in icon_map.items() if k in s), "๐”‘")
+    return next((v for k, v in icon_map.items() if k in s), "🔑")
 
 def is_secret_field(col_name):
-    return any(k in str(col_name).lower() for k in ['pass', 'pwd', 'secret', 'key', 'เธฃเธซเธฑเธช', 'token'])
+    return any(k in str(col_name).lower() for k in ['pass', 'pwd', 'secret', 'key', 'รหัส', 'token'])
 
 def render_password_card(row, sheet_name, card_key, admin_mode, df_pw, drive_id, pw_sheets):
     cols_list = list(row.index)
@@ -2754,82 +2754,82 @@ def render_password_card(row, sheet_name, card_key, admin_mode, df_pw, drive_id,
         if secret_fields:
             
             for col_name, val in secret_fields:
-                with st.expander(f"๐” {col_name}"):
+                with st.expander(f"🔐 {col_name}"):
                     st.code(str(val), language=None)
 
         if admin_mode:
             
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("โ๏ธ เนเธเนเนเธ", key=f"pw_edit_{sheet_name}_{card_key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"pw_edit_{sheet_name}_{card_key}", use_container_width=True):
                     st.session_state[f"pw_edit_row_{sheet_name}_{card_key}"] = True
                     st.rerun()
             with c2:
-                if st.button("๐—‘๏ธ เธฅเธ", key=f"pw_del_{sheet_name}_{card_key}", use_container_width=True):
+                if st.button("🗑️ ลบ", key=f"pw_del_{sheet_name}_{card_key}", use_container_width=True):
                     st.session_state[f"pw_del_confirm_{sheet_name}_{card_key}"] = True
 
             if st.session_state.get(f"pw_del_confirm_{sheet_name}_{card_key}"):
-                st.warning("โ ๏ธ เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธ?")
-                if st.button("โ… เธขเธทเธเธขเธฑเธเธฅเธ", key=f"pw_del_ok_{sheet_name}_{card_key}", type="primary"):
+                st.warning("⚠️ ยืนยันการลบ?")
+                if st.button("✅ ยืนยันลบ", key=f"pw_del_ok_{sheet_name}_{card_key}", type="primary"):
                     new_df = df_pw.drop(index=card_key).reset_index(drop=True)
                     pw_sheets[sheet_name] = new_df
                     ok = upload_password_excel(drive_id, pw_sheets)
                     if ok:
-                        st.success("โ… เธฅเธเธชเธณเน€เธฃเนเธ")
+                        st.success("✅ ลบสำเร็จ")
                         load_password_excel.clear()
                         st.session_state.pop(f"pw_del_confirm_{sheet_name}_{card_key}", None)
                         st.rerun()
                     else:
-                        st.error("โ เธฅเธเนเธกเนเธชเธณเน€เธฃเนเธ")
+                        st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("โ๏ธ เนเธเนเนเธ Password Entry")
+@st.dialog("✏️ แก้ไข Password Entry")
 def edit_password_dialog(row, row_idx, sheet_name, df_pw, drive_id, pw_sheets):
-    st.markdown(f"### โ๏ธ เนเธเนเนเธเธฃเธฒเธขเธเธฒเธฃ")
+    st.markdown(f"### ✏️ แก้ไขรายการ")
     new_vals = {}
     for col in df_pw.columns:
         cur_val = str(row.get(col, '')) if pd.notna(row.get(col)) else ''
         if is_secret_field(col):
-            new_vals[col] = st.text_input(f"๐” {col}", value=cur_val, type="password")
+            new_vals[col] = st.text_input(f"🔐 {col}", value=cur_val, type="password")
         else:
             new_vals[col] = st.text_input(col, value=cur_val)
-    if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         for col, val in new_vals.items():
             df_pw.at[row_idx, col] = val if val.strip() != '' else None
         pw_sheets[sheet_name] = df_pw
         ok = upload_password_excel(drive_id, pw_sheets)
         if ok:
-            st.success("โ… เธเธฑเธเธ—เธถเธเธชเธณเน€เธฃเนเธ")
+            st.success("✅ บันทึกสำเร็จ")
             load_password_excel.clear()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เธเธฑเธเธ—เธถเธเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
 
-@st.dialog("โ• เน€เธเธดเนเธก Password Entry")
+@st.dialog("➕ เพิ่ม Password Entry")
 def add_password_dialog(sheet_name, df_pw, drive_id, pw_sheets):
-    st.markdown(f"### โ• เน€เธเธดเนเธกเธฃเธฒเธขเธเธฒเธฃเนเธซเธกเน โ€” {sheet_name}")
+    st.markdown(f"### ➕ เพิ่มรายการใหม่ — {sheet_name}")
     new_vals = {}
     for col in df_pw.columns:
         if is_secret_field(col):
-            new_vals[col] = st.text_input(f"๐” {col}", type="password")
+            new_vals[col] = st.text_input(f"🔐 {col}", type="password")
         else:
             new_vals[col] = st.text_input(col)
-    if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         new_row = {col: (val if val.strip() != '' else None) for col, val in new_vals.items()}
         new_df = pd.concat([df_pw, pd.DataFrame([new_row])], ignore_index=True)
         pw_sheets[sheet_name] = new_df
         ok = upload_password_excel(drive_id, pw_sheets)
         if ok:
-            st.success("โ… เน€เธเธดเนเธกเธชเธณเน€เธฃเนเธ")
+            st.success("✅ เพิ่มสำเร็จ")
             load_password_excel.clear()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เน€เธเธดเนเธกเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
 # =============================================================================
 # SECTION 12 : INK STOCK UI
-# Card เนเธฅเธฐ Dialog เธเธญเธเธฃเธฐเธเธเธซเธกเธถเธเธเธดเธกเธเน
+# Card และ Dialog ของระบบหมึกพิมพ์
 # =============================================================================
 def ink_stock_color_badge(color):
     color_map = {
@@ -2847,9 +2847,9 @@ def ink_qty_badge(qty, min_qty):
     qty = int(qty) if str(qty).isdigit() else 0
     min_qty = int(min_qty) if str(min_qty).isdigit() else INK_LOW_THRESHOLD
     if qty == 0:
-        return f"<span style='background:#dc3545;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>เธซเธกเธ” โ</span>"
+        return f"<span style='background:#dc3545;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>หมด ❌</span>"
     elif qty <= min_qty:
-        return f"<span style='background:#fd7e14;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>โ ๏ธ เน€เธซเธฅเธทเธญ {qty}</span>"
+        return f"<span style='background:#fd7e14;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>⚠️ เหลือ {qty}</span>"
     return f"<span style='background:#198754;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>โ… {qty}</span>"
 
 def render_ink_card(row, key, admin_mode, requester_name):
@@ -2862,25 +2862,25 @@ def render_ink_card(row, key, admin_mode, requester_name):
     with st.container():
         c_left, c_right = st.columns([0.65, 0.35])
         with c_left:
-            st.markdown(f"#### ๐–จ๏ธ {title}")
+            st.markdown(f"#### 🖨️ {title}")
             st.markdown(
                 ink_stock_color_badge(color) + "&nbsp;&nbsp;" + ink_qty_badge(qty, min_qty),
                 unsafe_allow_html=True,
             )
-            st.caption(f"๐ข {row.get('Company', '-')}  |  ๐“  {row.get('Printer_Model', '-')}")
+            st.caption(f"🏢 {row.get('Company', '-')}  |  📠 {row.get('Printer_Model', '-')}")
             price = row.get("Unit_Price", "")
             if price and str(price) not in ("None", "nan", ""):
-                st.caption(f"๐’ฐ {price} เธเธฒเธ—/เธเธดเนเธ")
+                st.caption(f"💰 {price} บาท/ชิ้น")
         with c_right:
-            # เธเธธเนเธก เน€เธเธดเธ / เน€เธเธดเนเธก / เนเธเนเนเธ
-            if st.button("๐“ค เน€เธเธดเธ", key=f"ink_withdraw_{key}", use_container_width=True):
+            # ปุ่ม เบิก / เพิ่ม / แก้ไข
+            if st.button("📤 เบิก", key=f"ink_withdraw_{key}", use_container_width=True):
                 st.session_state[f"ink_withdraw_{key}"] = True
                 st.rerun()
             if admin_mode:
-                if st.button("๐“ฅ เน€เธเธดเนเธก", key=f"ink_add_qty_{key}", use_container_width=True):
+                if st.button("📥 เพิ่ม", key=f"ink_add_qty_{key}", use_container_width=True):
                     st.session_state[f"ink_add_qty_{key}"] = True
                     st.rerun()
-                if st.button("โ๏ธ เนเธเนเนเธ", key=f"ink_edit_{key}", use_container_width=True):
+                if st.button("✏️ แก้ไข", key=f"ink_edit_{key}", use_container_width=True):
                     st.session_state[f"ink_edit_{key}"] = True
                     st.rerun()
 
@@ -2897,126 +2897,126 @@ def render_ink_card(row, key, admin_mode, requester_name):
         st.session_state.pop(f"ink_edit_{key}")
         edit_ink_dialog(row.to_dict(), key)
 
-@st.dialog("๐“ค เน€เธเธดเธเธซเธกเธถเธเธเธดเธกเธเน")
+@st.dialog("📤 เบิกหมึกพิมพ์")
 def withdraw_ink_dialog(row, key, requester_name):
     qty   = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
     title = row.get("Title", "N/A")
     color = row.get("Color", "-")
-    st.markdown(f"### ๐“ค เน€เธเธดเธ: {title}")
+    st.markdown(f"### 📤 เบิก: {title}")
     st.markdown(ink_stock_color_badge(color), unsafe_allow_html=True)
     if qty <= 0:
-        st.error("โ เธซเธกเธถเธเธซเธกเธ”เธชเธ•เนเธญเธ เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธดเธเนเธ”เน")
+        st.error("❌ หมึกหมดสต็อก ไม่สามารถเบิกได้")
         return
-    st.info(f"เธชเธ•เนเธญเธเธเธฑเธเธเธธเธเธฑเธ: **{qty}** เธเธดเนเธ")
-    withdraw_qty = st.number_input("เธเธณเธเธงเธเธ—เธตเนเธ•เนเธญเธเธเธฒเธฃเน€เธเธดเธ", min_value=1, max_value=qty, value=1, step=1)
-    note = st.text_input("เธซเธกเธฒเธขเน€เธซเธ•เธธ (เน€เธเนเธ เน€เธเธฃเธทเนเธญเธ/เธเธฑเนเธ/เธซเนเธญเธ)")
-    if st.button("โ… เธขเธทเธเธขเธฑเธเน€เธเธดเธ", use_container_width=True, type="primary"):
+    st.info(f"สต็อกปัจจุบัน: **{qty}** ชิ้น")
+    withdraw_qty = st.number_input("จำนวนที่ต้องการเบิก", min_value=1, max_value=qty, value=1, step=1)
+    note = st.text_input("หมายเหตุ (เช่น เครื่อง/ชั้น/ห้อง)")
+    if st.button("✅ ยืนยันเบิก", use_container_width=True, type="primary"):
         ok, new_qty = ink_adjust_quantity(
             row["_item_id"], qty, -withdraw_qty,
-            title, color, requester_name, note, "เน€เธเธดเธ"
+            title, color, requester_name, note, "เบิก"
         )
         if ok:
-            st.success(f"โ… เน€เธเธดเธเธชเธณเน€เธฃเนเธ โ€” เธชเธ•เนเธญเธเธเธเน€เธซเธฅเธทเธญ: {new_qty} เธเธดเนเธ")
+            st.success(f"✅ เบิกสำเร็จ — สต็อกคงเหลือ: {new_qty} ชิ้น")
             st.rerun()
         else:
-            st.error("โ เน€เธเธดเธเนเธกเนเธชเธณเน€เธฃเนเธ")
+            st.error("❌ เบิกไม่สำเร็จ")
 
-@st.dialog("๐“ฅ เน€เธเธดเนเธกเธเธณเธเธงเธเธชเธ•เนเธญเธเธซเธกเธถเธ")
+@st.dialog("📥 เพิ่มจำนวนสต็อกหมึก")
 def add_ink_qty_dialog(row, key, requester_name):
     qty   = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
     title = row.get("Title", "N/A")
     color = row.get("Color", "-")
-    st.markdown(f"### ๐“ฅ เน€เธเธดเนเธกเธชเธ•เนเธญเธ: {title}")
+    st.markdown(f"### 📥 เพิ่มสต็อก: {title}")
     st.markdown(ink_stock_color_badge(color), unsafe_allow_html=True)
-    st.info(f"เธชเธ•เนเธญเธเธเธฑเธเธเธธเธเธฑเธ: **{qty}** เธเธดเนเธ")
-    add_qty = st.number_input("เธเธณเธเธงเธเธ—เธตเนเธ•เนเธญเธเธเธฒเธฃเน€เธเธดเนเธก", min_value=1, value=1, step=1)
-    note = st.text_input("เธซเธกเธฒเธขเน€เธซเธ•เธธ (เน€เธเนเธ เน€เธฅเธ PO / เธเธนเนเธเธฒเธข)")
-    if st.button("โ… เธขเธทเธเธขเธฑเธเน€เธเธดเนเธกเธชเธ•เนเธญเธ", use_container_width=True, type="primary"):
+    st.info(f"สต็อกปัจจุบัน: **{qty}** ชิ้น")
+    add_qty = st.number_input("จำนวนที่ต้องการเพิ่ม", min_value=1, value=1, step=1)
+    note = st.text_input("หมายเหตุ (เช่น เลข PO / ผู้ขาย)")
+    if st.button("✅ ยืนยันเพิ่มสต็อก", use_container_width=True, type="primary"):
         ok, new_qty = ink_adjust_quantity(
             row["_item_id"], qty, add_qty,
-            title, color, requester_name, note, "เน€เธเธดเนเธกเธชเธ•เนเธญเธ"
+            title, color, requester_name, note, "เพิ่มสต็อก"
         )
         if ok:
-            st.success(f"โ… เน€เธเธดเนเธกเธชเธณเน€เธฃเนเธ โ€” เธชเธ•เนเธญเธเธเธเน€เธซเธฅเธทเธญ: {new_qty} เธเธดเนเธ")
+            st.success(f"✅ เพิ่มสำเร็จ — สต็อกคงเหลือ: {new_qty} ชิ้น")
             st.rerun()
         else:
-            st.error("โ เน€เธเธดเนเธกเนเธกเนเธชเธณเน€เธฃเนเธ")
+            st.error("❌ เพิ่มไม่สำเร็จ")
 
-@st.dialog("โ๏ธ เนเธเนเนเธเธเนเธญเธกเธนเธฅเธซเธกเธถเธเธเธดเธกเธเน")
+@st.dialog("✏️ แก้ไขข้อมูลหมึกพิมพ์")
 def edit_ink_dialog(row, key):
     item_id = row.get("_item_id")
-    st.markdown(f"### โ๏ธ เนเธเนเนเธ: {row.get('Title', '')}")
-    title      = st.text_input("เธฃเธธเนเธเธซเธกเธถเธ", value=row.get("Title", ""))
-    color      = st.selectbox("เธชเธต", INK_COLOR_OPTIONS,
+    st.markdown(f"### ✏️ แก้ไข: {row.get('Title', '')}")
+    title      = st.text_input("รุ่นหมึก", value=row.get("Title", ""))
+    color      = st.selectbox("สี", INK_COLOR_OPTIONS,
                               index=INK_COLOR_OPTIONS.index(row.get("Color", "Black"))
                               if row.get("Color") in INK_COLOR_OPTIONS else 0)
-    printer_m  = st.text_input("เธฃเธธเนเธเน€เธเธฃเธทเนเธญเธเธเธดเธกเธเน", value=row.get("Printer_Model", ""))
-    company    = st.selectbox("เธเธฃเธดเธฉเธฑเธ—", ["ALL"] + COMPANY_OPTIONS,
+    printer_m  = st.text_input("รุ่นเครื่องพิมพ์", value=row.get("Printer_Model", ""))
+    company    = st.selectbox("บริษัท", ["ALL"] + COMPANY_OPTIONS,
                               index=(["ALL"] + COMPANY_OPTIONS).index(row.get("Company", "ALL"))
                               if row.get("Company") in ["ALL"] + COMPANY_OPTIONS else 0)
-    qty        = st.number_input("เธเธณเธเธงเธเธเธเน€เธซเธฅเธทเธญ", min_value=0, value=int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).isdigit() else 0)
-    min_qty    = st.number_input("เธเธธเธ”เนเธเนเธเน€เธ•เธทเธญเธ (Low Stock)", min_value=1, value=int(row.get("Min_Qty", INK_LOW_THRESHOLD)) if str(row.get("Min_Qty", INK_LOW_THRESHOLD)).isdigit() else INK_LOW_THRESHOLD)
-    unit_price = st.text_input("เธฃเธฒเธเธฒ/เธเธดเนเธ (เธเธฒเธ—)", value=str(row.get("Unit_Price", "")).replace("None","").replace("nan",""))
-    notes      = st.text_input("เธซเธกเธฒเธขเน€เธซเธ•เธธ", value=str(row.get("Notes", "")).replace("None","").replace("nan",""))
+    qty        = st.number_input("จำนวนคงเหลือ", min_value=0, value=int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).isdigit() else 0)
+    min_qty    = st.number_input("จุดแจ้งเตือน (Low Stock)", min_value=1, value=int(row.get("Min_Qty", INK_LOW_THRESHOLD)) if str(row.get("Min_Qty", INK_LOW_THRESHOLD)).isdigit() else INK_LOW_THRESHOLD)
+    unit_price = st.text_input("ราคา/ชิ้น (บาท)", value=str(row.get("Unit_Price", "")).replace("None","").replace("nan",""))
+    notes      = st.text_input("หมายเหตุ", value=str(row.get("Notes", "")).replace("None","").replace("nan",""))
     col_save, col_del = st.columns(2)
     with col_save:
-        if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+        if st.button("💾 บันทึก", use_container_width=True, type="primary"):
             fields = {"Title": title, "Color": color, "Printer_Model": printer_m,
                       "Company": company, "Quantity": qty, "Min_Qty": min_qty,
                       "Unit_Price": unit_price or None, "Notes": notes or None}
             ok, res_data = ink_update(item_id, fields)
             if ok:
-                st.success("โ… เธเธฑเธเธ—เธถเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ บันทึกสำเร็จ")
                 clear_sp_cache()
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-                st.error(f"โ เธเธฑเธเธ—เธถเธเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+                st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
-        if st.button("๐—‘๏ธ เธฅเธเธฃเธฒเธขเธเธฒเธฃเธเธตเน", use_container_width=True):
+        if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state["ink_confirm_delete"] = item_id
     if st.session_state.get("ink_confirm_delete") == item_id:
-        st.warning("โ ๏ธ เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฅเธ?")
-        if st.button("โ… เธขเธทเธเธขเธฑเธเธฅเธ", type="primary"):
+        st.warning("⚠️ ยืนยันการลบ?")
+        if st.button("✅ ยืนยันลบ", type="primary"):
             ok = ink_delete(item_id)
             if ok:
-                st.success("โ… เธฅเธเธชเธณเน€เธฃเนเธ")
+                st.success("✅ ลบสำเร็จ")
                 st.session_state.pop("ink_confirm_delete", None)
                 clear_sp_cache()
                 st.rerun()
             else:
-                st.error("โ เธฅเธเนเธกเนเธชเธณเน€เธฃเนเธ")
+                st.error("❌ ลบไม่สำเร็จ")
 
-@st.dialog("โ• เน€เธเธดเนเธกเธซเธกเธถเธเธเธดเธกเธเนเนเธซเธกเน")
+@st.dialog("➕ เพิ่มหมึกพิมพ์ใหม่")
 def add_ink_dialog():
-    st.markdown("### โ• เน€เธเธดเนเธกเธซเธกเธถเธเธเธดเธกเธเนเนเธซเธกเน")
-    title      = st.text_input("เธฃเธธเนเธเธซเธกเธถเธ *", placeholder="เน€เธเนเธ HP 680 Black")
-    color      = st.selectbox("เธชเธต *", INK_COLOR_OPTIONS)
-    printer_m  = st.text_input("เธฃเธธเนเธเน€เธเธฃเธทเนเธญเธเธเธดเธกเธเน", placeholder="เน€เธเนเธ HP DeskJet 2135")
-    company    = st.selectbox("เธเธฃเธดเธฉเธฑเธ—", ["ALL"] + COMPANY_OPTIONS)
-    qty        = st.number_input("เธเธณเธเธงเธเน€เธฃเธดเนเธกเธ•เนเธ", min_value=0, value=0)
-    min_qty    = st.number_input("เธเธธเธ”เนเธเนเธเน€เธ•เธทเธญเธ (Low Stock)", min_value=1, value=INK_LOW_THRESHOLD)
-    unit_price = st.text_input("เธฃเธฒเธเธฒ/เธเธดเนเธ (เธเธฒเธ—)", placeholder="เน€เธเนเธ 350")
-    notes      = st.text_input("เธซเธกเธฒเธขเน€เธซเธ•เธธ")
-    if st.button("๐’พ เธเธฑเธเธ—เธถเธ", use_container_width=True, type="primary"):
+    st.markdown("### ➕ เพิ่มหมึกพิมพ์ใหม่")
+    title      = st.text_input("รุ่นหมึก *", placeholder="เช่น HP 680 Black")
+    color      = st.selectbox("สี *", INK_COLOR_OPTIONS)
+    printer_m  = st.text_input("รุ่นเครื่องพิมพ์", placeholder="เช่น HP DeskJet 2135")
+    company    = st.selectbox("บริษัท", ["ALL"] + COMPANY_OPTIONS)
+    qty        = st.number_input("จำนวนเริ่มต้น", min_value=0, value=0)
+    min_qty    = st.number_input("จุดแจ้งเตือน (Low Stock)", min_value=1, value=INK_LOW_THRESHOLD)
+    unit_price = st.text_input("ราคา/ชิ้น (บาท)", placeholder="เช่น 350")
+    notes      = st.text_input("หมายเหตุ")
+    if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         if not title.strip():
-            st.warning("โ ๏ธ เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธเธฃเธธเนเธเธซเธกเธถเธ")
+            st.warning("⚠️ กรุณาระบุรุ่นหมึก")
             return
         fields = {"Title": title.strip(), "Color": color, "Printer_Model": printer_m,
                   "Company": company, "Quantity": qty, "Min_Qty": min_qty,
                   "Unit_Price": unit_price or None, "Notes": notes or None}
         ok, res_data = ink_create(fields)
         if ok:
-            st.success("โ… เน€เธเธดเนเธกเธชเธณเน€เธฃเนเธ")
+            st.success("✅ เพิ่มสำเร็จ")
             clear_sp_cache()
             st.rerun()
         else:
             err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"โ เน€เธเธดเนเธกเนเธกเนเธชเธณเน€เธฃเนเธ: {err_msg}")
+            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
 
 # =============================================================================
 # SECTION 13 : SIDEBAR BADGES
-# เธ•เธฑเธงเน€เธฅเธเธเธฑเธเธฃเธฒเธขเธเธฒเธฃเนเธ Sidebar
+# ตัวเลขนับรายการใน Sidebar
 # =============================================================================
 @st.cache_data(ttl=300, show_spinner=False)
 def get_sidebar_nav_badges():
@@ -3079,13 +3079,13 @@ def get_sidebar_profile_title(user_identity: str):
 
 # =============================================================================
 # THEME LOADER (SAFE REFACTOR)
-# เนเธเนเนเธซเธฅเธ” Theme เธซเธฅเธฒเธขเธเธธเธ”เธเธฃเนเธญเธกเธเธฑเธ
+# ใช้โหลด Theme หลายชุดพร้อมกัน
 # =============================================================================
 # =============================================================================
 # FUNCTION : load_theme
 #
 # PURPOSE
-#   เนเธซเธฅเธ” CSS Theme เธซเธฅเธฒเธขเธเธธเธ”เธเธฃเนเธญเธกเธเธฑเธ
+#   โหลด CSS Theme หลายชุดพร้อมกัน
 #
 # EXAMPLE
 #   load_theme(MODERN_THEME, SIDEBAR_V32_THEME)
@@ -3125,7 +3125,7 @@ def load_theme(*themes):
 # SECTION 14 : MAIN UI
 # Theme / Sidebar / Dashboard / Navigation
 # =============================================================================
-st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon="๐ก๏ธ")
+st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon="🛡️")
 cookie_manager = get_manager()
 
 # --- AUTH ---
@@ -3142,6 +3142,10 @@ if saved_user and not st.session_state.get('is_auth') and not st.session_state.g
     st.session_state.is_auth  = True
     st.session_state.user_name  = saved_user
     st.session_state.user_email = saved_email or ""
+
+if st.session_state.pop("oauth_close_popup", False):
+    render_oauth_popup_complete()
+    st.stop()
 
 if not st.session_state.get("is_auth"):
     if handle_ms_oauth_callback(cookie_manager):
@@ -3369,70 +3373,39 @@ if not st.session_state.is_auth:
 
         _login_url = build_ms_oauth_login_url(popup=True)
         _login_url_attr = html.escape(_login_url, quote=True)
-        components.html(
+        st.markdown(
             f'''
-            <!doctype html>
-            <html>
-            <head>
-            <style>
-                html,body{{margin:0;padding:0;background:transparent;font-family:Inter,Arial,sans-serif;}}
-                .oauth-login-card{{border:1px solid rgba(226,232,240,.96);border-radius:22px;padding:18px;background:rgba(255,255,255,.76);box-shadow:0 20px 54px rgba(79,70,229,.13);}}
-                .oauth-direct-button{{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:850;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;box-sizing:border-box;}}
-                .oauth-direct-button:hover{{transform:translateY(-2px);box-shadow:0 22px 42px rgba(99,102,241,.35);}}
-                .oauth-login-note{{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55;}}
-                .oauth-login-note a{{color:#4F46E5;font-weight:700;text-decoration:none;}}
-                .oauth-ms-icon{{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;}}
-                .oauth-ms-icon span:nth-child(1){{background:#F25022}}.oauth-ms-icon span:nth-child(2){{background:#7FBA00}}.oauth-ms-icon span:nth-child(3){{background:#00A4EF}}.oauth-ms-icon span:nth-child(4){{background:#FFB900}}
-            </style>
-            </head>
-            <body>
-                <div class="oauth-login-card">
-                    <button class="oauth-direct-button" id="ms-login" type="button">
-                        <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
-                        Sign in with Microsoft
-                    </button>
-                    <p class="oauth-login-note">
-                        Microsoft 365 popup sign-in with Multi-Factor Authentication support<br>
-                        If the popup is blocked, use this link:
-                        <a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open Microsoft sign-in</a>
-                    </p>
-                </div>
-                <script>
-                    const loginUrl = {json.dumps(_login_url)};
-                    let loginPopup = null;
-                    function startPopupWatcher() {{
-                        const watcher = setInterval(function() {{
-                            try {{
-                                if (localStorage.getItem("dru_oauth_success")) {{
-                                    localStorage.removeItem("dru_oauth_success");
-                                    clearInterval(watcher);
-                                    window.parent.location.reload();
-                                }}
-                            }} catch(e) {{}}
-                            try {{
-                                if (loginPopup && loginPopup.closed) {{
-                                    clearInterval(watcher);
-                                    setTimeout(function() {{ window.parent.location.reload(); }}, 500);
-                                }}
-                            }} catch(e) {{}}
-                        }}, 700);
-                    }}
-                    document.getElementById("ms-login").addEventListener("click", function() {{
-                        try {{
-                            loginPopup = window.open(loginUrl, "druMicrosoftLogin", "width=520,height=720,menubar=no,toolbar=no,location=yes,status=no,scrollbars=yes,resizable=yes");
-                            if (!loginPopup) {{
-                                window.open(loginUrl, "_blank", "noopener,noreferrer");
-                            }}
-                            startPopupWatcher();
-                        }} catch (e) {{
-                            window.location.href = loginUrl;
-                        }}
-                    }});
-                </script>
-            </body>
-            </html>
+            <div class="oauth-login-card">
+                <a class="oauth-direct-button"
+                   href="{_login_url_attr}"
+                   target="druMicrosoftLogin"
+                   onclick="window.open(this.href,'druMicrosoftLogin','width=520,height=720,menubar=no,toolbar=no,location=yes,status=no,scrollbars=yes,resizable=yes'); return false;">
+                    <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
+                    Sign in with Microsoft
+                </a>
+                <p class="oauth-login-note">
+                    Microsoft 365 popup sign-in with Multi-Factor Authentication support<br>
+                    If the popup is blocked, use this link:
+                    <a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open Microsoft sign-in</a>
+                </p>
+            </div>
             ''',
-            height=150,
+            unsafe_allow_html=True,
+        )
+        components.html(
+            """
+            <script>
+            setInterval(function(){
+                try {
+                    if (localStorage.getItem("dru_oauth_success")) {
+                        localStorage.removeItem("dru_oauth_success");
+                        window.parent.location.reload();
+                    }
+                } catch(e) {}
+            }, 700);
+            </script>
+            """,
+            height=0,
         )
 
         if st.session_state.get("login_error"):
@@ -3449,10 +3422,10 @@ if not st.session_state.is_auth:
 
 # =============================================================================
 # THEME : SIDEBAR / # THEME BLOCK : SIDEBAR / DASHBOARD
-# เนเธเน UI เธซเธฅเธฑเธ Login เธ—เธฑเนเธเธซเธกเธ”เนเธเธเนเธงเธเธ”เนเธฒเธเธฅเนเธฒเธเธเธตเน
+# แก้ UI หลัง Login ทั้งหมดในช่วงด้านล่างนี้
 
 # MAIN APP
-# CSS เธซเธฅเธฑเธ Login เธชเธณเน€เธฃเนเธ
+# CSS หลัง Login สำเร็จ
 # =============================================================================
 
 # โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
@@ -4405,19 +4378,19 @@ else:
 # FUNCTION : _nav_item
 #
 # PURPOSE
-#   เธชเธฃเนเธฒเธเน€เธกเธเธน Sidebar 1 เธฃเธฒเธขเธเธฒเธฃ
+#   สร้างเมนู Sidebar 1 รายการ
 #
 # USED BY
 #   Asset Management / Security / Inventory / Dashboard
 #
 # VISUAL
-#   ๐’ป Computers        [154]
+#   💻 Computers        [154]
 #
 # NOTES
-#   - เธฃเธญเธเธฃเธฑเธ Badge
-#   - เธฃเธญเธเธฃเธฑเธ Active Menu
-#   - เธฃเธญเธเธฃเธฑเธ Sub Menu
-#   - เน€เธเธฅเธตเนเธขเธเธซเธเนเธฒเนเธ”เธขเนเธเน st.session_state.active_nav
+#   - รองรับ Badge
+#   - รองรับ Active Menu
+#   - รองรับ Sub Menu
+#   - เปลี่ยนหน้าโดยแก้ st.session_state.active_nav
 # =============================================================================
     # Streamlit Cloud may accept Material icon syntax but fail to load the
     # Material Symbols font, which exposes icon names as raw text.  Keep the
@@ -4439,24 +4412,24 @@ else:
         "open_grp_inventory": "inventory", "open_grp_admin": "admin_panel_settings",
     }
     _NAV_FALLBACK_ICONS = {
-        "overview": "๐ ", "ad_policy": "๐ก๏ธ", "computers": "๐’ป", "monitors": "๐–ฅ๏ธ",
-        "hardware_dashboard": "๐–ฅ๏ธ", "software_dashboard": "๐’ฟ",
-        "permission_dashboard": "๐”", "vendor_list": "๐ข",
-        "printers": "๐–จ๏ธ", "projector": "๐“ฝ๏ธ", "ups": "๐”", "misc": "๐“ฆ",
-        "password": "๐”", "user_perm": "๐“", "ink_stock": "๐’ง",
-        "admin_users": "๐‘ฅ", "admin_settings": "โ๏ธ", "admin_logs": "๐•",
+        "overview": "🏠", "ad_policy": "🛡️", "computers": "💻", "monitors": "🖥️",
+        "hardware_dashboard": "🖥️", "software_dashboard": "💿",
+        "permission_dashboard": "🔐", "vendor_list": "🏢",
+        "printers": "🖨️", "projector": "📽️", "ups": "🔋", "misc": "📦",
+        "password": "🔐", "user_perm": "📂", "ink_stock": "💧",
+        "admin_users": "👥", "admin_settings": "⚙️", "admin_logs": "🕘",
     }
     _GROUP_FALLBACK_ICONS = {
-        "open_grp_assets": "๐—๏ธ", "open_grp_security": "๐”",
-        "open_grp_inventory": "๐“", "open_grp_admin": "๐ ๏ธ",
+        "open_grp_assets": "🗃️", "open_grp_security": "🔐",
+        "open_grp_inventory": "📚", "open_grp_admin": "🛠️",
     }
     _SAFE_EMOJI_ICONS = {
-        "space_dashboard": "๐ ", "policy": "๐ก๏ธ", "computer": "๐’ป",
-        "desktop_windows": "๐–ฅ๏ธ", "print": "๐–จ๏ธ", "videocam": "๐“ฝ๏ธ",
-        "battery_charging_full": "๐”", "devices_other": "๐“ฆ", "key": "๐”‘",
-        "folder_shared": "๐“", "water_drop": "๐’ง", "group": "๐‘ฅ",
-        "settings": "โ๏ธ", "history": "๐•", "inventory_2": "๐—๏ธ",
-        "shield_lock": "๐”", "inventory": "๐“", "admin_panel_settings": "๐ ๏ธ",
+        "space_dashboard": "🏠", "policy": "🛡️", "computer": "💻",
+        "desktop_windows": "🖥️", "print": "🖨️", "videocam": "📽️",
+        "battery_charging_full": "🔋", "devices_other": "📦", "key": "🔑",
+        "folder_shared": "📂", "water_drop": "💧", "group": "👥",
+        "settings": "⚙️", "history": "🕘", "inventory_2": "🗃️",
+        "shield_lock": "🔐", "inventory": "📚", "admin_panel_settings": "🛠️",
         "logout": "โช๏ธ", "arrow_forward": "โ’",
     }
 
@@ -4474,7 +4447,7 @@ else:
         val = nav_badges.get(badge_key, 0) if badge_key else None
         label = text if val is None else f"{text}   {val}"
         if not _ST_BUTTON_HAS_ICON:
-            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, 'ยท')}  {label}"
+            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
 
         if st.sidebar.button(
             label,
@@ -4491,7 +4464,7 @@ else:
 # FUNCTION : _group_toggle
 #
 # PURPOSE
-#   เธชเธฃเนเธฒเธเธซเธฑเธงเธเนเธญเน€เธกเธเธนเนเธเธเธเธฑเธ/เธเธขเธฒเธข
+#   สร้างหัวข้อเมนูแบบพับ/ขยาย
 #
 # EXAMPLE
 #   Asset Management
@@ -4499,7 +4472,7 @@ else:
 #   Inventory
 #
 # STATE
-#   เน€เธเนเธเธชเธ–เธฒเธเธฐเน€เธเธดเธ”/เธเธดเธ”เนเธ st.session_state
+#   เก็บสถานะเปิด/ปิดใน st.session_state
 # =============================================================================
     def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
@@ -4526,7 +4499,7 @@ else:
         active = st.session_state.active_nav == nav_key or _parent_nav.get(st.session_state.active_nav) == nav_key
         label = text
         if not _ST_BUTTON_HAS_ICON:
-            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, 'ยท')}  {label}"
+            label = f"{_NAV_FALLBACK_ICONS.get(nav_key, '·')}  {label}"
         if st.sidebar.button(label, use_container_width=True, type="secondary",
                              key=f"nav_{nav_key}_{'active' if active else 'idle'}",
                              **_button_icon(_NAV_MATERIAL_ICONS.get(nav_key, "circle"))):
@@ -4608,12 +4581,12 @@ else:
 
     # Flat enterprise navigation. Module details live inside each dashboard.
     _nav_leaf("overview", "โ", "Dashboard")
-    _nav_leaf("hardware_dashboard", "๐–ฅ", "Hardware")
-    _nav_leaf("software_dashboard", "๐’ฟ", "Software")
-    _nav_leaf("permission_dashboard", "๐”", "Permission")
-    _nav_leaf("password", "๐”‘", "Password")
-    _nav_leaf("vendor_list", "๐ข", "Vendor List")
-    _nav_leaf("ink_stock", "๐’ง", "Ink Stock")
+    _nav_leaf("hardware_dashboard", "🖥", "Hardware")
+    _nav_leaf("software_dashboard", "💿", "Software")
+    _nav_leaf("permission_dashboard", "🔐", "Permission")
+    _nav_leaf("password", "🔑", "Password")
+    _nav_leaf("vendor_list", "🏢", "Vendor List")
+    _nav_leaf("ink_stock", "💧", "Ink Stock")
 
     st.sidebar.markdown("---")
 
@@ -4942,23 +4915,23 @@ else:
         return nav_key
 
     _current_category = _top_category(st.session_state.active_nav)
-    _top_items = [("overview", "เธ เธฒเธเธฃเธงเธก", "overview"), ("assets", "เธชเธดเธเธ—เธฃเธฑเธเธขเน IT", "computers")]
+    _top_items = [("overview", "ภาพรวม", "overview"), ("assets", "สินทรัพย์ IT", "computers")]
     if admin_mode:
         _top_items = [
-            ("overview", "เธ เธฒเธเธฃเธงเธก", "overview"),
+            ("overview", "ภาพรวม", "overview"),
             ("ad_policy", "AD / Firewall", "ad_policy"),
-            ("assets", "เธชเธดเธเธ—เธฃเธฑเธเธขเน IT", "computers"),
-            ("security", "เธเธงเธฒเธกเธเธฅเธญเธ”เธ เธฑเธข", "password"),
-            ("inventory", "เธเธฅเธฑเธเธชเธดเธเธเนเธฒ", "ink_stock"),
-            ("admin", "เธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ", "admin_users"),
+            ("assets", "สินทรัพย์ IT", "computers"),
+            ("security", "ความปลอดภัย", "password"),
+            ("inventory", "คลังสินค้า", "ink_stock"),
+            ("admin", "ผู้ดูแลระบบ", "admin_users"),
         ]
 
     _subnav = {
-        "assets": [("computers", "เธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเน"), ("monitors", "เธเธญเธ เธฒเธ"), ("printers", "เน€เธเธฃเธทเนเธญเธเธเธดเธกเธเน"),
-                   ("projector", "เนเธเธฃเน€เธเธเน€เธ•เธญเธฃเน"), ("ups", "UPS"), ("misc", "เธญเธธเธเธเธฃเธ“เนเธญเธทเนเธ")],
+        "assets": [("computers", "คอมพิวเตอร์"), ("monitors", "จอภาพ"), ("printers", "เครื่องพิมพ์"),
+                   ("projector", "โปรเจกเตอร์"), ("ups", "UPS"), ("misc", "อุปกรณ์อื่น")],
         "security": [("password", "Password Manager"), ("user_perm", "NAS Permission")],
-        "inventory": [("ink_stock", "เธชเธ•เนเธญเธเธซเธกเธถเธ")],
-        "admin": [("admin_users", "เธเธนเนเนเธเนเธเธฒเธ"), ("admin_settings", "เธ•เธฑเนเธเธเนเธฒ"), ("admin_logs", "Activity Logs")],
+        "inventory": [("ink_stock", "สต็อกหมึก")],
+        "admin": [("admin_users", "ผู้ใช้งาน"), ("admin_settings", "ตั้งค่า"), ("admin_logs", "Activity Logs")],
     }.get(_current_category, [])
 
     # The legacy top navigation is no longer rendered; the sidebar owns routing.
@@ -4967,46 +4940,46 @@ else:
 
     # โ”€โ”€ ROUTE โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
     _ROUTE = {
-        "overview":   ("๐“ Overview Dashboard",  None),
-        "hardware_dashboard": ("๐–ฅ Hardware Dashboard", None),
-        "software_dashboard": ("๐’ฟ Software Dashboard", None),
-        "permission_dashboard": ("๐” Permission Dashboard", None),
-        "computers":  ("๐’ป Hardware Asset",       "Computer Asset"),
-        "monitors":   ("๐’ป Hardware Asset",       "Asset Monitor"),
-        "projector":  ("๐’ป Hardware Asset",       "Asset Projector"),
-        "printers":   ("๐’ป Hardware Asset",       "Asset Printer"),
-        "ups":        ("๐’ป Hardware Asset",       "Asset UPS"),
-        "misc":       ("๐’ป Hardware Asset",       "Asset Misc"),
-        "cctv":       ("๐’ป Hardware Asset",       "Asset CCTV"),
-        "access_control": ("๐’ป Hardware Asset",    "Asset Access Control"),
-        "software_group_email": ("๐’ฟ Software Module", "Group E-mail"),
-        "software_office365": ("๐’ฟ Software Module", "Office 365"),
-        "software_pdf": ("๐’ฟ Software Module", "PDF"),
-        "software_windows": ("๐’ฟ Software Module", "Windows"),
-        "software_offboarded": ("๐’ฟ Software Module", "เธเธเธฑเธเธเธฒเธเธฅเธฒเธญเธญเธ"),
-        "email":      ("๐”‘ Password Information", None),
-        "domain":     ("๐”‘ Password Information", None),
-        "vendor":     ("๐”‘ Password Information", None),
-        "vendor_list": ("๐ข Vendor List", None),
-        "user_perm":  ("๐“ NAS Drive Check",      None),
-        "password":   ("๐”‘ Password Information", None),
-        "ink_stock":  ("๐–จ๏ธ Stock เธซเธกเธถเธเธเธดเธกเธเน",       None),
-        "ink_history":("๐–จ๏ธ Stock เธซเธกเธถเธเธเธดเธกเธเน",       None),
-        "consumables":("๐–จ๏ธ Stock เธซเธกเธถเธเธเธดเธกเธเน",       None),
-        "ad_policy":      ("๐ AD / Firewall Policy", None),
+        "overview":   ("📊 Overview Dashboard",  None),
+        "hardware_dashboard": ("🖥 Hardware Dashboard", None),
+        "software_dashboard": ("💿 Software Dashboard", None),
+        "permission_dashboard": ("🔐 Permission Dashboard", None),
+        "computers":  ("💻 Hardware Asset",       "Computer Asset"),
+        "monitors":   ("💻 Hardware Asset",       "Asset Monitor"),
+        "projector":  ("💻 Hardware Asset",       "Asset Projector"),
+        "printers":   ("💻 Hardware Asset",       "Asset Printer"),
+        "ups":        ("💻 Hardware Asset",       "Asset UPS"),
+        "misc":       ("💻 Hardware Asset",       "Asset Misc"),
+        "cctv":       ("💻 Hardware Asset",       "Asset CCTV"),
+        "access_control": ("💻 Hardware Asset",    "Asset Access Control"),
+        "software_group_email": ("💿 Software Module", "Group E-mail"),
+        "software_office365": ("💿 Software Module", "Office 365"),
+        "software_pdf": ("💿 Software Module", "PDF"),
+        "software_windows": ("💿 Software Module", "Windows"),
+        "software_offboarded": ("💿 Software Module", "พนักงานลาออก"),
+        "email":      ("🔑 Password Information", None),
+        "domain":     ("🔑 Password Information", None),
+        "vendor":     ("🔑 Password Information", None),
+        "vendor_list": ("🏢 Vendor List", None),
+        "user_perm":  ("📂 NAS Drive Check",      None),
+        "password":   ("🔑 Password Information", None),
+        "ink_stock":  ("🖨️ Stock หมึกพิมพ์",       None),
+        "ink_history":("🖨️ Stock หมึกพิมพ์",       None),
+        "consumables":("🖨️ Stock หมึกพิมพ์",       None),
+        "ad_policy":      ("🌐 AD / Firewall Policy", None),
         "admin_users":    ("โ Administration", None),
         "admin_settings": ("โ Administration", None),
         "admin_logs":     ("โ Administration", None),
 }
-    main_menu, _hw_sub_override = _ROUTE.get(_nav, ("๐“ Overview Dashboard", None))
+    main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav in ("ink_history", "consumables"))
 
-    if not admin_mode and main_menu not in ("๐“ Overview Dashboard", "๐–ฅ Hardware Dashboard", "๐’ป Hardware Asset"):
+    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "🖥 Hardware Dashboard", "💻 Hardware Asset"):
         st.session_state.active_nav = "overview"
         _nav = "overview"
         main_menu, _hw_sub_override = _ROUTE["overview"]
         show_ink_history_only = False
-        st.warning("๐”’ เธชเธดเธ—เธเธดเนเธเธฒเธฃเนเธเนเธเธฒเธเธ–เธนเธเธเธณเธเธฑเธ”: เธเธนเนเนเธเนเธ—เธฑเนเธงเนเธเธชเธฒเธกเธฒเธฃเธ–เน€เธเนเธฒเธ–เธถเธเนเธ”เนเน€เธเธเธฒเธฐ Dashboard เนเธฅเธฐ Hardware Asset เน€เธ—เนเธฒเธเธฑเนเธ")
+        st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Dashboard และ Hardware Asset เท่านั้น")
 
     def _render_module_hub(title, subtitle, icon, modules):
         """Render a flat module dashboard without adding sidebar submenus."""
@@ -5031,11 +5004,11 @@ else:
     def _render_password_sheet_module(title, subtitle, icon, keywords):
         """Reuse the existing password workbook safely for software/vendor modules."""
         page_header(icon, title, subtitle)
-        with st.spinner("เธเธณเธฅเธฑเธเนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ..."):
+        with st.spinner("กำลังโหลดข้อมูล..."):
             _module_result = load_password_excel()
             _module_sheets, _module_drive_id = _module_result if isinstance(_module_result, tuple) else ({}, None)
         if not _module_sheets or "_error" in _module_sheets:
-            st.error("เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเธเธฒเธ SharePoint เนเธ”เน")
+            st.error("ไม่สามารถโหลดข้อมูลจาก SharePoint ได้")
             return
         _module_sheet_name = None
         for _candidate in _module_sheets:
@@ -5044,18 +5017,18 @@ else:
                 _module_sheet_name = _candidate
                 break
         if not _module_sheet_name:
-            st.info(f"เธขเธฑเธเนเธกเนเธเธเธซเธกเธงเธ”เธเนเธญเธกเธนเธฅเธชเธณเธซเธฃเธฑเธ {title} เนเธเนเธเธฅเนเธเธฑเธเธเธธเธเธฑเธ")
+            st.info(f"ยังไม่พบหมวดข้อมูลสำหรับ {title} ในไฟล์ปัจจุบัน")
             return
         _module_df = _module_sheets[_module_sheet_name].copy()
         _module_header, _module_add = st.columns([0.8, 0.2])
         with _module_header:
             st.subheader(f"{get_sheet_icon(_module_sheet_name)} {_module_sheet_name}")
-            st.caption(f"เธเธเธเนเธญเธกเธนเธฅเธ—เธฑเนเธเธซเธกเธ” {len(_module_df)} เธฃเธฒเธขเธเธฒเธฃ")
+            st.caption(f"พบข้อมูลทั้งหมด {len(_module_df)} รายการ")
         with _module_add:
-            if admin_mode and st.button("โ• เน€เธเธดเนเธกเธฃเธฒเธขเธเธฒเธฃ", key=f"module_add_{_nav}", use_container_width=True, type="primary"):
+            if admin_mode and st.button("➕ เพิ่มรายการ", key=f"module_add_{_nav}", use_container_width=True, type="primary"):
                 add_password_dialog(_module_sheet_name, _module_df, _module_drive_id, _module_sheets)
         if _module_df.empty:
-            st.info("เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเนเธเธซเธกเธงเธ”เธเธตเน")
+            st.info("ยังไม่มีข้อมูลในหมวดนี้")
             return
         _module_cols = st.columns(2)
         for _module_pos, (_module_idx, _module_row) in enumerate(_module_df.iterrows()):
@@ -5068,7 +5041,7 @@ else:
     def _render_group_email_dashboard(group_df, expected_file):
         """Enterprise Group E-mail dashboard backed only by its dedicated workbook."""
         def _ge_norm(value):
-            return re.sub(r"[^a-z0-9เธ-เน]+", " ", str(value).strip().lower()).strip()
+            return re.sub(r"[^a-z0-9ก-๙]+", " ", str(value).strip().lower()).strip()
 
         def _ge_column(*names, contains=()):
             lookup = {_ge_norm(column): column for column in group_df.columns}
@@ -5107,11 +5080,11 @@ else:
             days_left = (expiry.date() - now_bkk.date()).days if expiry else None
             if days_left is not None and days_left < 0:
                 state = "expired"
-            elif any(token in status_text for token in ("inactive", "disabled", "เนเธกเนเนเธ”เนเนเธเนเธเธฒเธ", "เธขเธเน€เธฅเธดเธ")):
+            elif any(token in status_text for token in ("inactive", "disabled", "ไม่ได้ใช้งาน", "ยกเลิก")):
                 state = "inactive"
             elif days_left is not None and 0 <= days_left <= 90:
                 state = "expiring"
-            elif any(token in status_text for token in ("active", "licensed", "valid", "เนเธเนเธเธฒเธ")):
+            elif any(token in status_text for token in ("active", "licensed", "valid", "ใช้งาน")):
                 state = "active"
             else:
                 state = "unknown"
@@ -5146,14 +5119,14 @@ else:
         search_svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>'
         date_text = now_bkk.strftime("%d/%m/%Y")
         time_text = now_bkk.strftime("%H:%M")
-        st.markdown(f'''<div class="ge-page"><section class="ge-header ge-hero"><div class="ge-hero-icon">{mail_svg}</div><div><div class="ge-hero-badge">GROUP COMMUNICATION CENTER</div><h1>Group E-mail</h1><p>เธเนเธญเธกเธนเธฅ License เนเธฅเธฐเธเธฑเธเธเธตเธเธฒเธเนเธเธฅเน Software เนเธขเธเธเธ SharePoint</p></div><div class="ge-hero-tools"><div class="ge-date">{date_text}</div><div class="ge-time">{time_text}</div></div></section></div>''', unsafe_allow_html=True)
+        st.markdown(f'''<div class="ge-page"><section class="ge-header ge-hero"><div class="ge-hero-icon">{mail_svg}</div><div><div class="ge-hero-badge">GROUP COMMUNICATION CENTER</div><h1>Group E-mail</h1><p>ข้อมูล License และบัญชีจากไฟล์ Software แยกบน SharePoint</p></div><div class="ge-hero-tools"><div class="ge-date">{date_text}</div><div class="ge-time">{time_text}</div></div></section></div>''', unsafe_allow_html=True)
 
         kpi_items = [
-            ("เธฃเธฒเธขเธเธฒเธฃเธ—เธฑเนเธเธซเธกเธ”", str(total), "เธฃเธฒเธขเธเธฒเธฃ", "records", "#7C3AED", "#F3E8FF"),
-            ("Active / Licensed", str(active) if status_col else "-", "เธเธฃเนเธญเธกเนเธเนเธเธฒเธ", "active", "#10B981", "#E7F8EF"),
-            ("Expiring Soon", str(expiring) if expiry_col else "-", "เธ เธฒเธขเนเธ 90 เธงเธฑเธ", "clock", "#F59E0B", "#FFF4E5"),
-            ("Expired / Inactive", str(expired + inactive) if (expiry_col or status_col) else "-", "เธซเธกเธ”เธญเธฒเธขเธธเธซเธฃเธทเธญเธเธดเธ”เนเธเนเธเธฒเธ", "warning", "#EF4444", "#FEECEF"),
-            ("เธเธณเธเธงเธเธเธนเนเนเธเนเธเธฒเธ", f"{total_users:,}" if total_users is not None else "-", "เธเธนเนเนเธเนเธเธฒเธเธฃเธงเธก", "users", "#3B82F6", "#EAF3FF"),
+            ("รายการทั้งหมด", str(total), "รายการ", "records", "#7C3AED", "#F3E8FF"),
+            ("Active / Licensed", str(active) if status_col else "-", "พร้อมใช้งาน", "active", "#10B981", "#E7F8EF"),
+            ("Expiring Soon", str(expiring) if expiry_col else "-", "ภายใน 90 วัน", "clock", "#F59E0B", "#FFF4E5"),
+            ("Expired / Inactive", str(expired + inactive) if (expiry_col or status_col) else "-", "หมดอายุหรือปิดใช้งาน", "warning", "#EF4444", "#FEECEF"),
+            ("จำนวนผู้ใช้งาน", f"{total_users:,}" if total_users is not None else "-", "ผู้ใช้งานรวม", "users", "#3B82F6", "#EAF3FF"),
         ]
         icon_paths = {
             "records": '<rect x="5" y="4" width="12" height="15" rx="2"/><path d="M9 8h5M9 12h5M9 16h3"/><path d="M17 8h3v12H9v-1"/>',
@@ -5167,35 +5140,35 @@ else:
 
         def _ge_reset():
             st.session_state.ge_search = ""
-            st.session_state.ge_license = "เธ—เธฑเนเธเธซเธกเธ”"
-            st.session_state.ge_status = "เธ—เธฑเนเธเธซเธกเธ”"
+            st.session_state.ge_license = "ทั้งหมด"
+            st.session_state.ge_status = "ทั้งหมด"
 
         license_values = sorted({record["license"] for record in records if record["license"] not in ("", "-")})
         status_values = sorted({record["status"] for record in records if record["status"] not in ("", "-")})
         with st.container(key="ge_filter_panel"):
-            st.markdown('<div class="ge-filter-panel ge-searchbar"><div class="ge-filter-title">เธเนเธเธซเธฒเธเนเธญเธกเธนเธฅ</div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="ge-filter-panel ge-searchbar"><div class="ge-filter-title">ค้นหาข้อมูล</div></div>', unsafe_allow_html=True)
             filter_left, filter_license, filter_status, filter_reset, filter_search = st.columns([0.42, 0.19, 0.17, 0.10, 0.12], gap="small")
             with filter_left:
-                search_value = st.text_input("เธเนเธเธซเธฒ", placeholder="เธเนเธเธซเธฒ Group E-mail, Email, License, Company...", label_visibility="collapsed", key="ge_search")
+                search_value = st.text_input("ค้นหา", placeholder="ค้นหา Group E-mail, Email, License, Company...", label_visibility="collapsed", key="ge_search")
             with filter_license:
-                selected_license = st.selectbox("License Type", ["เธ—เธฑเนเธเธซเธกเธ”"] + license_values, label_visibility="collapsed", key="ge_license")
+                selected_license = st.selectbox("License Type", ["ทั้งหมด"] + license_values, label_visibility="collapsed", key="ge_license")
             with filter_status:
-                selected_status = st.selectbox("Status", ["เธ—เธฑเนเธเธซเธกเธ”"] + status_values, label_visibility="collapsed", key="ge_status")
+                selected_status = st.selectbox("Status", ["ทั้งหมด"] + status_values, label_visibility="collapsed", key="ge_status")
             with filter_reset:
-                st.button("เธฃเธตเน€เธเนเธ•", key="ge_reset", use_container_width=True, on_click=_ge_reset)
+                st.button("รีเซ็ต", key="ge_reset", use_container_width=True, on_click=_ge_reset)
             with filter_search:
-                st.button("เธเนเธเธซเธฒ", key="ge_submit", use_container_width=True, type="primary")
+                st.button("ค้นหา", key="ge_submit", use_container_width=True, type="primary")
 
         visible = records
         if search_value.strip():
             needle = _ge_norm(search_value)
             visible = [record for record in visible if needle in _ge_norm(record["search"])]
-        if selected_license != "เธ—เธฑเนเธเธซเธกเธ”":
+        if selected_license != "ทั้งหมด":
             visible = [record for record in visible if record["license"] == selected_license]
-        if selected_status != "เธ—เธฑเนเธเธซเธกเธ”":
+        if selected_status != "ทั้งหมด":
             visible = [record for record in visible if record["status"] == selected_status]
 
-        status_colors = {"active": ("Active", "green"), "expiring": ("Expiring", "orange"), "expired": ("Expired", "red"), "inactive": ("Inactive", "gray"), "unknown": ("เนเธกเนเธฃเธฐเธเธธ", "gray")}
+        status_colors = {"active": ("Active", "green"), "expiring": ("Expiring", "orange"), "expired": ("Expired", "red"), "inactive": ("Inactive", "gray"), "unknown": ("ไม่ระบุ", "gray")}
         table_rows = []
         for record in visible:
             status_label, status_tone = status_colors[record["state"]]
@@ -5203,7 +5176,7 @@ else:
             expiry_text = record["expiry"].strftime("%d/%m/%Y") if record["expiry"] else "-"
             users_text = f"{int(record['users']):,}" if pd.notna(record["users"]) else "-"
             table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td><td class="ge-action">โ€ขโ€ขโ€ข</td></tr>''')
-        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="11"><div class="ge-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธชเธณเธซเธฃเธฑเธเนเธชเธ”เธเธเธฅ</div></td></tr>'
+        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="11"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
 
         known_total = active + expiring + expired + inactive
         if known_total:
@@ -5214,7 +5187,7 @@ else:
             donut_bg = f"conic-gradient(#10B981 0 {active_pct:.2f}%,#F59E0B {active_pct:.2f}% {active_pct + expiring_pct:.2f}%,#EF4444 {active_pct + expiring_pct:.2f}% {inactive_start:.2f}%,#64748B {inactive_start:.2f}% 100%)"
             status_panel = f'''<div class="ge-chart-panel"><div class="ge-panel-title">License Status Overview</div><div class="ge-donut-layout"><div class="ge-donut" style="background:{donut_bg}"><div><b>{known_total}</b><span>Total</span></div></div><div class="ge-legend"><p><i style="background:#10B981"></i><span>Active</span><b>{active}</b></p><p><i style="background:#F59E0B"></i><span>Expiring Soon</span><b>{expiring}</b></p><p><i style="background:#EF4444"></i><span>Expired</span><b>{expired}</b></p><p><i style="background:#64748B"></i><span>Inactive</span><b>{inactive}</b></p></div></div></div>'''
         else:
-            status_panel = '<div class="ge-chart-panel"><div class="ge-panel-title">License Status Overview</div><div class="ge-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธชเธ–เธฒเธเธฐ License</div></div>'
+            status_panel = '<div class="ge-chart-panel"><div class="ge-panel-title">License Status Overview</div><div class="ge-empty-state">ยังไม่มีข้อมูลสถานะ License</div></div>'
 
         company_stats = {}
         for record in records:
@@ -5228,23 +5201,23 @@ else:
         top_companies = sorted(company_stats.items(), key=lambda item: item[1]["records"], reverse=True)[:5]
         max_company = max((value["records"] for _, value in top_companies), default=1)
         company_html = ''.join(f'''<div class="ge-company-row"><div><b>{html.escape(company)}</b><span>{stats["users"]:,} Users</span></div><div class="ge-company-bar"><i style="width:{stats["records"] / max_company * 100:.1f}%"></i></div><strong>{stats["records"]} Group</strong></div>''' for company, stats in top_companies)
-        company_body = company_html or '<div class="ge-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅ Company</div>'
+        company_body = company_html or '<div class="ge-empty-state">ยังไม่มีข้อมูล Company</div>'
         company_panel = f'<div class="ge-company-panel"><div class="ge-panel-title">Top Companies</div>{company_body}</div>'
 
         expiring_records = sorted([record for record in records if record["days"] is not None and 0 <= record["days"] <= 90], key=lambda record: record["days"])[:5]
-        expiring_html = ''.join(f'''<div class="ge-expiring-row"><div class="ge-expiring-icon">{search_svg}</div><div><b>{html.escape(record["company"])}</b><span>{html.escape(record["license"])}</span></div><div><b>{record["expiry"].strftime("%d/%m/%Y")}</b><span>เน€เธซเธฅเธทเธญ {record["days"]} เธงเธฑเธ</span></div></div>''' for record in expiring_records)
-        expiring_body = expiring_html or '<div class="ge-empty-state">เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเนเธเธฅเนเธซเธกเธ”เธญเธฒเธขเธธ</div>'
-        expiring_panel = f'<div class="ge-expiring-panel"><div class="ge-panel-title">เธเธณเธฅเธฑเธเธเธฐเธซเธกเธ”เธญเธฒเธขเธธ <small>เธ เธฒเธขเนเธ 90 เธงเธฑเธ</small></div>{expiring_body}</div>'
+        expiring_html = ''.join(f'''<div class="ge-expiring-row"><div class="ge-expiring-icon">{search_svg}</div><div><b>{html.escape(record["company"])}</b><span>{html.escape(record["license"])}</span></div><div><b>{record["expiry"].strftime("%d/%m/%Y")}</b><span>เหลือ {record["days"]} วัน</span></div></div>''' for record in expiring_records)
+        expiring_body = expiring_html or '<div class="ge-empty-state">ไม่พบรายการที่ใกล้หมดอายุ</div>'
+        expiring_panel = f'<div class="ge-expiring-panel"><div class="ge-panel-title">กำลังจะหมดอายุ <small>ภายใน 90 วัน</small></div>{expiring_body}</div>'
 
         main_left, main_right = st.columns([0.72, 0.28], gap="medium")
         with main_left:
-            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>เธฃเธฒเธขเธเธฒเธฃ Group E-mail เธ—เธฑเนเธเธซเธกเธ”</b><span>เนเธชเธ”เธ {len(visible)} เธเธฒเธ {total} เธฃเธฒเธขเธเธฒเธฃ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
             if activities:
                 activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
                 st.markdown(f'<div class="ge-activity-panel"><div class="ge-panel-title">Recent Activity</div>{activity_html}</div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="ge-activity-panel"><div class="ge-panel-title">Recent Activity</div><div class="ge-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธเธดเธเธเธฃเธฃเธกเธฅเนเธฒเธชเธธเธ”</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="ge-activity-panel"><div class="ge-panel-title">Recent Activity</div><div class="ge-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div>', unsafe_allow_html=True)
         with main_right:
             st.markdown(status_panel + company_panel + expiring_panel, unsafe_allow_html=True)
 
@@ -5258,15 +5231,15 @@ else:
         """Render a read-only detail page from one dedicated software workbook."""
         if category_name not in ("Office 365", "Group Email"):
             page_header(icon, title, subtitle)
-        with st.spinner("เธเธณเธฅเธฑเธเนเธซเธฅเธ”เนเธเธฅเน Software เธเธฒเธ SharePoint..."):
+        with st.spinner("กำลังโหลดไฟล์ Software จาก SharePoint..."):
             _software_sheets, _software_errors = load_software_excels()
         _software_df = _software_sheets.get(category_name)
         _expected_file = SOFTWARE_FILE_MAP.get(category_name, "-")
         if _software_df is None or _software_df.empty:
             _file_error = _software_errors.get(_expected_file) if isinstance(_software_errors, dict) else None
-            st.info(f"เธขเธฑเธเนเธกเนเธเธเธเนเธญเธกเธนเธฅเนเธเนเธเธฅเน {_expected_file}")
+            st.info(f"ยังไม่พบข้อมูลในไฟล์ {_expected_file}")
             if _file_error:
-                st.caption(f"เธ•เธณเนเธซเธเนเธเธ—เธตเนเธ•เธฃเธงเธเธชเธญเธ: {SHAREPOINT_FOLDER}/{_expected_file} ยท {_file_error}")
+                st.caption(f"ตำแหน่งที่ตรวจสอบ: {SHAREPOINT_FOLDER}/{_expected_file} · {_file_error}")
             return
 
         if category_name == "Group Email":
@@ -5309,20 +5282,20 @@ else:
                     "cost": '<circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.7-.8-1.8-1.3-3-1.3-1.7 0-3 1-3 2.3 0 3.5 6 1.5 6 5 0 1.3-1.3 2.3-3 2.3-1.3 0-2.5-.5-3.2-1.4M12 5v14"/>',
                 }
                 return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{_paths[kind]}</svg>'
-            st.markdown(f'''<div class="o365-page"><div class="o365-header"><div class="o365-brand-icon">{_office_svg}</div><div class="o365-heading"><div class="o365-eyebrow">MICROSOFT 365 ACCOUNT CENTER</div><div class="o365-title">Office 365</div><div class="o365-subtitle">เธเธฑเธ”เธเธฒเธฃเธเธฑเธเธเธต เธเธนเนเนเธเนเธเธฒเธ เนเธฅเธฐเธชเธ–เธฒเธเธฐ License เธเธญเธเธญเธเธเนเธเธฃ</div></div><div class="o365-source"><span></span>เน€เธเธทเนเธญเธกเธ•เนเธญ SharePoint เธชเธณเน€เธฃเนเธ<small>{html.escape(_expected_file)}</small></div></div></div>''', unsafe_allow_html=True)
+            st.markdown(f'''<div class="o365-page"><div class="o365-header"><div class="o365-brand-icon">{_office_svg}</div><div class="o365-heading"><div class="o365-eyebrow">MICROSOFT 365 ACCOUNT CENTER</div><div class="o365-title">Office 365</div><div class="o365-subtitle">จัดการบัญชี ผู้ใช้งาน และสถานะ License ขององค์กร</div></div><div class="o365-source"><span></span>เชื่อมต่อ SharePoint สำเร็จ<small>{html.escape(_expected_file)}</small></div></div></div>''', unsafe_allow_html=True)
 
             _refresh_col, _space_col = st.columns([0.16, 0.84])
             with _refresh_col:
-                if st.button("โป เธฃเธตเน€เธเธฃเธเธเนเธญเธกเธนเธฅ", key="o365_refresh", use_container_width=True):
+                if st.button("↻ รีเฟรชข้อมูล", key="o365_refresh", use_container_width=True):
                     load_software_excels.clear()
                     st.rerun()
 
             _o365_metrics = [
-                ("เธเธฑเธเธเธตเธ—เธฑเนเธเธซเธกเธ”", f"{_o365_total:,}", "Accounts", "accounts", "#4F46E5", "#EEF2FF"),
-                ("Active / Licensed", f"{_o365_active:,}" if _status_col else "-", "เธเธฃเนเธญเธกเนเธเนเธเธฒเธ", "active", "#059669", "#E8F8F1"),
-                ("เธเธนเนเนเธเนเธเธฒเธเธ—เธตเนเธฃเธญเธเธฃเธฑเธ", f"{int(_o365_users):,}" if pd.notna(_o365_users) else "-", "Assigned users", "users", "#0284C7", "#EAF6FF"),
-                ("เนเธเธฅเนเธซเธกเธ”เธญเธฒเธขเธธ", f"{_o365_expiring:,}" if _expiry_col else "-", "เธ เธฒเธขเนเธ 90 เธงเธฑเธ", "expiry", "#D97706", "#FFF4E5"),
-                ("เธเนเธฒเนเธเนเธเนเธฒเธขเธฃเธงเธก", f"เธฟ{float(_o365_cost):,.0f}" if pd.notna(_o365_cost) else "-", "เธเธฒเธเธเนเธญเธกเธนเธฅ Cost", "cost", "#7C3AED", "#F3E8FF"),
+                ("บัญชีทั้งหมด", f"{_o365_total:,}", "Accounts", "accounts", "#4F46E5", "#EEF2FF"),
+                ("Active / Licensed", f"{_o365_active:,}" if _status_col else "-", "พร้อมใช้งาน", "active", "#059669", "#E8F8F1"),
+                ("ผู้ใช้งานที่รองรับ", f"{int(_o365_users):,}" if pd.notna(_o365_users) else "-", "Assigned users", "users", "#0284C7", "#EAF6FF"),
+                ("ใกล้หมดอายุ", f"{_o365_expiring:,}" if _expiry_col else "-", "ภายใน 90 วัน", "expiry", "#D97706", "#FFF4E5"),
+                ("ค่าใช้จ่ายรวม", f"฿{float(_o365_cost):,.0f}" if pd.notna(_o365_cost) else "-", "จากข้อมูล Cost", "cost", "#7C3AED", "#F3E8FF"),
             ]
             st.markdown('<div class="o365-kpi-grid">' + ''.join(
                 f'<div class="o365-kpi" style="--accent:{color}"><div class="o365-kpi-icon" style="color:{color};background:{bg}">{_o365_metric_svg(kind)}</div><div class="o365-kpi-label">{label}</div><div class="o365-kpi-value">{value}</div><div class="o365-kpi-sub">{sub}</div></div>'
@@ -5331,23 +5304,23 @@ else:
 
             _filter_search, _filter_company, _filter_status, _filter_password = st.columns([0.43, 0.21, 0.20, 0.16], gap="small")
             with _filter_search:
-                _o365_search = st.text_input("เธเนเธเธซเธฒ", placeholder="เธเนเธเธซเธฒ Account, Company, Plan, User...", label_visibility="collapsed", key="o365_search")
+                _o365_search = st.text_input("ค้นหา", placeholder="ค้นหา Account, Company, Plan, User...", label_visibility="collapsed", key="o365_search")
             with _filter_company:
                 _companies = sorted({str(v).strip() for v in _software_df[_company_col].dropna() if str(v).strip()}) if _company_col else []
-                _selected_company = st.selectbox("Company", ["เธ—เธธเธเธเธฃเธดเธฉเธฑเธ—"] + _companies, label_visibility="collapsed", key="o365_company")
+                _selected_company = st.selectbox("Company", ["ทุกบริษัท"] + _companies, label_visibility="collapsed", key="o365_company")
             with _filter_status:
                 _statuses = sorted({str(v).strip() for v in _software_df[_status_col].dropna() if str(v).strip()}) if _status_col else []
-                _selected_status = st.selectbox("Status", ["เธ—เธธเธเธชเธ–เธฒเธเธฐ"] + _statuses, label_visibility="collapsed", key="o365_status")
+                _selected_status = st.selectbox("Status", ["ทุกสถานะ"] + _statuses, label_visibility="collapsed", key="o365_status")
             with _filter_password:
-                _show_password = st.checkbox("เนเธชเธ”เธ Password", value=False, disabled=not admin_mode, key="o365_show_password")
+                _show_password = st.checkbox("แสดง Password", value=False, disabled=not admin_mode, key="o365_show_password")
 
             _office_view = _software_df.copy()
             if _o365_search.strip():
                 _mask = _office_view.fillna("").astype(str).agg(" ".join, axis=1).str.contains(re.escape(_o365_search.strip()), case=False, na=False)
                 _office_view = _office_view[_mask]
-            if _company_col and _selected_company != "เธ—เธธเธเธเธฃเธดเธฉเธฑเธ—":
+            if _company_col and _selected_company != "ทุกบริษัท":
                 _office_view = _office_view[_office_view[_company_col].fillna("").astype(str) == _selected_company]
-            if _status_col and _selected_status != "เธ—เธธเธเธชเธ–เธฒเธเธฐ":
+            if _status_col and _selected_status != "ทุกสถานะ":
                 _office_view = _office_view[_office_view[_status_col].fillna("").astype(str) == _selected_status]
 
             _table_rows = []
@@ -5366,15 +5339,15 @@ else:
                 _password = html.escape(str(_row.get(_password_col, "") or "")) if _password_col and _show_password and admin_mode else "โ€ขโ€ขโ€ขโ€ขโ€ขโ€ขโ€ขโ€ข"
                 _table_rows.append(f'''<tr><td><div class="o365-account"><span>{_account[:1].upper() if _account else "O"}</span><div><b>{_account}</b><small>{_publisher_col and html.escape(str(_row.get(_publisher_col, ""))) or "Microsoft 365"}</small></div></div></td><td><span class="o365-company">{_company}</span></td><td>{_plan}</td><td class="o365-users">{_users}<small>{_user_list}</small></td><td><span class="o365-status { _status_class }">{html.escape(_status)}</span></td><td>{_expiry}</td><td><code>{_password}</code></td></tr>''')
 
-            _plan_counts = _office_view[_plan_col].fillna("เนเธกเนเธฃเธฐเธเธธ").astype(str).value_counts().head(6) if _plan_col else pd.Series(dtype="int64")
+            _plan_counts = _office_view[_plan_col].fillna("ไม่ระบุ").astype(str).value_counts().head(6) if _plan_col else pd.Series(dtype="int64")
             _max_plan = int(_plan_counts.max()) if not _plan_counts.empty else 1
             _plan_html = ''.join(f'<div class="o365-plan-row"><div><span>{html.escape(str(plan))}</span><b>{int(count)}</b></div><div><i style="width:{max(4, int(count)/_max_plan*100)}%"></i></div></div>' for plan, count in _plan_counts.items())
             _content_left, _content_right = st.columns([0.76, 0.24], gap="medium")
             with _content_left:
-                _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธ•เธฒเธกเธ•เธฑเธงเธเธฃเธญเธ</div></td></tr>'
-                st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} เธฃเธฒเธขเธเธฒเธฃ</span></div><small>เธเนเธญเธกเธนเธฅเธฅเนเธฒเธชเธธเธ”เธเธฒเธ SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+                _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">ไม่พบข้อมูลตามตัวกรอง</div></td></tr>'
+                st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} รายการ</span></div><small>ข้อมูลล่าสุดจาก SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             with _content_right:
-                st.markdown(f'''<div class="o365-side-panel"><div class="o365-panel-head"><div><b>License Plans</b><span>เธชเธฑเธ”เธชเนเธงเธเธ•เธฒเธกเธเนเธญเธกเธนเธฅเธเธฃเธดเธ</span></div></div><div class="o365-plan-list">{_plan_html or '<div class="o365-empty">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅ License Plan</div>'}</div></div><div class="o365-side-panel o365-summary"><div class="o365-panel-head"><div><b>Account Health</b><span>เธ เธฒเธเธฃเธงเธกเธชเธ–เธฒเธเธฐเธเธฑเธเธเธต</span></div></div><div class="o365-health"><div><span>Active rate</span><b>{round(_o365_active/_o365_total*100) if _o365_total else 0}%</b></div><div><span>Companies</span><b>{len(_companies)}</b></div><div><span>Expiring soon</span><b>{_o365_expiring}</b></div></div></div>''', unsafe_allow_html=True)
+                st.markdown(f'''<div class="o365-side-panel"><div class="o365-panel-head"><div><b>License Plans</b><span>สัดส่วนตามข้อมูลจริง</span></div></div><div class="o365-plan-list">{_plan_html or '<div class="o365-empty">ยังไม่มีข้อมูล License Plan</div>'}</div></div><div class="o365-side-panel o365-summary"><div class="o365-panel-head"><div><b>Account Health</b><span>ภาพรวมสถานะบัญชี</span></div></div><div class="o365-health"><div><span>Active rate</span><b>{round(_o365_active/_o365_total*100) if _o365_total else 0}%</b></div><div><span>Companies</span><b>{len(_companies)}</b></div><div><span>Expiring soon</span><b>{_o365_expiring}</b></div></div></div>''', unsafe_allow_html=True)
 
             st.markdown('''<style>
             .o365-page{color:#0F172A}.o365-header{position:relative;display:flex;align-items:center;gap:20px;min-height:148px;padding:29px 32px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,.2);border-radius:26px;background:linear-gradient(118deg,#1E40AF 0%,#4F46E5 52%,#7C3AED 100%);box-shadow:0 18px 38px rgba(67,56,202,.20)}.o365-header:before{content:'';position:absolute;right:12%;bottom:-115px;width:370px;height:210px;border:1px solid rgba(255,255,255,.13);border-radius:50%}.o365-header:after{content:'';position:absolute;right:-55px;top:-100px;width:270px;height:270px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),rgba(255,255,255,0) 70%)}.o365-brand-icon{display:grid;place-items:center;width:72px;height:72px;flex:none;border:1px solid rgba(255,255,255,.42);border-radius:21px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px rgba(15,23,42,.22)}.o365-brand-icon svg{width:43px;height:43px}.o365-heading{position:relative;z-index:1}.o365-eyebrow{margin-bottom:6px;color:#C7D2FE;font-size:10px;font-weight:900;letter-spacing:.12em}.o365-title{color:#FFF;font-size:34px;line-height:1;font-weight:900;letter-spacing:-.04em}.o365-subtitle{margin-top:10px;color:rgba(255,255,255,.78);font-size:13px}.o365-source{position:relative;z-index:1;margin-left:auto;margin-right:20px;padding:12px 15px;border:1px solid rgba(255,255,255,.24);border-radius:14px;color:#D1FAE5;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);font-size:11px;font-weight:700}.o365-source span{display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%;background:#34D399;box-shadow:0 0 0 4px rgba(52,211,153,.15)}.o365-source small{display:block;margin:4px 0 0 15px;color:rgba(255,255,255,.66);font-weight:500}
@@ -5404,11 +5377,11 @@ else:
             days_left = (expiry_value.date() - now_detail.date()).days if pd.notna(expiry_value) else None
             if days_left is not None and days_left < 0:
                 state = "expired"
-            elif any(token in status_text for token in ("inactive", "disabled", "offboard", "resigned", "เธฅเธฒเธญเธญเธ", "เธขเธเน€เธฅเธดเธ")):
+            elif any(token in status_text for token in ("inactive", "disabled", "offboard", "resigned", "ลาออก", "ยกเลิก")):
                 state = "inactive"
             elif days_left is not None and 0 <= days_left <= 90:
                 state = "expiring"
-            elif any(token in status_text for token in ("active", "licensed", "valid", "activated", "เนเธเนเธเธฒเธ")):
+            elif any(token in status_text for token in ("active", "licensed", "valid", "activated", "ใช้งาน")):
                 state = "active"
             else:
                 state = "unknown"
@@ -5426,37 +5399,37 @@ else:
         assigned_values = pd.to_numeric(detail_df[user_column], errors="coerce") if user_column else pd.Series(dtype="float64")
         assigned_total = assigned_values.sum(min_count=1) if not assigned_values.empty else None
         if category_name == "Offboarded Employees":
-            fifth_label, fifth_value, fifth_sub = "Completed / Disabled", str(inactive_records) if status_column else "-", "เธ”เธณเน€เธเธดเธเธเธฒเธฃเนเธฅเนเธง"
+            fifth_label, fifth_value, fifth_sub = "Completed / Disabled", str(inactive_records) if status_column else "-", "ดำเนินการแล้ว"
         elif pd.notna(assigned_total):
-            fifth_label, fifth_value, fifth_sub = "เธเธณเธเธงเธเธเธนเนเนเธเนเธเธฒเธ", f"{int(assigned_total):,}", "Assigned users"
+            fifth_label, fifth_value, fifth_sub = "จำนวนผู้ใช้งาน", f"{int(assigned_total):,}", "Assigned users"
         else:
-            fifth_label, fifth_value, fifth_sub = "เธเนเธฒเนเธเนเธเนเธฒเธขเธฃเธงเธก", f"เธฟ{float(total_cost):,.0f}" if pd.notna(total_cost) else "-", "เธเนเธญเธกเธนเธฅ Cost / Price"
+            fifth_label, fifth_value, fifth_sub = "ค่าใช้จ่ายรวม", f"฿{float(total_cost):,.0f}" if pd.notna(total_cost) else "-", "ข้อมูล Cost / Price"
 
         sd_metrics = [
-            ("เธฃเธฒเธขเธเธฒเธฃเธ—เธฑเนเธเธซเธกเธ”", str(total_records), "เธฃเธฒเธขเธเธฒเธฃเธเธฒเธเธเนเธญเธกเธนเธฅเธเธฃเธดเธ", "#6366F1", "#EEF2FF"),
-            ("Active / Licensed", str(active_records) if status_column else "-", "เธเธฃเนเธญเธกเนเธเนเธเธฒเธ", "#10B981", "#E7F8EF"),
-            ("Expiring Soon", str(expiring_records) if expiry_column else "-", "เธ เธฒเธขเนเธ 90 เธงเธฑเธ", "#F59E0B", "#FFF4E5"),
-            ("Expired / Inactive", str(inactive_records) if (status_column or expiry_column) else "-", "เธซเธกเธ”เธญเธฒเธขเธธเธซเธฃเธทเธญเธเธดเธ”เนเธเนเธเธฒเธ", "#EF4444", "#FEECEF"),
+            ("รายการทั้งหมด", str(total_records), "รายการจากข้อมูลจริง", "#6366F1", "#EEF2FF"),
+            ("Active / Licensed", str(active_records) if status_column else "-", "พร้อมใช้งาน", "#10B981", "#E7F8EF"),
+            ("Expiring Soon", str(expiring_records) if expiry_column else "-", "ภายใน 90 วัน", "#F59E0B", "#FFF4E5"),
+            ("Expired / Inactive", str(inactive_records) if (status_column or expiry_column) else "-", "หมดอายุหรือปิดใช้งาน", "#EF4444", "#FEECEF"),
             (fifth_label, fifth_value, fifth_sub, "#3B82F6", "#EAF3FF"),
         ]
         st.markdown('<div class="sd-kpi-grid">' + ''.join(f'<div class="sd-kpi-card"><div class="sd-kpi-icon" style="color:{tone};background:{soft}"></div><div class="sd-kpi-label">{html.escape(label)}</div><div class="sd-kpi-value">{html.escape(value)}</div><div class="sd-kpi-sub">{html.escape(sub)}</div></div>' for label, value, sub, tone, soft in sd_metrics) + '</div>', unsafe_allow_html=True)
 
         filter_search, filter_status, filter_company = st.columns([0.55, 0.20, 0.25], gap="small")
         with filter_search:
-            search_detail = st.text_input("เธเนเธเธซเธฒ", placeholder=f"เธเนเธเธซเธฒเนเธ {title}...", label_visibility="collapsed", key=f"sd_search_{category_name}")
+            search_detail = st.text_input("ค้นหา", placeholder=f"ค้นหาใน {title}...", label_visibility="collapsed", key=f"sd_search_{category_name}")
         statuses = sorted({str(value).strip() for value in detail_df[status_column].dropna() if str(value).strip()}) if status_column else []
         companies = sorted({str(value).strip() for value in detail_df[company_column].dropna() if str(value).strip()}) if company_column else []
         with filter_status:
-            status_filter = st.selectbox("Status", ["เธ—เธธเธเธชเธ–เธฒเธเธฐ"] + statuses, label_visibility="collapsed", key=f"sd_status_{category_name}")
+            status_filter = st.selectbox("Status", ["ทุกสถานะ"] + statuses, label_visibility="collapsed", key=f"sd_status_{category_name}")
         with filter_company:
-            company_filter = st.selectbox("Company", ["เธ—เธฑเนเธเธซเธกเธ”"] + companies, label_visibility="collapsed", key=f"sd_company_{category_name}")
+            company_filter = st.selectbox("Company", ["ทั้งหมด"] + companies, label_visibility="collapsed", key=f"sd_company_{category_name}")
         visible_df = detail_df.copy()
         if search_detail.strip():
             mask = visible_df.fillna("").astype(str).agg(" ".join, axis=1).str.contains(re.escape(search_detail.strip()), case=False, na=False)
             visible_df = visible_df[mask]
-        if status_column and status_filter != "เธ—เธธเธเธชเธ–เธฒเธเธฐ":
+        if status_column and status_filter != "ทุกสถานะ":
             visible_df = visible_df[visible_df[status_column].fillna("").astype(str) == status_filter]
-        if company_column and company_filter != "เธ—เธฑเนเธเธซเธกเธ”":
+        if company_column and company_filter != "ทั้งหมด":
             visible_df = visible_df[visible_df[company_column].fillna("").astype(str) == company_filter]
 
         display_columns = [column for column in _software_df.columns if column not in ("Source File", "Source Sheet")][:10]
@@ -5465,22 +5438,22 @@ else:
         for row_index, row in visible_df.iterrows():
             cells = ''.join(f'<td>{html.escape(str(row.get(column, "-") if pd.notna(row.get(column)) else "-"))}</td>' for column in display_columns)
             state = row.get("_Dashboard State", "unknown")
-            state_label = {"active":"Active","expiring":"Expiring","expired":"Expired","inactive":"Inactive","unknown":"เนเธกเนเธฃเธฐเธเธธ"}.get(state, "เนเธกเนเธฃเธฐเธเธธ")
+            state_label = {"active":"Active","expiring":"Expiring","expired":"Expired","inactive":"Inactive","unknown":"ไม่ระบุ"}.get(state, "ไม่ระบุ")
             body_rows.append(f'<tr>{cells}<td><span class="sd-status sd-{state}">{state_label}</span></td></tr>')
-        body_html = ''.join(body_rows) if body_rows else f'<tr><td colspan="{len(display_columns)+1}"><div class="sd-empty">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธชเธณเธซเธฃเธฑเธเนเธชเธ”เธเธเธฅ</div></td></tr>'
+        body_html = ''.join(body_rows) if body_rows else f'<tr><td colspan="{len(display_columns)+1}"><div class="sd-empty">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
 
         known_total = active_records + expiring_records + inactive_records
         active_pct = active_records / max(known_total, 1) * 100
         expiring_pct = expiring_records / max(known_total, 1) * 100
         donut_bg = f"conic-gradient(#10B981 0 {active_pct:.2f}%,#F59E0B {active_pct:.2f}% {active_pct+expiring_pct:.2f}%,#EF4444 {active_pct+expiring_pct:.2f}% 100%)" if known_total else "#E2E8F0"
-        company_counts = visible_df[company_column].fillna("เนเธกเนเธฃเธฐเธเธธ").astype(str).value_counts().head(5) if company_column else pd.Series(dtype="int64")
-        company_rows = ''.join(f'<div class="sd-rank-row"><span>{html.escape(str(name))}</span><b>{int(count)}</b></div>' for name, count in company_counts.items()) or '<div class="sd-empty">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅ Company / Publisher</div>'
+        company_counts = visible_df[company_column].fillna("ไม่ระบุ").astype(str).value_counts().head(5) if company_column else pd.Series(dtype="int64")
+        company_rows = ''.join(f'<div class="sd-rank-row"><span>{html.escape(str(name))}</span><b>{int(count)}</b></div>' for name, count in company_counts.items()) or '<div class="sd-empty">ยังไม่มีข้อมูล Company / Publisher</div>'
         expiry_view = visible_df[visible_df["_Days Left"].apply(lambda value: value is not None and 0 <= value <= 90)].sort_values("_Days Left").head(5)
-        expiry_rows = ''.join(f'<div class="sd-expiry-row"><span>{html.escape(str(row.get(display_columns[0], "-")))}</span><b>{int(row["_Days Left"])} เธงเธฑเธ</b></div>' for _, row in expiry_view.iterrows()) or '<div class="sd-empty">เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเนเธเธฅเนเธซเธกเธ”เธญเธฒเธขเธธ</div>'
+        expiry_rows = ''.join(f'<div class="sd-expiry-row"><span>{html.escape(str(row.get(display_columns[0], "-")))}</span><b>{int(row["_Days Left"])} วัน</b></div>' for _, row in expiry_view.iterrows()) or '<div class="sd-empty">ไม่พบรายการที่ใกล้หมดอายุ</div>'
 
         detail_left, detail_right = st.columns([0.72, 0.28], gap="medium")
         with detail_left:
-            st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>เธฃเธฒเธขเธเธฒเธฃ {html.escape(title)} เธ—เธฑเนเธเธซเธกเธ”</b><span>{len(visible_df)} เธฃเธฒเธขเธเธฒเธฃ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>รายการ {html.escape(title)} ทั้งหมด</b><span>{len(visible_df)} รายการ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
             activity_rows = visible_df[visible_df[modified_column].notna()].copy() if modified_column else pd.DataFrame()
             if not activity_rows.empty:
                 activity_rows["_Modified"] = pd.to_datetime(activity_rows[modified_column], errors="coerce", dayfirst=True)
@@ -5488,7 +5461,7 @@ else:
                 activity_html = ''.join(f'<div class="sd-activity-row"><span>{html.escape(str(row.get(display_columns[0], "-")))}</span><time>{row["_Modified"].strftime("%d/%m/%Y %H:%M") if pd.notna(row["_Modified"]) else "-"}</time></div>' for _, row in activity_rows.iterrows())
                 st.markdown(f'<div class="sd-activity-panel"><div class="sd-panel-head"><b>Recent Activity</b></div>{activity_html}</div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="sd-activity-panel"><div class="sd-panel-head"><b>Recent Activity</b></div><div class="sd-empty">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธเธดเธเธเธฃเธฃเธกเธฅเนเธฒเธชเธธเธ”</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="sd-activity-panel"><div class="sd-panel-head"><b>Recent Activity</b></div><div class="sd-empty">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div>', unsafe_allow_html=True)
         with detail_right:
             st.markdown(f'<div class="sd-side-panel"><div class="sd-panel-head"><b>Status Overview</b></div><div class="sd-donut-wrap"><div class="sd-donut" style="background:{donut_bg}"><div><b>{known_total}</b><span>Total</span></div></div><div class="sd-legend"><p><i style="background:#10B981"></i>Active <b>{active_records}</b></p><p><i style="background:#F59E0B"></i>Expiring <b>{expiring_records}</b></p><p><i style="background:#EF4444"></i>Expired / Inactive <b>{inactive_records}</b></p></div></div></div><div class="sd-side-panel"><div class="sd-panel-head"><b>Top Company / Publisher</b></div>{company_rows}</div><div class="sd-side-panel"><div class="sd-panel-head"><b>Expiring Soon</b></div>{expiry_rows}</div>', unsafe_allow_html=True)
 
@@ -5518,7 +5491,7 @@ else:
             return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{_paths[kind]}</svg>'
 
         def _norm(value):
-            return re.sub(r"[^a-z0-9เธ-เน]+", " ", str(value).lower()).strip()
+            return re.sub(r"[^a-z0-9ก-๙]+", " ", str(value).lower()).strip()
 
         def _field(columns, names, contains=()):
             _lookup = {_norm(c): c for c in columns}
@@ -5553,17 +5526,17 @@ else:
             if value is None:
                 return "-"
             if abs(value) >= 1000000:
-                return f"เธฟ {value / 1000000:.2f}M"
+                return f"฿ {value / 1000000:.2f}M"
             if abs(value) >= 1000:
-                return f"เธฟ {value / 1000:.1f}K"
-            return f"เธฟ {value:,.0f}"
+                return f"฿ {value / 1000:.1f}K"
+            return f"฿ {value:,.0f}"
 
-        with st.spinner("เธเธณเธฅเธฑเธเธฃเธงเธเธฃเธงเธกเธเนเธญเธกเธนเธฅ Software เธเธฒเธเธฃเธฐเธเธเน€เธ”เธดเธก..."):
+        with st.spinner("กำลังรวบรวมข้อมูล Software จากระบบเดิม..."):
             try:
                 _sw_result = load_software_excels()
                 _sw_sheets, _sw_errors = _sw_result if isinstance(_sw_result, tuple) else ({}, {})
             except Exception:
-                _sw_sheets, _sw_errors = {}, {"Software": "เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเนเธ”เน"}
+                _sw_sheets, _sw_errors = {}, {"Software": "ไม่สามารถโหลดข้อมูลได้"}
         _sw_sheets = {str(k): v.copy() for k, v in (_sw_sheets or {}).items() if k != "_error" and isinstance(v, pd.DataFrame)}
 
         _configs = [
@@ -5571,7 +5544,7 @@ else:
             {"key":"office365","title":"Office 365","nav":"software_office365","icon":"office","tokens":["office 365","office365","microsoft 365","m365"]},
             {"key":"pdf","title":"PDF","nav":"software_pdf","icon":"pdf","tokens":["pdf","adobe","acrobat"]},
             {"key":"windows","title":"Windows","nav":"software_windows","icon":"windows","tokens":["windows"]},
-            {"key":"offboarded","title":"เธเธเธฑเธเธเธฒเธเธฅเธฒเธญเธญเธ","nav":"software_offboarded","icon":"offboard","tokens":["เธเธเธฑเธเธเธฒเธเธฅเธฒเธญเธญเธ","เธฅเธฒเธญเธญเธ","resign","offboard","former employee"]},
+            {"key":"offboarded","title":"พนักงานลาออก","nav":"software_offboarded","icon":"offboard","tokens":["พนักงานลาออก","ลาออก","resign","offboard","former employee"]},
             {"key":"security","title":"Antivirus / Security","nav":"password","icon":"security","tokens":["antivirus","security","endpoint","eset","symantec"]},
             {"key":"developer","title":"Developer Tools","nav":"password","icon":"developer","tokens":["developer","visual studio","github","source code"]},
         ]
@@ -5598,23 +5571,23 @@ else:
                     if not any(str(v).strip() not in ("", "nan", "None") for v in _row.tolist()):
                         continue
                     _columns = list(_frame.columns)
-                    _status_col = _field(_columns, ["Status", "License Status", "State"], ("license status", "status", "เธชเธ–เธฒเธเธฐ"))
+                    _status_col = _field(_columns, ["Status", "License Status", "State"], ("license status", "status", "สถานะ"))
                     _license_col = _field(_columns, ["License", "License Key", "Product Key", "Serial", "Subscription"], ("license", "product key", "serial", "subscription", "key"))
-                    _expiry_col = _field(_columns, ["Expiry Date", "Expire Date", "License Expiry", "End Date", "Renewal Date"], ("expiry", "expire", "เธซเธกเธ”เธญเธฒเธขเธธ", "end date", "renewal"))
-                    _cost_col = _field(_columns, ["Cost", "Price", "License Cost", "Amount"], ("cost", "price", "เธฃเธฒเธเธฒ", "เธกเธนเธฅเธเนเธฒ", "amount"))
+                    _expiry_col = _field(_columns, ["Expiry Date", "Expire Date", "License Expiry", "End Date", "Renewal Date"], ("expiry", "expire", "หมดอายุ", "end date", "renewal"))
+                    _cost_col = _field(_columns, ["Cost", "Price", "License Cost", "Amount"], ("cost", "price", "ราคา", "มูลค่า", "amount"))
                     _publisher_col = _field(_columns, ["Publisher", "Vendor", "Manufacturer", "Company", "Brand"], ("publisher", "vendor", "manufacturer", "brand"))
-                    _modified_col = _field(_columns, ["Modified", "Updated", "Last Modified", "Created"], ("modified", "updated", "created", "เธงเธฑเธเธ—เธตเนเนเธเนเนเธ"))
+                    _modified_col = _field(_columns, ["Modified", "Updated", "Last Modified", "Created"], ("modified", "updated", "created", "วันที่แก้ไข"))
                     _name_col = _field(_columns, ["Software", "Software Name", "Product", "Application", "Name", "Title", "Account"], ("software name", "product", "application", "name", "title"))
                     _status_text = _norm(_row.get(_status_col, "")) if _status_col else ""
                     _expiry = _date(_row.get(_expiry_col)) if _expiry_col else None
                     _days = (_expiry.date() - _today.date()).days if _expiry else None
                     if _days is not None and 0 <= _days <= 90:
                         _state = "expiring"
-                    elif any(x in _status_text for x in ("inactive", "disabled", "เนเธกเนเนเธ”เนเนเธเนเธเธฒเธ", "เธขเธเน€เธฅเธดเธเนเธเนเธเธฒเธ")):
+                    elif any(x in _status_text for x in ("inactive", "disabled", "ไม่ได้ใช้งาน", "ยกเลิกใช้งาน")):
                         _state = "inactive"
-                    elif any(x in _status_text for x in ("unlicensed", "expired", "เนเธกเนเธกเธต license", "เนเธกเนเธกเธตเนเธฅเน€เธเธเธชเน")):
+                    elif any(x in _status_text for x in ("unlicensed", "expired", "ไม่มี license", "ไม่มีไลเซนส์")):
                         _state = "unlicensed"
-                    elif any(x in _status_text for x in ("licensed", "active", "valid", "เนเธเนเธเธฒเธ")):
+                    elif any(x in _status_text for x in ("licensed", "active", "valid", "ใช้งาน")):
                         _state = "licensed"
                     elif _license_col and str(_row.get(_license_col, "")).strip() not in ("", "nan", "None", "-"):
                         _state = "licensed"
@@ -5630,7 +5603,7 @@ else:
                         "search": " ".join(str(v) for v in _row.tolist()),
                     })
 
-        st.markdown(f'<div class="sw-dashboard"><div class="sw-header"><div class="sw-header-icon">{_sw_svg("software")}</div><div><div class="sw-header-eyebrow">ENTERPRISE SOFTWARE CONTROL</div><div class="sw-header-title">Software Dashboard</div><div class="sw-header-sub">เธเธฑเธ”เธเธฒเธฃเธเธฑเธเธเธต License เนเธฅเธฐเธเธญเธเธ•เนเนเธงเธฃเนเธ—เธตเนเนเธเนเธเธฒเธเนเธเธญเธเธเนเธเธฃ</div></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="sw-dashboard"><div class="sw-header"><div class="sw-header-icon">{_sw_svg("software")}</div><div><div class="sw-header-eyebrow">ENTERPRISE SOFTWARE CONTROL</div><div class="sw-header-title">Software Dashboard</div><div class="sw-header-sub">จัดการบัญชี License และซอฟต์แวร์ที่ใช้งานในองค์กร</div></div></div></div>', unsafe_allow_html=True)
         _visible_rows = _rows
 
         _total = len(_visible_rows)
@@ -5643,11 +5616,11 @@ else:
         _total_cost = sum(_cost_values) if _cost_values else None
         _compliance = round((_licensed / _total) * 100) if _total and _known else None
         _kpis = [
-            ("Total Software", str(_total), "เธฃเธฒเธขเธเธฒเธฃเธเธฒเธเธเนเธญเธกเธนเธฅเธเธฃเธดเธ", "total", "#7C3AED", "#F1EBFF"),
-            ("Licensed", str(_licensed) if _known else "-", "เธชเธ–เธฒเธเธฐ Licensed / Active", "licensed", "#10B981", "#E5F8EF"),
-            ("Expiring Soon", str(_expiring) if _known else "-", "เธซเธกเธ”เธญเธฒเธขเธธเธ เธฒเธขเนเธ 90 เธงเธฑเธ", "expiring", "#F59E0B", "#FFF3E3"),
-            ("Unlicensed", str(_unlicensed) if _known else "-", "เธชเธ–เธฒเธเธฐ Unlicensed / Expired", "unlicensed", "#EF4444", "#FDEBEC"),
-            ("Total Cost", _fmt_money(_total_cost), "เธฃเธงเธกเธเธฒเธเธเธดเธฅเธ”เน Cost / Price", "cost", "#3B82F6", "#EAF3FF"),
+            ("Total Software", str(_total), "รายการจากข้อมูลจริง", "total", "#7C3AED", "#F1EBFF"),
+            ("Licensed", str(_licensed) if _known else "-", "สถานะ Licensed / Active", "licensed", "#10B981", "#E5F8EF"),
+            ("Expiring Soon", str(_expiring) if _known else "-", "หมดอายุภายใน 90 วัน", "expiring", "#F59E0B", "#FFF3E3"),
+            ("Unlicensed", str(_unlicensed) if _known else "-", "สถานะ Unlicensed / Expired", "unlicensed", "#EF4444", "#FDEBEC"),
+            ("Total Cost", _fmt_money(_total_cost), "รวมจากฟิลด์ Cost / Price", "cost", "#3B82F6", "#EAF3FF"),
             ("Compliance Score", f"{_compliance}%" if _compliance is not None else "-", "Licensed / Total Software", "compliance", "#10B981", "#E5F8EF"),
         ]
 
@@ -5663,7 +5636,7 @@ else:
 
         _left, _right = st.columns([2.05, 0.95], gap="medium")
         with _left:
-            st.markdown('<div class="sw-section-title">เธซเธกเธงเธ”เธซเธกเธนเนเธเธญเธเธ•เนเนเธงเธฃเน</div>', unsafe_allow_html=True)
+            st.markdown('<div class="sw-section-title">หมวดหมู่ซอฟต์แวร์</div>', unsafe_allow_html=True)
             _cat_cols = st.columns(3, gap="small")
             for _cat_pos, _cfg in enumerate(_category_data):
                 _cat_rows = [r for r in _visible_rows if r["category"] == _cfg["key"]]
@@ -5678,13 +5651,13 @@ else:
                 _colors = {"group_email":"#7C3AED","office365":"#F97316","pdf":"#EF4444","windows":"#3B82F6","offboarded":"#64748B","security":"#10B981","developer":"#8B5CF6","database":"#3B82F6","other":"#64748B"}
                 _cat_color = _colors[_cfg["key"]]
                 if _cfg["key"] == "offboarded":
-                    _cat_status_html = '<div class="sw-offboard-note"><b>Offboarding Records</b><span>เธ•เธฃเธงเธเธชเธญเธเธเธฑเธเธเธตเนเธฅเธฐเธชเธดเธ—เธเธดเนเธเธญเธเธเธเธฑเธเธเธฒเธเธ—เธตเนเธฅเธฒเธญเธญเธ</span></div>'
+                    _cat_status_html = '<div class="sw-offboard-note"><b>Offboarding Records</b><span>ตรวจสอบบัญชีและสิทธิ์ของพนักงานที่ลาออก</span></div>'
                 else:
                     _cat_status_html = f'''<div class="sw-category-stats"><span><i style="background:#10B981"></i><b>{_cat_licensed}</b> Licensed</span><span><i style="background:#F59E0B"></i><b>{_cat_expiring}</b> Expiring</span><span><i style="background:#EF4444"></i><b>{_cat_unlicensed}</b> Unlicensed</span><span><i style="background:#64748B"></i><b>{_cat_inactive}</b> Inactive</span></div><div class="sw-progress"><span style="width:{_cat_pct}%;background:{_cat_color}"></span></div>'''
                 with _cat_cols[_cat_pos % 3]:
                     with st.container(key=f"sw_category_click_{_cfg['key']}"):
-                        st.markdown(f'''<div class="sw-category-card"><div class="sw-category-arrow">โ€บ</div><div class="sw-category-head"><div class="sw-category-icon" style="color:{_cat_color};background:linear-gradient(145deg,{_cat_color}24,{_cat_color}0D)">{_sw_svg(_cfg["icon"])}</div><div><div class="sw-category-title">{html.escape(_cfg["title"])}</div><div class="sw-category-count">{_cat_total} เธฃเธฒเธขเธเธฒเธฃ</div></div></div>{_cat_status_html}<div class="sw-category-hint">เธเธฅเธดเธเน€เธเธทเนเธญเธ”เธนเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”</div></div>''', unsafe_allow_html=True)
-                        if st.button(f"เน€เธเธดเธ” {_cfg['title']}", key=f"sw_cat_click_btn_{_cfg['key']}", use_container_width=True):
+                        st.markdown(f'''<div class="sw-category-card"><div class="sw-category-arrow">›</div><div class="sw-category-head"><div class="sw-category-icon" style="color:{_cat_color};background:linear-gradient(145deg,{_cat_color}24,{_cat_color}0D)">{_sw_svg(_cfg["icon"])}</div><div><div class="sw-category-title">{html.escape(_cfg["title"])}</div><div class="sw-category-count">{_cat_total} รายการ</div></div></div>{_cat_status_html}<div class="sw-category-hint">คลิกเพื่อดูรายละเอียด</div></div>''', unsafe_allow_html=True)
+                        if st.button(f"เปิด {_cfg['title']}", key=f"sw_cat_click_btn_{_cfg['key']}", use_container_width=True):
                             st.session_state.active_nav = _cfg["nav"]
                             st.rerun()
         with _right:
@@ -5696,7 +5669,7 @@ else:
                 _donut = f"conic-gradient(#10B981 0 {_lic_pct:.2f}%,#F59E0B {_lic_pct:.2f}% {_lic_pct + _exp_pct:.2f}%,#EF4444 {_lic_pct + _exp_pct:.2f}% {_inactive_start:.2f}%,#64748B {_inactive_start:.2f}% 100%)"
                 st.markdown(f'''<div class="sw-license-panel"><div class="sw-panel-title">License Status Overview</div><div class="sw-donut-wrap"><div class="sw-donut" style="background:{_donut}"><div class="sw-donut-center"><b>{_known}</b>Total Software</div></div><div class="sw-legend"><div class="sw-legend-row"><span><i class="sw-dot" style="background:#10B981"></i>Licensed</span><b>{_licensed}</b></div><div class="sw-legend-row"><span><i class="sw-dot" style="background:#F59E0B"></i>Expiring Soon</span><b>{_expiring}</b></div><div class="sw-legend-row"><span><i class="sw-dot" style="background:#EF4444"></i>Unlicensed</span><b>{_unlicensed}</b></div><div class="sw-legend-row"><span><i class="sw-dot" style="background:#64748B"></i>Inactive</span><b>{_inactive}</b></div></div></div></div>''', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="sw-license-panel"><div class="sw-panel-title">License Status Overview</div><div class="sw-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธชเธ–เธฒเธเธฐ License</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="sw-license-panel"><div class="sw-panel-title">License Status Overview</div><div class="sw-empty-state">ยังไม่มีข้อมูลสถานะ License</div></div>', unsafe_allow_html=True)
             _publishers = {}
             for _row in _visible_rows:
                 if _row["publisher"] and _row["publisher"].lower() not in ("nan", "none", "-"):
@@ -5705,7 +5678,7 @@ else:
                 _publisher_html = "".join(f'<div class="sw-publisher-row"><span>{html.escape(str(k))}</span><b>{v}</b></div>' for k, v in sorted(_publishers.items(), key=lambda x: x[1], reverse=True)[:5])
                 st.markdown(f'<div class="sw-publisher-panel"><div class="sw-panel-title">Top Publishers</div><div class="sw-publisher-list">{_publisher_html}</div></div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="sw-publisher-panel"><div class="sw-panel-title">Top Publishers</div><div class="sw-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅ Publisher / Vendor</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="sw-publisher-panel"><div class="sw-panel-title">Top Publishers</div><div class="sw-empty-state">ยังไม่มีข้อมูล Publisher / Vendor</div></div>', unsafe_allow_html=True)
         _activities = sorted([r for r in _visible_rows if r["modified"]], key=lambda r: r["modified"], reverse=True)[:5]
         st.markdown('<div class="sw-row-gap"></div>', unsafe_allow_html=True)
         _bottom_left, _bottom_center, _bottom_right = st.columns([1.0, 1.0, 0.82], gap="medium")
@@ -5720,22 +5693,22 @@ else:
                 _month_counts = [sum(r["modified"].year == y and r["modified"].month == m for r in _dated) for y, m in _months]
                 _max_count = max(_month_counts) or 1
                 _bars = "".join(f'<div class="sw-trend-col"><span class="sw-trend-value">{count}</span><span class="sw-trend-bar" style="height:{max(3, round(count/_max_count*90))}px"></span><span class="sw-trend-label">{m:02d}/{str(y)[2:]}</span></div>' for (y,m),count in zip(_months,_month_counts))
-                st.markdown(f'<div class="sw-chart-panel"><div class="sw-panel-title">License Activity Trend (6 เน€เธ”เธทเธญเธเธฅเนเธฒเธชเธธเธ”)</div><div class="sw-trend-bars">{_bars}</div></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="sw-chart-panel"><div class="sw-panel-title">License Activity Trend (6 เดือนล่าสุด)</div><div class="sw-trend-bars">{_bars}</div></div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="sw-chart-panel"><div class="sw-panel-title">License Trend (6 เน€เธ”เธทเธญเธเธฅเนเธฒเธชเธธเธ”)</div><div class="sw-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธงเธฑเธเธ—เธตเนเธขเนเธญเธเธซเธฅเธฑเธเธชเธณเธซเธฃเธฑเธเธชเธฃเนเธฒเธเธเธฃเธฒเธ</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="sw-chart-panel"><div class="sw-panel-title">License Trend (6 เดือนล่าสุด)</div><div class="sw-empty-state">ยังไม่มีข้อมูลวันที่ย้อนหลังสำหรับสร้างกราฟ</div></div>', unsafe_allow_html=True)
         with _bottom_center:
             _expiry_rows = sorted([r for r in _visible_rows if r["expiry"] and r["days"] is not None and 0 <= r["days"] <= 90], key=lambda r: r["days"])[:6]
             if _expiry_rows:
                 _expiry_html = "".join(f'<tr><td>{html.escape(r["name"] or "-")}</td><td>{html.escape(r["publisher"] or "-")}</td><td>{r["expiry"].strftime("%d/%m/%Y")}</td><td>{r["days"]}</td></tr>' for r in _expiry_rows)
                 st.markdown(f'<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><table class="sw-expiring-table"><thead><tr><th>Software</th><th>Publisher</th><th>Expire Date</th><th>Days Left</th></tr></thead><tbody>{_expiry_html}</tbody></table></div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><div class="sw-empty-state">เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเนเธเธฅเนเธซเธกเธ”เธญเธฒเธขเธธ</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><div class="sw-empty-state">ไม่พบรายการที่ใกล้หมดอายุ</div></div>', unsafe_allow_html=True)
         with _bottom_right:
             if _activities:
                 _activity_html = "".join(f'<div class="sw-activity-row"><span><b>{html.escape(r["name"] or r["sheet"])}</b><br><small>{html.escape(r["sheet"])}</small></span><time>{r["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>' for r in _activities)
                 st.markdown(f'<div class="sw-activity-panel"><div class="sw-panel-title">Recent Activities</div><div class="sw-activity-list">{_activity_html}</div></div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="sw-activity-panel"><div class="sw-panel-title">Recent Activities</div><div class="sw-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธเธดเธเธเธฃเธฃเธกเธฅเนเธฒเธชเธธเธ”</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="sw-activity-panel"><div class="sw-panel-title">Recent Activities</div><div class="sw-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div>', unsafe_allow_html=True)
 
     def _render_hardware_command_center():
         """Enterprise hardware command center built only from existing asset data."""
@@ -5773,7 +5746,7 @@ else:
             except Exception:
                 return pd.DataFrame()
 
-        with st.spinner("เธเธณเธฅเธฑเธเธฃเธงเธเธฃเธงเธกเธเนเธญเธกเธนเธฅ Hardware..."):
+        with st.spinner("กำลังรวบรวมข้อมูล Hardware..."):
             _hd_frames = {key: _hd_load(list_name) for key, _, list_name, _, _, _ in _hd_categories}
             _hd_misc = _hd_load("Asset Misc")
 
@@ -5781,11 +5754,11 @@ else:
         if not _hd_misc.empty:
             _misc_text = _hd_misc.fillna("").astype(str).agg(" ".join, axis=1).str.lower()
             if _hd_frames["cctv"].empty:
-                _hd_frames["cctv"] = _hd_misc[_misc_text.str.contains("cctv|camera|เธเธฅเนเธญเธ", regex=True)].copy()
+                _hd_frames["cctv"] = _hd_misc[_misc_text.str.contains("cctv|camera|กล้อง", regex=True)].copy()
             if _hd_frames["access_control"].empty:
-                _hd_frames["access_control"] = _hd_misc[_misc_text.str.contains("access control|door|เธเธฃเธฐเธ•เธน|เธชเนเธเธ", regex=True)].copy()
+                _hd_frames["access_control"] = _hd_misc[_misc_text.str.contains("access control|door|ประตู|สแกน", regex=True)].copy()
 
-        st.markdown(f'<div class="hd-dashboard"><div class="hd-header"><div class="hd-header-icon">{_hd_svg("dashboard")}</div><div><div class="hd-header-title">Hardware Dashboard</div><div class="hd-header-sub">เธจเธนเธเธขเนเธฃเธงเธกเธชเธดเธเธ—เธฃเธฑเธเธขเนเนเธฅเธฐเธญเธธเธเธเธฃเธ“เนเธ—เธฑเนเธเธซเธกเธ”เธเธญเธเธญเธเธเนเธเธฃ</div></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="hd-dashboard"><div class="hd-header"><div class="hd-header-icon">{_hd_svg("dashboard")}</div><div><div class="hd-header-title">Hardware Dashboard</div><div class="hd-header-sub">ศูนย์รวมสินทรัพย์และอุปกรณ์ทั้งหมดขององค์กร</div></div></div></div>', unsafe_allow_html=True)
         _hd_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7)))
 
         def _hd_text(value):
@@ -5809,14 +5782,14 @@ else:
             return ""
 
         def _hd_status(row):
-            raw = _hd_row_value(row, ("Status", "AssetStatus", "ComputerStatus", "state"), ("status", "เธชเธ–เธฒเธเธฐ")).lower()
+            raw = _hd_row_value(row, ("Status", "AssetStatus", "ComputerStatus", "state"), ("status", "สถานะ")).lower()
             if not raw:
                 return "unknown"
-            if any(token in raw for token in ("repair", "maintenance", "เธเนเธญเธก", "เธเธฃเธฑเธเธเธฃเธธเธ")):
+            if any(token in raw for token in ("repair", "maintenance", "ซ่อม", "ปรับปรุง")):
                 return "maintenance"
-            if any(token in raw for token in ("inactive", "offline", "down", "เน€เธชเธตเธข", "เธขเธเน€เธฅเธดเธ")):
+            if any(token in raw for token in ("inactive", "offline", "down", "เสีย", "ยกเลิก")):
                 return "offline"
-            if any(token in raw for token in ("active", "online", "normal", "เนเธเนเธเธฒเธ", "เธเธเธ•เธด", "เธเธฃเนเธญเธก")):
+            if any(token in raw for token in ("active", "online", "normal", "ใช้งาน", "ปกติ", "พร้อม")):
                 return "online"
             return "unknown"
 
@@ -5843,7 +5816,7 @@ else:
         _hd_trend = {"online": [0] * 6, "maintenance": [0] * 6, "offline": [0] * 6, "unknown": [0] * 6}
 
         for _key, _label, _row_index, _row, _state in _hd_records:
-            _location = _hd_row_value(_row, ("Location", "Site", "Branch", "Company", "field_1"), ("location", "site", "branch", "company", "เธชเธ–เธฒเธเธ—เธตเน", "เธเธฃเธดเธฉเธฑเธ—")) or "เนเธกเนเธฃเธฐเธเธธ"
+            _location = _hd_row_value(_row, ("Location", "Site", "Branch", "Company", "field_1"), ("location", "site", "branch", "company", "สถานที่", "บริษัท")) or "ไม่ระบุ"
             _hd_locations[_location] = _hd_locations.get(_location, 0) + 1
 
             _modified_raw = _hd_row_value(_row, ("Modified", "LastModified", "Updated", "LastSeen"), ("modified", "updated", "last seen"))
@@ -5859,11 +5832,11 @@ else:
                         break
                 _asset_name = _hd_row_value(_row, ("Title", "ComputerName", "Hostname", "field_6", "AssetName", "Name", "Model", "field_2"), ("hostname", "asset name", "title", "model")) or _label
                 _editor = _hd_row_value(_row, ("Editor", "Modified By", "ModifiedBy", "Author"), ("editor", "modified by")) or "System"
-                _action = "เธชเนเธเธเนเธญเธก" if _state == "maintenance" else ("เธญเธธเธเธเธฃเธ“เน Offline" if _state == "offline" else "เนเธเนเนเธเธเนเธญเธกเธนเธฅเธญเธธเธเธเธฃเธ“เน")
+                _action = "ส่งซ่อม" if _state == "maintenance" else ("อุปกรณ์ Offline" if _state == "offline" else "แก้ไขข้อมูลอุปกรณ์")
                 if not pd.isna(_created):
                     try:
                         if abs((_modified - _created).total_seconds()) < 120:
-                            _action = "เน€เธเธดเนเธกเธญเธธเธเธเธฃเธ“เนเนเธซเธกเน"
+                            _action = "เพิ่มอุปกรณ์ใหม่"
                     except Exception:
                         pass
                 _hd_activity.append((_modified, _action, _asset_name, _editor, _state))
@@ -5872,10 +5845,10 @@ else:
 
         _hd_total_trend = [sum(_hd_trend[state][idx] for state in _hd_trend) for idx in range(6)]
         _hd_kpis = [
-            ("Total Assets", _hd_total, "เธฃเธฒเธขเธเธฒเธฃเธเธฒเธ SharePoint", _hd_svg("assets"), "#3B82F6", "#EAF3FF"),
-            ("Online", _hd_online, "เธชเธ–เธฒเธเธฐ Active / Online", _hd_svg("online"), "#10B981", "#E7F8EE"),
-            ("Under Maintenance", _hd_maintenance, "เธชเธ–เธฒเธเธฐ Repair / Maintenance", _hd_svg("maintenance"), "#F59E0B", "#FFF4E5"),
-            ("Offline", _hd_offline, "เธชเธ–เธฒเธเธฐ Inactive / Offline", _hd_svg("offline"), "#EF4444", "#FEECEF"),
+            ("Total Assets", _hd_total, "รายการจาก SharePoint", _hd_svg("assets"), "#3B82F6", "#EAF3FF"),
+            ("Online", _hd_online, "สถานะ Active / Online", _hd_svg("online"), "#10B981", "#E7F8EE"),
+            ("Under Maintenance", _hd_maintenance, "สถานะ Repair / Maintenance", _hd_svg("maintenance"), "#F59E0B", "#FFF4E5"),
+            ("Offline", _hd_offline, "สถานะ Inactive / Offline", _hd_svg("offline"), "#EF4444", "#FEECEF"),
         ]
 
         st.markdown("""
@@ -5901,18 +5874,18 @@ else:
 
         _hd_main_left = st.container()
         with _hd_main_left:
-            st.markdown('<div class="hd-section-title">เธชเธฃเธธเธเธเธฃเธฐเน€เธ เธ—เธญเธธเธเธเธฃเธ“เน</div>', unsafe_allow_html=True)
+            st.markdown('<div class="hd-section-title">สรุปประเภทอุปกรณ์</div>', unsafe_allow_html=True)
             def _render_hd_category_card(_cat):
                 with st.container(key=f"hd_category_card_{_cat['key']}"):
                     _online_pct = (_cat["online"] / max(_cat["total"], 1)) * 100
                     if _cat["total"] == 0:
-                        _unknown_note = '<div class="hd-category-unknown">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเนเธเธซเธกเธงเธ”เธเธตเน</div>'
+                        _unknown_note = '<div class="hd-category-unknown">ยังไม่มีข้อมูลในหมวดนี้</div>'
                     elif _cat["unknown"]:
-                        _unknown_note = f'<div class="hd-category-unknown">เนเธกเนเธฃเธฐเธเธธ Status: {_cat["unknown"]} เธฃเธฒเธขเธเธฒเธฃ</div>'
+                        _unknown_note = f'<div class="hd-category-unknown">ไม่ระบุ Status: {_cat["unknown"]} รายการ</div>'
                     else:
-                        _unknown_note = '<div class="hd-category-unknown">Status เธเธฒเธเธเนเธญเธกเธนเธฅเธเธฃเธดเธเธเธฃเธเธ–เนเธงเธ</div>'
-                    st.markdown(f'<div class="hd-category-card"><div class="hd-category-head"><div class="hd-category-icon" style="color:{_cat["tone"]};background:{_cat["soft"]}">{_cat["icon"]}</div><div><div class="hd-category-title">{_cat["label"]}</div><div class="hd-category-total">{_cat["total"]} เธฃเธฒเธขเธเธฒเธฃ</div></div></div><div class="hd-category-status"><span>Online<b style="color:#10B981">{_cat["online"]}</b></span><span>Offline<b style="color:#EF4444">{_cat["offline"]}</b></span><span>Maintenance<b style="color:#F59E0B">{_cat["maintenance"]}</b></span></div>{_unknown_note}<div class="hd-progress"><span style="width:{_online_pct:.1f}%;background:{_cat["tone"]}"></span></div></div>', unsafe_allow_html=True)
-                    if st.button("เธ”เธนเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”  โ’", key=f"hd_open_{_cat['key']}", help=f"เน€เธเธดเธ” {_cat['label']}"):
+                        _unknown_note = '<div class="hd-category-unknown">Status จากข้อมูลจริงครบถ้วน</div>'
+                    st.markdown(f'<div class="hd-category-card"><div class="hd-category-head"><div class="hd-category-icon" style="color:{_cat["tone"]};background:{_cat["soft"]}">{_cat["icon"]}</div><div><div class="hd-category-title">{_cat["label"]}</div><div class="hd-category-total">{_cat["total"]} รายการ</div></div></div><div class="hd-category-status"><span>Online<b style="color:#10B981">{_cat["online"]}</b></span><span>Offline<b style="color:#EF4444">{_cat["offline"]}</b></span><span>Maintenance<b style="color:#F59E0B">{_cat["maintenance"]}</b></span></div>{_unknown_note}<div class="hd-progress"><span style="width:{_online_pct:.1f}%;background:{_cat["tone"]}"></span></div></div>', unsafe_allow_html=True)
+                    if st.button("ดูรายละเอียด  →", key=f"hd_open_{_cat['key']}", help=f"เปิด {_cat['label']}"):
                         st.session_state.active_nav = _cat["key"]
                         st.rerun()
 
@@ -5944,17 +5917,17 @@ else:
             _hd_donut_cols = st.columns(2, gap="small")
             with _hd_donut_cols[0]:
                 _hd_known_status_total = _hd_online + _hd_maintenance + _hd_offline
-                st.markdown(_hd_donut("Status Overview", [("Online", _hd_online), ("Maintenance", _hd_maintenance), ("Offline", _hd_offline)], _hd_known_status_total, "เธกเธต Status"), unsafe_allow_html=True)
+                st.markdown(_hd_donut("Status Overview", [("Online", _hd_online), ("Maintenance", _hd_maintenance), ("Offline", _hd_offline)], _hd_known_status_total, "มี Status"), unsafe_allow_html=True)
             with _hd_donut_cols[1]:
                 _top_locations = sorted(_hd_locations.items(), key=lambda item: item[1], reverse=True)[:4]
-                st.markdown(_hd_donut("Asset by Location", _top_locations, sum(value for _, value in _top_locations), "เธกเธต Location"), unsafe_allow_html=True)
+                st.markdown(_hd_donut("Asset by Location", _top_locations, sum(value for _, value in _top_locations), "มี Location"), unsafe_allow_html=True)
 
             def _hd_poly(values, color):
                 _max_value = max(max(_hd_total_trend or [0]), max(values or [0]), 1)
                 _points = " ".join(f"{25 + index * 105},{110 - (value / _max_value * 88):.1f}" for index, value in enumerate(values))
                 return f'<polyline points="{_points}" fill="none" stroke="{color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
             _month_labels = "".join(f'<span>{month.strftime("%b %y")}</span>' for month in _hd_months)
-            st.markdown(f'<div class="hd-chart-panel hd-trend"><div class="hd-chart-title">Asset Updates by Current Status (6 เน€เธ”เธทเธญเธเธฅเนเธฒเธชเธธเธ”)</div><svg viewBox="0 0 575 125" preserveAspectRatio="none"><path d="M25 22H550M25 66H550M25 110H550" stroke="#E8EDF4" stroke-width="1"/>{_hd_poly(_hd_trend["online"], "#3B82F6")}{_hd_poly(_hd_trend["maintenance"], "#F59E0B")}{_hd_poly(_hd_trend["offline"], "#EF4444")}</svg><div class="hd-trend-labels">{_month_labels}</div><div class="hd-chart-summary">เธญเธดเธเธงเธฑเธเธ—เธตเน Modified เน€เธ—เนเธฒเธเธฑเนเธ ยท โ— Online &nbsp; <span style="color:#F59E0B">โ— Maintenance</span> &nbsp; <span style="color:#EF4444">โ— Offline</span></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hd-chart-panel hd-trend"><div class="hd-chart-title">Asset Updates by Current Status (6 เดือนล่าสุด)</div><svg viewBox="0 0 575 125" preserveAspectRatio="none"><path d="M25 22H550M25 66H550M25 110H550" stroke="#E8EDF4" stroke-width="1"/>{_hd_poly(_hd_trend["online"], "#3B82F6")}{_hd_poly(_hd_trend["maintenance"], "#F59E0B")}{_hd_poly(_hd_trend["offline"], "#EF4444")}</svg><div class="hd-trend-labels">{_month_labels}</div><div class="hd-chart-summary">อิงวันที่ Modified เท่านั้น · ● Online &nbsp; <span style="color:#F59E0B">● Maintenance</span> &nbsp; <span style="color:#EF4444">● Offline</span></div></div>', unsafe_allow_html=True)
 
         _hd_bottom = st.columns([1.15, 0.85], gap="medium")
         with _hd_bottom[0]:
@@ -5962,17 +5935,17 @@ else:
             _rows = []
             for _cat in _top_categories:
                 _rows.append(f'<tr><td><b>{_cat["label"]}</b></td><td>{_cat["total"]}</td><td><span class="hd-pill hd-pill-green">{_cat["online"]}</span></td><td><span class="hd-pill hd-pill-red">{_cat["offline"]}</span></td><td><span class="hd-pill hd-pill-yellow">{_cat["maintenance"]}</span></td><td>{_cat["unknown"]}</td></tr>')
-            st.markdown(f'<div class="hd-table-panel"><div class="hd-chart-title">Top 5 Assets by Category</div><table class="hd-table"><thead><tr><th>Category</th><th>Total</th><th>Online</th><th>Offline</th><th>Maintenance</th><th>เนเธกเนเธฃเธฐเธเธธ</th></tr></thead><tbody>{"".join(_rows)}</tbody></table></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hd-table-panel"><div class="hd-chart-title">Top 5 Assets by Category</div><table class="hd-table"><thead><tr><th>Category</th><th>Total</th><th>Online</th><th>Offline</th><th>Maintenance</th><th>ไม่ระบุ</th></tr></thead><tbody>{"".join(_rows)}</tbody></table></div>', unsafe_allow_html=True)
         with _hd_bottom[1]:
             if _hd_activity:
                 _activity_rows = []
                 for _modified, _action, _asset, _editor, _state in _hd_activity[:5]:
                     _tone = "#EF4444" if _state == "offline" else ("#F59E0B" if _state == "maintenance" else "#3B82F6")
                     _soft = "#FEECEF" if _state == "offline" else ("#FFF4E5" if _state == "maintenance" else "#EAF3FF")
-                    _activity_rows.append(f'<div class="hd-activity-row"><div class="hd-activity-icon" style="color:{_tone};background:{_soft}">โ—</div><div><div class="hd-activity-title">{html.escape(_action)}</div><div class="hd-activity-sub">{html.escape(_asset)} ยท {html.escape(_editor)}</div></div><div class="hd-activity-time">{_modified.strftime("%d/%m/%Y")}<br>{_modified.strftime("%H:%M")}</div></div>')
+                    _activity_rows.append(f'<div class="hd-activity-row"><div class="hd-activity-icon" style="color:{_tone};background:{_soft}">●</div><div><div class="hd-activity-title">{html.escape(_action)}</div><div class="hd-activity-sub">{html.escape(_asset)} · {html.escape(_editor)}</div></div><div class="hd-activity-time">{_modified.strftime("%d/%m/%Y")}<br>{_modified.strftime("%H:%M")}</div></div>')
                 _activity_body = f'<div class="hd-activity-list">{"".join(_activity_rows)}</div>'
             else:
-                _activity_body = '<div class="hd-empty">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธเธดเธเธเธฃเธฃเธกเธฅเนเธฒเธชเธธเธ”</div>'
+                _activity_body = '<div class="hd-empty">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div>'
             st.markdown(f'<div class="hd-activity-panel"><div class="hd-chart-title">Recent Activity</div>{_activity_body}</div>', unsafe_allow_html=True)
 
         if st.session_state.pop("hd_export_requested", False):
@@ -5983,12 +5956,12 @@ else:
                 _export_rows.append(_export_item)
             if _export_rows:
                 _export_csv = pd.DataFrame(_export_rows).to_csv(index=False).encode("utf-8-sig")
-                st.download_button("เธ”เธฒเธงเธเนเนเธซเธฅเธ” Hardware Export", _export_csv, "hardware_assets.csv", "text/csv", key="hd_export_download")
+                st.download_button("ดาวน์โหลด Hardware Export", _export_csv, "hardware_assets.csv", "text/csv", key="hd_export_download")
 
     # -------------------------------------------------------
-    # ๐“ Overview Dashboard
+    # 📊 Overview Dashboard
     # -------------------------------------------------------
-    if main_menu == "๐“ Overview Dashboard":
+    if main_menu == "📊 Overview Dashboard":
         st.markdown("""
         <style>
         /* Dashboard-only visual system. All reusable classes use the db- prefix. */
@@ -6022,11 +5995,11 @@ else:
         # Use a fixed Bangkok offset so Cloud/server UTC does not leak into the UI.
         _bangkok_tz = datetime.timezone(datetime.timedelta(hours=7), name="Asia/Bangkok")
         _dash_now = datetime.datetime.now(_bangkok_tz)
-        _thai_months = ["", "เธกเธเธฃเธฒเธเธก", "เธเธธเธกเธ เธฒเธเธฑเธเธเน", "เธกเธตเธเธฒเธเธก", "เน€เธกเธฉเธฒเธขเธ", "เธเธคเธฉเธ เธฒเธเธก", "เธกเธดเธ–เธธเธเธฒเธขเธ", "เธเธฃเธเธเธฒเธเธก", "เธชเธดเธเธซเธฒเธเธก", "เธเธฑเธเธขเธฒเธขเธ", "เธ•เธธเธฅเธฒเธเธก", "เธเธคเธจเธเธดเธเธฒเธขเธ", "เธเธฑเธเธงเธฒเธเธก"]
+        _thai_months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
         _dash_date = f"{_dash_now.day} {_thai_months[_dash_now.month]} {_dash_now.year + 543}"
         _dash_time = _dash_now.strftime("%H:%M")
 
-        with st.spinner("เธเธณเธฅเธฑเธเนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ Dashboard..."):
+        with st.spinner("กำลังโหลดข้อมูล Dashboard..."):
             df_comp = load_sp_data("Computer Asset")
             df_mon = load_sp_data("Asset Monitor")
             df_prn = load_sp_data("Asset Printer")
@@ -6077,7 +6050,7 @@ else:
               <div class="db-hero-badge">IT CONTROL CENTER</div>
               <div class="db-hero-title">DocumentReportUnified</div>
               <div class="db-hero-subtitle">Enterprise IT Management Platform</div>
-              <div class="db-hero-status"><span class="db-live-dot"></span><span>เธฃเธฐเธเธเธเธฃเนเธญเธกเนเธเนเธเธฒเธ</span><span>|</span><span>เธญเธฑเธเน€เธ”เธ•เธฅเนเธฒเธชเธธเธ”: {_dash_time}</span></div>
+              <div class="db-hero-status"><span class="db-live-dot"></span><span>ระบบพร้อมใช้งาน</span><span>|</span><span>อัปเดตล่าสุด: {_dash_time}</span></div>
             </div>
             <div class="db-hero-visual">
               <svg class="db-hero-art" viewBox="0 0 330 130" fill="none" aria-hidden="true">
@@ -6091,12 +6064,12 @@ else:
         """, unsafe_allow_html=True)
 
         _db_metrics = [
-            (_db_svg("computer"), "Computers", _comp_count, "เน€เธเธฃเธทเนเธญเธ", "", "#F0EDFF", "#5B5FEF", ""),
-            (_db_svg("monitor"), "Monitors", _mon_count, "เธเธญเธ เธฒเธ", "", "#EAF5FF", "#1684E8", ""),
-            (_db_svg("printer"), "Printers", _prn_count, "เน€เธเธฃเธทเนเธญเธเธเธดเธกเธเน", "", "#EAF5FF", "#1684E8", ""),
-            (_db_svg("folder"), "NAS Shares", _nas_count, "เนเธเธฃเน", "", "#EAF8EF", "#16A34A", ""),
-            (_db_svg("lock"), "Password Records", _password_count, "เธฃเธฒเธขเธเธฒเธฃ", "", "#F1EDFF", "#6D4AFF", ""),
-            (_db_svg("drop"), "Ink Stock (Low)", _low_ink_count, "เธฃเธฒเธขเธเธฒเธฃ", "", "#EAF5FF", "#1684E8", ""),
+            (_db_svg("computer"), "Computers", _comp_count, "เครื่อง", "", "#F0EDFF", "#5B5FEF", ""),
+            (_db_svg("monitor"), "Monitors", _mon_count, "จอภาพ", "", "#EAF5FF", "#1684E8", ""),
+            (_db_svg("printer"), "Printers", _prn_count, "เครื่องพิมพ์", "", "#EAF5FF", "#1684E8", ""),
+            (_db_svg("folder"), "NAS Shares", _nas_count, "แชร์", "", "#EAF8EF", "#16A34A", ""),
+            (_db_svg("lock"), "Password Records", _password_count, "รายการ", "", "#F1EDFF", "#6D4AFF", ""),
+            (_db_svg("drop"), "Ink Stock (Low)", _low_ink_count, "รายการ", "", "#EAF5FF", "#1684E8", ""),
         ]
         _metric_html = ['<div class="db-overview-grid">']
         for _icon, _label, _value, _sub, _delta, _icon_bg, _icon_color, _delta_class in _db_metrics:
@@ -6109,12 +6082,12 @@ else:
             with st.container(key="db_quick_panel"):
                 st.markdown('<div class="db-panel-head"><div class="db-panel-title">Quick Actions</div></div>', unsafe_allow_html=True)
                 _quick_actions = [
-                    ("hardware_dashboard", "๐–ฅ๏ธ", "Hardware", "Computers, Monitors, Printers เนเธฅเธฐเธญเธธเธเธเธฃเธ“เนเธ—เธฑเนเธเธซเธกเธ”"),
-                    ("software_dashboard", "๐’ฟ", "Software", "License, Office 365, Windows เนเธฅเธฐเธเธฑเธเธเธตเธเธนเนเนเธเน"),
-                    ("permission_dashboard", "๐”", "Permission", "NAS Permission เนเธฅเธฐ AD / Firewall Policy"),
-                    ("password", "๐”‘", "Password", "เธเธฑเธ”เธเธฒเธฃเธฃเธซเธฑเธชเธเนเธฒเธเธเธญเธเธฃเธฐเธเธเนเธฅเธฐเธเธฃเธดเธเธฒเธฃ"),
-                    ("vendor_list", "๐ข", "Vendor List", "เธเนเธญเธกเธนเธฅเธเธนเนเธเธฒเธข เธเธนเนเนเธซเนเธเธฃเธดเธเธฒเธฃ เนเธฅเธฐเธเนเธญเธเธ—เธฒเธเธ•เธดเธ”เธ•เนเธญ"),
-                    ("ink_stock", "๐’ง", "Ink Stock", "เธ•เธฃเธงเธเธชเธญเธเธชเธ•เนเธญเธเธซเธกเธถเธเธเธดเธกเธเนเนเธฅเธฐเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเนเธเนเธเธฒเธ"),
+                    ("hardware_dashboard", "🖥️", "Hardware", "Computers, Monitors, Printers และอุปกรณ์ทั้งหมด"),
+                    ("software_dashboard", "💿", "Software", "License, Office 365, Windows และบัญชีผู้ใช้"),
+                    ("permission_dashboard", "🔐", "Permission", "NAS Permission และ AD / Firewall Policy"),
+                    ("password", "🔑", "Password", "จัดการรหัสผ่านของระบบและบริการ"),
+                    ("vendor_list", "🏢", "Vendor List", "ข้อมูลผู้ขาย ผู้ให้บริการ และช่องทางติดต่อ"),
+                    ("ink_stock", "💧", "Ink Stock", "ตรวจสอบสต็อกหมึกพิมพ์และประวัติการใช้งาน"),
                 ]
                 _action_cols = st.columns(3, gap="small")
                 for _idx, (_target, _icon, _title, _description) in enumerate(_quick_actions):
@@ -6128,12 +6101,12 @@ else:
                             st.rerun()
         with _main_cols[1]:
             _health_items = [
-                (_db_svg("sharepoint"), "SharePoint Online", "เน€เธเธทเนเธญเธกเธ•เนเธญ SharePoint เนเธฅเธฐเธ”เธถเธเธเนเธญเธกเธนเธฅเธชเธณเน€เธฃเนเธ", _sharepoint_ok, "linear-gradient(135deg,#DDF8EA,#F0FDF7)", "#0F9D68"),
-                (_db_svg("graph"), "Microsoft Graph", "เน€เธเธทเนเธญเธกเธ•เนเธญ Microsoft Graph API เธชเธณเน€เธฃเนเธ", _sharepoint_ok, "linear-gradient(135deg,#E0ECFF,#F2F5FF)", "#2563EB"),
-                (_db_svg("server"), "NAS Agent", f"เน€เธเธทเนเธญเธกเธ•เนเธญ NAS Agent ยท {_nas_count} shares", _nas_ok, "linear-gradient(135deg,#DCFCE7,#F0FDF4)", "#16A34A"),
-                (_db_svg("directory"), "AD Agent", "เธ•เธฃเธงเธเธเธเธเธฒเธฃเธ•เธฑเนเธเธเนเธฒ AD Agent / LDAP" if _ad_ok else "เธขเธฑเธเนเธกเนเธเธเธเธฒเธฃเธ•เธฑเนเธเธเนเธฒ Agent", _ad_ok, "linear-gradient(135deg,#E0F2FE,#EEF2FF)", "#4F46E5"),
+                (_db_svg("sharepoint"), "SharePoint Online", "เชื่อมต่อ SharePoint และดึงข้อมูลสำเร็จ", _sharepoint_ok, "linear-gradient(135deg,#DDF8EA,#F0FDF7)", "#0F9D68"),
+                (_db_svg("graph"), "Microsoft Graph", "เชื่อมต่อ Microsoft Graph API สำเร็จ", _sharepoint_ok, "linear-gradient(135deg,#E0ECFF,#F2F5FF)", "#2563EB"),
+                (_db_svg("server"), "NAS Agent", f"เชื่อมต่อ NAS Agent · {_nas_count} shares", _nas_ok, "linear-gradient(135deg,#DCFCE7,#F0FDF4)", "#16A34A"),
+                (_db_svg("directory"), "AD Agent", "ตรวจพบการตั้งค่า AD Agent / LDAP" if _ad_ok else "ยังไม่พบการตั้งค่า Agent", _ad_ok, "linear-gradient(135deg,#E0F2FE,#EEF2FF)", "#4F46E5"),
             ]
-            _health_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">System Health</div><div class="db-panel-link">เธชเธ–เธฒเธเธฐเธเธฑเธเธเธธเธเธฑเธ</div></div><div class="db-health-list">']
+            _health_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">System Health</div><div class="db-panel-link">สถานะปัจจุบัน</div></div><div class="db-health-list">']
             for _icon, _title, _sub, _ok, _bg, _color in _health_items:
                 _status_class = "db-status-online" if _ok else "db-status-warning"
                 _status_text = "Online" if _ok else "Warning"
@@ -6143,13 +6116,13 @@ else:
 
         _attention_items = []
         if _low_ink_count:
-            _attention_items.append(("โข", "เธซเธกเธถเธเธเธดเธกเธเนเนเธเธฅเนเธซเธกเธ”", f"เธเธ {_low_ink_count} เธฃเธฒเธขเธเธฒเธฃ", f"{_low_ink_count} เธฃเธฒเธขเธเธฒเธฃ", "#FFECEF", "#F43F5E"))
+            _attention_items.append(("♢", "หมึกพิมพ์ใกล้หมด", f"พบ {_low_ink_count} รายการ", f"{_low_ink_count} รายการ", "#FFECEF", "#F43F5E"))
         if not _nas_ok:
-            _attention_items.append(("โ–ค", "NAS Connection Issue", "เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ NAS", "1 เธฃเธฒเธขเธเธฒเธฃ", "#FFF4E5", "#F59E0B"))
+            _attention_items.append(("▤", "NAS Connection Issue", "ไม่สามารถโหลดข้อมูล NAS", "1 รายการ", "#FFF4E5", "#F59E0B"))
         if not _ad_ok:
-            _attention_items.append(("!", "AD Agent Warning", "เธขเธฑเธเนเธกเนเธเธเธเธฒเธฃเธ•เธฑเนเธเธเนเธฒ Agent", "1 เธฃเธฒเธขเธเธฒเธฃ", "#FFF4E5", "#F59E0B"))
+            _attention_items.append(("!", "AD Agent Warning", "ยังไม่พบการตั้งค่า Agent", "1 รายการ", "#FFF4E5", "#F59E0B"))
         if _unassigned_assets:
-            _attention_items.append(("i", "Asset เนเธกเนเธกเธตเธเธนเนเนเธเนเธเธฒเธ", f"เธเธ {_unassigned_assets} เธฃเธฒเธขเธเธฒเธฃ", f"{_unassigned_assets} เธฃเธฒเธขเธเธฒเธฃ", "#EAF3FF", "#2563EB"))
+            _attention_items.append(("i", "Asset ไม่มีผู้ใช้งาน", f"พบ {_unassigned_assets} รายการ", f"{_unassigned_assets} รายการ", "#EAF3FF", "#2563EB"))
 
         _bottom_cols = st.columns(2, gap="medium")
         with _bottom_cols[0]:
@@ -6160,11 +6133,11 @@ else:
                     _attention_html.append(f'<div class="db-list-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="db-status-warning">{_badge}</div></div>')
                 _attention_html.append('</div>')
             else:
-                _attention_html.append('<div class="db-empty-state">เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเธ•เนเธญเธเธ•เธฃเธงเธเธชเธญเธ</div>')
+                _attention_html.append('<div class="db-empty-state">ไม่พบรายการที่ต้องตรวจสอบ</div>')
             _attention_html.append('</div>')
             st.markdown("".join(_attention_html), unsafe_allow_html=True)
         with _bottom_cols[1]:
-            st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div></div><div class="db-empty-state">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธเธดเธเธเธฃเธฃเธกเธฅเนเธฒเธชเธธเธ”</div></div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div></div><div class="db-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div></div>', unsafe_allow_html=True)
 
         # Stop here so the legacy dashboard remains unreachable and other routes are untouched.
         st.stop()
@@ -6181,10 +6154,10 @@ else:
             <div class="portfolio-card">
                 <div class="panel-title">Asset Portfolio</div>
                 <div class="panel-sub">Distribution across managed asset types</div>
-                <div class="portfolio-row"><div class="portfolio-name">๐’ป Computers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_comp_pct}%;background:linear-gradient(90deg,#2563EB,#60A5FA);"></div></div><div class="portfolio-count">{_comp_count}</div></div>
-                <div class="portfolio-row"><div class="portfolio-name">๐–ฅ๏ธ Monitors</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_mon_pct}%;background:linear-gradient(90deg,#0891B2,#22D3EE);"></div></div><div class="portfolio-count">{_mon_count}</div></div>
-                <div class="portfolio-row"><div class="portfolio-name">๐–จ๏ธ Printers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_prn_pct}%;background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div></div><div class="portfolio-count">{_prn_count}</div></div>
-                <div class="portfolio-row"><div class="portfolio-name">๐“ NAS Shares</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{min(_nas_count,100)}%;background:linear-gradient(90deg,#059669,#34D399);"></div></div><div class="portfolio-count">{_nas_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">💻 Computers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_comp_pct}%;background:linear-gradient(90deg,#2563EB,#60A5FA);"></div></div><div class="portfolio-count">{_comp_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">🖥️ Monitors</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_mon_pct}%;background:linear-gradient(90deg,#0891B2,#22D3EE);"></div></div><div class="portfolio-count">{_mon_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">🖨️ Printers</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{_prn_pct}%;background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div></div><div class="portfolio-count">{_prn_count}</div></div>
+                <div class="portfolio-row"><div class="portfolio-name">📂 NAS Shares</div><div class="portfolio-track"><div class="portfolio-fill" style="width:{min(_nas_count,100)}%;background:linear-gradient(90deg,#059669,#34D399);"></div></div><div class="portfolio-count">{_nas_count}</div></div>
             </div>
             """, unsafe_allow_html=True)
         with _ops_cols[1]:
@@ -6210,7 +6183,7 @@ else:
 
         # โ”€โ”€ Ink low-stock alert โ”€โ”€
         low_ink = df_ink.iloc[0:0] if df_ink is not None else None
-        low_str = "เนเธกเนเธกเธตเธฃเธฒเธขเธเธฒเธฃ"
+        low_str = "ไม่มีรายการ"
         if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
             def _toi2(v):
                 try: return int(v)
@@ -6219,16 +6192,16 @@ else:
                 lambda r: _toi2(r.get("Quantity", 0)) <= _toi2(r.get("Min_Qty", INK_LOW_THRESHOLD)), axis=1
             )]
             if not low_ink.empty:
-                low_str = " ยท ".join(
+                low_str = " · ".join(
                     f"{r.get('Title','?')} ({r.get('Color','-')})" for _, r in low_ink.head(3).iterrows()
                 )
 
-        st.markdown('<div class="dash-section"><div class="dash-section-title">Overview & Attention</div><div class="dash-section-note">เน€เธเธเธฒเธฐเธเนเธญเธกเธนเธฅเธ—เธตเนเธเนเธงเธขเธ•เธฑเธ”เธชเธดเธเนเธเนเธฅเธฐเธ•เนเธญเธเธ”เธณเน€เธเธดเธเธเธฒเธฃ</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-section"><div class="dash-section-title">Overview & Attention</div><div class="dash-section-note">เฉพาะข้อมูลที่ช่วยตัดสินใจและต้องดำเนินการ</div></div>', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
         with col1:
             with st.container():
-                st.markdown("**๐ข เธชเธฑเธ”เธชเนเธงเธเธญเธธเธเธเธฃเธ“เนเธ•เธฒเธกเธเธฃเธดเธฉเธฑเธ—**")
+                st.markdown("**🏢 สัดส่วนอุปกรณ์ตามบริษัท**")
                 if not df_comp.empty and 'field_1' in df_comp.columns:
                     cc = df_comp['field_1'].value_counts().reset_index()
                     cc.columns = ['Company', 'Count']
@@ -6242,7 +6215,7 @@ else:
                         marker=dict(line=dict(color='white', width=2))
                     )
                     fig.add_annotation(
-                        text=f"เธฃเธงเธกเธ—เธฑเนเธเธซเธกเธ”<br><b>{_total_co} เธเธฃเธดเธฉเธฑเธ—</b>",
+                        text=f"รวมทั้งหมด<br><b>{_total_co} บริษัท</b>",
                         x=0.5, y=0.5, xref="paper", yref="paper",
                         showarrow=False,
                         font=dict(size=12, family='IBM Plex Sans Thai', color='#374151'),
@@ -6262,31 +6235,31 @@ else:
                         font=dict(family='IBM Plex Sans Thai')
                     )
                     st.plotly_chart(fig, use_container_width=True, config= {'displayModeBar': False})
-                    st.markdown('<div style="background:#f8f9fc;border-radius:8px;padding:8px 12px;font-size:0.75rem;color:#94a3b8;">โน๏ธ เนเธชเธ”เธเธชเธฑเธ”เธชเนเธงเธเธเธณเธเธงเธเธญเธธเธเธเธฃเธ“เนเธ—เธฑเนเธเธซเธกเธ” เธเธณเนเธเธเธ•เธฒเธกเธเธฃเธดเธฉเธฑเธ—</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="background:#f8f9fc;border-radius:8px;padding:8px 12px;font-size:0.75rem;color:#94a3b8;">ℹ️ แสดงสัดส่วนจำนวนอุปกรณ์ทั้งหมด จำแนกตามบริษัท</div>', unsafe_allow_html=True)
         with col2:
             _active_rate = round((_active_assets / _total_assets) * 100) if _total_assets else 0
             _health_message = (
-                '<div class="attention-ok">โ“ เนเธกเนเธกเธตเธฃเธฒเธขเธเธฒเธฃเน€เธฃเนเธเธ”เนเธงเธ เธฃเธฐเธเธเธญเธขเธนเนเนเธเธชเธ–เธฒเธเธฐเธเธเธ•เธด</div>'
+                '<div class="attention-ok">✓ ไม่มีรายการเร่งด่วน ระบบอยู่ในสถานะปกติ</div>'
                 if _attention_assets == 0 and _low_ink_count == 0 else ''
             )
             st.markdown(f"""
             <div class="attention-card">
-                <div class="attention-title">เธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเธ•เนเธญเธเธ”เธณเน€เธเธดเธเธเธฒเธฃ</div>
-                <div class="attention-sub">เธชเธฃเธธเธเน€เธเธเธฒเธฐเธชเธดเนเธเธ—เธตเนเธเธงเธฃเธ•เธฃเธงเธเธชเธญเธเนเธเธงเธฑเธเธเธตเน</div>
+                <div class="attention-title">รายการที่ต้องดำเนินการ</div>
+                <div class="attention-sub">สรุปเฉพาะสิ่งที่ควรตรวจสอบในวันนี้</div>
                 <div class="attention-item">
-                    <div><div class="attention-label">เธญเธธเธเธเธฃเธ“เนเธเธดเธ”เธเธเธ•เธด</div><div class="attention-note">Inactive เธซเธฃเธทเธญเธญเธขเธนเนเธฃเธฐเธซเธงเนเธฒเธเธเนเธญเธก</div></div>
+                    <div><div class="attention-label">อุปกรณ์ผิดปกติ</div><div class="attention-note">Inactive หรืออยู่ระหว่างซ่อม</div></div>
                     <div class="attention-value" style="background:#FFF7ED;color:#C2410C;">{_attention_assets}</div>
                 </div>
                 <div class="attention-item">
-                    <div><div class="attention-label">เธซเธกเธถเธเธ•เนเธณเธเธงเนเธฒเธเธณเธซเธเธ”</div><div class="attention-note">{low_str}</div></div>
+                    <div><div class="attention-label">หมึกต่ำกว่ากำหนด</div><div class="attention-note">{low_str}</div></div>
                     <div class="attention-value" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div>
                 </div>
                 <div class="attention-item">
-                    <div><div class="attention-label">Asset Health</div><div class="attention-note">เธญเธฑเธ•เธฃเธฒเธชเธดเธเธ—เธฃเธฑเธเธขเนเธ—เธตเนเธเธฃเนเธญเธกเนเธเนเธเธฒเธ</div></div>
+                    <div><div class="attention-label">Asset Health</div><div class="attention-note">อัตราสินทรัพย์ที่พร้อมใช้งาน</div></div>
                     <div class="attention-value" style="background:#ECFDF5;color:#047857;">{_active_rate}%</div>
                 </div>
                 <div class="attention-item">
-                    <div><div class="attention-label">NAS Coverage</div><div class="attention-note">Shared folders เธ—เธตเนเธญเธขเธนเนเนเธเธเธฒเธฃเธ•เธดเธ”เธ•เธฒเธก</div></div>
+                    <div><div class="attention-label">NAS Coverage</div><div class="attention-note">Shared folders ที่อยู่ในการติดตาม</div></div>
                     <div class="attention-value" style="background:#EEF2FF;color:#4F46E5;">{_nas_count}</div>
                 </div>
                 {_health_message}
@@ -6297,46 +6270,46 @@ else:
     # -------------------------------------------------------
     # Module landing dashboards
     # -------------------------------------------------------
-    elif main_menu == "๐–ฅ Hardware Dashboard":
+    elif main_menu == "🖥 Hardware Dashboard":
         _render_hardware_command_center()
 
-    elif main_menu == "๐’ฟ Software Dashboard":
+    elif main_menu == "💿 Software Dashboard":
         _render_software_command_center()
 
-    elif main_menu == "๐” Permission Dashboard":
+    elif main_menu == "🔐 Permission Dashboard":
         _render_module_hub(
             "Permission Dashboard",
-            "เธ•เธฃเธงเธเธชเธญเธเธชเธดเธ—เธเธดเนเธเธฒเธฃเน€เธเนเธฒเธ–เธถเธเธฃเธฐเธเธเนเธฅเธฐเธเนเธขเธเธฒเธขเน€เธเธฃเธทเธญเธเนเธฒเธข",
-            "๐”",
+            "ตรวจสอบสิทธิ์การเข้าถึงระบบและนโยบายเครือข่าย",
+            "🔐",
             [
-                ("user_perm", "๐“", "NAS Permission", "เธ•เธฃเธงเธเธชเธญเธเธชเธดเธ—เธเธดเนเธเธฒเธฃเน€เธเนเธฒเธ–เธถเธ NAS Shares"),
-                ("ad_policy", "๐ก๏ธ", "AD / Firewall", "เธ•เธฃเธงเธเธชเธญเธ Internet Policy เธเธฒเธ AD / Entra ID"),
+                ("user_perm", "📁", "NAS Permission", "ตรวจสอบสิทธิ์การเข้าถึง NAS Shares"),
+                ("ad_policy", "🛡️", "AD / Firewall", "ตรวจสอบ Internet Policy จาก AD / Entra ID"),
             ],
         )
 
-    elif main_menu == "๐’ฟ Software Module":
+    elif main_menu == "💿 Software Module":
         _software_config = {
             "Group E-mail": ("โ๏ธ", "Group Email"),
             "Office 365": ("โ๏ธ", "Office 365"),
-            "PDF": ("๐“", "PDF"),
+            "PDF": ("📄", "PDF"),
             "Windows": ("โ", "Windows"),
-            "เธเธเธฑเธเธเธฒเธเธฅเธฒเธญเธญเธ": ("๐‘ค", "Offboarded Employees"),
+            "พนักงานลาออก": ("👤", "Offboarded Employees"),
         }
-        _software_icon, _software_category = _software_config.get(_hw_sub_override, ("๐’ฟ", _hw_sub_override))
+        _software_icon, _software_category = _software_config.get(_hw_sub_override, ("💿", _hw_sub_override))
         _render_software_file_module(
             _hw_sub_override,
-            "เธเนเธญเธกเธนเธฅ License เนเธฅเธฐเธเธฑเธเธเธตเธเธฒเธเนเธเธฅเน Software เนเธขเธเธเธ SharePoint",
+            "ข้อมูล License และบัญชีจากไฟล์ Software แยกบน SharePoint",
             _software_icon,
             _software_category,
         )
 
-    elif main_menu == "๐ข Vendor List":
-        _render_password_sheet_module("Vendor List", "เธเนเธญเธกเธนเธฅเธเธนเนเธเธฒเธข เธเธนเนเนเธซเนเธเธฃเธดเธเธฒเธฃ เนเธฅเธฐเธเนเธญเธเธ—เธฒเธเธ•เธดเธ”เธ•เนเธญ", "๐ข", ["vendor", "supplier", "เธเธนเนเธเธฒเธข"])
+    elif main_menu == "🏢 Vendor List":
+        _render_password_sheet_module("Vendor List", "ข้อมูลผู้ขาย ผู้ให้บริการ และช่องทางติดต่อ", "🏢", ["vendor", "supplier", "ผู้ขาย"])
 
     # -------------------------------------------------------
-    # ๐’ป Hardware Asset
+    # 💻 Hardware Asset
     # -------------------------------------------------------
-    elif main_menu == "๐’ป Hardware Asset":
+    elif main_menu == "💻 Hardware Asset":
 
         st.markdown("""
         <style>
@@ -6555,7 +6528,7 @@ else:
                 user = _ca_value(row, "field_3", "User", "Employee", default="")
                 raw = _ca_value(row, "Status", "ComputerStatus", default="Active").lower()
                 if not user or user == "-": return "No User", "nouser"
-                if raw in ("inactive", "offline", "repair", "เน€เธชเธตเธข", "เธเนเธญเธก"): return "Offline", "offline"
+                if raw in ("inactive", "offline", "repair", "เสีย", "ซ่อม"): return "Offline", "offline"
                 return "Online", "online"
 
             _ca_esc = lambda value: html.escape(str(value), quote=True)
@@ -6584,33 +6557,33 @@ else:
                 '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>'
             ]
             _ca_icons[5] = _ca_icons[4]
-            st.markdown(f'<section class="ca-header"><div class="ca-header-icon">{_ca_monitor}</div><div><h1>Computer Asset</h1><p>เธเธฑเธ”เธเธฒเธฃเธเนเธญเธกเธนเธฅเธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเนเธ—เธฑเนเธเธซเธกเธ”เนเธเธญเธเธเนเธเธฃ</p></div></section>',unsafe_allow_html=True)
-            _ca_metrics=[("เธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเนเธ—เธฑเนเธเธซเธกเธ”",_ca_total,"#2563EB","#EFF6FF"),("เนเธเนเธเธฒเธเธเธเธ•เธด",_ca_online,"#10B981","#ECFDF5"),("Offline",_ca_offline,"#F59E0B","#FFF7ED"),("เนเธกเนเธกเธตเธเธนเนเนเธเนเธเธฒเธ",_ca_nouser,"#8B5CF6","#F5F3FF"),("Windows 11",_ca_win11,"#38BDF8","#F0F9FF"),("Windows 10",_ca_win10,"#3B82F6","#EFF6FF")]
-            st.markdown('<div class="ca-metric-grid">'+''.join(f'<div class="ca-card" style="--tone:{tone};--soft:{soft}"><div class="ca-card-label">{label}</div><div class="ca-card-value">{value:,}</div><div class="ca-card-icon">{_ca_icons[i]}</div><div class="ca-card-foot"><span>เน€เธเธฃเธทเนเธญเธ</span><strong>{_ca_pct(value,_ca_total):.2f}%</strong></div></div>' for i,(label,value,tone,soft) in enumerate(_ca_metrics))+'</div>',unsafe_allow_html=True)
+            st.markdown(f'<section class="ca-header"><div class="ca-header-icon">{_ca_monitor}</div><div><h1>Computer Asset</h1><p>จัดการข้อมูลคอมพิวเตอร์ทั้งหมดในองค์กร</p></div></section>',unsafe_allow_html=True)
+            _ca_metrics=[("คอมพิวเตอร์ทั้งหมด",_ca_total,"#2563EB","#EFF6FF"),("ใช้งานปกติ",_ca_online,"#10B981","#ECFDF5"),("Offline",_ca_offline,"#F59E0B","#FFF7ED"),("ไม่มีผู้ใช้งาน",_ca_nouser,"#8B5CF6","#F5F3FF"),("Windows 11",_ca_win11,"#38BDF8","#F0F9FF"),("Windows 10",_ca_win10,"#3B82F6","#EFF6FF")]
+            st.markdown('<div class="ca-metric-grid">'+''.join(f'<div class="ca-card" style="--tone:{tone};--soft:{soft}"><div class="ca-card-label">{label}</div><div class="ca-card-value">{value:,}</div><div class="ca-card-icon">{_ca_icons[i]}</div><div class="ca-card-foot"><span>เครื่อง</span><strong>{_ca_pct(value,_ca_total):.2f}%</strong></div></div>' for i,(label,value,tone,soft) in enumerate(_ca_metrics))+'</div>',unsafe_allow_html=True)
 
             _ca_departments=sorted({_ca_value(r,"field_4") for _,r in df_hw.iterrows()})
-            st.markdown('<div class="ca-search-panel-title">เธเนเธเธซเธฒเนเธฅเธฐเธเธฃเธญเธเธเนเธญเธกเธนเธฅ</div>',unsafe_allow_html=True)
+            st.markdown('<div class="ca-search-panel-title">ค้นหาและกรองข้อมูล</div>',unsafe_allow_html=True)
             f1,f2,f3,f4,f5=st.columns([3.1,1.25,1.35,1,1.2])
-            with f1: _ca_search=st.text_input("เธเนเธเธซเธฒ",placeholder="เธเนเธเธซเธฒ Computer, User, LoginAccount, Serial",label_visibility="collapsed",key="ca_search")
-            with f2: _ca_sf=st.selectbox("Status",["เธ—เธฑเนเธเธซเธกเธ”","Online","Offline","No User"],label_visibility="collapsed",key="ca_status")
-            with f3: _ca_df=st.selectbox("Department",["เธ—เธฑเนเธเธซเธกเธ”"]+_ca_departments,label_visibility="collapsed",key="ca_department")
-            with f4: st.button("โ• เธเนเธเธซเธฒ",use_container_width=True,type="primary",key="ca_search_button")
+            with f1: _ca_search=st.text_input("ค้นหา",placeholder="ค้นหา Computer, User, LoginAccount, Serial",label_visibility="collapsed",key="ca_search")
+            with f2: _ca_sf=st.selectbox("Status",["ทั้งหมด","Online","Offline","No User"],label_visibility="collapsed",key="ca_status")
+            with f3: _ca_df=st.selectbox("Department",["ทั้งหมด"]+_ca_departments,label_visibility="collapsed",key="ca_department")
+            with f4: st.button("⌕ ค้นหา",use_container_width=True,type="primary",key="ca_search_button")
             with f5:
-                if st.button("โป เธฅเนเธฒเธเธ•เธฑเธงเธเธฃเธญเธ",use_container_width=True,key="ca_reset"):
+                if st.button("↻ ล้างตัวกรอง",use_container_width=True,key="ca_reset"):
                     for _ca_key in ("ca_search","ca_status","ca_department"):
                         st.session_state.pop(_ca_key,None)
                     st.rerun()
             _ca_filtered=df_hw.copy()
             if _ca_search: _ca_filtered=_ca_filtered[_ca_filtered.astype(str).apply(lambda c:c.str.contains(_ca_search,case=False,na=False)).any(axis=1)]
-            if _ca_sf!="เธ—เธฑเนเธเธซเธกเธ”": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_status(r)[0]==_ca_sf,axis=1)]
-            if _ca_df!="เธ—เธฑเนเธเธซเธกเธ”": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"field_4")==_ca_df,axis=1)]
+            if _ca_sf!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_status(r)[0]==_ca_sf,axis=1)]
+            if _ca_df!="ทั้งหมด": _ca_filtered=_ca_filtered[_ca_filtered.apply(lambda r:_ca_value(r,"field_4")==_ca_df,axis=1)]
             a1,a2,a3,_ca_action_space=st.columns([1.25,.9,1.8,3.2])
             with a1:
-                if admin_mode and st.button("๏ผ เน€เธเธดเนเธกเธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเน",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
+                if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
             with a2: st.download_button("โฉ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
             _ca_column_defs={"computer":"Computer Name","user":"User","login":"LoginAccount","department":"Department","os":"OS","model":"Model","serial":"Serial Number","status":"Status"}
             _ca_visible_columns=list(_ca_column_defs)
-            with a3: _ca_sort=st.selectbox("เน€เธฃเธตเธขเธเธเนเธญเธกเธนเธฅ",["Computer Name Aโ€“Z","Computer Name Zโ€“A"],label_visibility="collapsed",key="ca_sort")
+            with a3: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A"],label_visibility="collapsed",key="ca_sort")
 
             _ca_records=[]
             for idx,row in _ca_filtered.iterrows():
@@ -6623,7 +6596,7 @@ else:
             st.session_state["ca_page"]=_ca_page
             _ca_start=(_ca_page-1)*_ca_page_size
             _ca_slice=_ca_records[_ca_start:_ca_start+_ca_page_size]
-            st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>โ–ฆ</span>เธฃเธฒเธขเธเธฒเธฃเธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเน</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
+            st.markdown('<div class="ca-action-bar"><div class="ca-action-title"><span>▦</span>รายการคอมพิวเตอร์</div><div>Enterprise Data Grid</div></div>',unsafe_allow_html=True)
             _ca_from=(_ca_page-1)*_ca_page_size+1 if _ca_records else 0; _ca_to=min(_ca_page*_ca_page_size,len(_ca_records))
             with st.container(border=True):
                 st.markdown('<div class="ca-native-grid"></div>',unsafe_allow_html=True)
@@ -6632,7 +6605,7 @@ else:
                 for _ca_col,_ca_label in zip(_ca_head,["Computer Name","User","LoginAccount","Department","OS","Model","Serial Number","Status","Action"]):
                     with _ca_col: st.markdown(f'<div class="ca-native-head">{_ca_label}</div>',unsafe_allow_html=True)
                 if not _ca_slice:
-                    st.info("เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธ•เธฒเธกเน€เธเธทเนเธญเธเนเธ")
+                    st.info("ไม่พบข้อมูลตามเงื่อนไข")
                 for _ca_idx,_ca_row,_ca_data in _ca_slice:
                     _ca_cols=st.columns(_ca_widths,gap="small",vertical_alignment="center")
                     _ca_values=[_ca_data["computer"],_ca_data["user"],_ca_data["login"],_ca_data["department"],_ca_data["os"],_ca_data["model"],_ca_data["serial"]]
@@ -6644,15 +6617,15 @@ else:
                         _ca_b1,_ca_b2,_ca_b3=st.columns(3,gap="small")
                         with _ca_b1:
                             st.markdown('<span class="ca-row-action-marker ca-row-action-view"></span>',unsafe_allow_html=True)
-                            if st.button(" ",icon=":material/visibility:",key=f"ca_view_{_ca_idx}",help="เธ”เธนเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”"): show_pop_computer(_ca_row.to_dict())
+                            if st.button(" ",icon=":material/visibility:",key=f"ca_view_{_ca_idx}",help="ดูรายละเอียด"): show_pop_computer(_ca_row.to_dict())
                         with _ca_b2:
                             st.markdown('<span class="ca-row-action-marker ca-row-action-edit"></span>',unsafe_allow_html=True)
-                            if admin_mode and st.button(" ",icon=":material/edit:",key=f"ca_edit_{_ca_idx}",help="เนเธเนเนเธ"): edit_computer_dialog(_ca_row.to_dict(),sub)
+                            if admin_mode and st.button(" ",icon=":material/edit:",key=f"ca_edit_{_ca_idx}",help="แก้ไข"): edit_computer_dialog(_ca_row.to_dict(),sub)
                         with _ca_b3:
                             st.markdown('<span class="ca-row-action-marker ca-row-action-delete"></span>',unsafe_allow_html=True)
-                            if admin_mode and st.button(" ",icon=":material/delete:",key=f"ca_delete_{_ca_idx}",help="เธฅเธ"): delete_computer_dialog(_ca_row.to_dict(),sub)
+                            if admin_mode and st.button(" ",icon=":material/delete:",key=f"ca_delete_{_ca_idx}",help="ลบ"): delete_computer_dialog(_ca_row.to_dict(),sub)
                     st.markdown('<div class="ca-native-divider"></div>',unsafe_allow_html=True)
-                st.markdown(f'<div class="ca-native-footer"><span>เนเธชเธ”เธ {_ca_from} เธ–เธถเธ {_ca_to} เธเธฒเธ {len(_ca_records)} เธฃเธฒเธขเธเธฒเธฃ</span><span>เธซเธเนเธฒ {_ca_page} / {_ca_page_count}</span></div>',unsafe_allow_html=True)
+                st.markdown(f'<div class="ca-native-footer"><span>แสดง {_ca_from} ถึง {_ca_to} จาก {len(_ca_records)} รายการ</span><span>หน้า {_ca_page} / {_ca_page_count}</span></div>',unsafe_allow_html=True)
 
             _ca_nav=st.columns([7,.52,.52,.52,.52,.52])
             with _ca_nav[1]:
@@ -6671,18 +6644,18 @@ else:
                 model=_ca_value(r,"field_7","Model",default="").lower(); kind="Notebook" if any(x in model for x in ("notebook","laptop","thinkpad","latitude")) else ("All-in-One" if any(x in model for x in ("all-in-one","aio")) else "Desktop"); _ca_types[kind]+=1
                 os_key=_ca_os_key(r)
                 if os_key in _ca_windows: _ca_windows[os_key]+=1
-                dept=_ca_value(r,"field_4",default="เนเธกเนเธฃเธฐเธเธธ"); _ca_depts[dept]=_ca_depts.get(dept,0)+1
+                dept=_ca_value(r,"field_4",default="ไม่ระบุ"); _ca_depts[dept]=_ca_depts.get(dept,0)+1
             def _ca_donut(title,data,colors):
                 total=max(sum(data.values()),1); values=list(data.values()); p1=values[0]/total*100; p2=(values[0]+values[1])/total*100; legend=''.join(f'<div class="ca-legend-row"><i style="background:{colors[i]}"></i><b>{_ca_esc(k)}</b><span>{v}</span></div>' for i,(k,v) in enumerate(data.items())); return f'<div class="ca-chart-card"><div class="ca-chart-title">{title}</div><div class="ca-donut-layout"><div class="ca-donut" style="--d1:{colors[0]};--d2:{colors[1]};--d3:{colors[2]};--p1:{p1:.2f}%;--p2:{p2:.2f}%"></div><div class="ca-legend">{legend}</div></div></div>'
             _ca_top=sorted(_ca_depts.items(),key=lambda x:x[1],reverse=True)[:5]; _ca_max=max([v for _,v in _ca_top] or [1]); _ca_bars=''.join(f'<div class="ca-bar-row"><span>{_ca_esc(k)}</span><div class="ca-bar-track"><div class="ca-bar-fill" style="width:{v/_ca_max*100:.1f}%"></div></div><strong>{v}</strong></div>' for k,v in _ca_top); _ca_recent=''.join(f'<div class="ca-recent-item"><div><div class="ca-recent-name">{_ca_esc(d["computer"])}</div><div class="ca-recent-state">{_ca_esc(d["status"])}</div></div><div class="ca-recent-time">{_ca_esc(d["seen"])}</div></div>' for _,_,d in sorted(_ca_records,key=lambda x:x[2]["seen"],reverse=True)[:5])
-            st.markdown('<div class="ca-analytics">'+_ca_donut("เธเธฃเธฐเน€เธ เธ—เน€เธเธฃเธทเนเธญเธ",_ca_types,["#4F46E5","#38BDF8","#A855F7"])+_ca_donut("Windows Version",_ca_windows,["#2563EB","#3B82F6","#22C1C3"])+f'<div class="ca-chart-card"><div class="ca-chart-title">Top 5 Department</div><div class="ca-bars">{_ca_bars}</div></div><div class="ca-recent-card"><div class="ca-chart-title">โ—ท เธญเธฑเธเน€เธ”เธ•เธฅเนเธฒเธชเธธเธ”</div><div class="ca-recent-list">{_ca_recent}</div></div></div>',unsafe_allow_html=True)
+            st.markdown('<div class="ca-analytics">'+_ca_donut("ประเภทเครื่อง",_ca_types,["#4F46E5","#38BDF8","#A855F7"])+_ca_donut("Windows Version",_ca_windows,["#2563EB","#3B82F6","#22C1C3"])+f'<div class="ca-chart-card"><div class="ca-chart-title">Top 5 Department</div><div class="ca-bars">{_ca_bars}</div></div><div class="ca-recent-card"><div class="ca-chart-title">◷ อัปเดตล่าสุด</div><div class="ca-recent-list">{_ca_recent}</div></div></div>',unsafe_allow_html=True)
             st.stop()
 
         st.markdown(f"""
         <div class="asset-hero">
-            <div class="asset-title">๐’ป {hardware_name}</div>
+            <div class="asset-title">💻 {hardware_name}</div>
             <div class="asset-sub">
-                เธฃเธฐเธเธเธเธฑเธ”เธเธฒเธฃ{hardware_name}เนเธฅเธฐเธ—เธฃเธฑเธเธขเนเธชเธดเธ IT เธ—เธฑเนเธเธซเธกเธ”
+                ระบบจัดการ{hardware_name}และทรัพย์สิน IT ทั้งหมด
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -6692,7 +6665,7 @@ else:
         inactive_assets = len(df_hw[df_hw["Status"] == "Inactive"]) if not df_hw.empty else 0
         repair_assets = len(df_hw[df_hw["Status"] == "Repair"]) if not df_hw.empty else 0
 
-        # เนเธเน Streamlit metric เนเธ—เธ HTML เน€เธเธทเนเธญเธเนเธญเธเธเธฑเธ HTML render เน€เธเนเธ text
+        # ใช้ Streamlit metric แทน HTML เพื่อป้องกัน HTML render เป็น text
         m1, m2, m3, m4 = st.columns(4)
 
         with m1:
@@ -6712,13 +6685,13 @@ else:
         with col_search:
             search = st.text_input(
                 "",
-                placeholder="๐” เธเนเธเธซเธฒเธเธทเนเธญเธเธเธฑเธเธเธฒเธ, Hostname, Model, S/N...",
+                placeholder="🔍 ค้นหาชื่อพนักงาน, Hostname, Model, S/N...",
                 label_visibility="collapsed"
             )
 
         with col_add:
             if admin_mode:
-                if st.button("โ• เน€เธเธดเนเธกเธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเน", use_container_width=True, type="primary"):
+                if st.button("➕ เพิ่มคอมพิวเตอร์", use_container_width=True, type="primary"):
                     add_computer_dialog(sub)
 
         if search and not df_hw.empty:
@@ -6739,32 +6712,32 @@ else:
                 badge_class = "badge-active" if status == "Active" else "badge-inactive"
 
                 with st.container(border=True):
-                    st.markdown(f"### ๐‘ค {name}")
-                    st.caption(f"๐ข {row.get('field_1','-')}  |  Status: {status}")
-                    st.write(f"๐’ป Hostname: {row.get('field_6','-')}")
-                    st.write(f"๐ท๏ธ Model: {row.get('field_7','-')}")
-                    st.write(f"๐’พ RAM: {row.get('field_13','-')}")
-                    st.write(f"๐”ข Serial: {row.get('field_8','-')}")
+                    st.markdown(f"### 👤 {name}")
+                    st.caption(f"🏢 {row.get('field_1','-')}  |  Status: {status}")
+                    st.write(f"💻 Hostname: {row.get('field_6','-')}")
+                    st.write(f"🏷️ Model: {row.get('field_7','-')}")
+                    st.write(f"💾 RAM: {row.get('field_13','-')}")
+                    st.write(f"🔢 Serial: {row.get('field_8','-')}")
 
                 if admin_mode:
                     b1, b2 = st.columns(2)
 
                     with b1:
-                        if st.button("๐” เธ”เธนเธเนเธญเธกเธนเธฅ", key=f"view_{idx}", use_container_width=True):
+                        if st.button("🔍 ดูข้อมูล", key=f"view_{idx}", use_container_width=True):
                             show_pop_computer(row.to_dict())
 
                     with b2:
-                        if st.button("โ๏ธ เนเธเนเนเธ", key=f"edit_{idx}", use_container_width=True):
+                        if st.button("✏️ แก้ไข", key=f"edit_{idx}", use_container_width=True):
                             edit_computer_dialog(row.to_dict(), sub)
                 else:
-                    st.caption("๐”’ เธ”เธนเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เน€เธเธดเนเธกเน€เธ•เธดเธกเนเธ”เนเน€เธเธเธฒเธฐเธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ")
+                    st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
 
 
 
     # -------------------------------------------------------
-    # ๐ AD / Firewall Policy
+    # 🌐 AD / Firewall Policy
     # -------------------------------------------------------
-    elif main_menu == "๐ AD / Firewall Policy":
+    elif main_menu == "🌐 AD / Firewall Policy":
         # UI OWNER: AD / Firewall Policy only.  All selectors are scoped by
         # .adp-page-marker so this theme cannot leak into other Streamlit pages.
         st.markdown("""
@@ -6866,7 +6839,7 @@ else:
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10.5 3a7.5 7.5 0 1 0 4.7 13.3L20 21l1-1-4.7-4.8A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10.5 3a7.5 7.5 0 1 0 4.7 13.3L20 21l1-1-4.7-4.8A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z' fill='black'/%3E%3C/svg%3E")}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):before{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3h6v6H4V3zm10 0h6v6h-6V3zM4 15h6v6H4v-6zm10 0h6v6h-6v-6zM10 5h4v2h-4V5zm-3 4h2v6H7V9zm8 0h2v6h-2V9zm-5 9h4v2h-4v-2z' fill='black'/%3E%3C/svg%3E")}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:after {position:absolute;left:46px;top:34px;color:#94A3B8;font-size:9.5px;font-weight:550;white-space:nowrap}
-        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"เธเนเธเธซเธฒเธเนเธขเธเธฒเธขเธเธญเธเธเธนเนเนเธเน"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"เธเนเธเธซเธฒเธเธนเนเนเธเนเธ•เธฒเธก Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"เธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเนเธกเนเธ Policy"}
+        .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(1):after{content:"ค้นหานโยบายของผู้ใช้"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(2):after{content:"ค้นหาผู้ใช้ตาม Policy"}.stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab"]:nth-child(3):after{content:"ตรวจสอบการแม็ป Policy"}
         .stApp:has(.adp-page-marker) .stTabs [aria-selected="true"] {background:linear-gradient(180deg,#FFFFFF 0%,#F6F5FF 100%)!important;color:#4F46E5!important;border-color:transparent!important;border-radius:12px!important;box-shadow:0 7px 16px rgba(79,70,229,.11)!important;z-index:2}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-panel"] {padding-top:0!important}
         .stApp:has(.adp-page-marker) .stTabs [data-baseweb="tab-highlight"],
@@ -6896,13 +6869,13 @@ else:
           </div>
           <div class="adp-hero-copy">
             <h1>AD / Firewall Policy</h1>
-            <p>เธ•เธฃเธงเธเธชเธญเธ Internet Policy เธ—เธตเนเธเธนเนเนเธเนเธซเธฃเธทเธญ Policy Group เนเธ”เนเธฃเธฑเธเธเธฒเธ AD / Entra ID Group</p>
+            <p>ตรวจสอบ Internet Policy ที่ผู้ใช้หรือ Policy Group ได้รับจาก AD / Entra ID Group</p>
           </div>
           <div class="adp-hero-art" aria-hidden="true">
             <svg viewBox="0 0 260 130"><defs><linearGradient id="adpBrick" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7DD3FC"/><stop offset="1" stop-color="#60A5FA"/></linearGradient><linearGradient id="adpMiniShield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#BAE6FD"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><g fill="none" stroke="#7DD3FC" stroke-width="3" opacity=".62"><circle cx="69" cy="57" r="43"/><path d="M27 57h84M69 14c-14 13-20 27-20 43s6 30 20 43M69 14c14 13 20 27 20 43s-6 30-20 43M34 35h70M34 79h70"/></g><g fill="url(#adpBrick)" stroke="#93C5FD" stroke-width="1"><rect x="102" y="48" width="43" height="24" rx="5"/><rect x="149" y="48" width="43" height="24" rx="5"/><rect x="196" y="48" width="43" height="24" rx="5"/><rect x="114" y="76" width="43" height="24" rx="5"/><rect x="161" y="76" width="43" height="24" rx="5"/><rect x="208" y="76" width="31" height="24" rx="5"/></g><g transform="translate(174 16)"><path d="M24 1 45 10v14c0 13-8.5 23.5-21 28C11.5 47.5 3 37 3 24V10L24 1Z" fill="url(#adpMiniShield)" stroke="#BAE6FD" stroke-width="2"/><path d="m15 25 6 6 13-14" fill="none" stroke="#E0F2FE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(184 73)"><path d="M8 14V9a12 12 0 0 1 24 0v5" fill="none" stroke="#BFDBFE" stroke-width="4"/><rect x="3" y="13" width="34" height="29" rx="6" fill="#4F46E5" stroke="#93C5FD" stroke-width="2"/><circle cx="20" cy="25" r="4" fill="#BAE6FD"/><path d="M20 29v6" stroke="#BAE6FD" stroke-width="3" stroke-linecap="round"/></g></svg>
           </div>
         </section>
-        <div class="adp-info-banner"><span class="adp-info-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span><span>เธฃเธฐเธเธเธญเนเธฒเธ Group Membership เธเธฒเธ AD Agent / LDAP / Microsoft Graph เนเธฅเนเธงเนเธเธฅเธเธเธฅเธธเนเธกเธ—เธตเนเธเธถเนเธเธ•เนเธเธ”เนเธงเธข <code>FW_</code>, <code>Firewall_</code> เธซเธฃเธทเธญ <code>Internet_</code> เน€เธเนเธ Internet Policy</span></div>
+        <div class="adp-info-banner"><span class="adp-info-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span><span>ระบบอ่าน Group Membership จาก AD Agent / LDAP / Microsoft Graph แล้วแปลงกลุ่มที่ขึ้นต้นด้วย <code>FW_</code>, <code>Firewall_</code> หรือ <code>Internet_</code> เป็น Internet Policy</span></div>
         """, unsafe_allow_html=True)
 
         ADP_ICONS = {
@@ -6926,8 +6899,8 @@ else:
 
         def adp_summary_grid(policy_count, group_count):
             st.markdown(f'''<div class="adp-summary-grid">
-              <div class="adp-summary-card"><div class="adp-summary-icon">{ADP_ICONS['shield']}</div><div class="adp-summary-label">Internet Policies</div><div class="adp-summary-value">{int(policy_count)}</div><div class="adp-summary-note">เธเนเธขเธเธฒเธขเธ—เธตเนเนเธ”เนเธฃเธฑเธ</div></div>
-              <div class="adp-summary-card"><div class="adp-summary-icon">{ADP_ICONS['groups']}</div><div class="adp-summary-label">AD Groups</div><div class="adp-summary-value">{int(group_count)}</div><div class="adp-summary-note">เธเธฅเธธเนเธกเธ—เธตเนเน€เธเนเธเธชเธกเธฒเธเธดเธ</div></div>
+              <div class="adp-summary-card"><div class="adp-summary-icon">{ADP_ICONS['shield']}</div><div class="adp-summary-label">Internet Policies</div><div class="adp-summary-value">{int(policy_count)}</div><div class="adp-summary-note">นโยบายที่ได้รับ</div></div>
+              <div class="adp-summary-card"><div class="adp-summary-icon">{ADP_ICONS['groups']}</div><div class="adp-summary-label">AD Groups</div><div class="adp-summary-value">{int(group_count)}</div><div class="adp-summary-note">กลุ่มที่เป็นสมาชิก</div></div>
             </div>''', unsafe_allow_html=True)
 
         def adp_policy_table(rows):
@@ -6939,7 +6912,7 @@ else:
                 ("Allowed", "Allowed", "18%"),
                 ("Blocked", "Blocked", "11%"),
                 ("Firewall Rule", "Firewall", "11%"),
-                ("Source", "เนเธซเธฅเนเธเธ—เธตเนเธกเธฒ", "8%"),
+                ("Source", "แหล่งที่มา", "8%"),
             ]
             colgroup = ''.join(f'<col style="width:{width}">' for _, _, width in columns)
             header = ''.join(f'<th>{html.escape(title)}</th>' for _, title, _ in columns)
@@ -6956,12 +6929,12 @@ else:
                     else:
                         cells.append(f'<td title="{safe_value}">{safe_value}</td>')
                 body_rows.append('<tr>' + ''.join(cells) + '</tr>')
-            table = f'''<div class="adp-table-wrap"><div class="adp-table-title"><span class="adp-stat-icon" style="width:24px;height:24px;flex-basis:24px;border-radius:8px">{ADP_ICONS['link']}</span><span>Internet Policy เธ—เธตเนเนเธ”เนเธฃเธฑเธ</span></div><table class="adp-policy-table"><colgroup>{colgroup}</colgroup><thead><tr>{header}</tr></thead><tbody>{''.join(body_rows)}</tbody></table></div>'''
+            table = f'''<div class="adp-table-wrap"><div class="adp-table-title"><span class="adp-stat-icon" style="width:24px;height:24px;flex-basis:24px;border-radius:8px">{ADP_ICONS['link']}</span><span>Internet Policy ที่ได้รับ</span></div><table class="adp-policy-table"><colgroup>{colgroup}</colgroup><thead><tr>{header}</tr></thead><tbody>{''.join(body_rows)}</tbody></table></div>'''
             st.markdown(table, unsafe_allow_html=True)
 
         tab_user, tab_policy, tab_map = st.tabs([
-            "เธเนเธเธซเธฒ User",
-            "เธเนเธเธซเธฒ Policy",
+            "ค้นหา User",
+            "ค้นหา Policy",
             "Policy Mapping",
         ])
 
@@ -6975,14 +6948,14 @@ else:
                     user_identity = st.text_input(
                         "User / Email / UPN",
                         value=default_identity,
-                        placeholder="เน€เธเนเธ supranee.ch เธซเธฃเธทเธญ user@company.com",
+                        placeholder="เช่น supranee.ch หรือ user@company.com",
                         key="ad_policy_user_identity",
                         label_visibility="collapsed",
                     )
                 with col_lookup:
-                    lookup_clicked = st.button("เธ•เธฃเธงเธเธชเธญเธ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
+                    lookup_clicked = st.button("ตรวจสอบ Policy", type="primary", use_container_width=True, key="ad_policy_lookup")
                 with col_clear:
-                    if st.button("เธฅเนเธฒเธ Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
+                    if st.button("ล้าง Cache AD", use_container_width=True, key="ad_policy_clear_cache"):
                         ldap_find_user.clear()
                         get_ldap_group_names_for_user.clear()
                         get_ad_agent_policy_summary.clear()
@@ -6994,9 +6967,9 @@ else:
 
             if lookup_clicked or user_identity:
                 if not user_identity.strip():
-                    st.warning("เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธ User / Email / UPN")
+                    st.warning("กรุณาระบุ User / Email / UPN")
                 else:
-                    with st.spinner("เธเธณเธฅเธฑเธเธ”เธถเธเธเนเธญเธกเธนเธฅเธเธฒเธ AD / Entra ID..."):
+                    with st.spinner("กำลังดึงข้อมูลจาก AD / Entra ID..."):
                         policy_summary = get_user_internet_policy_summary(user_identity)
                         user_obj = policy_summary.get("user", {}) if policy_summary.get("ok") else {}
 
@@ -7008,7 +6981,7 @@ else:
                             ("Source", policy_summary.get("source", "-"), "server"),
                         ])
                     else:
-                        st.warning("เนเธกเนเธเธ User เธเธตเนเธเธฒเธ AD LDAP / AD Agent / Microsoft Graph เธซเธฃเธทเธญเธ•เธฑเนเธเธเนเธฒ source เธขเธฑเธเนเธกเนเธเธฃเธ")
+                        st.warning("ไม่พบ User นี้จาก AD LDAP / AD Agent / Microsoft Graph หรือตั้งค่า source ยังไม่ครบ")
 
                     if policy_summary.get("ok"):
                         policies = policy_summary.get("policies", [])
@@ -7022,8 +6995,8 @@ else:
                                 datetime.timezone(datetime.timedelta(hours=7))
                             )
                             adp_thai_months = [
-                                "เธก.เธ.", "เธ.เธ.", "เธกเธต.เธ.", "เน€เธก.เธข.", "เธ.เธ.", "เธกเธด.เธข.",
-                                "เธ.เธ.", "เธช.เธ.", "เธ.เธข.", "เธ•.เธ.", "เธ.เธข.", "เธ.เธ.",
+                                "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+                                "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",
                             ]
                             adp_updated_text = (
                                 f"{adp_now.day} {adp_thai_months[adp_now.month - 1]} "
@@ -7032,13 +7005,13 @@ else:
                             st.markdown(
                                 f'''<div class="adp-table-footer-marker">
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-                                <span>เธญเธฑเธเน€เธ”เธ•เธฅเนเธฒเธชเธธเธ”: {adp_updated_text}</span></div>''',
+                                <span>อัปเดตล่าสุด: {adp_updated_text}</span></div>''',
                                 unsafe_allow_html=True,
                             )
                         else:
-                            st.info("เนเธกเนเธเธ Internet Policy Group เธชเธณเธซเธฃเธฑเธ User เธเธตเน")
+                            st.info("ไม่พบ Internet Policy Group สำหรับ User นี้")
                     else:
-                        st.error(f"เธขเธฑเธเธ”เธถเธเธเนเธญเธกเธนเธฅ AD / Entra ID เนเธกเนเนเธ”เน: {policy_summary.get('error', '')}")
+                        st.error(f"ยังดึงข้อมูล AD / Entra ID ไม่ได้: {policy_summary.get('error', '')}")
 
         with tab_policy:
             map_rows = load_firewall_policy_mapping()
@@ -7051,14 +7024,14 @@ else:
             c_policy, c_manual = st.columns([0.42, 0.58])
             with c_policy:
                 selected_policy = st.selectbox(
-                    "เน€เธฅเธทเธญเธ Policy",
+                    "เลือก Policy",
                     available_policies if available_policies else sorted(FW_POLICY_MAP.keys()),
                     key="ad_policy_selected_policy",
                 )
             with c_manual:
                 manual_policy = st.text_input(
-                    "เธซเธฃเธทเธญเธเธดเธกเธเนเธเธทเนเธญ Policy เน€เธญเธ",
-                    placeholder="เน€เธเนเธ FW_Officer_A",
+                    "หรือพิมพ์ชื่อ Policy เอง",
+                    placeholder="เช่น FW_Officer_A",
                     key="ad_policy_manual_policy",
                 )
 
@@ -7066,15 +7039,15 @@ else:
 
             col_search, col_cache = st.columns([0.52, 0.48])
             with col_search:
-                policy_lookup_clicked = st.button("เธเนเธเธซเธฒ User", type="primary", use_container_width=True, key="ad_policy_policy_lookup")
+                policy_lookup_clicked = st.button("ค้นหา User", type="primary", use_container_width=True, key="ad_policy_policy_lookup")
             with col_cache:
-                if st.button("เธฅเนเธฒเธ Cache Policy", use_container_width=True, key="ad_policy_policy_clear"):
+                if st.button("ล้าง Cache Policy", use_container_width=True, key="ad_policy_policy_clear"):
                     get_ad_agent_policy_users.clear()
                     load_firewall_policy_mapping.clear()
                     st.rerun()
 
             if policy_lookup_clicked or manual_policy.strip():
-                with st.spinner(f"เธเธณเธฅเธฑเธเธเนเธเธซเธฒ User เธ—เธตเนเนเธเน {policy_query}..."):
+                with st.spinner(f"กำลังค้นหา User ที่ใช้ {policy_query}..."):
                     policy_users = get_policy_users_summary(policy_query)
 
                 if policy_users.get("ok"):
@@ -7122,14 +7095,14 @@ else:
                             use_container_width=True,
                         )
                     else:
-                        st.info("เนเธกเนเธเธ User เธ—เธตเนเธญเธขเธนเนเนเธ Policy เธเธตเน")
+                        st.info("ไม่พบ User ที่อยู่ใน Policy นี้")
                 else:
-                    st.error(f"เธขเธฑเธเธ”เธถเธเธฃเธฒเธขเธเธทเนเธญ User เธเธญเธ Policy เธเธตเนเนเธกเนเนเธ”เน: {policy_users.get('error', '')}")
+                    st.error(f"ยังดึงรายชื่อ User ของ Policy นี้ไม่ได้: {policy_users.get('error', '')}")
 
-            st.caption("เธซเธกเธฒเธขเน€เธซเธ•เธธ: เธเธฒเธฃเธเนเธเธซเธฒ Policy เธ•เนเธญเธเนเธเน AD Agent endpoint `/policy-users` เน€เธเนเธ `https://ad-agent.poonyaruk.co.th/policy-users?policy=FW_Officer_A`")
+            st.caption("หมายเหตุ: การค้นหา Policy ต้องใช้ AD Agent endpoint `/policy-users` เช่น `https://ad-agent.poonyaruk.co.th/policy-users?policy=FW_Officer_A`")
 
         with tab_map:
-            st.caption(f"เธญเนเธฒเธ mapping เธเธฒเธ SharePoint List: {FIREWALL_POLICY_MAPPING_LIST} เธ–เนเธฒเนเธกเนเธกเธตเธซเธฃเธทเธญเธงเนเธฒเธ เธฃเธฐเธเธเธเธฐเนเธเน Default Mapping เนเธเนเธเนเธ”")
+            st.caption(f"อ่าน mapping จาก SharePoint List: {FIREWALL_POLICY_MAPPING_LIST} ถ้าไม่มีหรือว่าง ระบบจะใช้ Default Mapping ในโค้ด")
             map_rows = [
                 row for row in load_firewall_policy_mapping()
                 if str(row.get("AD Group", "")).strip().casefold() != "fw_supervisor_b"
@@ -7145,37 +7118,37 @@ else:
                     use_container_width=True,
                 )
             else:
-                st.info("เธขเธฑเธเนเธกเนเธกเธต Policy Mapping")
+                st.info("ยังไม่มี Policy Mapping")
             st.caption(f"Policy prefixes: {', '.join(FW_POLICY_PREFIXES)}")
 
 
     # -------------------------------------------------------
-    # ๐–จ๏ธ Stock เธซเธกเธถเธเธเธดเธกเธเน
+    # 🖨️ Stock หมึกพิมพ์
     # -------------------------------------------------------
     elif main_menu == "โ Administration":
         _admin_pages = {
-            "admin_users": ("๐‘ฅ", "Users", "เธเธฑเธ”เธเธฒเธฃเธเธนเนเนเธเนเนเธฅเธฐเธชเธดเธ—เธเธดเนเธเธฒเธฃเน€เธเนเธฒเธ–เธถเธ"),
-            "admin_settings": ("โ", "Settings", "เธเธฒเธฃเธ•เธฑเนเธเธเนเธฒเธฃเธฐเธเธเนเธฅเธฐเธเธฒเธฃเน€เธเธทเนเธญเธกเธ•เนเธญ"),
-            "admin_logs": ("๐“", "Activity Logs", "เธเธฑเธเธ—เธถเธเธเธดเธเธเธฃเธฃเธกเนเธฅเธฐเธเธฒเธฃเธ•เธฃเธงเธเธชเธญเธ"),
+            "admin_users": ("👥", "Users", "จัดการผู้ใช้และสิทธิ์การเข้าถึง"),
+            "admin_settings": ("⚙", "Settings", "การตั้งค่าระบบและการเชื่อมต่อ"),
+            "admin_logs": ("📜", "Activity Logs", "บันทึกกิจกรรมและการตรวจสอบ"),
         }
         _ap = _admin_pages.get(_nav, ("โ", "Administration", ""))
         page_header(_ap[0], _ap[1], _ap[2])
         st.markdown("""
         <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-radius:16px;
             padding:2rem 2.2rem;border:1px solid #e2e8f0;box-shadow:0 8px 32px rgba(99,102,241,.08);">
-            <div style="font-size:2.5rem;margin-bottom:12px;">๐ง</div>
+            <div style="font-size:2.5rem;margin-bottom:12px;">🚧</div>
             <h3 style="color:#201f1e;margin:0 0 8px;font-size:1.1rem;">Coming soon</h3>
             <p style="color:#605e5c;margin:0;font-size:0.9rem;">
-                เธชเนเธงเธเธเธตเนเธญเธขเธนเนเธฃเธฐเธซเธงเนเธฒเธเธเธฑเธ’เธเธฒ โ€” เธเธตเน€เธเธญเธฃเนเธเธฐเน€เธเธดเธ”เนเธเนเธเธฒเธเนเธเธฃเธธเนเธเธ–เธฑเธ”เนเธ
+                ส่วนนี้อยู่ระหว่างพัฒนา — ฟีเจอร์จะเปิดใช้งานในรุ่นถัดไป
             </p>
         </div>
         """, unsafe_allow_html=True)
 
-    elif main_menu == "๐–จ๏ธ Stock เธซเธกเธถเธเธเธดเธกเธเน":
+    elif main_menu == "🖨️ Stock หมึกพิมพ์":
         if _nav == "consumables":
-            page_header("๐“", "Consumables", "เธงเธฑเธชเธ”เธธเธชเธดเนเธเน€เธเธฅเธทเธญเธเนเธฅเธฐเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเน€เธเธดเธเธเนเธฒเธข")
+            page_header("📁", "Consumables", "วัสดุสิ้นเปลืองและประวัติการเบิกจ่าย")
         else:
-            page_header("๐–จ๏ธ", "Stock เธซเธกเธถเธเธเธดเธกเธเน", "เธฃเธฐเธเธเธ•เธดเธ”เธ•เธฒเธกเนเธฅเธฐเน€เธเธดเธเธเนเธฒเธขเธซเธกเธถเธเธเธดเธกเธเน")
+            page_header("🖨️", "Stock หมึกพิมพ์", "ระบบติดตามและเบิกจ่ายหมึกพิมพ์")
 
         df_ink = load_sp_data(INK_STOCK_LIST)
 
@@ -7193,24 +7166,24 @@ else:
                     f"{r.get('Title','?')} ({r.get('Color','-')})"
                     for _, r in low_items.iterrows()
                 )
-                st.warning(f"โ ๏ธ **เธชเธ•เนเธญเธเธ•เนเธณ / เธซเธกเธ”:** {low_names}")
+                st.warning(f"⚠️ **สต็อกต่ำ / หมด:** {low_names}")
 
         st.markdown("---")
 
         # ---- Sidebar filters ----
         _ink_filter_cols = st.columns(3, gap="small")
         with _ink_filter_cols[0]:
-            comp_filter = st.selectbox("๐ข เธเธฃเธดเธฉเธฑเธ—:", ["ALL"] + COMPANY_OPTIONS, key="ink_company_filter")
+            comp_filter = st.selectbox("🏢 บริษัท:", ["ALL"] + COMPANY_OPTIONS, key="ink_company_filter")
         with _ink_filter_cols[1]:
-            color_filter = st.selectbox("๐จ เธชเธต:", ["ALL"] + INK_COLOR_OPTIONS, key="ink_color_filter")
+            color_filter = st.selectbox("🎨 สี:", ["ALL"] + INK_COLOR_OPTIONS, key="ink_color_filter")
         with _ink_filter_cols[2]:
-            show_history = st.checkbox("๐“ เนเธชเธ”เธเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเน€เธเธดเธ", value=show_ink_history_only, key="ink_show_history")
+            show_history = st.checkbox("📜 แสดงประวัติการเบิก", value=show_ink_history_only, key="ink_show_history")
 
         # ---- Admin: add button ----
         if admin_mode:
             col_title2, col_add2 = st.columns([0.8, 0.2])
             with col_add2:
-                if st.button("โ• เน€เธเธดเนเธกเธซเธกเธถเธเนเธซเธกเน", use_container_width=True, type="primary"):
+                if st.button("➕ เพิ่มหมึกใหม่", use_container_width=True, type="primary"):
                     add_ink_dialog()
 
         # ---- Summary Metrics ----
@@ -7223,10 +7196,10 @@ else:
             low_count   = int(low_mask.sum()) if not df_ink.empty and "Quantity" in df_ink.columns else 0
             out_count   = int((df_ink["Quantity"].apply(_toi) == 0).sum()) if "Quantity" in df_ink.columns else 0
             m1, m2, m3, m4 = st.columns(4)
-            m1.metric("๐“ฆ เธฃเธฒเธขเธเธฒเธฃเธ—เธฑเนเธเธซเธกเธ”", total_items)
-            m2.metric("๐”ข เธเธณเธเธงเธเธฃเธงเธก", total_qty, help="เธฃเธงเธกเธ—เธธเธเธชเธต/เธฃเธธเนเธ")
-            m3.metric("โ ๏ธ เนเธเธฅเนเธซเธกเธ”", low_count)
-            m4.metric("โ เธซเธกเธ”เธชเธ•เนเธญเธ", out_count)
+            m1.metric("📦 รายการทั้งหมด", total_items)
+            m2.metric("🔢 จำนวนรวม", total_qty, help="รวมทุกสี/รุ่น")
+            m3.metric("⚠️ ใกล้หมด", low_count)
+            m4.metric("❌ หมดสต็อก", out_count)
             st.markdown("---")
 
         # ---- Filter + Search ----
@@ -7236,14 +7209,14 @@ else:
                 df_show = df_show[(df_show["Company"] == comp_filter) | (df_show["Company"] == "ALL")]
             if color_filter != "ALL" and "Color" in df_show.columns:
                 df_show = df_show[df_show["Color"] == color_filter]
-            search_ink = st.text_input("๐” เธเนเธเธซเธฒเธฃเธธเนเธเธซเธกเธถเธ เธซเธฃเธทเธญ เธฃเธธเนเธเน€เธเธฃเธทเนเธญเธเธเธดเธกเธเน...")
+            search_ink = st.text_input("🔍 ค้นหารุ่นหมึก หรือ รุ่นเครื่องพิมพ์...")
             if search_ink:
                 df_show = df_show[df_show.astype(str).apply(
                     lambda x: x.str.contains(search_ink, case=False)
                 ).any(axis=1)]
 
             if df_show.empty:
-                st.info("เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเธ•เธฃเธเธเธฑเธ")
+                st.info("ไม่พบรายการที่ตรงกัน")
             else:
                 ink_cols = st.columns(2)
                 requester = st.session_state.get("user_name", "Unknown")
@@ -7251,21 +7224,21 @@ else:
                     with ink_cols[i % 2]:
                         render_ink_card(row, idx, admin_mode, requester)
         else:
-            st.info("เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธชเธ•เนเธญเธเธซเธกเธถเธ โ€” เธเธ” โ• เน€เธเธดเนเธกเธซเธกเธถเธเนเธซเธกเน เน€เธเธทเนเธญเน€เธฃเธดเนเธกเธ•เนเธ")
+            st.info("ยังไม่มีข้อมูลสต็อกหมึก — กด ➕ เพิ่มหมึกใหม่ เพื่อเริ่มต้น")
             if not admin_mode:
-                st.caption("(เธ•เนเธญเธเนเธเนเธชเธดเธ—เธเธดเน Admin เนเธเธเธฒเธฃเน€เธเธดเนเธกเธเนเธญเธกเธนเธฅ)")
+                st.caption("(ต้องใช้สิทธิ์ Admin ในการเพิ่มข้อมูล)")
 
         # ---- History Section ----
         if show_history:
             st.markdown("---")
-            st.subheader("๐“ เธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเน€เธเธดเธ/เน€เธเธดเนเธกเธชเธ•เนเธญเธ")
+            st.subheader("📜 ประวัติการเบิก/เพิ่มสต็อก")
             df_hist = load_sp_data(INK_HISTORY_LIST)
             if not df_hist.empty:
                 display_cols = [c for c in ["Timestamp", "Ink_Title", "Color", "Action", "Qty_Change", "Requester", "Note"] if c in df_hist.columns]
                 rename_map   = {k: v for k, v in INK_HISTORY_FIELDS.items() if k in display_cols}
                 df_hist_show = df_hist[display_cols].rename(columns=rename_map)
-                if "เธงเธฑเธเน€เธงเธฅเธฒ" in df_hist_show.columns:
-                    df_hist_show = df_hist_show.sort_values("เธงเธฑเธเน€เธงเธฅเธฒ", ascending=False)
+                if "วันเวลา" in df_hist_show.columns:
+                    df_hist_show = df_hist_show.sort_values("วันเวลา", ascending=False)
 
                 # Export history
                 col_hist_title, col_hist_export = st.columns([0.8, 0.2])
@@ -7273,27 +7246,27 @@ else:
                     buf_hist = io.StringIO()
                     df_hist_show.to_csv(buf_hist, index=False, encoding="utf-8-sig")
                     st.download_button(
-                        "๐“ฅ Export CSV", buf_hist.getvalue(),
+                        "📥 Export CSV", buf_hist.getvalue(),
                         "ink_history.csv", "text/csv", use_container_width=True
                     )
                 st.dataframe(df_hist_show, use_container_width=True, hide_index=True)
             else:
-                st.info("เธขเธฑเธเนเธกเนเธกเธตเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเน€เธเธดเธ/เน€เธเธดเนเธกเธชเธ•เนเธญเธ")
+                st.info("ยังไม่มีประวัติการเบิก/เพิ่มสต็อก")
 
     # -------------------------------------------------------
-    # ๐“ NAS Drive Check
+    # 📂 NAS Drive Check
     # -------------------------------------------------------
-    elif main_menu == "๐“ NAS Drive Check":
-        page_header("๐“", "NAS Permission Analyzer", "เธ•เธฃเธงเธเธชเธญเธเธชเธดเธ—เธเธดเนเธเธฒเธฃเน€เธเนเธฒเธ–เธถเธ Share เธเธ Synology NAS")
-        st.info("๐”’ เธเนเธญเธกเธนเธฅเธชเธดเธ—เธเธดเน NAS เน€เธเนเธ Read-only โ€” เธเธฃเธธเธ“เธฒเนเธเนเนเธเธเนเธฒเธ Synology DSM เนเธ”เธขเธ•เธฃเธ")
+    elif main_menu == "📂 NAS Drive Check":
+        page_header("📂", "NAS Permission Analyzer", "ตรวจสอบสิทธิ์การเข้าถึง Share บน Synology NAS")
+        st.info("🔒 ข้อมูลสิทธิ์ NAS เป็น Read-only — กรุณาแก้ไขผ่าน Synology DSM โดยตรง")
         st.markdown("---")
 
         if 'nas_df' not in st.session_state or st.session_state.nas_df is None:
-            with st.spinner("เธเธณเธฅเธฑเธเธ”เธถเธเธเนเธญเธกเธนเธฅเธเธฒเธ NAS..."):
+            with st.spinner("กำลังดึงข้อมูลจาก NAS..."):
                 df_result = load_nas_data()
                 st.session_state.nas_df = df_result if df_result is not None else None
                 if df_result is None:
-                    st.error("เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธทเนเธญเธกเธ•เนเธญ NAS เนเธ”เน")
+                    st.error("ไม่สามารถเชื่อมต่อ NAS ได้")
 
         if st.session_state.nas_df is not None:
             display_df = st.session_state.nas_df.copy()
@@ -7324,7 +7297,7 @@ else:
                 box-shadow:0 18px 40px rgba(99,102,241,.12);
 }
 
-            /* เธเนเธญเธเธเธฑเธ block เธงเนเธฒเธเธเธฒเธ markdown div */
+            /* ป้องกัน block ว่างจาก markdown div */
             .nas-modern-card:empty{
                 display:none !important;
                 padding:0 !important;
@@ -7401,11 +7374,11 @@ else:
 
             s1, s2, s3 = st.columns(3)
             with s1:
-                st.metric("๐“ Shares", total_shares)
+                st.metric("📁 Shares", total_shares)
             with s2:
-                st.metric("๐” Read / Write", total_rw)
+                st.metric("🔐 Read / Write", total_rw)
             with s3:
-                st.metric("๐‘ Read Only", total_ro)
+                st.metric("👁 Read Only", total_ro)
 
             
 
@@ -7413,15 +7386,15 @@ else:
 
             with col_s:
                 search_term = st.text_input(
-                    "๐” Search User / Share Drive",
+                    "🔎 Search User / Share Drive",
                     "",
-                    placeholder="เธเนเธเธซเธฒ Share Drive เธซเธฃเธทเธญ Username..."
+                    placeholder="ค้นหา Share Drive หรือ Username..."
                 )
 
             with col_r:
 
 
-                if st.button("๐” Refresh", use_container_width=True):
+                if st.button("🔄 Refresh", use_container_width=True):
                     load_nas_data.clear()
                     st.session_state.nas_df = load_nas_data()
                     st.rerun()
@@ -7429,22 +7402,22 @@ else:
             
 
             if search_term:
-                # เนเธชเธ”เธ Internet Policy เธเธญเธ User เธ—เธตเนเธเนเธเธซเธฒ เธเธฒเธ AD / Firewall Group
-                # เธ–เนเธฒเธเนเธเธซเธฒเน€เธเนเธเธเธทเนเธญ Share Drive เธญเธขเนเธฒเธเน€เธ”เธตเธขเธง เธญเธฒเธเนเธกเนเธเธ User เนเธ AD เธเธถเนเธเธฃเธฐเธเธเธเธฐเนเธเนเธเนเธเธเนเธกเนเธ—เธณเนเธซเนเธซเธเนเธฒเธฅเนเธก
+                # แสดง Internet Policy ของ User ที่ค้นหา จาก AD / Firewall Group
+                # ถ้าค้นหาเป็นชื่อ Share Drive อย่างเดียว อาจไม่พบ User ใน AD ซึ่งระบบจะแจ้งแบบไม่ทำให้หน้าล่ม
                 policy_summary = get_user_internet_policy_summary(search_term)
                 if policy_summary.get("ok") and policy_summary.get("policies"):
-                    st.markdown("### ๐ Internet Policy เธเธฒเธ AD Group")
+                    st.markdown("### 🌐 Internet Policy จาก AD Group")
                     st.dataframe(
                         pd.DataFrame(policy_summary["policies"]),
                         use_container_width=True,
                         hide_index=True,
                     )
-                    with st.expander("เธ”เธน AD Groups เธ—เธฑเนเธเธซเธกเธ”เธเธญเธ User เธเธตเน"):
+                    with st.expander("ดู AD Groups ทั้งหมดของ User นี้"):
                         st.write(", ".join(policy_summary.get("groups", [])) or "-")
                 elif policy_summary.get("ok"):
-                    st.info("๐ เนเธกเนเธเธ AD Group เธ—เธตเนเธ•เธฃเธเธเธฑเธ Internet Policy เน€เธเนเธ FW_Officer_B / FW_IT เธชเธณเธซเธฃเธฑเธเธเธณเธเนเธเธซเธฒเธเธตเน")
+                    st.info("🌐 ไม่พบ AD Group ที่ตรงกับ Internet Policy เช่น FW_Officer_B / FW_IT สำหรับคำค้นหานี้")
                 else:
-                    st.warning(f"๐ เธขเธฑเธเธ”เธถเธ Internet Policy เธเธฒเธ AD เนเธกเนเนเธ”เน: {policy_summary.get('error', '')}")
+                    st.warning(f"🌐 ยังดึง Internet Policy จาก AD ไม่ได้: {policy_summary.get('error', '')}")
 
                 display_df = display_df[
                     display_df["Share"].str.contains(search_term, case=False, na=False) |
@@ -7482,21 +7455,21 @@ else:
 
                 with top1:
                     card_html = f"<div style='display:flex;align-items:center;gap:16px;'>" \
-                        f"<div style='width:74px;height:74px;border-radius:20px;background:linear-gradient(135deg,#ede9fe,#c4b5fd);display:flex;align-items:center;justify-content:center;font-size:2rem;border:1px solid #c4b5fd;'>๐“</div>" \
+                        f"<div style='width:74px;height:74px;border-radius:20px;background:linear-gradient(135deg,#ede9fe,#c4b5fd);display:flex;align-items:center;justify-content:center;font-size:2rem;border:1px solid #c4b5fd;'>📁</div>" \
                         f"<div>" \
                         f"<div class='nas-card-title'>{row['Share']}</div>" \
-                        f"<div class='nas-mini-stat'>๐‘ฅ {len(rw_users)+len(ro_users)} Users</div>" \
-                        f"<div class='nas-mini-stat'>๐” {len(rw_users)} RW</div>" \
-                        f"<div class='nas-mini-stat'>๐‘ {len(ro_users)} Read</div>" \
+                        f"<div class='nas-mini-stat'>👥 {len(rw_users)+len(ro_users)} Users</div>" \
+                        f"<div class='nas-mini-stat'>🔐 {len(rw_users)} RW</div>" \
+                        f"<div class='nas-mini-stat'>👁 {len(ro_users)} Read</div>" \
                         f"</div></div>"
 
                     st.markdown(card_html, unsafe_allow_html=True)
 
                 with top2:
 
-                    if st.button("๐” เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”", key=f"acl_{idx}", use_container_width=True):
+                    if st.button("🔎 รายละเอียด", key=f"acl_{idx}", use_container_width=True):
 
-                        @st.dialog("๐“ Authorized Users/Groups")
+                        @st.dialog("📜 Authorized Users/Groups")
                         def show_acl_pop(raw):
                             if raw:
                                 parsed = []
@@ -7543,12 +7516,12 @@ else:
                                             use_container_width=True,
                                             hide_index=True
                                         )
-                                        st.caption("เธ”เธถเธเธเธฒเธ AD / Entra ID Group เธ—เธตเนเธเธถเนเธเธ•เนเธเธ”เนเธงเธข FW_ เนเธฅเนเธงเน€เธ—เธตเธขเธเธเธฑเธ FW_POLICY_MAP เนเธเนเธเนเธ”")
+                                        st.caption("ดึงจาก AD / Entra ID Group ที่ขึ้นต้นด้วย FW_ แล้วเทียบกับ FW_POLICY_MAP ในโค้ด")
 
                                     with tab_raw:
                                         st.code(raw)
                                 else:
-                                    st.info("เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃ ACL เธ—เธตเนเธญเนเธฒเธเนเธ”เน")
+                                    st.info("ไม่พบรายการ ACL ที่อ่านได้")
                                     with st.expander("Raw ACL"):
                                         st.code(raw)
 
@@ -7556,7 +7529,7 @@ else:
 
                 
                 if not rw_users and not ro_users:
-                    st.info("เนเธกเนเธเธเธเธนเนเนเธเนเธเธฒเธ")
+                    st.info("ไม่พบผู้ใช้งาน")
                 else:
                     st.markdown(
                         f"""
@@ -7566,13 +7539,13 @@ else:
                         color:#475569;
                         font-size:0.92rem;
                         font-weight:600;'>
-                        ๐” เธเธเธเธนเนเนเธเนเธเธฒเธเธ—เธตเนเธกเธตเธชเธดเธ—เธเธดเนเธ—เธฑเนเธเธซเธกเธ” <b>{len(rw_users)+len(ro_users)}</b> เธฃเธฒเธขเธเธฒเธฃ
+                        🔐 พบผู้ใช้งานที่มีสิทธิ์ทั้งหมด <b>{len(rw_users)+len(ro_users)}</b> รายการ
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
 
-                # เธเธดเธ” div เธเธญเธ nas-modern-card เน€เธเธทเนเธญเธเนเธญเธเธเธฑเธ layout เน€เธเธตเนเธขเธ/เน€เธเธดเธ”เธเนเธญเธเธงเนเธฒเธเธชเธตเธเธฒเธง
+                # ปิด div ของ nas-modern-card เพื่อป้องกัน layout เพี้ยน/เกิดช่องว่างสีขาว
                 st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -7666,7 +7639,7 @@ else:
 
                 with ex1:
                     st.download_button(
-                        "๐“ฅ Export CSV",
+                        "📥 Export CSV",
                         csv_buf.getvalue(),
                         "nas_acl_report.csv",
                         "text/csv",
@@ -7675,50 +7648,50 @@ else:
 
                 with ex2:
                     st.download_button(
-                        "๐“ Export Excel",
+                        "📊 Export Excel",
                         data=excel_buf.getvalue(),
                         file_name="nas_acl_report.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True
                     )
             else:
-                st.info("๐”’ Export เธเนเธญเธกเธนเธฅ NAS เนเธ”เนเน€เธเธเธฒเธฐเธเธนเนเธ”เธนเนเธฅเธฃเธฐเธเธ")
+                st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
 
 
     # -------------------------------------------------------
-    # ๐”‘ Password Information
+    # 🔑 Password Information
     # -------------------------------------------------------
-    elif main_menu == "๐”‘ Password Information":
-        page_header("๐”‘", "Password Manager", "เธเนเธญเธกเธนเธฅ Credentials เนเธฅเธฐเธฃเธซเธฑเธชเธเนเธฒเธเธฃเธฐเธเธ")
+    elif main_menu == "🔑 Password Information":
+        page_header("🔑", "Password Manager", "ข้อมูล Credentials และรหัสผ่านระบบ")
 
-        with st.spinner("เธเธณเธฅเธฑเธเนเธซเธฅเธ”..."):
+        with st.spinner("กำลังโหลด..."):
             pw_result = load_password_excel()
             pw_sheets, drive_id = pw_result if isinstance(pw_result, tuple) else ({}, None)
 
         if not pw_sheets or "_error" in pw_sheets:
-            err = pw_sheets.get("_error", "เนเธกเนเธ—เธฃเธฒเธเธชเธฒเน€เธซเธ•เธธ") if pw_sheets else "เนเธกเนเนเธ”เนเธฃเธฑเธเธเนเธญเธกเธนเธฅเธเธฒเธ SharePoint"
-            st.error(f"โ เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เนเธซเธฅเธ”เนเธเธฅเนเนเธ”เน")
+            err = pw_sheets.get("_error", "ไม่ทราบสาเหตุ") if pw_sheets else "ไม่ได้รับข้อมูลจาก SharePoint"
+            st.error(f"❌ ไม่สามารถโหลดไฟล์ได้")
             st.code(err, language="text")
-            st.info(f"๐’ก เธ•เธฃเธงเธเธชเธญเธ: เธเธทเนเธญเนเธเธฅเน€เธ”เธญเธฃเน = '{SHAREPOINT_FOLDER}' / เธเธทเนเธญเนเธเธฅเน = '{PASSWORD_FILE_NAME}'")
+            st.info(f"💡 ตรวจสอบ: ชื่อโฟลเดอร์ = '{SHAREPOINT_FOLDER}' / ชื่อไฟล์ = '{PASSWORD_FILE_NAME}'")
         else:
             sheet_names = list(pw_sheets.keys())
-            selected_sheet = st.selectbox("๐“ เธซเธกเธงเธ”เธซเธกเธนเน:", sheet_names, key="pw_sheet_select")
+            selected_sheet = st.selectbox("📋 หมวดหมู่:", sheet_names, key="pw_sheet_select")
             df_pw = pw_sheets[selected_sheet].copy()
             sheet_icon = get_sheet_icon(selected_sheet)
 
             col_title, col_add = st.columns([0.8, 0.2])
             with col_title:
                 st.subheader(f"{sheet_icon} {selected_sheet}")
-                st.caption(f"เธเธเธเนเธญเธกเธนเธฅเธ—เธฑเนเธเธซเธกเธ” {len(df_pw)} เธฃเธฒเธขเธเธฒเธฃ")
+                st.caption(f"พบข้อมูลทั้งหมด {len(df_pw)} รายการ")
             with col_add:
                 if admin_mode:
                     st.write("##")
-                    if st.button("โ• เน€เธเธดเนเธกเธฃเธฒเธขเธเธฒเธฃ", use_container_width=True, type="primary"):
+                    if st.button("➕ เพิ่มรายการ", use_container_width=True, type="primary"):
                         add_password_dialog(selected_sheet, df_pw, drive_id, pw_sheets)
 
             st.markdown("---")
 
-            if df_pw.empty: st.warning("เนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเนเธเธเธตเธ—เธเธตเน")
+            if df_pw.empty: st.warning("ไม่มีข้อมูลในชีทนี้")
             else:
                 card_cols = st.columns(2)
                 def _render_password_sheet_row(row_index, row_data):
