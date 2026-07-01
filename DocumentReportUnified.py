@@ -273,7 +273,6 @@ div[data-testid="stVerticalBlock"]{
 # =============================================================================
 
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 import paramiko
 import re
@@ -281,8 +280,6 @@ import textwrap
 import datetime
 import inspect
 import html
-import uuid
-import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -311,11 +308,6 @@ SHAREPOINT_DOMAIN = "optimalcoth.sharepoint.com"
 SITE_NAME = "InformationTechnology"
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 GRAPH_URL = "https://graph.microsoft.com/v1.0"
-OAUTH_REDIRECT_URI = st.secrets.get(
-    "OAUTH_REDIRECT_URI",
-    st.secrets.get("REDIRECT_URI", "https://documentreportunified.streamlit.app"),
-)
-OAUTH_LOGIN_SCOPES = ["User.Read"]
 
 
 def _secret_bool(name: str, default=False) -> bool:
@@ -653,159 +645,6 @@ def check_ms_login(username, password):
         email = claims.get("preferred_username", username)
         return True, name, email
     return False, result.get("error_description", "ล็อกอินไม่สำเร็จ"), ""
-
-def _query_value(params, key, default=""):
-    value = params.get(key, default)
-    if isinstance(value, (list, tuple)):
-        return value[0] if value else default
-    return value if value is not None else default
-
-def _get_query_params_safe():
-    try:
-        return dict(st.query_params)
-    except Exception:
-        try:
-            return st.experimental_get_query_params()
-        except Exception:
-            return {}
-
-def _clear_query_params_safe():
-    try:
-        st.query_params.clear()
-    except Exception:
-        try:
-            st.experimental_set_query_params()
-        except Exception:
-            pass
-
-def build_ms_oauth_login_url(popup=False):
-    """Build Microsoft interactive OAuth login URL that supports MFA."""
-    oauth_state = f"popup-{uuid.uuid4().hex}" if popup else uuid.uuid4().hex
-    st.session_state["oauth_state"] = oauth_state
-    app = msal.ConfidentialClientApplication(
-        CLIENT_ID,
-        authority=AUTHORITY,
-        client_credential=CLIENT_SECRET,
-    )
-    return app.get_authorization_request_url(
-        scopes=OAUTH_LOGIN_SCOPES,
-        state=oauth_state,
-        redirect_uri=OAUTH_REDIRECT_URI,
-        prompt="select_account",
-    )
-
-def handle_ms_oauth_callback(cookie_manager):
-    """Process Microsoft OAuth callback and populate existing app session/cookies."""
-    params = _get_query_params_safe()
-    error = _query_value(params, "error")
-    if error:
-        description = _query_value(params, "error_description", error)
-        st.session_state["login_error"] = description
-        _clear_query_params_safe()
-        return False
-
-    code = _query_value(params, "code")
-    if not code:
-        return False
-
-    returned_state = _query_value(params, "state")
-    popup_flow = str(returned_state).startswith("popup-")
-    expected_state = st.session_state.get("oauth_state", "")
-    if expected_state and returned_state and returned_state != expected_state:
-        st.session_state["login_error"] = "OAuth state ไม่ตรงกัน กรุณาลอง Sign in ใหม่อีกครั้ง"
-        _clear_query_params_safe()
-        return False
-
-    app = msal.ConfidentialClientApplication(
-        CLIENT_ID,
-        authority=AUTHORITY,
-        client_credential=CLIENT_SECRET,
-    )
-    result = app.acquire_token_by_authorization_code(
-        code,
-        scopes=OAUTH_LOGIN_SCOPES,
-        redirect_uri=OAUTH_REDIRECT_URI,
-    )
-
-    if "access_token" not in result:
-        st.session_state["login_error"] = result.get(
-            "error_description",
-            "Microsoft OAuth login ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
-        )
-        _clear_query_params_safe()
-        return False
-
-    claims = result.get("id_token_claims", {}) or {}
-    name = claims.get("name", "")
-    email = claims.get("preferred_username") or claims.get("upn") or ""
-
-    if not email:
-        try:
-            me = requests.get(
-                f"{GRAPH_URL}/me",
-                headers={"Authorization": f"Bearer {result['access_token']}"},
-                timeout=15,
-            )
-            if me.ok:
-                payload = me.json()
-                name = name or payload.get("displayName", "")
-                email = payload.get("mail") or payload.get("userPrincipalName") or email
-        except Exception:
-            pass
-
-    email = email or "unknown@local"
-    name = name or email
-
-    st.session_state.is_auth = True
-    st.session_state.skip_cookie_login = False
-    st.session_state.user_name = name
-    st.session_state.user_email = email
-    st.session_state.pop("login_error", None)
-    st.session_state.pop("oauth_state", None)
-    cookie_manager.set("user_name", name, key="auth_token")
-    cookie_manager.set("user_email", email, key="auth_email")
-    if popup_flow:
-        st.session_state["oauth_close_popup"] = True
-    _clear_query_params_safe()
-    return True
-
-def render_oauth_popup_complete():
-    """Render a tiny callback page that notifies the main page and closes the popup."""
-    components.html(
-        """
-        <!doctype html>
-        <html>
-        <head>
-        <style>
-            html,body{margin:0;height:100%;font-family:Inter,Arial,sans-serif;background:linear-gradient(135deg,#EFF8FF,#EEF2FF 48%,#F5F3FF);display:grid;place-items:center;color:#0F172A}
-            .card{width:min(420px,calc(100vw - 32px));background:rgba(255,255,255,.88);border:1px solid #E2E8F0;border-radius:24px;box-shadow:0 28px 70px rgba(79,70,229,.18);padding:28px;text-align:center}
-            .icon{width:64px;height:64px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,#10B981,#3B82F6);display:grid;place-items:center;color:white;font-size:30px}
-            h1{font-size:22px;margin:0 0 8px;font-weight:850}
-            p{margin:0;color:#64748B;line-height:1.55}
-            button{margin-top:18px;border:0;border-radius:14px;padding:12px 18px;background:#4F46E5;color:white;font-weight:800;cursor:pointer}
-        </style>
-        </head>
-        <body>
-            <div class="card">
-                <div class="icon">✓</div>
-                <h1>Sign-in complete</h1>
-                <p>This popup will close automatically. The main dashboard will refresh.</p>
-                <button onclick="finishLogin()">Close popup</button>
-            </div>
-            <script>
-                function finishLogin(){
-                    try { localStorage.setItem("dru_oauth_success", String(Date.now())); } catch(e) {}
-                    try { if (window.opener && !window.opener.closed) { window.opener.location.reload(); } } catch(e) {}
-                    window.close();
-                    setTimeout(function(){ document.body.querySelector("p").textContent = "You can close this tab and return to the main dashboard."; }, 600);
-                }
-                setTimeout(finishLogin, 900);
-            </script>
-        </body>
-        </html>
-        """,
-        height=520,
-    )
 
 # =============================================================================
 # SECTION 02.1 : AD / FIREWALL INTERNET POLICY
@@ -2310,7 +2149,7 @@ def get_nas_connection_status():
 # =============================================================================
 def _hw_badge(status):
     cls = {"Active":"badge-active","Inactive":"badge-inactive","Spare":"badge-spare","Repair":"badge-repair"}.get(status,"badge-default")
-    return f'<span class="badge {cls}">{status or "โ€”"}</span>' if status else ''
+    return f'<span class="badge {cls}">{status or "—"}</span>' if status else ''
 
 
 # =============================================================================
@@ -2498,7 +2337,7 @@ def edit_computer_dialog(row, list_name):
     storage_type = st.text_input("💿 Storage Type", value=row.get('field_14', ''))
     storage_c = st.text_input("💿 Storage C:", value=row.get('field_15', ''))
     storage_d = st.text_input("💿 Storage D:", value=row.get('field_16', ''))
-    status = st.selectbox("โณ๏ธ Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
+    status = st.selectbox("✳️ Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
         if st.button("💾 บันทึก", use_container_width=True, type="primary"):
@@ -2560,7 +2399,7 @@ def edit_monitor_dialog(row, list_name):
     emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
     model = st.text_input("🏷️ Brand/Model", value=row.get('field_2', ''))
     serial = st.text_input("🔢 Serial No.", value=row.get('field_4', ''))
-    status = st.selectbox("โ… Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
+    status = st.selectbox("✅ Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
         if st.button("💾 บันทึก", use_container_width=True, type="primary"):
@@ -2645,7 +2484,7 @@ def add_computer_dialog(list_name):
     storage_type = st.text_input("💿 Storage Type")
     storage_c = st.text_input("💿 Storage C:")
     storage_d = st.text_input("💿 Storage D:")
-    status = st.selectbox("โณ๏ธ Status", STATUS_OPTIONS)
+    status = st.selectbox("✳️ Status", STATUS_OPTIONS)
     if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "field_3": emp_name,
                   "LoginAccount": login_account, "field_4": department,
@@ -2669,7 +2508,7 @@ def add_monitor_dialog(list_name):
     emp_name = st.text_input("👤 ชื่อพนักงาน")
     model = st.text_input("🏷️ Brand/Model")
     serial = st.text_input("🔢 Serial No.")
-    status = st.selectbox("โ… Status", STATUS_OPTIONS)
+    status = st.selectbox("✅ Status", STATUS_OPTIONS)
     if st.button("💾 บันทึก", use_container_width=True, type="primary"):
         fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
         ok, res_data = sp_create_item(list_name, fields)
@@ -2850,7 +2689,7 @@ def ink_qty_badge(qty, min_qty):
         return f"<span style='background:#dc3545;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>หมด ❌</span>"
     elif qty <= min_qty:
         return f"<span style='background:#fd7e14;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>⚠️ เหลือ {qty}</span>"
-    return f"<span style='background:#198754;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>โ… {qty}</span>"
+    return f"<span style='background:#198754;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>✅ {qty}</span>"
 
 def render_ink_card(row, key, admin_mode, requester_name):
     qty     = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
@@ -3020,7 +2859,7 @@ def add_ink_dialog():
 # =============================================================================
 @st.cache_data(ttl=300, show_spinner=False)
 def get_sidebar_nav_badges():
-    """Cached counts for sidebar badges โ€” display only."""
+    """Cached counts for sidebar badges — display only."""
     badges = {
         "computers": 0, "monitors": 0, "printers": 0, "projector": 0,
         "ups": 0, "misc": 0, "password": 0, "user_perm": 0,
@@ -3104,21 +2943,21 @@ def load_theme(*themes):
 # Reports & Analytics
 #
 # Administration
-# โ”โ”€ Asset Management
-# โ”  โ”โ”€ Computers
-# โ”  โ”โ”€ Monitors
-# โ”  โ”โ”€ Printers
-# โ”  โ”โ”€ Projectors
-# โ”  โ”โ”€ UPS
-# โ”  โ””โ”€ Miscellaneous
-# โ”
-# โ”โ”€ Security
-# โ”  โ”โ”€ Password Manager
-# โ”  โ””โ”€ NAS Permission Analyzer
-# โ”
-# โ””โ”€ Inventory
-#    โ”โ”€ Ink Stock
-#    โ””โ”€ Consumables
+# ├─ Asset Management
+# │  ├─ Computers
+# │  ├─ Monitors
+# │  ├─ Printers
+# │  ├─ Projectors
+# │  ├─ UPS
+# │  └─ Miscellaneous
+# │
+# ├─ Security
+# │  ├─ Password Manager
+# │  └─ NAS Permission Analyzer
+# │
+# └─ Inventory
+#    ├─ Ink Stock
+#    └─ Consumables
 #
 # =============================================================================
 
@@ -3142,17 +2981,6 @@ if saved_user and not st.session_state.get('is_auth') and not st.session_state.g
     st.session_state.is_auth  = True
     st.session_state.user_name  = saved_user
     st.session_state.user_email = saved_email or ""
-
-if st.session_state.pop("oauth_close_popup", False):
-    render_oauth_popup_complete()
-    st.stop()
-
-if not st.session_state.get("is_auth"):
-    if handle_ms_oauth_callback(cookie_manager):
-        if st.session_state.pop("oauth_close_popup", False):
-            render_oauth_popup_complete()
-            st.stop()
-        st.rerun()
 
 # =============================================================================
 # THEME : GLOBAL
@@ -3178,7 +3006,7 @@ html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif !
 </style>
 """
 
-# BASE CSS (always)
+# ── BASE CSS (always) ──────────────────────────────────────────────────────────
 load_theme(MODERN_THEME,SIDEBAR_V32_THEME)
 
 st.markdown("""
@@ -3194,12 +3022,12 @@ footer { visibility: hidden; }
 # CSS สำหรับหน้า Login เท่านั้น
 # =============================================================================
 
-# โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+# ══════════════════════════════════════════════════════════════════════════════
 # # THEME BLOCK : LOGIN
 # แก้ UI Login ทั้งหมดในช่วงด้านล่างนี้
 
 # LOGIN PAGE
-# โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+# ══════════════════════════════════════════════════════════════════════════════
 if not st.session_state.is_auth:
     # -----------------------------------------------------------------------------
 # CSS THEME BLOCK
@@ -3329,7 +3157,7 @@ if not st.session_state.is_auth:
 </style>
     """, unsafe_allow_html=True)
 
-    # V5 login polish - same indigo / purple / sky palette as the application.
+    # V5 login polish — same indigo / purple / sky palette as the application.
     st.markdown("""
     <style>
     [data-testid="stMainBlockContainer"]{max-width:1160px!important;padding:clamp(2rem,7vh,5rem) 1rem 3rem!important}
@@ -3345,79 +3173,41 @@ if not st.session_state.is_auth:
     _, center_col, _ = st.columns([1, 1.4, 1])
     with center_col:
         st.markdown("""
-        <style>
-        .oauth-brand{text-align:center;margin-bottom:24px}
-        .oauth-shield{width:72px;height:72px;margin:0 auto 16px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(135deg,#2563EB,#6366F1 55%,#8B5CF6);box-shadow:0 16px 38px rgba(99,102,241,.36)}
-        .oauth-shield svg{width:34px;height:34px;stroke:#fff}
-        .oauth-brand h1{color:#0F172A;font-size:2rem;font-weight:850;margin:0 0 8px;letter-spacing:-1px}
-        .oauth-brand p{color:#475569;font-size:.94rem;margin:0;font-weight:600}
-        .oauth-login-card{border:1px solid rgba(226,232,240,.96);border-radius:22px;padding:18px;background:rgba(255,255,255,.76);box-shadow:0 20px 54px rgba(79,70,229,.13)}
-        .oauth-direct-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB 0%,#6366F1 55%,#8B5CF6 100%);color:#fff!important;font-weight:850;text-decoration:none!important;box-shadow:0 16px 34px rgba(99,102,241,.28);border:none;cursor:pointer;font-size:1rem;transition:all .2s ease}
-        .oauth-direct-button:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(99,102,241,.35)}
-        .oauth-login-note{margin:12px 0 0;color:#64748B;font-size:.84rem;text-align:center;line-height:1.55}
-        .oauth-ms-icon{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
-        .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
-        .oauth-login-error{margin-top:16px;padding:14px 16px;border-radius:16px;color:#B91C1C;background:#FEE2E2;border:1px solid #FECACA;font-size:.9rem;line-height:1.55}
-        </style>
-        <div class="oauth-brand">
-            <div class="oauth-shield">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3l7 3v5c0 4.4-2.8 8-7 10-4.2-2-7-5.6-7-10V6l7-3z"></path>
-                    <path d="M8.8 12.2l2.1 2.1 4.6-5"></path>
-                </svg>
-            </div>
-            <h1>DocumentReportUnified</h1>
-            <p>Enterprise IT Management Platform</p>
+        <div style="text-align:center; margin-bottom:28px;">
+            <div style="width:72px;height:72px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                        border-radius:20px;display:inline-flex;align-items:center;justify-content:center;
+                        font-size:2rem;box-shadow:0 8px 28px rgba(99,102,241,.55);margin-bottom:16px;">🛡️</div>
+            <h1 style="color:#0f172a;font-size:2rem;font-weight:800;margin:0 0 8px;letter-spacing:-1px;">
+                DocumentReportUnified</h1>
+            <p style="color:#475569;font-size:.92rem;margin:0;font-weight:500;">
+                Enterprise IT Management Platform</p>
         </div>
         """, unsafe_allow_html=True)
 
-        _login_url = build_ms_oauth_login_url(popup=True)
-        _login_url_attr = html.escape(_login_url, quote=True)
-        st.markdown(
-            f'''
-            <div class="oauth-login-card">
-                <a class="oauth-direct-button"
-                   href="{_login_url_attr}"
-                   target="druMicrosoftLogin"
-                   onclick="window.open(this.href,'druMicrosoftLogin','width=520,height=720,menubar=no,toolbar=no,location=yes,status=no,scrollbars=yes,resizable=yes'); return false;">
-                    <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
-                    Sign in with Microsoft
-                </a>
-                <p class="oauth-login-note">
-                    Microsoft 365 popup sign-in with Multi-Factor Authentication support<br>
-                    If the popup is blocked, use this link:
-                    <a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open Microsoft sign-in</a>
-                </p>
-            </div>
-            ''',
-            unsafe_allow_html=True,
-        )
-        components.html(
-            """
-            <script>
-            setInterval(function(){
-                try {
-                    if (localStorage.getItem("dru_oauth_success")) {
-                        localStorage.removeItem("dru_oauth_success");
-                        window.parent.location.reload();
-                    }
-                } catch(e) {}
-            }, 700);
-            </script>
-            """,
-            height=0,
-        )
-
-        if st.session_state.get("login_error"):
-            st.markdown(
-                f'<div class="oauth-login-error">Login error: {html.escape(str(st.session_state.get("login_error")))}</div>',
-                unsafe_allow_html=True,
-            )
-
+        with st.form("login_form"):
+            u = st.text_input("📧 Microsoft 365 Email", placeholder="yourname@optimal.co.th")
+            p = st.text_input("🔒 Password", type="password", placeholder="••••••••••••")
+            submitted = st.form_submit_button("Sign In →", use_container_width=True)
+            if submitted:
+                if not u.strip() or not p.strip():
+                    st.warning("⚠️ กรุณากรอก Email และ Password")
+                else:
+                    with st.spinner("กำลังตรวจสอบ..."):
+                        success, name, email = check_ms_login(u, p)
+                    if success:
+                        st.session_state.is_auth  = True
+                        st.session_state.skip_cookie_login = False
+                        st.session_state.user_name  = name
+                        st.session_state.user_email = email
+                        cookie_manager.set("user_name",  name,  key="auth_token")
+                        cookie_manager.set("user_email", email, key="auth_email")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ {name}")
 
         st.markdown("""
-        <p style="color:rgba(15,23,42,.22);font-size:.75rem;text-align:center;margin-top:20px;">
-            Secure Microsoft 365 Access - Optimal Group 2026</p>
+        <p style="color:rgba(255,255,255,.25);font-size:.75rem;text-align:center;margin-top:20px;">
+            ☁️ Secure Microsoft 365 Access &nbsp;·&nbsp; Optimal Group © 2025</p>
         """, unsafe_allow_html=True)
 
 # =============================================================================
@@ -3428,9 +3218,9 @@ if not st.session_state.is_auth:
 # CSS หลัง Login สำเร็จ
 # =============================================================================
 
-# โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+# ══════════════════════════════════════════════════════════════════════════════
 # MAIN APP
-# โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•โ•
+# ══════════════════════════════════════════════════════════════════════════════
 else:
     st.markdown("""
     <style>
@@ -3440,7 +3230,7 @@ else:
         font-family: 'IBM Plex Sans Thai', sans-serif;
 }
 
-    /* โ”€โ”€ APP BG โ”€โ”€ */
+    /* ── APP BG ── */
     [data-testid="stAppViewContainer"] { background: #F8FAFC !important; }
     section[data-testid="stMain"]      { background: #F8FAFC !important; }
     [data-testid="stMainBlockContainer"] {
@@ -3449,7 +3239,7 @@ else:
 }
     [data-testid="stHeader"] { background: transparent !important; box-shadow: none !important; }
 
-    /* โ”€โ”€ SIDEBAR โ€” Reference mockup (M365 / Entra / Azure) โ”€โ”€ */
+    /* ── SIDEBAR — Reference mockup (M365 / Entra / Azure) ── */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     [data-testid="stSidebar"]{
@@ -3526,7 +3316,7 @@ else:
     [data-testid="stSidebar"] .ref-brand-sub {
         font-size: 0.7rem; color: #64748B; margin-top: 1px; font-weight: 500;
     }
-    /* Profile card โ€” reference layout */
+    /* Profile card — reference layout */
     [data-testid="stSidebar"] .ref-profile {
         padding: 0 2px 14px 2px;
         border-bottom: 1px solid #E2E8F0;
@@ -3591,7 +3381,7 @@ else:
     [data-testid="stSidebar"] .nav-badge-red {
         background: #FEF2F2; color: #DC2626; border: none;
     }
-    /* โ”€โ”€ Tight vertical rhythm (fix Streamlit default gaps) โ”€โ”€ */
+    /* ── Tight vertical rhythm (fix Streamlit default gaps) ── */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         gap: 0.2rem !important;
     }
@@ -3719,7 +3509,7 @@ else:
         [data-testid="stSidebar"] .hide-when-compact { display: none !important; }
     }
 
-    /* โ”€โ”€ METRIC CARDS โ”€โ”€ */
+    /* ── METRIC CARDS ── */
     [data-testid="stMetric"] {
         background: #ffffff !important;
         border-radius: 14px !important;
@@ -3736,7 +3526,7 @@ else:
     [data-testid="stMetricLabel"] { font-size: 0.76rem !important; color: #94a3b8 !important; font-weight: 600 !important; letter-spacing: 0.5px !important; text-transform: uppercase !important; }
     [data-testid="stMetricValue"] { font-size: 2.1rem !important; font-weight: 700 !important; color: #0f172a !important; letter-spacing: -1px !important; font-family: 'IBM Plex Mono', monospace !important; }
 
-    /* โ”€โ”€ CONTENT CARDS โ”€โ”€ */
+    /* ── CONTENT CARDS ── */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(div[data-testid="stElementContainer"]) > div {
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
@@ -3749,13 +3539,13 @@ else:
         transform: translateY(-1px) !important;
 }
 
-    /* โ”€โ”€ TYPOGRAPHY โ”€โ”€ */
+    /* ── TYPOGRAPHY ── */
     h1 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.5px !important; font-size: 1.6rem !important; }
     h2 { color: #1e293b !important; font-weight: 600 !important; }
     h3 { color: #334155 !important; font-weight: 600 !important; font-size: 1rem !important; }
     p, .stMarkdown p { color: #475569 !important; }
 
-    /* โ”€โ”€ PRIMARY BUTTON โ€” main content only โ”€โ”€ */
+    /* ── PRIMARY BUTTON — main content only ── */
     [data-testid="stMain"] [data-testid="stButton"] > button[kind="primary"],
     [data-testid="stFormSubmitButton"] > button {
         background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
@@ -3770,7 +3560,7 @@ else:
         box-shadow: 0 6px 16px rgba(99,102,241,0.45) !important;
 }
 
-    /* โ”€โ”€ SECONDARY BUTTON โ€” main content only (NOT sidebar) โ”€โ”€ */
+    /* ── SECONDARY BUTTON — main content only (NOT sidebar) ── */
     [data-testid="stMain"] [data-testid="stButton"] > button:not([kind="primary"]) {
         background: #fff !important; border: 1px solid #e2e8f0 !important;
         border-radius: 10px !important; color: #475569 !important;
@@ -3782,7 +3572,7 @@ else:
         background: #f5f3ff !important;
 }
 
-    /* โ”€โ”€ INPUTS โ”€โ”€ */
+    /* ── INPUTS ── */
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input {
         border-radius: 10px !important; border: 1.5px solid #e2e8f0 !important;
@@ -3797,7 +3587,7 @@ else:
         box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
 }
 
-    /* โ”€โ”€ SELECTBOX โ”€โ”€ */
+    /* ── SELECTBOX ── */
     [data-baseweb="select"] > div {
         border-radius: 10px !important; border-color: #e2e8f0 !important;
         font-family: 'IBM Plex Sans Thai', sans-serif !important;
@@ -3805,17 +3595,17 @@ else:
 }
     [data-baseweb="select"] > div:hover { border-color: #a5b4fc !important; }
 
-    /* โ”€โ”€ DATAFRAME โ”€โ”€ */
+    /* ── DATAFRAME ── */
     [data-testid="stDataFrame"] {
         border-radius: 12px !important; overflow: hidden !important;
         border: 1px solid #e2e8f0 !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
 }
 
-    /* โ”€โ”€ DIVIDER โ”€โ”€ */
+    /* ── DIVIDER ── */
     hr { border-color: #e2e8f0 !important; }
 
-    /* โ”€โ”€ EXPANDER โ”€โ”€ */
+    /* ── EXPANDER ── */
     details > summary {
         border-radius: 10px !important; background: #f8fafc !important;
         border: 1px solid #e2e8f0 !important; padding: 10px 14px !important;
@@ -3823,16 +3613,16 @@ else:
 }
     details[open] > summary { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
 
-    /* โ”€โ”€ ALERTS โ”€โ”€ */
+    /* ── ALERTS ── */
     [data-testid="stAlert"][data-baseweb="notification"] {
         border-radius: 12px !important; border-left: 4px solid !important;
         font-size: 0.88rem !important;
 }
 
-    /* โ”€โ”€ SPINNER โ”€โ”€ */
+    /* ── SPINNER ── */
     [data-testid="stSpinner"] { opacity: 0.7; }
 
-    /* โ”€โ”€ GAP โ€” main content only โ”€โ”€ */
+    /* ── GAP — main content only ── */
     [data-testid="stMain"] [data-testid="stVerticalBlock"] { gap: 0.6rem !important; }
 
     
@@ -3859,13 +3649,13 @@ else:
 }
 
 
-    /* โ”€โ”€ CHECKBOX โ”€โ”€ */
+    /* ── CHECKBOX ── */
     [data-testid="stCheckbox"] label { color: #475569 !important; font-size: 0.85rem !important; }
 
-    /* โ”€โ”€ CAPTION โ”€โ”€ */
+    /* ── CAPTION ── */
     [data-testid="stCaptionContainer"] p { color: #94a3b8 !important; font-size: 0.78rem !important; }
 
-    /* โ”€โ”€ SIDEBAR STAT CARDS โ”€โ”€ */
+    /* ── SIDEBAR STAT CARDS ── */
     .ov-card {
         background: #fff;
         border-radius: 14px;
@@ -3883,7 +3673,7 @@ else:
     .ov-card-link { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 500; padding-top: 8px; border-top: 1px solid #f1f5f9; cursor: pointer; }
     
 
-    /* โ”€โ”€ STATUS BADGE (custom html) โ”€โ”€ */
+    /* ── STATUS BADGE (custom html) ── */
     .badge {
         display: inline-block; padding: 3px 11px; border-radius: 20px;
         font-size: 0.73rem; font-weight: 700; letter-spacing: 0.4px;
@@ -3894,7 +3684,7 @@ else:
     .badge-repair   { background: #fef3c7; color: #b45309; }
     .badge-default  { background: #f1f5f9; color: #64748b; }
 
-    /* โ”€โ”€ PAGE HEADER (custom html) โ”€โ”€ */
+    /* ── PAGE HEADER (custom html) ── */
     .page-header {
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
         border-radius: 16px; padding: 24px 28px; margin-bottom: 1.5rem;
@@ -3919,7 +3709,7 @@ else:
 }
     .page-header-text p { color: rgba(255,255,255,0.5) !important; font-size: 0.82rem !important; margin: 0 !important; }
 
-    /* โ”€โ”€ SECTION HEADER โ”€โ”€ */
+    /* ── SECTION HEADER ── */
     .section-title {
         font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
         text-transform: uppercase; color: #94a3b8;
@@ -3927,14 +3717,14 @@ else:
         border-bottom: 1px solid #e2e8f0;
 }
 
-    /* โ”€โ”€ HARDWARE CARD โ”€โ”€ */
+    /* ── HARDWARE CARD ── */
     .hw-card-title { font-size: 0.98rem; font-weight: 600; color: #1e293b; margin: 0; }
     .hw-card-sub   { font-size: 0.76rem; color: #94a3b8; margin: 3px 0 8px; }
     .hw-field      { font-size: 0.82rem; color: #475569; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
     .hw-field:last-of-type { border-bottom: none; }
     .hw-field strong { color: #334155; font-weight: 600; }
 
-    /* โ”€โ”€ NAS CARD โ”€โ”€ */
+    /* ── NAS CARD ── */
     .nas-folder-badge {
         background: linear-gradient(135deg, #ede9fe, #ddd6fe);
         border: 1px solid #c4b5fd; border-radius: 10px;
@@ -3948,7 +3738,7 @@ else:
     .nas-rw  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .nas-ro  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
 
-    /* โ”€โ”€ PASSWORD CARD โ”€โ”€ */
+    /* ── PASSWORD CARD ── */
     .pw-field-row {
         display: flex; gap: 8px; align-items: baseline;
         padding: 6px 0; border-bottom: 1px solid #f8fafc; font-size: 0.83rem;
@@ -3960,8 +3750,8 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # โ”€โ”€ helpers โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
-    # V5 UNIFIED UI โ€” final visual layer for all authenticated screens.
+    # ── helpers ──────────────────────────────────────────────
+    # V5 UNIFIED UI — final visual layer for all authenticated screens.
     st.markdown("""
     <style>
     :root{--brand:#6366F1;--brand-dark:#4F46E5;--violet:#8B5CF6;--sky:#38BDF8;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;--ink:#0F172A;--muted:#64748B;--line:#E2E8F0;--canvas:#F6F8FC;--card:#FFF;--r:18px;--rl:24px;--shadow:0 10px 30px rgba(15,23,42,.055);--shadow-up:0 18px 48px rgba(79,70,229,.12)}
@@ -4014,7 +3804,7 @@ else:
     def status_badge(status: str) -> str:
         cls = {"Active": "badge-active", "Inactive": "badge-inactive",
                "Spare": "badge-spare", "Repair": "badge-repair"}.get(status, "badge-default")
-        return f'<span class="badge {cls}">{status or "โ€”"}</span>'
+        return f'<span class="badge {cls}">{status or "—"}</span>'
 
     def page_header(icon: str, title: str, subtitle: str = ""):
         st.markdown(f"""
@@ -4027,7 +3817,7 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # โ”€โ”€ SIDEBAR โ€” Reference-aligned navigation (UI only) โ”€โ”€โ”€โ”€โ”€โ”€
+    # ── SIDEBAR — Reference-aligned navigation (UI only) ──────
     admin_mode = is_admin(st.session_state.user_email)
     name = st.session_state.user_name or "User"
     email = st.session_state.user_email or ""
@@ -4188,7 +3978,7 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # V5.1 ICON RAIL โ€” compact by default, expands as an overlay on hover.
+    # V5.1 ICON RAIL — compact by default, expands as an overlay on hover.
     # Keeping the icon as the first character of every button means the rail
     # remains usable even when the labels are clipped.
     st.sidebar.markdown("""
@@ -4275,7 +4065,7 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # V5.2 ICON RAIL FIX โ€” real icons, overlay expansion, no content reflow.
+    # V5.2 ICON RAIL FIX — real icons, overlay expansion, no content reflow.
     st.sidebar.markdown("""
     <style>
     /* Keep the layout rail narrow; only its inner panel expands above content. */
@@ -4430,7 +4220,7 @@ else:
         "folder_shared": "📂", "water_drop": "💧", "group": "👥",
         "settings": "⚙️", "history": "🕘", "inventory_2": "🗃️",
         "shield_lock": "🔐", "inventory": "📚", "admin_panel_settings": "🛠️",
-        "logout": "โช๏ธ", "arrow_forward": "โ’",
+        "logout": "↪️", "arrow_forward": "→",
     }
 
     def _button_icon(material_name: str):
@@ -4476,9 +4266,9 @@ else:
 # =============================================================================
     def _group_toggle(state_key: str, icon: str, text: str):
         open_ = st.session_state.get(state_key, False)
-        label = f"{text}   {'โ' if open_ else 'โ€บ'}"
+        label = f"{text}   {'⌄' if open_ else '›'}"
         if not _ST_BUTTON_HAS_ICON:
-            label = f"{_GROUP_FALLBACK_ICONS.get(state_key, 'โ—')}  {label}"
+            label = f"{_GROUP_FALLBACK_ICONS.get(state_key, '◇')}  {label}"
         if st.sidebar.button(label, use_container_width=True, type="secondary",
                              key=f"tog_{state_key}",
                              **_button_icon(_GROUP_MATERIAL_ICONS.get(state_key, "folder"))):
@@ -4506,7 +4296,7 @@ else:
             st.session_state.active_nav = nav_key
             st.rerun()
 
-    # โ”€โ”€ User profile first (reference image) โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+    # ── User profile first (reference image) ────────────────
     st.sidebar.markdown(f"""
     <div class="ce-brand hd-sidebar">
         <div style="display:flex;align-items:center;gap:14px;">
@@ -4545,16 +4335,16 @@ else:
         st.sidebar.markdown('<div class="nav-toolbar-row">', unsafe_allow_html=True)
         rt1, rt2 = st.sidebar.columns(2, gap="small")
         with rt1:
-            if st.button("โ—€", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
+            if st.button("◀", use_container_width=True, key="nav_toggle_compact", help="Collapse"):
                 st.session_state.sidebar_compact = not compact
                 st.rerun()
         with rt2:
-            if st.button("โป", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
+            if st.button("↻", use_container_width=True, key="nav_refresh_badges", help="Refresh"):
                 get_sidebar_nav_badges.clear()
                 st.rerun()
         st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-    # โ”€โ”€ Navigation โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+    # ── Navigation ───────────────────────────────────────────
     if "active_nav" not in st.session_state:
         st.session_state.active_nav = "overview"
     if st.session_state.active_nav == "reports":
@@ -4580,7 +4370,7 @@ else:
     st.sidebar.markdown('<p class="nav-section-label hide-when-compact">WORKSPACE</p>', unsafe_allow_html=True)
 
     # Flat enterprise navigation. Module details live inside each dashboard.
-    _nav_leaf("overview", "โ", "Dashboard")
+    _nav_leaf("overview", "⌂", "Dashboard")
     _nav_leaf("hardware_dashboard", "🖥", "Hardware")
     _nav_leaf("software_dashboard", "💿", "Software")
     _nav_leaf("permission_dashboard", "🔐", "Permission")
@@ -4719,7 +4509,7 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # V7 CLEAN ENTERPRISE SIDEBAR โ€” final navigation layer.
+    # V7 CLEAN ENTERPRISE SIDEBAR — final navigation layer.
     st.markdown("""
     <style>
     /* Remove the discarded top navigation completely. */
@@ -4938,7 +4728,7 @@ else:
 
     _nav = st.session_state.active_nav
 
-    # โ”€โ”€ ROUTE โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
+    # ── ROUTE ────────────────────────────────────────────────────────────────
     _ROUTE = {
         "overview":   ("📊 Overview Dashboard",  None),
         "hardware_dashboard": ("🖥 Hardware Dashboard", None),
@@ -4967,9 +4757,9 @@ else:
         "ink_history":("🖨️ Stock หมึกพิมพ์",       None),
         "consumables":("🖨️ Stock หมึกพิมพ์",       None),
         "ad_policy":      ("🌐 AD / Firewall Policy", None),
-        "admin_users":    ("โ Administration", None),
-        "admin_settings": ("โ Administration", None),
-        "admin_logs":     ("โ Administration", None),
+        "admin_users":    ("⚙ Administration", None),
+        "admin_settings": ("⚙ Administration", None),
+        "admin_logs":     ("⚙ Administration", None),
 }
     main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav in ("ink_history", "consumables"))
@@ -4988,7 +4778,7 @@ else:
         .hub-hero{position:relative;overflow:hidden;padding:25px 28px;margin-bottom:16px;border-radius:24px;color:#FFF;background:linear-gradient(125deg,#2563EB,#6366F1 56%,#8B5CF6);box-shadow:0 16px 38px rgba(79,70,229,.20)}
         .hub-hero:after{content:'';position:absolute;width:260px;height:260px;right:-75px;top:-135px;border-radius:50%;background:rgba(255,255,255,.10)}.hub-title{font-size:28px;font-weight:850;letter-spacing:-.035em}.hub-sub{margin-top:5px;font-size:13px;color:rgba(255,255,255,.82)}
         [class*="st-key-hub_card_"] .stButton>button{position:relative!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:132px!important;padding:18px 48px 18px 18px!important;border:1px solid #E2E8F0!important;border-radius:18px!important;background:#FFF!important;color:#172554!important;text-align:left!important;white-space:pre-line!important;box-shadow:0 7px 20px rgba(15,23,42,.045)!important}
-        [class*="st-key-hub_card_"] .stButton>button:after{content:'โ€บ';position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:27px;height:27px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:16px;background:#FFF}
+        [class*="st-key-hub_card_"] .stButton>button:after{content:'›';position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:27px;height:27px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:16px;background:#FFF}
         [class*="st-key-hub_card_"] .stButton>button:hover{transform:translateY(-3px)!important;border-color:#A5B4FC!important;box-shadow:0 14px 30px rgba(79,70,229,.11)!important}.hub-note{margin:14px 0 8px;color:#64748B;font-size:12px}
         [class*="st-key-hub_card_"] .stButton>button p{width:100%;white-space:pre-line!important;text-align:left!important;color:#64748B!important;font-size:12px!important;line-height:1.55!important;font-weight:500!important}[class*="st-key-hub_card_"] .stButton>button p:first-line{color:#172554!important;font-size:15px!important;font-weight:850!important}
         </style>
@@ -5175,7 +4965,7 @@ else:
             start_text = record["start"].strftime("%d/%m/%Y") if record["start"] else "-"
             expiry_text = record["expiry"].strftime("%d/%m/%Y") if record["expiry"] else "-"
             users_text = f"{int(record['users']):,}" if pd.notna(record["users"]) else "-"
-            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td><td class="ge-action">โ€ขโ€ขโ€ข</td></tr>''')
+            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td><td class="ge-action">•••</td></tr>''')
         rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="11"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
 
         known_total = active + expiring + expired + inactive
@@ -5336,7 +5126,7 @@ else:
                 _expiry_raw = _row.get(_expiry_col) if _expiry_col else None
                 _expiry_date = pd.to_datetime(_expiry_raw, errors="coerce", dayfirst=True)
                 _expiry = _expiry_date.strftime("%d/%m/%Y") if pd.notna(_expiry_date) else "-"
-                _password = html.escape(str(_row.get(_password_col, "") or "")) if _password_col and _show_password and admin_mode else "โ€ขโ€ขโ€ขโ€ขโ€ขโ€ขโ€ขโ€ข"
+                _password = html.escape(str(_row.get(_password_col, "") or "")) if _password_col and _show_password and admin_mode else "••••••••"
                 _table_rows.append(f'''<tr><td><div class="o365-account"><span>{_account[:1].upper() if _account else "O"}</span><div><b>{_account}</b><small>{_publisher_col and html.escape(str(_row.get(_publisher_col, ""))) or "Microsoft 365"}</small></div></div></td><td><span class="o365-company">{_company}</span></td><td>{_plan}</td><td class="o365-users">{_users}<small>{_user_list}</small></td><td><span class="o365-status { _status_class }">{html.escape(_status)}</span></td><td>{_expiry}</td><td><code>{_password}</code></td></tr>''')
 
             _plan_counts = _office_view[_plan_col].fillna("ไม่ระบุ").astype(str).value_counts().head(6) if _plan_col else pd.Series(dtype="int64")
@@ -5981,7 +5771,7 @@ else:
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
         [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
         [class*="st-key-db_card_action_"] .stButton>button{position:relative!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:126px!important;padding:16px 48px 16px 16px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;color:#172554!important;box-shadow:none!important;text-align:left!important;white-space:pre-line!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
-        [class*="st-key-db_card_action_"] .stButton>button:after{content:'โ€บ';position:absolute;right:13px;bottom:13px;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:15px;font-weight:800}
+        [class*="st-key-db_card_action_"] .stButton>button:after{content:'›';position:absolute;right:13px;bottom:13px;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:15px;font-weight:800}
         [class*="st-key-db_card_action_"] .stButton>button:hover{transform:translateY(-2px)!important;border-color:#A5B4FC!important;background:#FFF!important;color:#172554!important;box-shadow:0 10px 22px rgba(79,70,229,.09)!important}
         [class*="st-key-db_card_action_"] .stButton>button p{width:100%!important;margin:0!important;white-space:pre-line!important;text-align:left!important;font-size:12px!important;line-height:1.55!important;color:#64748B!important;font-weight:500!important}
         [class*="st-key-db_card_action_"] .stButton>button p:first-line{font-size:15px!important;font-weight:800!important;color:#172554!important}
@@ -6142,7 +5932,7 @@ else:
         # Stop here so the legacy dashboard remains unreachable and other routes are untouched.
         st.stop()
 
-        # โ”€โ”€ Legacy operational panels (kept unreachable for safe rollback) โ”€โ”€
+        # ── Legacy operational panels (kept unreachable for safe rollback) ──
         st.markdown('<div class="dash-section"><div class="dash-section-title">Operational Overview</div><div class="dash-section-note">Inventory mix and items requiring action</div></div>', unsafe_allow_html=True)
         _ops_cols = st.columns([1.05, .95], gap="medium")
         _portfolio_total = max(_total_assets, 1)
@@ -6164,7 +5954,7 @@ else:
             _integration_issues = int(not _firewall_ok) + int(not _ad_ok) + int(not _nas_ok)
             _action_total = _attention_assets + _low_ink_count + _integration_issues
             _action_footer = (
-                "โ“ All monitored areas are healthy. No immediate action required."
+                "✓ All monitored areas are healthy. No immediate action required."
                 if _action_total == 0 else f"{_action_total} total items should be reviewed by the IT team."
             )
             st.markdown(f"""
@@ -6172,8 +5962,8 @@ else:
                 <div class="panel-title">Action Center</div>
                 <div class="panel-sub">Prioritized issues from live system data</div>
                 <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FFF7ED;color:#D97706;">!</div><div><div class="action-title">Asset attention</div><div class="action-desc">Inactive or repair status</div></div></div><div class="action-badge" style="background:#FFF7ED;color:#C2410C;">{_attention_assets}</div></div>
-                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FEF2F2;color:#DC2626;">โ“</div><div><div class="action-title">Low ink stock</div><div class="action-desc">At or below reorder threshold</div></div></div><div class="action-badge" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div></div>
-                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#EEF2FF;color:#4F46E5;">โ—</div><div><div class="action-title">Integration health</div><div class="action-desc">Firewall, AD and NAS connections</div></div></div><div class="action-badge" style="background:#EEF2FF;color:#4F46E5;">{_integration_issues}</div></div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#FEF2F2;color:#DC2626;">↓</div><div><div class="action-title">Low ink stock</div><div class="action-desc">At or below reorder threshold</div></div></div><div class="action-badge" style="background:#FEF2F2;color:#DC2626;">{_low_ink_count}</div></div>
+                <div class="action-row"><div class="action-main"><div class="action-icon" style="background:#EEF2FF;color:#4F46E5;">◆</div><div><div class="action-title">Integration health</div><div class="action-desc">Firewall, AD and NAS connections</div></div></div><div class="action-badge" style="background:#EEF2FF;color:#4F46E5;">{_integration_issues}</div></div>
                 <div class="action-footer">{_action_footer}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -6181,7 +5971,7 @@ else:
         # Dashboard is complete. Avoid rendering legacy dashboard sections below.
         st.stop()
 
-        # โ”€โ”€ Ink low-stock alert โ”€โ”€
+        # ── Ink low-stock alert ──
         low_ink = df_ink.iloc[0:0] if df_ink is not None else None
         low_str = "ไม่มีรายการ"
         if not df_ink.empty and "Quantity" in df_ink.columns and "Min_Qty" in df_ink.columns:
@@ -6289,10 +6079,10 @@ else:
 
     elif main_menu == "💿 Software Module":
         _software_config = {
-            "Group E-mail": ("โ๏ธ", "Group Email"),
-            "Office 365": ("โ๏ธ", "Office 365"),
+            "Group E-mail": ("✉️", "Group Email"),
+            "Office 365": ("☁️", "Office 365"),
             "PDF": ("📄", "PDF"),
-            "Windows": ("โ", "Windows"),
+            "Windows": ("⊞", "Windows"),
             "พนักงานลาออก": ("👤", "Offboarded Employees"),
         }
         _software_icon, _software_category = _software_config.get(_hw_sub_override, ("💿", _hw_sub_override))
@@ -6580,7 +6370,7 @@ else:
             a1,a2,a3,_ca_action_space=st.columns([1.25,.9,1.8,3.2])
             with a1:
                 if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
-            with a2: st.download_button("โฉ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
+            with a2: st.download_button("⇩ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
             _ca_column_defs={"computer":"Computer Name","user":"User","login":"LoginAccount","department":"Department","os":"OS","model":"Model","serial":"Serial Number","status":"Status"}
             _ca_visible_columns=list(_ca_column_defs)
             with a3: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A"],label_visibility="collapsed",key="ca_sort")
@@ -6589,7 +6379,7 @@ else:
             for idx,row in _ca_filtered.iterrows():
                 status,status_class=_ca_status(row)
                 _ca_records.append((idx,row,{"computer":_ca_value(row,"field_6"),"user":_ca_value(row,"field_3"),"login":_ca_value(row,"LoginAccount"),"department":_ca_value(row,"field_4"),"os":_ca_value(row,"field_10"),"model":_ca_value(row,"field_7"),"serial":_ca_value(row,"field_8"),"status":status,"status_class":status_class,"seen":_ca_value(row,"LastSeen","Last Seen","Modified")}))
-            _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Zโ€“A")
+            _ca_records.sort(key=lambda x:x[2]["computer"].lower(),reverse=_ca_sort=="Computer Name Z–A")
             _ca_page_size=10
             _ca_page_count=max(1,(len(_ca_records)+_ca_page_size-1)//_ca_page_size)
             _ca_page=max(1,min(st.session_state.get("ca_page",1),_ca_page_count))
@@ -6629,15 +6419,15 @@ else:
 
             _ca_nav=st.columns([7,.52,.52,.52,.52,.52])
             with _ca_nav[1]:
-                if st.button("ยซ",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
+                if st.button("«",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
             with _ca_nav[2]:
-                if st.button("โ€น",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
+                if st.button("‹",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
             with _ca_nav[3]:
                 st.button(str(_ca_page),use_container_width=True,type="primary",key="ca_current",disabled=True)
             with _ca_nav[4]:
-                if st.button("โ€บ",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
+                if st.button("›",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
             with _ca_nav[5]:
-                if st.button("ยป",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
+                if st.button("»",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
 
             _ca_types={"Desktop":0,"All-in-One":0,"Notebook":0}; _ca_windows={"Windows 11":0,"Windows 10":0,"Windows 7":0}; _ca_depts={}
             for _,r in df_hw.iterrows():
@@ -7125,13 +6915,13 @@ else:
     # -------------------------------------------------------
     # 🖨️ Stock หมึกพิมพ์
     # -------------------------------------------------------
-    elif main_menu == "โ Administration":
+    elif main_menu == "⚙ Administration":
         _admin_pages = {
             "admin_users": ("👥", "Users", "จัดการผู้ใช้และสิทธิ์การเข้าถึง"),
             "admin_settings": ("⚙", "Settings", "การตั้งค่าระบบและการเชื่อมต่อ"),
             "admin_logs": ("📜", "Activity Logs", "บันทึกกิจกรรมและการตรวจสอบ"),
         }
-        _ap = _admin_pages.get(_nav, ("โ", "Administration", ""))
+        _ap = _admin_pages.get(_nav, ("⚙", "Administration", ""))
         page_header(_ap[0], _ap[1], _ap[2])
         st.markdown("""
         <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-radius:16px;
