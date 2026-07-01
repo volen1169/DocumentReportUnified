@@ -3252,13 +3252,13 @@ if not st.session_state.is_auth:
             <div class="oauth-panel">
                 <a class="oauth-direct-button"
                    href="{_login_url_attr}"
-                   target="_top">
+                   onclick="try{{window.top.location.href=this.href;}}catch(e){{window.location.href=this.href;}} return false;">
                     <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
                     Sign in with Microsoft
                 </a>
                 <div class="oauth-meta">
-                    You will be redirected to Microsoft sign-in and returned to this app after verification.
-                    <br><a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open sign-in in a new tab</a>
+                    You will be taken to Microsoft sign-in and returned to this app after verification.
+                    <br><a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open sign-in manually</a>
                 </div>
             </div>
             ''',
