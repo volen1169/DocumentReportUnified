@@ -3205,14 +3205,17 @@ if not st.session_state.is_auth:
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap');
     html, body, [class*="css"]{font-family:'Inter','IBM Plex Sans Thai',sans-serif!important}
-    [data-testid="stAppViewContainer"]{background:#F6F8FB!important}
+    [data-testid="stAppViewContainer"]{background:
+        radial-gradient(circle at 18% 18%,rgba(56,189,248,.20),transparent 28rem),
+        radial-gradient(circle at 82% 24%,rgba(99,102,241,.16),transparent 30rem),
+        linear-gradient(135deg,#EAF6FF 0%,#EEF4FF 45%,#F7F9FC 100%)!important}
     section[data-testid="stMain"],[data-testid="stMainBlockContainer"]{background:transparent!important}
-    [data-testid="stMainBlockContainer"]{max-width:980px!important;padding:clamp(2rem,9vh,6rem) 1rem 3rem!important}
-    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:#FFFFFF!important;border:1px solid #E2E8F0!important;border-radius:18px!important;padding:clamp(1.5rem,4vw,2.4rem)!important;box-shadow:0 18px 48px rgba(15,23,42,.08)!important}
+    [data-testid="stMainBlockContainer"]{max-width:1120px!important;padding:clamp(2rem,9vh,6rem) 1rem 3rem!important}
+    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:rgba(255,255,255,.86)!important;border:1px solid rgba(226,232,240,.95)!important;border-radius:20px!important;padding:clamp(1.7rem,4vw,2.5rem)!important;box-shadow:0 24px 70px rgba(37,99,235,.12),0 4px 18px rgba(15,23,42,.06)!important;backdrop-filter:blur(18px) saturate(145%)!important}
     .oauth-brand{text-align:left;margin-bottom:24px}
     .oauth-mark{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:#1D4ED8;margin-bottom:18px}
     .oauth-mark svg{width:25px;height:25px;stroke:#fff}
-    .oauth-brand h1{color:#0F172A;font-size:clamp(1.55rem,4vw,2.05rem);font-weight:800;margin:0 0 8px;letter-spacing:0}
+    .oauth-brand h1{color:#0F172A;font-size:clamp(1.45rem,3vw,1.9rem);font-weight:800;margin:0 0 8px;letter-spacing:0;line-height:1.14;overflow-wrap:normal;word-break:keep-all}
     .oauth-brand p{color:#64748B;font-size:.95rem;margin:0;line-height:1.55;font-weight:500}
     .oauth-panel{display:grid;gap:16px}
     .oauth-direct-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;border-radius:10px;background:#2563EB;color:#fff!important;font-weight:700;text-decoration:none!important;border:1px solid #1D4ED8;box-shadow:0 10px 20px rgba(37,99,235,.18);font-size:.98rem;transition:background .15s ease,box-shadow .15s ease,transform .15s ease}
@@ -3224,11 +3227,11 @@ if not st.session_state.is_auth:
     .oauth-meta a:hover{text-decoration:underline}
     .oauth-login-error{margin-top:16px;padding:12px 14px;border-radius:10px;color:#991B1B;background:#FEF2F2;border:1px solid #FECACA;font-size:.9rem;line-height:1.55}
     .oauth-footer{color:#94A3B8;font-size:.78rem;text-align:center;margin-top:18px}
-    @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:1rem .75rem 2rem!important}div[data-testid="column"]>div[data-testid="stVerticalBlock"]{border-radius:14px!important;padding:1.25rem!important}.oauth-brand{text-align:center}.oauth-mark{margin-left:auto;margin-right:auto}}
+    @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:1rem .75rem 2rem!important}div[data-testid="column"]>div[data-testid="stVerticalBlock"]{border-radius:14px!important;padding:1.25rem!important}.oauth-brand{text-align:center}.oauth-mark{margin-left:auto;margin-right:auto}.oauth-brand h1{font-size:1.42rem}}
     </style>
     """, unsafe_allow_html=True)
 
-    _, center_col, _ = st.columns([1, 1.1, 1])
+    _, center_col, _ = st.columns([0.9, 1.35, 0.9])
     with center_col:
         _login_url = build_ms_oauth_login_url(popup=False)
         _login_url_attr = html.escape(_login_url, quote=True)
@@ -3249,7 +3252,7 @@ if not st.session_state.is_auth:
             <div class="oauth-panel">
                 <a class="oauth-direct-button"
                    href="{_login_url_attr}"
-                   target="_self">
+                   target="_top">
                     <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
                     Sign in with Microsoft
                 </a>
