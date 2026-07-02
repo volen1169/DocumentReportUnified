@@ -2036,7 +2036,7 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                     <div class="sw-editor-mark">✎</div>
                     <div>
                         <b>จัดการข้อมูล {html.escape(str(title))}</b>
-                        <span>ค้นหาเฉพาะข้อมูลที่ต้องแก้ แล้วกดแก้ไขจากรายการด้านล่าง</span>
+                        <span>เลือกรายการจากตารางด้านล่าง แล้วกดไอคอนเพื่อแก้ไข</span>
                     </div>
                     <strong>{len(source_df):,} รายการ</strong>
                 </div>
@@ -2044,32 +2044,13 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             """,
             unsafe_allow_html=True,
         )
-        control_search, control_left, control_mid, control_right = st.columns([0.46, 0.18, 0.20, 0.16], gap="small")
-        with control_search:
-            edit_search = st.text_input(
-                "ค้นหารายการที่ต้องการแก้ไข",
-                placeholder="ค้นหาชื่อ, อีเมล, บริษัท, license...",
-                label_visibility="collapsed",
-                key=f"{safe_key}_edit_search",
-            )
-        with control_left:
-            page_size = st.selectbox(
-                "จำนวนที่แสดง",
-                list(page_size_options),
-                index=0,
-                key=f"{safe_key}_edit_page_size",
-                format_func=lambda value: f"แสดง {value} รายการ",
-                label_visibility="collapsed",
-            )
+        page_size_key = f"{safe_key}_edit_page_size"
+        page_size = int(st.session_state.get(page_size_key, page_size_options[0]))
+        if page_size not in page_size_options:
+            page_size = page_size_options[0]
         edit_df = source_df.copy()
-        if edit_search.strip():
-            edit_df = edit_df[
-                edit_df.fillna("").astype(str).agg(" ".join, axis=1).str.contains(
-                    re.escape(edit_search.strip()), case=False, na=False
-                )
-            ]
         if edit_df.empty:
-            st.info("ไม่พบรายการที่ตรงกับคำค้นหา")
+            st.info("ยังไม่มีรายการสำหรับแสดงผล")
             return
 
         page_count = max(1, math.ceil(len(edit_df) / int(page_size)))
@@ -2080,21 +2061,6 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
         if current_page < 1:
             current_page = 1
         st.session_state[page_key] = current_page
-        with control_mid:
-            st.markdown(
-                f'<div class="sw-edit-result">พบ <b>{len(edit_df):,}</b> รายการ · หน้า {current_page}/{page_count}</div>',
-                unsafe_allow_html=True,
-            )
-        with control_right:
-            prev_col, next_col = st.columns(2, gap="small")
-            with prev_col:
-                if st.button("ก่อนหน้า", key=f"{safe_key}_edit_prev", use_container_width=True, disabled=current_page <= 1):
-                    st.session_state[page_key] = max(1, current_page - 1)
-                    st.rerun()
-            with next_col:
-                if st.button("ถัดไป", key=f"{safe_key}_edit_next", use_container_width=True, disabled=current_page >= page_count):
-                    st.session_state[page_key] = min(page_count, current_page + 1)
-                    st.rerun()
 
         start = (current_page - 1) * int(page_size)
         page_df = edit_df.iloc[start:start + int(page_size)]
@@ -2120,8 +2086,34 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                     st.markdown(f'<div class="sw-row-badge">{html.escape(badge)}</div>', unsafe_allow_html=True)
                 with row_cols[4]:
                     source_row = str(row.get("Source Row", row_index))
-                    if st.button("แก้ไข", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True):
+                    if st.button("✎", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True, help="แก้ไขรายการนี้"):
                         edit_software_record_dialog(category_name, row.copy())
+
+        st.markdown('<div class="sw-edit-footer">', unsafe_allow_html=True)
+        footer_left, footer_mid, footer_prev, footer_next = st.columns([0.22, 0.48, 0.15, 0.15], gap="small")
+        with footer_left:
+            st.selectbox(
+                "จำนวนที่แสดง",
+                list(page_size_options),
+                index=list(page_size_options).index(page_size),
+                key=page_size_key,
+                format_func=lambda value: f"{value} รายการ",
+                label_visibility="collapsed",
+            )
+        with footer_mid:
+            st.markdown(
+                f'<div class="sw-edit-result">ทั้งหมด <b>{len(edit_df):,}</b> รายการ · หน้า {current_page}/{page_count}</div>',
+                unsafe_allow_html=True,
+            )
+        with footer_prev:
+            if st.button("‹", key=f"{safe_key}_edit_prev", use_container_width=True, disabled=current_page <= 1, help="ก่อนหน้า"):
+                st.session_state[page_key] = max(1, current_page - 1)
+                st.rerun()
+        with footer_next:
+            if st.button("›", key=f"{safe_key}_edit_next", use_container_width=True, disabled=current_page >= page_count, help="ถัดไป"):
+                st.session_state[page_key] = min(page_count, current_page + 1)
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
@@ -3702,7 +3694,7 @@ footer { visibility: hidden; }
     padding:14px 0 0 16px !important;
 }
 [class*="_edit_panel"] [data-testid="stSelectbox"]{
-    padding:14px 0 0 !important;
+    padding:10px 0 0 16px !important;
 }
 [class*="_edit_panel"] input{
     min-height:42px !important;
@@ -3726,8 +3718,8 @@ footer { visibility: hidden; }
 .sw-edit-result{
     display:flex;
     align-items:center;
-    min-height:42px;
-    margin:14px 0 0;
+    min-height:34px;
+    margin:10px 0 0;
     padding:0 10px;
     border:1px solid #E8EEF6;
     border-radius:13px;
@@ -3735,6 +3727,7 @@ footer { visibility: hidden; }
     color:#64748B;
     font-size:11px;
 }
+.sw-edit-footer{height:0;margin:0;padding:0}
 .sw-edit-table-head{
     display:grid;
     grid-template-columns:5.5% 34.5% 16.5% 30.5% 13%;
@@ -3827,15 +3820,34 @@ footer { visibility: hidden; }
     white-space:nowrap;
 }
 [class*="_edit_row_"] button{
-    width:82px !important;
-    min-width:82px !important;
-    max-width:82px !important;
-    min-height:34px !important;
-    height:34px !important;
+    width:38px !important;
+    min-width:38px !important;
+    max-width:38px !important;
+    min-height:32px !important;
+    height:32px !important;
     border-color:#BFDBFE !important;
     color:#1D4ED8 !important;
     background:#EFF6FF !important;
     box-shadow:none !important;
+    padding:0 !important;
+    font-size:16px !important;
+    line-height:1 !important;
+}
+[class*="_edit_panel"] > div:last-child button,
+[class*="_edit_prev"] button,
+[class*="_edit_next"] button{
+    min-height:34px !important;
+    height:34px !important;
+    border-radius:11px !important;
+}
+[class*="_edit_prev"] button,
+[class*="_edit_next"] button{
+    width:42px !important;
+    min-width:42px !important;
+    max-width:42px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    font-size:20px !important;
     padding:0 !important;
 }
 [class*="_edit_row_"] button:hover{
