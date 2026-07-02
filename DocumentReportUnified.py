@@ -673,6 +673,16 @@ def read_auth_session_cookie(token: str):
     except Exception:
         return None
 
+def get_saved_auth_session(cookie_manager):
+    token = cookie_manager.get(cookie=AUTH_COOKIE_NAME)
+    if not token:
+        try:
+            cookies = cookie_manager.get_all(key="auth_cookie_get_all")
+            token = cookies.get(AUTH_COOKIE_NAME) if isinstance(cookies, dict) else None
+        except Exception:
+            token = None
+    return read_auth_session_cookie(token)
+
 def set_persistent_auth_cookies(cookie_manager, name: str, email: str):
     expires_at = _auth_cookie_expires_at()
     session_token = create_auth_session_cookie(name, email)
@@ -3193,7 +3203,20 @@ st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon=
 cookie_manager = get_manager()
 
 # --- AUTH ---
-saved_auth = read_auth_session_cookie(cookie_manager.get(cookie=AUTH_COOKIE_NAME))
+query_params_for_auth = _get_query_params_safe()
+if (
+    "auth_cookie_bootstrap_done" not in st.session_state
+    and not query_params_for_auth.get("code")
+    and not st.session_state.get("is_auth")
+):
+    st.session_state.auth_cookie_bootstrap_done = True
+    try:
+        cookie_manager.get_all(key="auth_cookie_bootstrap")
+    except Exception:
+        pass
+    st.rerun()
+
+saved_auth = get_saved_auth_session(cookie_manager)
 
 if 'is_auth' not in st.session_state:
     st.session_state.is_auth  = False
@@ -3273,41 +3296,55 @@ if not st.session_state.is_auth:
         radial-gradient(circle at 82% 24%,rgba(99,102,241,.16),transparent 30rem),
         linear-gradient(135deg,#EAF6FF 0%,#EEF4FF 45%,#F7F9FC 100%)!important}
     section[data-testid="stMain"],[data-testid="stMainBlockContainer"]{background:transparent!important}
-    [data-testid="stMainBlockContainer"]{max-width:1120px!important;padding:clamp(2rem,9vh,6rem) 1rem 3rem!important}
-    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:rgba(255,255,255,.86)!important;border:1px solid rgba(226,232,240,.95)!important;border-radius:20px!important;padding:clamp(1.7rem,4vw,2.5rem)!important;box-shadow:0 24px 70px rgba(37,99,235,.12),0 4px 18px rgba(15,23,42,.06)!important;backdrop-filter:blur(18px) saturate(145%)!important}
-    .oauth-brand{text-align:left;margin-bottom:24px}
-    .oauth-mark{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:#1D4ED8;margin-bottom:18px}
+    [data-testid="stMainBlockContainer"]{max-width:1040px!important;padding:clamp(1.2rem,5vh,3rem) 1rem 2rem!important}
+    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:linear-gradient(180deg,rgba(13,44,112,.82),rgba(18,76,148,.72))!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:30px!important;padding:clamp(1.55rem,4vw,2.15rem)!important;box-shadow:0 28px 90px rgba(6,24,70,.34),inset 0 1px 0 rgba(255,255,255,.12)!important;backdrop-filter:blur(18px) saturate(145%)!important}
+    .oauth-brand{text-align:left;margin-bottom:18px}
+    .oauth-kicker{display:flex;align-items:center;gap:8px;color:#BFD7FF;font-size:.72rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px}
+    .oauth-mark{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#37BDF8,#2563EB);box-shadow:0 14px 32px rgba(37,99,235,.32)}
     .oauth-mark svg{width:25px;height:25px;stroke:#fff}
-    .oauth-brand h1{color:#0F172A;font-size:clamp(1.45rem,3vw,1.9rem);font-weight:800;margin:0 0 8px;letter-spacing:0;line-height:1.14;overflow-wrap:normal;word-break:keep-all}
-    .oauth-brand p{color:#64748B;font-size:.95rem;margin:0;line-height:1.55;font-weight:500}
+    .oauth-brand h1{color:#FFFFFF;font-size:clamp(2rem,5vw,2.65rem);font-weight:850;margin:0 0 8px;letter-spacing:0;line-height:1.05;overflow-wrap:normal;word-break:keep-all}
+    .oauth-brand p{color:#D9E9FF;font-size:.9rem;margin:0;line-height:1.55;font-weight:600}
+    .oauth-role-card{display:flex;align-items:center;gap:14px;background:rgba(241,247,255,.96);border-radius:20px;padding:14px 16px;margin:18px 0 22px;color:#12315E;box-shadow:0 12px 30px rgba(4,25,75,.16)}
+    .oauth-role-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#60A5FA,#0EA5E9);display:grid;place-items:center;flex:0 0 auto}
+    .oauth-role-icon svg{width:24px;height:24px;stroke:white}
+    .oauth-role-card b{display:block;font-size:.92rem;margin-bottom:3px}
+    .oauth-role-card span{display:block;color:#5B6E8D;font-size:.78rem;line-height:1.35}
     .oauth-panel{display:grid;gap:16px}
-    .oauth-direct-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;border-radius:10px;background:#2563EB;color:#fff!important;font-weight:700;text-decoration:none!important;border:1px solid #1D4ED8;box-shadow:0 10px 20px rgba(37,99,235,.18);font-size:.98rem;transition:background .15s ease,box-shadow .15s ease,transform .15s ease}
-    .oauth-direct-button:hover{background:#1D4ED8;box-shadow:0 14px 26px rgba(37,99,235,.22);transform:translateY(-1px)}
+    .oauth-direct-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:14px;background:linear-gradient(135deg,#2157F2,#0EA5E9);color:#fff!important;font-weight:800;text-decoration:none!important;border:1px solid rgba(255,255,255,.26);box-shadow:0 16px 34px rgba(5,40,125,.28);font-size:1rem;transition:background .15s ease,box-shadow .15s ease,transform .15s ease}
+    .oauth-direct-button:hover{box-shadow:0 22px 46px rgba(5,40,125,.34);transform:translateY(-1px)}
     .oauth-ms-icon{width:20px;height:20px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;flex:0 0 auto}
     .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
-    .oauth-meta{border-top:1px solid #E2E8F0;padding-top:14px;color:#64748B;font-size:.86rem;line-height:1.6}
-    .oauth-meta a{color:#1D4ED8;text-decoration:none;font-weight:700}
+    .oauth-meta{border:1px solid rgba(250,204,21,.45);background:rgba(255,255,255,.12);border-radius:18px;padding:14px;color:#EAF4FF;font-size:.86rem;line-height:1.6;text-align:center}
+    .oauth-meta b{color:#FDE68A}
+    .oauth-meta a{color:#BAE6FD;text-decoration:none;font-weight:800}
     .oauth-meta a:hover{text-decoration:underline}
     .oauth-login-error{margin-top:16px;padding:12px 14px;border-radius:10px;color:#991B1B;background:#FEF2F2;border:1px solid #FECACA;font-size:.9rem;line-height:1.55}
-    .oauth-footer{color:#94A3B8;font-size:.78rem;text-align:center;margin-top:18px}
-    @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:1rem .75rem 2rem!important}div[data-testid="column"]>div[data-testid="stVerticalBlock"]{border-radius:14px!important;padding:1.25rem!important}.oauth-brand{text-align:center}.oauth-mark{margin-left:auto;margin-right:auto}.oauth-brand h1{font-size:1.42rem}}
+    .oauth-footer{color:#BBD7FF;font-size:.78rem;text-align:center;margin-top:18px}
+    @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:1rem .75rem 2rem!important}div[data-testid="column"]>div[data-testid="stVerticalBlock"]{border-radius:22px!important;padding:1.25rem!important}.oauth-brand{text-align:left}.oauth-brand h1{font-size:2rem}}
     </style>
     """, unsafe_allow_html=True)
 
-    _, center_col, _ = st.columns([0.9, 1.35, 0.9])
+    _, center_col, _ = st.columns([1, 1.05, 1])
     with center_col:
         _login_url = build_ms_oauth_login_url(popup=False)
         _login_url_attr = html.escape(_login_url, quote=True)
         st.markdown("""
         <div class="oauth-brand">
-            <div class="oauth-mark">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3l7 3v5c0 4.4-2.8 8-7 10-4.2-2-7-5.6-7-10V6l7-3z"></path>
-                    <path d="M8.8 12.2l2.1 2.1 4.6-5"></path>
-                </svg>
+            <div class="oauth-kicker"><span>🔐</span><span>Secure Sign In</span></div>
+            <h1>ยินดีต้อนรับกลับ</h1>
+            <p>เข้าสู่ระบบด้วย Microsoft 365 เพื่อตรวจสิทธิ์และบทบาทของคุณโดยอัตโนมัติ</p>
+            <div class="oauth-role-card">
+                <div class="oauth-role-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3l7 3v5c0 4.4-2.8 8-7 10-4.2-2-7-5.6-7-10V6l7-3z"></path>
+                        <path d="M8.8 12.2l2.1 2.1 4.6-5"></path>
+                    </svg>
+                </div>
+                <div>
+                    <b>Role-based access</b>
+                    <span>Admin, หัวหน้าแผนก และลูกทีม จะเห็นข้อมูลตามสิทธิ์ที่กำหนด</span>
+                </div>
             </div>
-            <h1>DocumentReportUnified</h1>
-            <p>Sign in with your Microsoft 365 account. Multi-Factor Authentication is handled by Microsoft.</p>
         </div>
         """, unsafe_allow_html=True)
         st.markdown(
@@ -3320,9 +3357,8 @@ if not st.session_state.is_auth:
                     Sign in with Microsoft
                 </a>
                 <div class="oauth-meta">
-                    Microsoft sign-in opens in a secure browser tab because Microsoft blocks login inside embedded app frames.
-                    Reusing the sign-in button will reuse the same Microsoft sign-in tab.
-                    <br>After verification, this app will load again automatically.
+                    <b>ยืนยันตัวตนผ่าน Microsoft 365</b><br>
+                    ระบบจะเปิดแท็บปลอดภัยของ Microsoft สำหรับ MFA และจดจำ session ของแอปไว้ 365 วันหลังเข้าสู่ระบบสำเร็จ
                 </div>
             </div>
             ''',
