@@ -1748,6 +1748,7 @@ def load_software_excels():
                         frame = frame.copy()
                         frame["Source File"] = file_name
                         frame["Source Sheet"] = worksheet.title
+                        frame["Source Row"] = [int(i) + 2 for i in frame.index]
                         frames.append(frame)
                 if frames:
                     software_sheets[category_name] = pd.concat(frames, ignore_index=True, sort=False)
@@ -1799,6 +1800,178 @@ def upload_password_excel(drive_id, sheets_dict):
         data=output.getvalue()
     )
     return upload_res.status_code in (200, 201)
+
+def _software_workbook_path(category_name: str) -> str:
+    file_name = SOFTWARE_FILE_MAP.get(category_name)
+    if not file_name:
+        raise ValueError(f"ไม่พบไฟล์ Software สำหรับหมวด {category_name}")
+    return f"{SHAREPOINT_FOLDER}/{file_name}"
+
+def _get_sharepoint_drive_id():
+    token = get_access_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = get_sp_site_id()
+    drive_res = requests.get(f"{GRAPH_URL}/sites/{site_id}/drive", headers=headers, timeout=30)
+    drive_res.raise_for_status()
+    drive_id = drive_res.json().get("id")
+    if not drive_id:
+        raise RuntimeError("ไม่พบ SharePoint Drive ID")
+    return drive_id
+
+def load_software_workbook(category_name: str):
+    token = get_access_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _get_sharepoint_drive_id()
+    workbook_path = _software_workbook_path(category_name)
+    file_res = requests.get(
+        f"{GRAPH_URL}/drives/{drive_id}/root:/{workbook_path}:/content",
+        headers=headers,
+        timeout=45,
+    )
+    file_res.raise_for_status()
+    return load_workbook(io.BytesIO(file_res.content)), drive_id, workbook_path
+
+def upload_software_workbook(category_name: str, workbook):
+    token = get_access_token()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/octet-stream"}
+    drive_id = _get_sharepoint_drive_id()
+    workbook_path = _software_workbook_path(category_name)
+    output = io.BytesIO()
+    workbook.save(output)
+    output.seek(0)
+    upload_res = requests.put(
+        f"{GRAPH_URL}/drives/{drive_id}/root:/{workbook_path}:/content",
+        headers=headers,
+        data=output.getvalue(),
+        timeout=45,
+    )
+    return upload_res.status_code in (200, 201), upload_res.text[:500]
+
+def _software_sheet_names(category_name: str):
+    try:
+        workbook, _, _ = load_software_workbook(category_name)
+        return list(workbook.sheetnames)
+    except Exception:
+        return []
+
+def _software_row_to_sheet_position(row, default_sheet=""):
+    sheet_name = str(row.get("Source Sheet", "") or default_sheet or "").strip()
+    source_row = row.get("Source Row", None) if hasattr(row, "get") else None
+    if source_row is not None and str(source_row).strip().lower() not in ("", "nan", "none"):
+        try:
+            return sheet_name, int(float(source_row))
+        except Exception:
+            pass
+    try:
+        idx = int(row.name)
+    except Exception:
+        idx = int(row.get("_row_index", 0) or 0) if hasattr(row, "get") else 0
+    return sheet_name, idx + 2
+
+def _software_ws_headers(ws):
+    headers = []
+    for cell in ws[1]:
+        if cell.value is not None and str(cell.value).strip():
+            headers.append(str(cell.value).strip())
+    return headers
+
+def _software_form_value(value):
+    if value is None:
+        return ""
+    text = str(value)
+    return "" if text.lower() in ("nan", "nat", "none") else text
+
+@st.dialog("✏️ แก้ไขข้อมูล Software")
+def edit_software_record_dialog(category_name, row):
+    sheet_name, excel_row = _software_row_to_sheet_position(row)
+    try:
+        workbook, _, _ = load_software_workbook(category_name)
+    except Exception as error:
+        st.error(f"ไม่สามารถเปิดไฟล์ได้: {error}")
+        return
+    if sheet_name not in workbook.sheetnames:
+        st.error(f"ไม่พบ worksheet: {sheet_name}")
+        return
+    ws = workbook[sheet_name]
+    headers = _software_ws_headers(ws)
+    st.caption(f"{SOFTWARE_FILE_MAP.get(category_name, category_name)} / {sheet_name} / row {excel_row}")
+
+    new_values = {}
+    for col_index, header in enumerate(headers, start=1):
+        current_value = ws.cell(excel_row, col_index).value
+        label = str(header)
+        if any(token in label.lower() for token in ("pass", "pwd", "secret", "key", "token", "รหัส")):
+            new_values[header] = st.text_input(label, value=_software_form_value(current_value), type="password")
+        elif "date" in label.lower() or "วันที่" in label:
+            new_values[header] = st.text_input(label, value=_software_form_value(current_value))
+        else:
+            new_values[header] = st.text_input(label, value=_software_form_value(current_value))
+
+    save_col, delete_col = st.columns(2)
+    with save_col:
+        if st.button("💾 บันทึก", type="primary", use_container_width=True):
+            for col_index, header in enumerate(headers, start=1):
+                value = new_values.get(header, "")
+                ws.cell(excel_row, col_index, value=value if str(value).strip() else None)
+            ok, message = upload_software_workbook(category_name, workbook)
+            if ok:
+                load_software_excels.clear()
+                st.success("บันทึกสำเร็จ")
+                st.rerun()
+            else:
+                st.error(f"บันทึกไม่สำเร็จ: {message}")
+    with delete_col:
+        if st.button("🗑️ ลบรายการ", use_container_width=True):
+            st.session_state[f"confirm_delete_software_{category_name}_{sheet_name}_{excel_row}"] = True
+
+    confirm_key = f"confirm_delete_software_{category_name}_{sheet_name}_{excel_row}"
+    if st.session_state.get(confirm_key):
+        st.warning("ยืนยันการลบรายการนี้หรือไม่?")
+        if st.button("ยืนยันลบ", type="primary"):
+            ws.delete_rows(excel_row, 1)
+            ok, message = upload_software_workbook(category_name, workbook)
+            if ok:
+                st.session_state.pop(confirm_key, None)
+                load_software_excels.clear()
+                st.success("ลบรายการสำเร็จ")
+                st.rerun()
+            else:
+                st.error(f"ลบไม่สำเร็จ: {message}")
+
+@st.dialog("➕ เพิ่มข้อมูล Software")
+def add_software_record_dialog(category_name):
+    try:
+        workbook, _, _ = load_software_workbook(category_name)
+    except Exception as error:
+        st.error(f"ไม่สามารถเปิดไฟล์ได้: {error}")
+        return
+    sheet_names = list(workbook.sheetnames)
+    if not sheet_names:
+        st.error("ไม่พบ worksheet ในไฟล์")
+        return
+    sheet_name = st.selectbox("Worksheet", sheet_names)
+    ws = workbook[sheet_name]
+    headers = _software_ws_headers(ws)
+    if not headers:
+        st.error("ไม่พบ header ในแถวแรก")
+        return
+    new_values = {}
+    for header in headers:
+        label = str(header)
+        input_type = "password" if any(token in label.lower() for token in ("pass", "pwd", "secret", "key", "token", "รหัส")) else "default"
+        new_values[header] = st.text_input(label, type=input_type)
+    if st.button("➕ เพิ่มรายการ", type="primary", use_container_width=True):
+        next_row = ws.max_row + 1
+        for col_index, header in enumerate(headers, start=1):
+            value = new_values.get(header, "")
+            ws.cell(next_row, col_index, value=value if str(value).strip() else None)
+        ok, message = upload_software_workbook(category_name, workbook)
+        if ok:
+            load_software_excels.clear()
+            st.success("เพิ่มรายการสำเร็จ")
+            st.rerun()
+        else:
+            st.error(f"เพิ่มรายการไม่สำเร็จ: {message}")
 
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
@@ -5072,6 +5245,7 @@ else:
                 "status": str(row.get(status_col, "") or "-") if status_col else "-",
                 "state": state,
                 "modified": _ge_date(row.get(modified_col)) if modified_col else None,
+                "source_sheet": str(row.get("Source Sheet", "") or ""),
                 "search": " ".join(str(value) for value in row.tolist()),
             })
 
@@ -5088,6 +5262,9 @@ else:
         date_text = now_bkk.strftime("%d/%m/%Y")
         time_text = now_bkk.strftime("%H:%M")
         st.markdown(f'''<div class="ge-page"><section class="ge-header ge-hero"><div class="ge-hero-icon">{mail_svg}</div><div><div class="ge-hero-badge">GROUP COMMUNICATION CENTER</div><h1>Group E-mail</h1><p>ข้อมูล License และบัญชีจากไฟล์ Software แยกบน SharePoint</p></div><div class="ge-hero-tools"><div class="ge-date">{date_text}</div><div class="ge-time">{time_text}</div></div></section></div>''', unsafe_allow_html=True)
+        if admin_mode:
+            if st.button("➕ เพิ่ม Group E-mail", key="ge_add_record", type="primary"):
+                add_software_record_dialog("Group Email")
 
         kpi_items = [
             ("รายการทั้งหมด", str(total), "รายการ", "records", "#7C3AED", "#F3E8FF"),
@@ -5180,6 +5357,14 @@ else:
         main_left, main_right = st.columns([0.72, 0.28], gap="medium")
         with main_left:
             st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+            if admin_mode and visible:
+                st.caption("แก้ไขข้อมูล")
+                for _edit_record in visible:
+                    _edit_idx = _edit_record["index"]
+                    _edit_row = group_df.loc[_edit_idx].copy()
+                    _edit_label = f"✏️ {str(_edit_record['group'])[:42]} | {str(_edit_record['email'])[:34]}"
+                    if st.button(_edit_label, key=f"ge_edit_{_edit_idx}", use_container_width=True):
+                        edit_software_record_dialog("Group Email", _edit_row)
             activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
             if activities:
                 activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
@@ -5252,11 +5437,14 @@ else:
                 return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{_paths[kind]}</svg>'
             st.markdown(f'''<div class="o365-page"><div class="o365-header"><div class="o365-brand-icon">{_office_svg}</div><div class="o365-heading"><div class="o365-eyebrow">MICROSOFT 365 ACCOUNT CENTER</div><div class="o365-title">Office 365</div><div class="o365-subtitle">จัดการบัญชี ผู้ใช้งาน และสถานะ License ขององค์กร</div></div><div class="o365-source"><span></span>เชื่อมต่อ SharePoint สำเร็จ<small>{html.escape(_expected_file)}</small></div></div></div>''', unsafe_allow_html=True)
 
-            _refresh_col, _space_col = st.columns([0.16, 0.84])
+            _refresh_col, _add_col, _space_col = st.columns([0.16, 0.16, 0.68])
             with _refresh_col:
                 if st.button("↻ รีเฟรชข้อมูล", key="o365_refresh", use_container_width=True):
                     load_software_excels.clear()
                     st.rerun()
+            with _add_col:
+                if admin_mode and st.button("➕ เพิ่มรายการ", key="o365_add_record", use_container_width=True, type="primary"):
+                    add_software_record_dialog("Office 365")
 
             _o365_metrics = [
                 ("บัญชีทั้งหมด", f"{_o365_total:,}", "Accounts", "accounts", "#4F46E5", "#EEF2FF"),
@@ -5314,6 +5502,13 @@ else:
             with _content_left:
                 _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">ไม่พบข้อมูลตามตัวกรอง</div></td></tr>'
                 st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} รายการ</span></div><small>ข้อมูลล่าสุดจาก SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+                if admin_mode and not _office_view.empty:
+                    st.caption("แก้ไขข้อมูล")
+                    for _edit_idx, _edit_row in _office_view.iterrows():
+                        _edit_name = str(_edit_row.get(_name_col, "") or f"row {_edit_idx + 1}") if _name_col else f"row {_edit_idx + 1}"
+                        _edit_company = str(_edit_row.get(_company_col, "") or "") if _company_col else ""
+                        if st.button(f"✏️ {_edit_name[:42]} {_edit_company[:24]}", key=f"o365_edit_{_edit_idx}", use_container_width=True):
+                            edit_software_record_dialog("Office 365", _edit_row)
             with _content_right:
                 st.markdown(f'''<div class="o365-side-panel"><div class="o365-panel-head"><div><b>License Plans</b><span>สัดส่วนตามข้อมูลจริง</span></div></div><div class="o365-plan-list">{_plan_html or '<div class="o365-empty">ยังไม่มีข้อมูล License Plan</div>'}</div></div><div class="o365-side-panel o365-summary"><div class="o365-panel-head"><div><b>Account Health</b><span>ภาพรวมสถานะบัญชี</span></div></div><div class="o365-health"><div><span>Active rate</span><b>{round(_o365_active/_o365_total*100) if _o365_total else 0}%</b></div><div><span>Companies</span><b>{len(_companies)}</b></div><div><span>Expiring soon</span><b>{_o365_expiring}</b></div></div></div>''', unsafe_allow_html=True)
 
@@ -5358,6 +5553,10 @@ else:
         detail_df["_Dashboard State"] = state_values
         detail_df["_Days Left"] = days_values
 
+        if admin_mode:
+            if st.button(f"➕ เพิ่มรายการ {title}", key=f"sd_add_{category_name}", type="primary"):
+                add_software_record_dialog(category_name)
+
         total_records = len(detail_df)
         active_records = int((detail_df["_Dashboard State"] == "active").sum())
         expiring_records = int((detail_df["_Dashboard State"] == "expiring").sum())
@@ -5400,7 +5599,7 @@ else:
         if company_column and company_filter != "ทั้งหมด":
             visible_df = visible_df[visible_df[company_column].fillna("").astype(str) == company_filter]
 
-        display_columns = [column for column in _software_df.columns if column not in ("Source File", "Source Sheet")][:10]
+        display_columns = [column for column in _software_df.columns if column not in ("Source File", "Source Sheet", "Source Row")][:10]
         header_html = ''.join(f'<th>{html.escape(str(column))}</th>' for column in display_columns)
         body_rows = []
         for row_index, row in visible_df.iterrows():
@@ -5422,6 +5621,13 @@ else:
         detail_left, detail_right = st.columns([0.72, 0.28], gap="medium")
         with detail_left:
             st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>รายการ {html.escape(title)} ทั้งหมด</b><span>{len(visible_df)} รายการ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
+            if admin_mode and not visible_df.empty:
+                st.caption("แก้ไขข้อมูล")
+                for _edit_idx, _edit_row in visible_df.iterrows():
+                    _edit_name = str(_edit_row.get(display_columns[0], "") or f"row {_edit_idx + 1}") if display_columns else f"row {_edit_idx + 1}"
+                    _edit_meta = str(_edit_row.get(company_column, "") or "") if company_column else ""
+                    if st.button(f"✏️ {_edit_name[:44]} {_edit_meta[:24]}", key=f"sd_edit_{category_name}_{_edit_idx}", use_container_width=True):
+                        edit_software_record_dialog(category_name, _edit_row)
             activity_rows = visible_df[visible_df[modified_column].notna()].copy() if modified_column else pd.DataFrame()
             if not activity_rows.empty:
                 activity_rows["_Modified"] = pd.to_datetime(activity_rows[modified_column], errors="coerce", dayfirst=True)
