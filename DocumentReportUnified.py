@@ -3475,6 +3475,27 @@ st.markdown("""
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
 [data-testid="stHeader"] { background: transparent !important; box-shadow: none !important; }
+[class*="st-key-o365_manage_panel"],
+[class*="st-key-sd_manage_panel_"]{
+    padding:14px 16px 12px !important;
+    margin:14px 0 !important;
+    border:1px solid #E2E8F0 !important;
+    border-radius:18px !important;
+    background:#FFF !important;
+    box-shadow:0 7px 20px rgba(15,23,42,.045) !important;
+}
+[class*="st-key-o365_manage_select"] div[data-baseweb="select"]>div,
+[class*="st-key-sd_manage_select_"] div[data-baseweb="select"]>div{
+    min-height:43px !important;
+    border-color:#E2E8F0 !important;
+    border-radius:13px !important;
+    background:#FFF !important;
+}
+[class*="st-key-o365_manage_edit"] button,
+[class*="st-key-sd_manage_edit_"] button{
+    min-height:43px !important;
+    border-radius:13px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -5320,8 +5341,8 @@ else:
             start_text = record["start"].strftime("%d/%m/%Y") if record["start"] else "-"
             expiry_text = record["expiry"].strftime("%d/%m/%Y") if record["expiry"] else "-"
             users_text = f"{int(record['users']):,}" if pd.notna(record["users"]) else "-"
-            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td><td class="ge-action">โ€ขโ€ขโ€ข</td></tr>''')
-        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="11"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
+            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td></tr>''')
+        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="10"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
 
         known_total = active + expiring + expired + inactive
         if known_total:
@@ -5356,15 +5377,20 @@ else:
 
         main_left, main_right = st.columns([0.72, 0.28], gap="medium")
         with main_left:
-            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             if admin_mode and visible:
-                st.caption("แก้ไขข้อมูล")
-                for _edit_record in visible:
-                    _edit_idx = _edit_record["index"]
-                    _edit_row = group_df.loc[_edit_idx].copy()
-                    _edit_label = f"✏️ {str(_edit_record['group'])[:42]} | {str(_edit_record['email'])[:34]}"
-                    if st.button(_edit_label, key=f"ge_edit_{_edit_idx}", use_container_width=True):
-                        edit_software_record_dialog("Group Email", _edit_row)
+                with st.container(key="ge_manage_panel"):
+                    st.markdown('<div class="ge-filter-title">จัดการรายการ</div>', unsafe_allow_html=True)
+                    _edit_options = {
+                        f"#{int(record['index']) + 1}  {str(record['group'])[:42]} | {str(record['email'])[:30]}": record["index"]
+                        for record in visible
+                    }
+                    _manage_select, _manage_button = st.columns([0.76, 0.24], gap="small")
+                    with _manage_select:
+                        _selected_label = st.selectbox("เลือกรายการ", list(_edit_options.keys()), label_visibility="collapsed", key="ge_manage_select")
+                    with _manage_button:
+                        if st.button("✏️ แก้ไข", key="ge_manage_edit", use_container_width=True):
+                            edit_software_record_dialog("Group Email", group_df.loc[_edit_options[_selected_label]].copy())
             activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
             if activities:
                 activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
@@ -5376,7 +5402,7 @@ else:
 
         st.markdown('''<style>
         .ge-page{color:#0F172A}.ge-hero{position:relative;display:flex;align-items:center;gap:20px;height:160px;padding:25px 28px;margin-bottom:18px;overflow:hidden;border-radius:28px;color:#FFF;background:linear-gradient(125deg,#2563EB,#4F46E5 55%,#8B5CF6);box-shadow:0 18px 38px rgba(79,70,229,.22)}.ge-hero:after{content:'';position:absolute;right:-70px;top:-110px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),rgba(255,255,255,0) 70%)}.ge-hero-icon{position:relative;z-index:1;display:grid;place-items:center;width:72px;height:72px;flex:none;border:1px solid rgba(255,255,255,.28);border-radius:21px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px)}.ge-hero-icon svg{width:43px;height:43px}.ge-hero-badge{font-size:9px;font-weight:900;letter-spacing:.13em;color:#C7D2FE}.ge-hero h1{margin:5px 0 0;color:#FFF;font-size:36px;line-height:1;font-weight:900;letter-spacing:-.04em}.ge-hero p{margin:10px 0 0;color:rgba(255,255,255,.8);font-size:15px}.ge-hero-tools{position:relative;z-index:1;display:flex;gap:9px;margin-left:auto}.ge-date,.ge-time{padding:11px 14px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:rgba(255,255,255,.13);font-size:11px;font-weight:800}.ge-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:17px}.ge-kpi-card{position:relative;height:130px;padding:17px;border:1px solid #E2E8F0;border-radius:22px;background:#FFF;box-shadow:0 8px 23px rgba(15,23,42,.05)}.ge-kpi-icon{position:absolute;right:15px;top:15px;display:grid;place-items:center;width:52px;height:52px;border-radius:16px}.ge-kpi-icon svg{width:27px;height:27px}.ge-kpi-label{padding-right:54px;color:#334155;font-size:13px;font-weight:850}.ge-kpi-value{margin-top:17px;font-size:34px;line-height:1;font-weight:900;letter-spacing:-.04em}.ge-kpi-sub{margin-top:10px;color:#64748B;font-size:11px}
-        [class*="st-key-ge_filter_panel"]{padding:14px 16px 9px!important;margin-bottom:14px!important;border:1px solid #E2E8F0!important;border-radius:18px!important;background:#FFF!important;box-shadow:0 7px 20px rgba(15,23,42,.045)!important}.ge-filter-title{margin-bottom:11px;color:#334155;font-size:13px;font-weight:850}[class*="st-key-ge_search"] input,[class*="st-key-ge_license"] div[data-baseweb="select"]>div,[class*="st-key-ge_status"] div[data-baseweb="select"]>div{height:45px!important;min-height:45px!important;border-color:#E2E8F0!important;border-radius:13px!important;background:#FFF!important}[class*="st-key-ge_reset"] button,[class*="st-key-ge_submit"] button{height:45px!important;min-height:45px!important;border-radius:13px!important}.ge-table-panel,.ge-chart-panel,.ge-company-panel,.ge-expiring-panel,.ge-activity-panel{border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045)}.ge-table-panel{overflow:hidden}.ge-table-head{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid #EDF2F7}.ge-table-head b,.ge-panel-title{font-size:14px;font-weight:850}.ge-table-head span{display:block;margin-top:3px;color:#94A3B8;font-size:10px}.ge-table-scroll{overflow:auto;max-height:470px}.ge-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:10px}.ge-table th{position:sticky;top:0;z-index:2;height:42px;padding:0 10px;color:#64748B;background:#F8FAFC;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.03em}.ge-table td{height:50px;padding:0 10px;border-top:1px solid #EDF2F7;color:#334155}.ge-table tbody tr:hover{background:#FAFAFF}.ge-company-badge{padding:4px 7px;border-radius:7px;color:#4338CA;background:#EEF2FF;font-weight:800}.ge-status{padding:5px 9px;border-radius:99px;font-size:9px;font-weight:850}.ge-status-green{color:#047857;background:#ECFDF5}.ge-status-orange{color:#B45309;background:#FFF7ED}.ge-status-red{color:#B91C1C;background:#FEF2F2}.ge-status-gray{color:#475569;background:#F1F5F9}.ge-action{color:#6366F1;font-weight:900}.ge-chart-panel,.ge-company-panel,.ge-expiring-panel{padding:16px;margin-bottom:13px}.ge-donut-layout{display:flex;align-items:center;gap:15px;margin-top:14px}.ge-donut{position:relative;display:grid;place-items:center;width:124px;height:124px;flex:none;border-radius:50%}.ge-donut:after{content:'';position:absolute;inset:23px;border-radius:50%;background:#FFF}.ge-donut>div{position:relative;z-index:1;text-align:center}.ge-donut b{display:block;font-size:23px}.ge-donut span{color:#64748B;font-size:10px}.ge-legend{display:grid;gap:9px;flex:1}.ge-legend p{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;margin:0;color:#64748B;font-size:10px}.ge-legend i{width:8px;height:8px;border-radius:50%}.ge-legend b{color:#334155}.ge-company-row{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-company-row:last-child{border-bottom:0}.ge-company-row b{font-size:10px}.ge-company-row span{display:block;margin-top:2px;color:#94A3B8;font-size:8px}.ge-company-row strong{font-size:9px}.ge-company-bar{height:5px;border-radius:99px;background:#EEF2F7}.ge-company-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6366F1,#8B5CF6)}.ge-panel-title small{margin-left:4px;color:#94A3B8;font-size:9px;font-weight:500}.ge-expiring-row{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-expiring-row:last-child{border-bottom:0}.ge-expiring-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;color:#F59E0B;background:#FFF4E5}.ge-expiring-icon svg{width:16px;height:16px}.ge-expiring-row b{font-size:9px}.ge-expiring-row span{display:block;margin-top:2px;color:#94A3B8;font-size:8px}.ge-expiring-row>div:last-child{text-align:right}.ge-expiring-row>div:last-child span{color:#F59E0B}.ge-activity-panel{margin-top:14px;padding:16px}.ge-activity-row{display:grid;grid-template-columns:35px 1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-activity-row:last-child{border-bottom:0}.ge-activity-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#EEF2FF}.ge-activity-icon svg{width:22px;height:22px}.ge-activity-row b{font-size:10px}.ge-activity-row span,.ge-activity-row time{display:block;margin-top:2px;color:#64748B;font-size:8.5px}.ge-empty-state{display:grid;place-items:center;min-height:130px;padding:22px;color:#94A3B8;text-align:center;font-size:11px;border:1px dashed #CBD5E1;border-radius:13px;background:#F8FAFC}
+        [class*="st-key-ge_filter_panel"],[class*="st-key-ge_manage_panel"]{padding:14px 16px 9px!important;margin-bottom:14px!important;border:1px solid #E2E8F0!important;border-radius:18px!important;background:#FFF!important;box-shadow:0 7px 20px rgba(15,23,42,.045)!important}.ge-filter-title{margin-bottom:11px;color:#334155;font-size:13px;font-weight:850}[class*="st-key-ge_search"] input,[class*="st-key-ge_license"] div[data-baseweb="select"]>div,[class*="st-key-ge_status"] div[data-baseweb="select"]>div,[class*="st-key-ge_manage_select"] div[data-baseweb="select"]>div{height:45px!important;min-height:45px!important;border-color:#E2E8F0!important;border-radius:13px!important;background:#FFF!important}[class*="st-key-ge_reset"] button,[class*="st-key-ge_submit"] button,[class*="st-key-ge_manage_edit"] button{height:45px!important;min-height:45px!important;border-radius:13px!important}.ge-table-panel,.ge-chart-panel,.ge-company-panel,.ge-expiring-panel,.ge-activity-panel{border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 20px rgba(15,23,42,.045)}.ge-table-panel{overflow:hidden}.ge-table-head{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid #EDF2F7}.ge-table-head b,.ge-panel-title{font-size:14px;font-weight:850}.ge-table-head span{display:block;margin-top:3px;color:#94A3B8;font-size:10px}.ge-table-scroll{overflow:auto;max-height:470px}.ge-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:10px}.ge-table th{position:sticky;top:0;z-index:2;height:42px;padding:0 10px;color:#64748B;background:#F8FAFC;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.03em}.ge-table td{height:50px;padding:0 10px;border-top:1px solid #EDF2F7;color:#334155}.ge-table tbody tr:hover{background:#FAFAFF}.ge-company-badge{padding:4px 7px;border-radius:7px;color:#4338CA;background:#EEF2FF;font-weight:800}.ge-status{padding:5px 9px;border-radius:99px;font-size:9px;font-weight:850}.ge-status-green{color:#047857;background:#ECFDF5}.ge-status-orange{color:#B45309;background:#FFF7ED}.ge-status-red{color:#B91C1C;background:#FEF2F2}.ge-status-gray{color:#475569;background:#F1F5F9}.ge-action{color:#6366F1;font-weight:900}.ge-chart-panel,.ge-company-panel,.ge-expiring-panel{padding:16px;margin-bottom:13px}.ge-donut-layout{display:flex;align-items:center;gap:15px;margin-top:14px}.ge-donut{position:relative;display:grid;place-items:center;width:124px;height:124px;flex:none;border-radius:50%}.ge-donut:after{content:'';position:absolute;inset:23px;border-radius:50%;background:#FFF}.ge-donut>div{position:relative;z-index:1;text-align:center}.ge-donut b{display:block;font-size:23px}.ge-donut span{color:#64748B;font-size:10px}.ge-legend{display:grid;gap:9px;flex:1}.ge-legend p{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;margin:0;color:#64748B;font-size:10px}.ge-legend i{width:8px;height:8px;border-radius:50%}.ge-legend b{color:#334155}.ge-company-row{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-company-row:last-child{border-bottom:0}.ge-company-row b{font-size:10px}.ge-company-row span{display:block;margin-top:2px;color:#94A3B8;font-size:8px}.ge-company-row strong{font-size:9px}.ge-company-bar{height:5px;border-radius:99px;background:#EEF2F7}.ge-company-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6366F1,#8B5CF6)}.ge-panel-title small{margin-left:4px;color:#94A3B8;font-size:9px;font-weight:500}.ge-expiring-row{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-expiring-row:last-child{border-bottom:0}.ge-expiring-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;color:#F59E0B;background:#FFF4E5}.ge-expiring-icon svg{width:16px;height:16px}.ge-expiring-row b{font-size:9px}.ge-expiring-row span{display:block;margin-top:2px;color:#94A3B8;font-size:8px}.ge-expiring-row>div:last-child{text-align:right}.ge-expiring-row>div:last-child span{color:#F59E0B}.ge-activity-panel{margin-top:14px;padding:16px}.ge-activity-row{display:grid;grid-template-columns:35px 1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EDF2F7}.ge-activity-row:last-child{border-bottom:0}.ge-activity-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#EEF2FF}.ge-activity-icon svg{width:22px;height:22px}.ge-activity-row b{font-size:10px}.ge-activity-row span,.ge-activity-row time{display:block;margin-top:2px;color:#64748B;font-size:8.5px}.ge-empty-state{display:grid;place-items:center;min-height:130px;padding:22px;color:#94A3B8;text-align:center;font-size:11px;border:1px dashed #CBD5E1;border-radius:13px;background:#F8FAFC}
         @media(max-width:1200px){.ge-kpi-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:900px){.ge-kpi-grid{grid-template-columns:repeat(2,1fr)}.ge-hero-tools{display:none}}@media(max-width:600px){.ge-kpi-grid{grid-template-columns:1fr}.ge-hero{height:auto;min-height:150px;padding:20px}.ge-hero h1{font-size:30px}}
         </style>''', unsafe_allow_html=True)
 
@@ -5503,12 +5529,19 @@ else:
                 _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">ไม่พบข้อมูลตามตัวกรอง</div></td></tr>'
                 st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} รายการ</span></div><small>ข้อมูลล่าสุดจาก SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
                 if admin_mode and not _office_view.empty:
-                    st.caption("แก้ไขข้อมูล")
-                    for _edit_idx, _edit_row in _office_view.iterrows():
-                        _edit_name = str(_edit_row.get(_name_col, "") or f"row {_edit_idx + 1}") if _name_col else f"row {_edit_idx + 1}"
-                        _edit_company = str(_edit_row.get(_company_col, "") or "") if _company_col else ""
-                        if st.button(f"✏️ {_edit_name[:42]} {_edit_company[:24]}", key=f"o365_edit_{_edit_idx}", use_container_width=True):
-                            edit_software_record_dialog("Office 365", _edit_row)
+                    with st.container(key="o365_manage_panel"):
+                        st.markdown('<div class="o365-panel-head"><div><b>จัดการรายการ</b><span>เลือกบัญชีที่ต้องการแก้ไข</span></div></div>', unsafe_allow_html=True)
+                        _edit_options = {}
+                        for _edit_idx, _edit_row in _office_view.iterrows():
+                            _edit_name = str(_edit_row.get(_name_col, "") or f"row {_edit_idx + 1}") if _name_col else f"row {_edit_idx + 1}"
+                            _edit_company = str(_edit_row.get(_company_col, "") or "") if _company_col else ""
+                            _edit_options[f"#{int(_edit_idx) + 1}  {_edit_name[:42]} {_edit_company[:24]}"] = _edit_idx
+                        _manage_select, _manage_button = st.columns([0.76, 0.24], gap="small")
+                        with _manage_select:
+                            _selected_label = st.selectbox("เลือกรายการ", list(_edit_options.keys()), label_visibility="collapsed", key="o365_manage_select")
+                        with _manage_button:
+                            if st.button("✏️ แก้ไข", key="o365_manage_edit", use_container_width=True):
+                                edit_software_record_dialog("Office 365", _office_view.loc[_edit_options[_selected_label]].copy())
             with _content_right:
                 st.markdown(f'''<div class="o365-side-panel"><div class="o365-panel-head"><div><b>License Plans</b><span>สัดส่วนตามข้อมูลจริง</span></div></div><div class="o365-plan-list">{_plan_html or '<div class="o365-empty">ยังไม่มีข้อมูล License Plan</div>'}</div></div><div class="o365-side-panel o365-summary"><div class="o365-panel-head"><div><b>Account Health</b><span>ภาพรวมสถานะบัญชี</span></div></div><div class="o365-health"><div><span>Active rate</span><b>{round(_o365_active/_o365_total*100) if _o365_total else 0}%</b></div><div><span>Companies</span><b>{len(_companies)}</b></div><div><span>Expiring soon</span><b>{_o365_expiring}</b></div></div></div>''', unsafe_allow_html=True)
 
@@ -5622,12 +5655,19 @@ else:
         with detail_left:
             st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>รายการ {html.escape(title)} ทั้งหมด</b><span>{len(visible_df)} รายการ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
             if admin_mode and not visible_df.empty:
-                st.caption("แก้ไขข้อมูล")
-                for _edit_idx, _edit_row in visible_df.iterrows():
-                    _edit_name = str(_edit_row.get(display_columns[0], "") or f"row {_edit_idx + 1}") if display_columns else f"row {_edit_idx + 1}"
-                    _edit_meta = str(_edit_row.get(company_column, "") or "") if company_column else ""
-                    if st.button(f"✏️ {_edit_name[:44]} {_edit_meta[:24]}", key=f"sd_edit_{category_name}_{_edit_idx}", use_container_width=True):
-                        edit_software_record_dialog(category_name, _edit_row)
+                with st.container(key=f"sd_manage_panel_{category_name}"):
+                    st.markdown(f'<div class="sd-panel-head"><b>จัดการรายการ</b><span>เลือกข้อมูล {html.escape(title)} ที่ต้องการแก้ไข</span></div>', unsafe_allow_html=True)
+                    _edit_options = {}
+                    for _edit_idx, _edit_row in visible_df.iterrows():
+                        _edit_name = str(_edit_row.get(display_columns[0], "") or f"row {_edit_idx + 1}") if display_columns else f"row {_edit_idx + 1}"
+                        _edit_meta = str(_edit_row.get(company_column, "") or "") if company_column else ""
+                        _edit_options[f"#{int(_edit_idx) + 1}  {_edit_name[:44]} {_edit_meta[:24]}"] = _edit_idx
+                    _manage_select, _manage_button = st.columns([0.76, 0.24], gap="small")
+                    with _manage_select:
+                        _selected_label = st.selectbox("เลือกรายการ", list(_edit_options.keys()), label_visibility="collapsed", key=f"sd_manage_select_{category_name}")
+                    with _manage_button:
+                        if st.button("✏️ แก้ไข", key=f"sd_manage_edit_{category_name}", use_container_width=True):
+                            edit_software_record_dialog(category_name, visible_df.loc[_edit_options[_selected_label]].copy())
             activity_rows = visible_df[visible_df[modified_column].notna()].copy() if modified_column else pd.DataFrame()
             if not activity_rows.empty:
                 activity_rows["_Modified"] = pd.to_datetime(activity_rows[modified_column], errors="coerce", dayfirst=True)
