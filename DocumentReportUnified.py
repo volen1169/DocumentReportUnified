@@ -2001,7 +2001,7 @@ def add_software_record_dialog(category_name):
             st.error(f"เพิ่มรายการไม่สำเร็จ: {message}")
 
 def render_software_edit_panel(category_name, source_df, display_columns, key_prefix, title="รายการ"):
-    """Compact admin editor list for software workbooks."""
+    """Polished searchable editor panel for software workbooks."""
     if source_df is None or source_df.empty:
         return
     safe_key = re.sub(r"[^a-zA-Z0-9_]+", "_", str(key_prefix)).strip("_").lower()
@@ -2015,13 +2015,29 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             if column not in ("Source File", "Source Sheet", "Source Row", "_Dashboard State", "_Days Left")
         ][:4]
 
+    def _cell_text(row, column, fallback="-"):
+        if not column:
+            return fallback
+        value = row.get(column, "")
+        text = _software_form_value(value).strip()
+        return text if text else fallback
+
+    primary_col = candidate_columns[0] if candidate_columns else None
+    secondary_col = candidate_columns[1] if len(candidate_columns) > 1 else None
+    meta_col = candidate_columns[2] if len(candidate_columns) > 2 else None
+    badge_col = candidate_columns[3] if len(candidate_columns) > 3 else None
+
     with st.container(key=f"{safe_key}_edit_panel"):
         st.markdown(
             f"""
-            <div class="sw-edit-head">
-                <div>
-                    <b>จัดการ / แก้ไข {html.escape(str(title))}</b>
-                    <span>ค้นหาแล้วกดแก้ไขจากแถวที่ต้องการได้ทันที</span>
+            <div class="sw-editor-shell">
+                <div class="sw-editor-head">
+                    <div class="sw-editor-mark">✎</div>
+                    <div>
+                        <b>จัดการข้อมูล {html.escape(str(title))}</b>
+                        <span>ค้นหาเฉพาะข้อมูลที่ต้องแก้ แล้วกดแก้ไขจากรายการด้านล่าง</span>
+                    </div>
+                    <strong>{len(source_df):,} รายการ</strong>
                 </div>
             </div>
             """,
@@ -2040,30 +2056,48 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                     re.escape(edit_search.strip()), case=False, na=False
                 )
             ]
-        st.caption(f"พบ {len(edit_df)} รายการจาก {len(source_df)} รายการ")
         if edit_df.empty:
             st.info("ไม่พบรายการที่ตรงกับคำค้นหา")
             return
 
-        header_cols = st.columns([0.34, 0.24, 0.18, 0.14, 0.10], gap="small")
-        header_labels = (candidate_columns + ["", "", ""])[:4]
-        for header_col, header_label in zip(header_cols[:4], header_labels):
-            header_col.markdown(f"**{html.escape(str(header_label or '-'))}**")
-        header_cols[4].markdown("**แก้ไข**")
+        st.markdown(
+            f'<div class="sw-edit-result">พบ <b>{len(edit_df):,}</b> รายการจากทั้งหมด {len(source_df):,} รายการ</div>',
+            unsafe_allow_html=True,
+        )
 
-        for row_number, (row_index, row) in enumerate(edit_df.head(12).iterrows(), start=1):
-            row_cols = st.columns([0.34, 0.24, 0.18, 0.14, 0.10], gap="small")
-            for value_col, column in zip(row_cols[:4], header_labels):
-                value = row.get(column, "") if column else ""
-                text = _software_form_value(value)
-                value_col.write(text[:42] + ("..." if len(text) > 42 else ""))
-            with row_cols[4]:
+        for row_number, (row_index, row) in enumerate(edit_df.head(10).iterrows(), start=1):
+            primary = _cell_text(row, primary_col, f"รายการที่ {row_number}")
+            secondary = _cell_text(row, secondary_col, "")
+            meta = _cell_text(row, meta_col, "")
+            badge = _cell_text(row, badge_col, "")
+            source_sheet = _cell_text(row, "Source Sheet", "-")
+            source_row = _cell_text(row, "Source Row", row_index)
+            row_left, row_right = st.columns([0.84, 0.16], gap="small")
+            with row_left:
+                st.markdown(
+                    f"""
+                    <div class="sw-edit-row">
+                        <div class="sw-edit-row-index">{row_number}</div>
+                        <div class="sw-edit-row-main">
+                            <b>{html.escape(primary)}</b>
+                            <span>{html.escape(secondary)}</span>
+                        </div>
+                        <div class="sw-edit-row-meta">
+                            <span>{html.escape(meta)}</span>
+                            <em>{html.escape(source_sheet)} · row {html.escape(str(source_row))}</em>
+                        </div>
+                        <div class="sw-edit-row-badge">{html.escape(badge)}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            with row_right:
                 source_row = str(row.get("Source Row", row_index))
                 if st.button("แก้ไข", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True):
                     edit_software_record_dialog(category_name, row.copy())
 
-        if len(edit_df) > 12:
-            st.caption("แสดง 12 รายการแรกเท่านั้น ถ้ายังไม่เจอให้พิมพ์คำค้นหาเพิ่ม")
+        if len(edit_df) > 10:
+            st.caption("แสดง 10 รายการแรก เพื่อให้หน้าไม่ยาวเกินไป พิมพ์คำค้นหาเพิ่มเพื่อเจอรายการเร็วขึ้น")
 
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
@@ -3589,31 +3623,59 @@ footer { visibility: hidden; }
     border-radius:13px !important;
 }
 [class*="_edit_panel"]{
-    padding:14px 16px 12px !important;
+    padding:0 0 14px !important;
     margin:14px 0 !important;
-    border:1px solid #E2E8F0 !important;
-    border-radius:18px !important;
+    border:1px solid #DDE5EF !important;
+    border-radius:20px !important;
     background:#FFF !important;
-    box-shadow:0 7px 20px rgba(15,23,42,.045) !important;
+    box-shadow:0 12px 32px rgba(15,23,42,.06) !important;
+    overflow:hidden !important;
 }
-.sw-edit-head{
+.sw-editor-shell{
+    padding:16px 18px 14px;
+    border-bottom:1px solid #EEF2F7;
+    background:linear-gradient(135deg,#F8FBFF,#F7F5FF);
+}
+.sw-editor-head{
     display:flex;
     align-items:center;
-    justify-content:space-between;
     gap:12px;
-    margin-bottom:10px;
 }
-.sw-edit-head b{
+.sw-editor-mark{
+    display:grid;
+    place-items:center;
+    width:38px;
+    height:38px;
+    flex:0 0 38px;
+    border-radius:13px;
+    color:#4F46E5;
+    background:#EEF2FF;
+    font-size:17px;
+    font-weight:900;
+}
+.sw-editor-head b{
     display:block;
     color:#0F172A;
-    font-size:14px;
+    font-size:15px;
     font-weight:850;
 }
-.sw-edit-head span{
+.sw-editor-head span{
     display:block;
     margin-top:3px;
     color:#64748B;
     font-size:11px;
+}
+.sw-editor-head strong{
+    margin-left:auto;
+    padding:6px 10px;
+    border-radius:999px;
+    color:#4338CA;
+    background:#EEF2FF;
+    font-size:11px;
+    white-space:nowrap;
+}
+[class*="_edit_panel"] [data-testid="stTextInput"]{
+    padding:14px 16px 0 !important;
 }
 [class*="_edit_panel"] input{
     min-height:42px !important;
@@ -3622,9 +3684,81 @@ footer { visibility: hidden; }
     background:#FFF !important;
 }
 [class*="_edit_panel"] button{
-    min-height:34px !important;
-    border-radius:11px !important;
+    min-height:44px !important;
+    border-radius:13px !important;
     font-size:12px !important;
+    font-weight:800 !important;
+}
+.sw-edit-result{
+    margin:10px 16px 8px;
+    color:#64748B;
+    font-size:11px;
+}
+.sw-edit-row{
+    display:grid;
+    grid-template-columns:34px minmax(0,1.45fr) minmax(0,1fr) auto;
+    align-items:center;
+    gap:12px;
+    min-height:58px;
+    margin:7px 0 0 16px;
+    padding:10px 12px;
+    border:1px solid #E8EEF6;
+    border-radius:15px;
+    background:#FFFFFF;
+    box-shadow:0 4px 13px rgba(15,23,42,.035);
+}
+.sw-edit-row-index{
+    display:grid;
+    place-items:center;
+    width:28px;
+    height:28px;
+    border-radius:10px;
+    color:#4F46E5;
+    background:#EEF2FF;
+    font-size:11px;
+    font-weight:900;
+}
+.sw-edit-row-main,
+.sw-edit-row-meta{
+    min-width:0;
+}
+.sw-edit-row-main b{
+    display:block;
+    color:#172554;
+    font-size:12px;
+    font-weight:850;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.sw-edit-row-main span,
+.sw-edit-row-meta span{
+    display:block;
+    margin-top:3px;
+    color:#64748B;
+    font-size:10.5px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.sw-edit-row-meta em{
+    display:block;
+    margin-top:3px;
+    color:#94A3B8;
+    font-size:9.5px;
+    font-style:normal;
+}
+.sw-edit-row-badge{
+    max-width:120px;
+    padding:5px 8px;
+    border-radius:999px;
+    color:#475569;
+    background:#F1F5F9;
+    font-size:10px;
+    font-weight:800;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -5508,11 +5642,11 @@ else:
 
         main_left, main_right = st.columns([0.72, 0.28], gap="medium")
         with main_left:
-            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             if admin_mode and visible:
                 _visible_indices = [record["index"] for record in visible]
                 _ge_edit_columns = [col for col in (group_col, display_col, email_col, company_col, license_col) if col]
                 render_software_edit_panel("Group Email", group_df.loc[_visible_indices].copy(), _ge_edit_columns, "ge", "Group E-mail")
+            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
             if activities:
                 activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
@@ -5648,11 +5782,11 @@ else:
             _plan_html = ''.join(f'<div class="o365-plan-row"><div><span>{html.escape(str(plan))}</span><b>{int(count)}</b></div><div><i style="width:{max(4, int(count)/_max_plan*100)}%"></i></div></div>' for plan, count in _plan_counts.items())
             _content_left, _content_right = st.columns([0.76, 0.24], gap="medium")
             with _content_left:
-                _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">ไม่พบข้อมูลตามตัวกรอง</div></td></tr>'
-                st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} รายการ</span></div><small>ข้อมูลล่าสุดจาก SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
                 if admin_mode and not _office_view.empty:
                     _o365_edit_columns = [col for col in (_name_col, _company_col, _plan_col, _status_col, _expiry_col) if col]
                     render_software_edit_panel("Office 365", _office_view.copy(), _o365_edit_columns, "o365", "Office 365")
+                _rows_html = ''.join(_table_rows) if _table_rows else '<tr><td colspan="7"><div class="o365-empty">ไม่พบข้อมูลตามตัวกรอง</div></td></tr>'
+                st.markdown(f'''<div class="o365-table-panel"><div class="o365-panel-head"><div><b>Office 365 Accounts</b><span>{len(_office_view)} รายการ</span></div><small>ข้อมูลล่าสุดจาก SharePoint</small></div><div class="o365-table-scroll"><table class="o365-table"><thead><tr><th>Account</th><th>Company</th><th>License Plan</th><th>Users</th><th>Status</th><th>Expiry</th><th>Password</th></tr></thead><tbody>{_rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             with _content_right:
                 st.markdown(f'''<div class="o365-side-panel"><div class="o365-panel-head"><div><b>License Plans</b><span>สัดส่วนตามข้อมูลจริง</span></div></div><div class="o365-plan-list">{_plan_html or '<div class="o365-empty">ยังไม่มีข้อมูล License Plan</div>'}</div></div><div class="o365-side-panel o365-summary"><div class="o365-panel-head"><div><b>Account Health</b><span>ภาพรวมสถานะบัญชี</span></div></div><div class="o365-health"><div><span>Active rate</span><b>{round(_o365_active/_o365_total*100) if _o365_total else 0}%</b></div><div><span>Companies</span><b>{len(_companies)}</b></div><div><span>Expiring soon</span><b>{_o365_expiring}</b></div></div></div>''', unsafe_allow_html=True)
 
@@ -5764,9 +5898,9 @@ else:
 
         detail_left, detail_right = st.columns([0.72, 0.28], gap="medium")
         with detail_left:
-            st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>รายการ {html.escape(title)} ทั้งหมด</b><span>{len(visible_df)} รายการ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
             if admin_mode and not visible_df.empty:
                 render_software_edit_panel(category_name, visible_df.copy(), display_columns, f"sd_{category_name}", title)
+            st.markdown(f'<div class="sd-table-panel"><div class="sd-panel-head"><b>รายการ {html.escape(title)} ทั้งหมด</b><span>{len(visible_df)} รายการ</span></div><div class="sd-table-scroll"><table class="sd-table"><thead><tr>{header_html}<th>Status</th></tr></thead><tbody>{body_html}</tbody></table></div></div>', unsafe_allow_html=True)
             activity_rows = visible_df[visible_df[modified_column].notna()].copy() if modified_column else pd.DataFrame()
             if not activity_rows.empty:
                 activity_rows["_Modified"] = pd.to_datetime(activity_rows[modified_column], errors="coerce", dayfirst=True)
