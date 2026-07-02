@@ -447,7 +447,7 @@ FW_POLICY_MAP = {
     "FW_IT": "IT Internet Policy",
     "FW_MD": "Management Internet Policy",
     "FW_Supervisor_A": "Supervisor A Internet Policy",
-    "FW_Supervisor_B": "Supervisor Internet Policy",
+    "FW_Supervisor_B": "Supervisor B Internet Policy",
     "FW_Conference": "Conference Room Internet Policy",
 }
 FW_POLICY_DEFAULT_DETAILS = {
@@ -528,6 +528,16 @@ FW_POLICY_DEFAULT_DETAILS = {
         "Blocked": "ตาม policy firewall",
         "Firewall Rule": "FW_MD",
         "Description": "สิทธิ์ Internet สำหรับผู้บริหาร",
+        "Owner": "IT",
+        "Last Updated": "",
+    },
+    "FW_Supervisor_A": {
+        "Policy Name": "Supervisor A Internet Policy",
+        "Internet Level": "Supervisor A Access",
+        "Allowed": "Web, Email, Business apps, approved team resources",
+        "Blocked": "Social media ตามข้อกำหนด",
+        "Firewall Rule": "FW_Supervisor_A",
+        "Description": "สิทธิ์ Internet สำหรับ Supervisor A",
         "Owner": "IT",
         "Last Updated": "",
     },
