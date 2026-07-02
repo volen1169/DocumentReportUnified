@@ -446,6 +446,7 @@ FW_POLICY_MAP = {
     "FW_Manager": "Net True",
     "FW_IT": "IT Internet Policy",
     "FW_MD": "Management Internet Policy",
+    "FW_Supervisor_A": "Supervisor A Internet Policy",
     "FW_Supervisor_B": "Supervisor Internet Policy",
     "FW_Conference": "Conference Room Internet Policy",
 }
