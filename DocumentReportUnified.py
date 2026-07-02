@@ -5150,7 +5150,8 @@ else:
         .hub-hero{position:relative;overflow:hidden;padding:25px 28px;margin-bottom:16px;border-radius:24px;color:#FFF;background:linear-gradient(125deg,#2563EB,#6366F1 56%,#8B5CF6);box-shadow:0 16px 38px rgba(79,70,229,.20)}
         .hub-hero:after{content:'';position:absolute;width:260px;height:260px;right:-75px;top:-135px;border-radius:50%;background:rgba(255,255,255,.10)}.hub-title{font-size:28px;font-weight:850;letter-spacing:-.035em}.hub-sub{margin-top:5px;font-size:13px;color:rgba(255,255,255,.82)}
         [class*="st-key-hub_card_"] .stButton>button{position:relative!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:132px!important;padding:18px 48px 18px 18px!important;border:1px solid #E2E8F0!important;border-radius:18px!important;background:#FFF!important;color:#172554!important;text-align:left!important;white-space:pre-line!important;box-shadow:0 7px 20px rgba(15,23,42,.045)!important}
-        [class*="st-key-hub_card_"] .stButton>button:after{content:'โ€บ';position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:27px;height:27px;border:1px solid #C7D2FE;border-radius:50%;color:#4F46E5;font-size:16px;background:#FFF}
+        [class*="st-key-hub_card_"] .stButton>button:after{content:'';position:absolute;right:14px;bottom:14px;width:27px;height:27px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF}
+        [class*="st-key-hub_card_"] .stButton>button:before{content:'';position:absolute;right:25px;bottom:24px;width:6px;height:6px;border-top:2px solid #4F46E5;border-right:2px solid #4F46E5;transform:rotate(45deg);z-index:1}
         [class*="st-key-hub_card_"] .stButton>button:hover{transform:translateY(-3px)!important;border-color:#A5B4FC!important;box-shadow:0 14px 30px rgba(79,70,229,.11)!important}.hub-note{margin:14px 0 8px;color:#64748B;font-size:12px}
         [class*="st-key-hub_card_"] .stButton>button p{width:100%;white-space:pre-line!important;text-align:left!important;color:#64748B!important;font-size:12px!important;line-height:1.55!important;font-weight:500!important}[class*="st-key-hub_card_"] .stButton>button p:first-line{color:#172554!important;font-size:15px!important;font-weight:850!important}
         </style>
@@ -6195,7 +6196,8 @@ else:
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
         [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
         [class*="st-key-db_card_action_"] .stButton>button{position:relative!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:126px!important;padding:16px 48px 16px 16px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;color:#172554!important;box-shadow:none!important;text-align:left!important;white-space:pre-line!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
-        [class*="st-key-db_card_action_"] .stButton>button:after{content:'โ€บ';position:absolute;right:13px;bottom:13px;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:15px;font-weight:800}
+        [class*="st-key-db_card_action_"] .stButton>button:after{content:'';position:absolute;right:13px;bottom:13px;width:24px;height:24px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF}
+        [class*="st-key-db_card_action_"] .stButton>button:before{content:'';position:absolute;right:23px;bottom:22px;width:6px;height:6px;border-top:2px solid #4F46E5;border-right:2px solid #4F46E5;transform:rotate(45deg);z-index:1}
         [class*="st-key-db_card_action_"] .stButton>button:hover{transform:translateY(-2px)!important;border-color:#A5B4FC!important;background:#FFF!important;color:#172554!important;box-shadow:0 10px 22px rgba(79,70,229,.09)!important}
         [class*="st-key-db_card_action_"] .stButton>button p{width:100%!important;margin:0!important;white-space:pre-line!important;text-align:left!important;font-size:12px!important;line-height:1.55!important;color:#64748B!important;font-weight:500!important}
         [class*="st-key-db_card_action_"] .stButton>button p:first-line{font-size:15px!important;font-weight:800!important;color:#172554!important}
@@ -6711,7 +6713,7 @@ else:
             .ca-header-icon{width:58px;height:58px;flex:0 0 58px;display:grid;place-items:center;color:#4F46E5;background:#F3F5FF;border:1px solid #E0E7FF;border-radius:17px}.ca-header-icon svg{width:33px;height:33px;stroke:currentColor}
             .ca-header h1{margin:0 0 4px!important;color:#0F172A!important;font-size:25px!important;font-weight:800;letter-spacing:-.035em}.ca-header p{margin:0!important;color:#64748B!important;font-size:12.5px!important}
             .ca-metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px}.ca-card{height:106px;box-sizing:border-box;position:relative;padding:14px;background:#FFF;border:1px solid #E2E8F0;border-radius:17px;box-shadow:0 7px 18px rgba(15,23,42,.04);overflow:hidden}.ca-card:after{content:"";position:absolute;inset:auto 0 0;height:3px;background:var(--tone)}
-            .ca-card-icon{position:absolute;right:12px;top:12px;width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:var(--tone);background:var(--soft)}.ca-card-icon svg{width:22px;height:22px;stroke:currentColor}.ca-card-label{max-width:calc(100% - 44px);min-height:27px;color:#475569;font-size:11px;line-height:1.25;font-weight:700;overflow:hidden}.ca-card-value{margin-top:1px;color:#0F172A;font-size:25px;line-height:1;font-weight:850;letter-spacing:-.04em}.ca-card-foot{position:absolute;left:14px;right:14px;bottom:11px;display:flex;justify-content:space-between;color:#64748B;font-size:10.5px}.ca-card-foot strong{color:var(--tone)}
+            .ca-card-icon{position:absolute;right:12px;top:12px;width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:var(--tone);background:var(--soft)}.ca-card-icon svg{width:22px;height:22px;stroke:currentColor}.ca-os-chip{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;color:#FFF;background:var(--tone);font-size:12px;font-weight:900;line-height:1}.ca-card-label{max-width:calc(100% - 44px);min-height:27px;color:#475569;font-size:11px;line-height:1.25;font-weight:700;overflow:hidden}.ca-card-value{margin-top:1px;color:#0F172A;font-size:25px;line-height:1;font-weight:850;letter-spacing:-.04em}.ca-card-foot{position:absolute;left:14px;right:14px;bottom:11px;display:flex;justify-content:space-between;color:#64748B;font-size:10.5px}.ca-card-foot strong{color:var(--tone)}
             .ca-search-panel{display:none}.ca-search-panel-title{margin:2px 0 7px;padding:0 2px;color:#334155;font-size:12px;font-weight:800}.ca-filter-row{display:none}
             .stApp:has(.ca-page) .stTextInput input,.stApp:has(.ca-page) .stSelectbox div[data-baseweb="select"]>div{height:44px!important;min-height:44px!important;border:1px solid #DDE5EF!important;border-radius:12px!important;background:#FFF!important;font-size:12px!important}.stApp:has(.ca-page) .stButton>button,.stApp:has(.ca-page) .stDownloadButton>button{height:40px;min-height:40px;border-radius:11px;border-color:#E2E8F0;font-size:12px;font-weight:700}.stApp:has(.ca-page) button[kind="primary"]{color:#FFF!important;border:0!important;background:linear-gradient(135deg,#3B82F6,#7C3AED)!important;box-shadow:0 7px 16px rgba(99,102,241,.20)}
             .ca-action-bar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#FFF;border:1px solid #E2E8F0;border-bottom:0;border-radius:18px 18px 0 0;color:#334155;font-size:12px;font-weight:750}.ca-action-title{display:flex;align-items:center;gap:8px}.ca-action-title span{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#EEF2FF;color:#4F46E5}
@@ -6767,10 +6769,10 @@ else:
                 '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>',
                 '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.9"><path d="M4 9c4.7-4 11.3-4 16 0M7 12c3-2.5 7-2.5 10 0M10 15c1.2-1 2.8-1 4 0"/><circle cx="12" cy="19" r="1"/></svg>',
                 '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/></svg>',
-                '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m3 5 8-1.1v7.6H3V5Zm9-1.2L21 2.5v9h-9V3.8ZM3 12.5h8v7.6L3 19v-6.5Zm9 0h9v9L12 20.2v-7.7Z"/></svg>',
+                '<span class="ca-os-chip">11</span>',
+                '<span class="ca-os-chip">10</span>',
                 '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>'
             ]
-            _ca_icons[5] = _ca_icons[4]
             st.markdown(f'<section class="ca-header"><div class="ca-header-icon">{_ca_monitor}</div><div><h1>Computer Asset</h1><p>จัดการข้อมูลคอมพิวเตอร์ทั้งหมดในองค์กร</p></div></section>',unsafe_allow_html=True)
             _ca_metrics=[("คอมพิวเตอร์ทั้งหมด",_ca_total,"#2563EB","#EFF6FF"),("ใช้งานปกติ",_ca_online,"#10B981","#ECFDF5"),("Offline",_ca_offline,"#F59E0B","#FFF7ED"),("ไม่มีผู้ใช้งาน",_ca_nouser,"#8B5CF6","#F5F3FF"),("Windows 11",_ca_win11,"#38BDF8","#F0F9FF"),("Windows 10",_ca_win10,"#3B82F6","#EFF6FF")]
             st.markdown('<div class="ca-metric-grid">'+''.join(f'<div class="ca-card" style="--tone:{tone};--soft:{soft}"><div class="ca-card-label">{label}</div><div class="ca-card-value">{value:,}</div><div class="ca-card-icon">{_ca_icons[i]}</div><div class="ca-card-foot"><span>เครื่อง</span><strong>{_ca_pct(value,_ca_total):.2f}%</strong></div></div>' for i,(label,value,tone,soft) in enumerate(_ca_metrics))+'</div>',unsafe_allow_html=True)
@@ -6794,7 +6796,7 @@ else:
             a1,a2,a3,_ca_action_space=st.columns([1.25,.9,1.8,3.2])
             with a1:
                 if admin_mode and st.button("＋ เพิ่มคอมพิวเตอร์",use_container_width=True,type="primary",key="ca_add"): add_computer_dialog(sub)
-            with a2: st.download_button("โฉ Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
+            with a2: st.download_button("Export",_ca_filtered.to_csv(index=False).encode("utf-8-sig"),"computer_assets.csv","text/csv",use_container_width=True,key="ca_export")
             _ca_column_defs={"computer":"Computer Name","user":"User","login":"LoginAccount","department":"Department","os":"OS","model":"Model","serial":"Serial Number","status":"Status"}
             _ca_visible_columns=list(_ca_column_defs)
             with a3: _ca_sort=st.selectbox("เรียงข้อมูล",["Computer Name A–Z","Computer Name Z–A"],label_visibility="collapsed",key="ca_sort")
@@ -7281,7 +7283,6 @@ else:
                         preferred_cols = [
                             "displayName",
                             "sAMAccountName",
-                            "userPrincipalName",
                             "mail",
                             "department",
                             "title",
@@ -7620,14 +7621,31 @@ else:
                 # ถ้าค้นหาเป็นชื่อ Share Drive อย่างเดียว อาจไม่พบ User ใน AD ซึ่งระบบจะแจ้งแบบไม่ทำให้หน้าล่ม
                 policy_summary = get_user_internet_policy_summary(search_term)
                 if policy_summary.get("ok") and policy_summary.get("policies"):
-                    st.markdown("### 🌐 Internet Policy จาก AD Group")
-                    st.dataframe(
-                        pd.DataFrame(policy_summary["policies"]),
-                        use_container_width=True,
-                        hide_index=True,
+                    _policy_rows = policy_summary.get("policies", [])
+                    _policy_names = [
+                        str(policy.get("Policy Name") or policy.get("Policy Internet") or "-")
+                        for policy in _policy_rows
+                    ]
+                    st.markdown(
+                        f"""
+                        <div style="margin:8px 0 14px;padding:14px 18px;border:1px solid #BFDBFE;
+                        border-radius:16px;background:linear-gradient(135deg,#EFF6FF,#F8FAFF);
+                        color:#1E3A8A;font-size:0.92rem;">
+                            <b>Internet Policy</b>
+                            <span style="margin-left:8px;color:#475569;">
+                                พบ {len(_policy_rows)} policy: {html.escape(", ".join(_policy_names[:3]))}
+                            </span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
                     )
-                    with st.expander("ดู AD Groups ทั้งหมดของ User นี้"):
-                        st.write(", ".join(policy_summary.get("groups", [])) or "-")
+                    with st.expander("ดูรายละเอียด Internet Policy / AD Groups"):
+                        st.dataframe(
+                            pd.DataFrame(_policy_rows),
+                            use_container_width=True,
+                            hide_index=True,
+                        )
+                        st.caption("AD Groups: " + (", ".join(policy_summary.get("groups", [])) or "-"))
                 elif policy_summary.get("ok"):
                     st.info("🌐 ไม่พบ AD Group ที่ตรงกับ Internet Policy เช่น FW_Officer_B / FW_IT สำหรับคำค้นหานี้")
                 else:
