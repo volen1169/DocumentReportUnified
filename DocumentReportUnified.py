@@ -806,6 +806,10 @@ def handle_ms_oauth_callback(cookie_manager):
         _clear_query_params_safe()
         return False
 
+    # Microsoft authorization codes are single-use. Clear the callback URL before
+    # token exchange so browser refresh cannot resend the same code.
+    _clear_query_params_safe()
+
     app = msal.ConfidentialClientApplication(
         CLIENT_ID,
         authority=AUTHORITY,
@@ -818,11 +822,16 @@ def handle_ms_oauth_callback(cookie_manager):
     )
 
     if "access_token" not in result:
-        st.session_state["login_error"] = result.get(
+        description = result.get(
             "error_description",
             "Microsoft OAuth login ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
         )
-        _clear_query_params_safe()
+        if "AADSTS54005" in str(description):
+            description = (
+                "รหัสยืนยันจาก Microsoft ถูกใช้ไปแล้วจากการรีเฟรชหน้าเดิม "
+                "กรุณากด Sign in with Microsoft ใหม่อีกครั้ง"
+            )
+        st.session_state["login_error"] = description
         return False
 
     claims = result.get("id_token_claims", {}) or {}
