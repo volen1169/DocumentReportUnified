@@ -287,6 +287,7 @@ import html
 import uuid
 import json
 import time
+import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -2000,7 +2001,7 @@ def add_software_record_dialog(category_name):
         else:
             st.error(f"เพิ่มรายการไม่สำเร็จ: {message}")
 
-def render_software_edit_panel(category_name, source_df, display_columns, key_prefix, title="รายการ"):
+def render_software_edit_panel(category_name, source_df, display_columns, key_prefix, title="รายการ", page_size_options=(10, 20, 30)):
     """Polished searchable editor panel for software workbooks."""
     if source_df is None or source_df.empty:
         return
@@ -2049,6 +2050,16 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             label_visibility="collapsed",
             key=f"{safe_key}_edit_search",
         )
+        control_left, control_mid, control_right = st.columns([0.44, 0.28, 0.28], gap="small")
+        with control_left:
+            page_size = st.selectbox(
+                "จำนวนที่แสดง",
+                list(page_size_options),
+                index=0,
+                key=f"{safe_key}_edit_page_size",
+                format_func=lambda value: f"แสดง {value} รายการ",
+                label_visibility="collapsed",
+            )
         edit_df = source_df.copy()
         if edit_search.strip():
             edit_df = edit_df[
@@ -2060,18 +2071,42 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             st.info("ไม่พบรายการที่ตรงกับคำค้นหา")
             return
 
+        page_count = max(1, math.ceil(len(edit_df) / int(page_size)))
+        page_key = f"{safe_key}_edit_page"
+        current_page = int(st.session_state.get(page_key, 1))
+        if current_page > page_count:
+            current_page = page_count
+        if current_page < 1:
+            current_page = 1
+        st.session_state[page_key] = current_page
+        with control_mid:
+            st.markdown(
+                f'<div class="sw-edit-result">พบ <b>{len(edit_df):,}</b> รายการ · หน้า {current_page}/{page_count}</div>',
+                unsafe_allow_html=True,
+            )
+        with control_right:
+            prev_col, next_col = st.columns(2, gap="small")
+            with prev_col:
+                if st.button("ก่อนหน้า", key=f"{safe_key}_edit_prev", use_container_width=True, disabled=current_page <= 1):
+                    st.session_state[page_key] = max(1, current_page - 1)
+                    st.rerun()
+            with next_col:
+                if st.button("ถัดไป", key=f"{safe_key}_edit_next", use_container_width=True, disabled=current_page >= page_count):
+                    st.session_state[page_key] = min(page_count, current_page + 1)
+                    st.rerun()
+
+        start = (current_page - 1) * int(page_size)
+        page_df = edit_df.iloc[start:start + int(page_size)]
         st.markdown(
-            f'<div class="sw-edit-result">พบ <b>{len(edit_df):,}</b> รายการจากทั้งหมด {len(source_df):,} รายการ</div>',
+            '<div class="sw-edit-table-head"><span>รายการ</span><span>รายละเอียด</span><span>ประเภท / สถานะ</span><span></span></div>',
             unsafe_allow_html=True,
         )
 
-        for row_number, (row_index, row) in enumerate(edit_df.head(10).iterrows(), start=1):
+        for row_number, (row_index, row) in enumerate(page_df.iterrows(), start=start + 1):
             primary = _cell_text(row, primary_col, f"รายการที่ {row_number}")
             secondary = _cell_text(row, secondary_col, "")
             meta = _cell_text(row, meta_col, "")
             badge = _cell_text(row, badge_col, "")
-            source_sheet = _cell_text(row, "Source Sheet", "-")
-            source_row = _cell_text(row, "Source Row", row_index)
             row_left, row_right = st.columns([0.84, 0.16], gap="small")
             with row_left:
                 st.markdown(
@@ -2084,7 +2119,6 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                         </div>
                         <div class="sw-edit-row-meta">
                             <span>{html.escape(meta)}</span>
-                            <em>{html.escape(source_sheet)} · row {html.escape(str(source_row))}</em>
                         </div>
                         <div class="sw-edit-row-badge">{html.escape(badge)}</div>
                     </div>
@@ -2095,9 +2129,6 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                 source_row = str(row.get("Source Row", row_index))
                 if st.button("แก้ไข", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True):
                     edit_software_record_dialog(category_name, row.copy())
-
-        if len(edit_df) > 10:
-            st.caption("แสดง 10 รายการแรก เพื่อให้หน้าไม่ยาวเกินไป พิมพ์คำค้นหาเพิ่มเพื่อเจอรายการเร็วขึ้น")
 
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
@@ -3677,7 +3708,16 @@ footer { visibility: hidden; }
 [class*="_edit_panel"] [data-testid="stTextInput"]{
     padding:14px 16px 0 !important;
 }
+[class*="_edit_panel"] [data-testid="stSelectbox"]{
+    padding:10px 0 0 16px !important;
+}
 [class*="_edit_panel"] input{
+    min-height:42px !important;
+    border-color:#DDE5EF !important;
+    border-radius:13px !important;
+    background:#FFF !important;
+}
+[class*="_edit_panel"] div[data-baseweb="select"]>div{
     min-height:42px !important;
     border-color:#DDE5EF !important;
     border-radius:13px !important;
@@ -3690,13 +3730,32 @@ footer { visibility: hidden; }
     font-weight:800 !important;
 }
 .sw-edit-result{
-    margin:10px 16px 8px;
+    display:flex;
+    align-items:center;
+    min-height:42px;
+    margin:10px 0 0;
+    padding:0 10px;
+    border:1px solid #E8EEF6;
+    border-radius:13px;
+    background:#F8FAFC;
     color:#64748B;
     font-size:11px;
 }
+.sw-edit-table-head{
+    display:grid;
+    grid-template-columns:34px minmax(0,1.45fr) minmax(0,1fr) 120px;
+    gap:12px;
+    margin:12px 110px 0 16px;
+    padding:0 12px;
+    color:#64748B;
+    font-size:9.5px;
+    font-weight:900;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+}
 .sw-edit-row{
     display:grid;
-    grid-template-columns:34px minmax(0,1.45fr) minmax(0,1fr) auto;
+    grid-template-columns:34px minmax(0,1.45fr) minmax(0,1fr) 120px;
     align-items:center;
     gap:12px;
     min-height:58px;
@@ -5646,7 +5705,8 @@ else:
                 _visible_indices = [record["index"] for record in visible]
                 _ge_edit_columns = [col for col in (group_col, display_col, email_col, company_col, license_col) if col]
                 render_software_edit_panel("Group Email", group_df.loc[_visible_indices].copy(), _ge_edit_columns, "ge", "Group E-mail")
-            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+            if not admin_mode:
+                st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
             if activities:
                 activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
