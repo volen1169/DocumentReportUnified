@@ -3235,6 +3235,7 @@ if not st.session_state.is_auth:
     with center_col:
         _login_url = build_ms_oauth_login_url(popup=False)
         _login_url_attr = html.escape(_login_url, quote=True)
+        _login_url_js = json.dumps(_login_url)
         st.markdown("""
         <div class="oauth-brand">
             <div class="oauth-mark">
@@ -3247,19 +3248,48 @@ if not st.session_state.is_auth:
             <p>Sign in with your Microsoft 365 account. Multi-Factor Authentication is handled by Microsoft.</p>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown(
-            f'''
-            <div class="oauth-panel">
-                <a class="oauth-direct-button"
-                   href="{_login_url_attr}"
-                   onclick="try{{window.top.location.href=this.href;}}catch(e){{window.location.href=this.href;}} return false;">
+        components.html(
+            f"""
+            <!doctype html>
+            <html>
+            <head>
+            <style>
+                html,body{{margin:0;padding:0;background:transparent;font-family:Inter,Arial,sans-serif}}
+                .oauth-direct-button{{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;border-radius:10px;background:#2563EB;color:#fff;font-weight:700;text-decoration:none;border:1px solid #1D4ED8;box-shadow:0 10px 20px rgba(37,99,235,.18);font-size:.98rem;cursor:pointer;transition:background .15s ease,box-shadow .15s ease,transform .15s ease}}
+                .oauth-direct-button:hover{{background:#1D4ED8;box-shadow:0 14px 26px rgba(37,99,235,.22);transform:translateY(-1px)}}
+                .oauth-ms-icon{{width:20px;height:20px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;flex:0 0 auto}}
+                .oauth-ms-icon span:nth-child(1){{background:#F25022}}.oauth-ms-icon span:nth-child(2){{background:#7FBA00}}.oauth-ms-icon span:nth-child(3){{background:#00A4EF}}.oauth-ms-icon span:nth-child(4){{background:#FFB900}}
+            </style>
+            </head>
+            <body>
+                <button class="oauth-direct-button" type="button" id="ms-login">
                     <span class="oauth-ms-icon"><span></span><span></span><span></span><span></span></span>
                     Sign in with Microsoft
-                </a>
-                <div class="oauth-meta">
-                    You will be taken to Microsoft sign-in and returned to this app after verification.
-                    <br><a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open sign-in manually</a>
-                </div>
+                </button>
+                <script>
+                    document.getElementById("ms-login").addEventListener("click", function() {{
+                        const url = {_login_url_js};
+                        try {{
+                            window.top.location.assign(url);
+                        }} catch (e1) {{
+                            try {{
+                                window.parent.location.assign(url);
+                            }} catch (e2) {{
+                                window.location.assign(url);
+                            }}
+                        }}
+                    }});
+                </script>
+            </body>
+            </html>
+            """,
+            height=60,
+        )
+        st.markdown(
+            f'''
+            <div class="oauth-meta">
+                You will be taken to Microsoft sign-in and returned to this app after verification.
+                <br><a href="{_login_url_attr}" target="_blank" rel="noopener noreferrer">Open sign-in manually</a>
             </div>
             ''',
             unsafe_allow_html=True,
