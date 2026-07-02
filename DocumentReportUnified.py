@@ -676,14 +676,27 @@ def read_auth_session_cookie(token: str):
         return None
 
 def get_saved_auth_session(cookie_manager):
-    token = cookie_manager.get(cookie=AUTH_COOKIE_NAME)
-    if not token:
-        try:
-            cookies = cookie_manager.get_all(key="auth_cookie_get_all")
-            token = cookies.get(AUTH_COOKIE_NAME) if isinstance(cookies, dict) else None
-        except Exception:
-            token = None
-    return read_auth_session_cookie(token)
+    try:
+        cookies = cookie_manager.get_all(key="auth_cookie_get_all")
+        if not isinstance(cookies, dict):
+            cookies = {}
+    except Exception:
+        cookies = {}
+
+    token = cookie_manager.get(cookie=AUTH_COOKIE_NAME) or cookies.get(AUTH_COOKIE_NAME)
+    signed_auth = read_auth_session_cookie(token)
+    if signed_auth:
+        return signed_auth
+
+    legacy_name = cookie_manager.get(cookie="user_name") or cookies.get("user_name")
+    legacy_email = cookie_manager.get(cookie="user_email") or cookies.get("user_email")
+    if legacy_name and legacy_email:
+        return {
+            "name": str(legacy_name).strip(),
+            "email": str(legacy_email).strip().lower(),
+            "legacy": True,
+        }
+    return None
 
 def set_persistent_auth_cookies(cookie_manager, name: str, email: str):
     expires_at = _auth_cookie_expires_at()
@@ -3219,6 +3232,8 @@ if saved_auth and not st.session_state.get('is_auth') and not st.session_state.g
     st.session_state.user_name  = saved_auth["name"]
     st.session_state.user_email = saved_auth["email"]
     st.session_state.auth_cookie_bootstrap_attempts = 0
+    if saved_auth.get("legacy"):
+        set_persistent_auth_cookies(cookie_manager, saved_auth["name"], saved_auth["email"])
 
 if (
     not st.session_state.get("is_auth")
@@ -3245,7 +3260,6 @@ if not st.session_state.get("is_auth"):
         if st.session_state.pop("oauth_close_popup", False):
             render_oauth_popup_complete()
             st.stop()
-        st.rerun()
 
 # =============================================================================
 # THEME : GLOBAL
