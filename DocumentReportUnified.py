@@ -2044,13 +2044,14 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             """,
             unsafe_allow_html=True,
         )
-        edit_search = st.text_input(
-            "ค้นหารายการที่ต้องการแก้ไข",
-            placeholder="พิมพ์ชื่อ, อีเมล, บริษัท, license หรือคำที่จำได้...",
-            label_visibility="collapsed",
-            key=f"{safe_key}_edit_search",
-        )
-        control_left, control_mid, control_right = st.columns([0.44, 0.28, 0.28], gap="small")
+        control_search, control_left, control_mid, control_right = st.columns([0.46, 0.18, 0.20, 0.16], gap="small")
+        with control_search:
+            edit_search = st.text_input(
+                "ค้นหารายการที่ต้องการแก้ไข",
+                placeholder="ค้นหาชื่อ, อีเมล, บริษัท, license...",
+                label_visibility="collapsed",
+                key=f"{safe_key}_edit_search",
+            )
         with control_left:
             page_size = st.selectbox(
                 "จำนวนที่แสดง",
@@ -2108,7 +2109,7 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             meta = _cell_text(row, meta_col, "")
             badge = _cell_text(row, badge_col, "")
             with st.container(key=f"{safe_key}_edit_row_{row_index}_{row_number}"):
-                row_cols = st.columns([0.06, 0.38, 0.23, 0.22, 0.11], gap="small")
+                row_cols = st.columns([0.055, 0.345, 0.165, 0.305, 0.13], gap="small")
                 with row_cols[0]:
                     st.markdown(f'<div class="sw-row-index">{row_number}</div>', unsafe_allow_html=True)
                 with row_cols[1]:
@@ -3698,10 +3699,10 @@ footer { visibility: hidden; }
     white-space:nowrap;
 }
 [class*="_edit_panel"] [data-testid="stTextInput"]{
-    padding:14px 16px 0 !important;
+    padding:14px 0 0 16px !important;
 }
 [class*="_edit_panel"] [data-testid="stSelectbox"]{
-    padding:10px 0 0 16px !important;
+    padding:14px 0 0 !important;
 }
 [class*="_edit_panel"] input{
     min-height:42px !important;
@@ -3726,7 +3727,7 @@ footer { visibility: hidden; }
     display:flex;
     align-items:center;
     min-height:42px;
-    margin:10px 0 0;
+    margin:14px 0 0;
     padding:0 10px;
     border:1px solid #E8EEF6;
     border-radius:13px;
@@ -3736,7 +3737,7 @@ footer { visibility: hidden; }
 }
 .sw-edit-table-head{
     display:grid;
-    grid-template-columns:6% 38% 23% 22% 11%;
+    grid-template-columns:5.5% 34.5% 16.5% 30.5% 13%;
     gap:12px;
     margin:12px 16px 6px;
     padding:0 14px;
@@ -3812,7 +3813,8 @@ footer { visibility: hidden; }
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    max-width:120px;
+    max-width:220px;
+    width:fit-content;
     min-height:25px;
     padding:4px 9px;
     border-radius:999px;
@@ -3825,9 +3827,9 @@ footer { visibility: hidden; }
     white-space:nowrap;
 }
 [class*="_edit_row_"] button{
-    width:72px !important;
-    min-width:72px !important;
-    max-width:72px !important;
+    width:82px !important;
+    min-width:82px !important;
+    max-width:82px !important;
     min-height:34px !important;
     height:34px !important;
     border-color:#BFDBFE !important;
