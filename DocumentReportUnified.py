@@ -2098,7 +2098,7 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
         start = (current_page - 1) * int(page_size)
         page_df = edit_df.iloc[start:start + int(page_size)]
         st.markdown(
-            '<div class="sw-edit-table-head"><span>รายการ</span><span>รายละเอียด</span><span>ประเภท / สถานะ</span><span></span></div>',
+            '<div class="sw-edit-table-head"><span>รายการ</span><span>รายละเอียด</span><span>ประเภท / สถานะ</span><span>License</span><span>แก้ไข</span></div>',
             unsafe_allow_html=True,
         )
 
@@ -2108,7 +2108,7 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             meta = _cell_text(row, meta_col, "")
             badge = _cell_text(row, badge_col, "")
             with st.container(key=f"{safe_key}_edit_row_{row_index}_{row_number}"):
-                row_cols = st.columns([0.055, 0.39, 0.25, 0.17, 0.135], gap="small")
+                row_cols = st.columns([0.06, 0.38, 0.23, 0.22, 0.11], gap="small")
                 with row_cols[0]:
                     st.markdown(f'<div class="sw-row-index">{row_number}</div>', unsafe_allow_html=True)
                 with row_cols[1]:
@@ -3736,7 +3736,7 @@ footer { visibility: hidden; }
 }
 .sw-edit-table-head{
     display:grid;
-    grid-template-columns:.055fr .39fr .25fr .17fr .135fr;
+    grid-template-columns:6% 38% 23% 22% 11%;
     gap:12px;
     margin:12px 16px 6px;
     padding:0 14px;
@@ -3749,7 +3749,7 @@ footer { visibility: hidden; }
 .sw-edit-table-head span:first-child{text-align:center}
 [class*="_edit_row_"]{
     margin:7px 16px 0 !important;
-    padding:9px 10px !important;
+    padding:9px 12px !important;
     border:1px solid #E2E8F0 !important;
     border-left:4px solid #6366F1 !important;
     border-radius:16px !important;
@@ -3758,10 +3758,15 @@ footer { visibility: hidden; }
 }
 [class*="_edit_row_"] [data-testid="stHorizontalBlock"]{
     align-items:center !important;
+    gap:10px !important;
 }
 [class*="_edit_row_"] [data-testid="column"]{
     display:flex !important;
     align-items:center !important;
+    min-width:0 !important;
+}
+[class*="_edit_row_"] [data-testid="column"]:last-child{
+    justify-content:flex-end !important;
 }
 .sw-row-index{
     display:grid;
@@ -3820,11 +3825,16 @@ footer { visibility: hidden; }
     white-space:nowrap;
 }
 [class*="_edit_row_"] button{
-    min-height:38px !important;
+    width:72px !important;
+    min-width:72px !important;
+    max-width:72px !important;
+    min-height:34px !important;
+    height:34px !important;
     border-color:#BFDBFE !important;
     color:#1D4ED8 !important;
     background:#EFF6FF !important;
     box-shadow:none !important;
+    padding:0 !important;
 }
 [class*="_edit_row_"] button:hover{
     border-color:#93C5FD !important;
