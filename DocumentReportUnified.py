@@ -2107,28 +2107,20 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
             secondary = _cell_text(row, secondary_col, "")
             meta = _cell_text(row, meta_col, "")
             badge = _cell_text(row, badge_col, "")
-            row_left, row_right = st.columns([0.84, 0.16], gap="small")
-            with row_left:
-                st.markdown(
-                    f"""
-                    <div class="sw-edit-row">
-                        <div class="sw-edit-row-index">{row_number}</div>
-                        <div class="sw-edit-row-main">
-                            <b>{html.escape(primary)}</b>
-                            <span>{html.escape(secondary)}</span>
-                        </div>
-                        <div class="sw-edit-row-meta">
-                            <span>{html.escape(meta)}</span>
-                        </div>
-                        <div class="sw-edit-row-badge">{html.escape(badge)}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-            with row_right:
-                source_row = str(row.get("Source Row", row_index))
-                if st.button("แก้ไข", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True):
-                    edit_software_record_dialog(category_name, row.copy())
+            with st.container(key=f"{safe_key}_edit_row_{row_index}_{row_number}"):
+                row_cols = st.columns([0.055, 0.39, 0.25, 0.17, 0.135], gap="small")
+                with row_cols[0]:
+                    st.markdown(f'<div class="sw-row-index">{row_number}</div>', unsafe_allow_html=True)
+                with row_cols[1]:
+                    st.markdown(f'<div class="sw-row-primary"><b>{html.escape(primary)}</b><span>{html.escape(secondary)}</span></div>', unsafe_allow_html=True)
+                with row_cols[2]:
+                    st.markdown(f'<div class="sw-row-meta">{html.escape(meta)}</div>', unsafe_allow_html=True)
+                with row_cols[3]:
+                    st.markdown(f'<div class="sw-row-badge">{html.escape(badge)}</div>', unsafe_allow_html=True)
+                with row_cols[4]:
+                    source_row = str(row.get("Source Row", row_index))
+                    if st.button("แก้ไข", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True):
+                        edit_software_record_dialog(category_name, row.copy())
 
 # =============================================================================
 # SECTION 06 : NAS CONNECTOR
@@ -3665,7 +3657,7 @@ footer { visibility: hidden; }
 .sw-editor-shell{
     padding:16px 18px 14px;
     border-bottom:1px solid #EEF2F7;
-    background:linear-gradient(135deg,#F8FBFF,#F7F5FF);
+    background:linear-gradient(135deg,#EFF6FF 0%,#F7F5FF 62%,#F0FDFA 100%);
 }
 .sw-editor-head{
     display:flex;
@@ -3713,15 +3705,16 @@ footer { visibility: hidden; }
 }
 [class*="_edit_panel"] input{
     min-height:42px !important;
-    border-color:#DDE5EF !important;
+    border-color:#CBD5E1 !important;
     border-radius:13px !important;
-    background:#FFF !important;
+    background:#F8FAFC !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7) !important;
 }
 [class*="_edit_panel"] div[data-baseweb="select"]>div{
     min-height:42px !important;
-    border-color:#DDE5EF !important;
+    border-color:#CBD5E1 !important;
     border-radius:13px !important;
-    background:#FFF !important;
+    background:#F8FAFC !important;
 }
 [class*="_edit_panel"] button{
     min-height:44px !important;
@@ -3743,55 +3736,56 @@ footer { visibility: hidden; }
 }
 .sw-edit-table-head{
     display:grid;
-    grid-template-columns:34px minmax(0,1.45fr) minmax(0,1fr) 120px;
+    grid-template-columns:.055fr .39fr .25fr .17fr .135fr;
     gap:12px;
-    margin:12px 110px 0 16px;
-    padding:0 12px;
-    color:#64748B;
+    margin:12px 16px 6px;
+    padding:0 14px;
+    color:#475569;
     font-size:9.5px;
     font-weight:900;
     letter-spacing:.03em;
     text-transform:uppercase;
 }
-.sw-edit-row{
-    display:grid;
-    grid-template-columns:34px minmax(0,1.45fr) minmax(0,1fr) 120px;
-    align-items:center;
-    gap:12px;
-    min-height:58px;
-    margin:7px 0 0 16px;
-    padding:10px 12px;
-    border:1px solid #E8EEF6;
-    border-radius:15px;
-    background:#FFFFFF;
-    box-shadow:0 4px 13px rgba(15,23,42,.035);
+.sw-edit-table-head span:first-child{text-align:center}
+[class*="_edit_row_"]{
+    margin:7px 16px 0 !important;
+    padding:9px 10px !important;
+    border:1px solid #E2E8F0 !important;
+    border-left:4px solid #6366F1 !important;
+    border-radius:16px !important;
+    background:linear-gradient(90deg,#FFFFFF 0%,#F8FAFF 100%) !important;
+    box-shadow:0 5px 15px rgba(15,23,42,.035) !important;
 }
-.sw-edit-row-index{
+[class*="_edit_row_"] [data-testid="stHorizontalBlock"]{
+    align-items:center !important;
+}
+[class*="_edit_row_"] [data-testid="column"]{
+    display:flex !important;
+    align-items:center !important;
+}
+.sw-row-index{
     display:grid;
     place-items:center;
     width:28px;
     height:28px;
-    border-radius:10px;
-    color:#4F46E5;
-    background:#EEF2FF;
+    margin:auto;
+    border-radius:999px;
+    color:#FFFFFF;
+    background:linear-gradient(135deg,#3B82F6,#8B5CF6);
     font-size:11px;
     font-weight:900;
 }
-.sw-edit-row-main,
-.sw-edit-row-meta{
-    min-width:0;
-}
-.sw-edit-row-main b{
+.sw-row-primary{min-width:0}
+.sw-row-primary b{
     display:block;
     color:#172554;
-    font-size:12px;
+    font-size:12.5px;
     font-weight:850;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
 }
-.sw-edit-row-main span,
-.sw-edit-row-meta span{
+.sw-row-primary span{
     display:block;
     margin-top:3px;
     color:#64748B;
@@ -3800,24 +3794,42 @@ footer { visibility: hidden; }
     text-overflow:ellipsis;
     white-space:nowrap;
 }
-.sw-edit-row-meta em{
-    display:block;
-    margin-top:3px;
-    color:#94A3B8;
-    font-size:9.5px;
-    font-style:normal;
-}
-.sw-edit-row-badge{
-    max-width:120px;
-    padding:5px 8px;
-    border-radius:999px;
+.sw-row-meta{
+    min-width:0;
     color:#475569;
-    background:#F1F5F9;
+    font-size:11px;
+    font-weight:700;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.sw-row-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    max-width:120px;
+    min-height:25px;
+    padding:4px 9px;
+    border-radius:999px;
+    color:#3730A3;
+    background:#EEF2FF;
     font-size:10px;
     font-weight:800;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
+}
+[class*="_edit_row_"] button{
+    min-height:38px !important;
+    border-color:#BFDBFE !important;
+    color:#1D4ED8 !important;
+    background:#EFF6FF !important;
+    box-shadow:none !important;
+}
+[class*="_edit_row_"] button:hover{
+    border-color:#93C5FD !important;
+    background:#DBEAFE !important;
+    transform:none !important;
 }
 </style>
 """, unsafe_allow_html=True)
