@@ -286,6 +286,7 @@ import inspect
 import html
 import uuid
 import json
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import msal
@@ -322,6 +323,7 @@ OAUTH_LOGIN_SCOPES = ["User.Read"]
 AUTH_COOKIE_NAME = "dru_auth_session"
 AUTH_COOKIE_DAYS = int(st.secrets.get("AUTH_COOKIE_DAYS", 365))
 AUTH_COOKIE_MAX_AGE = AUTH_COOKIE_DAYS * 24 * 60 * 60
+AUTH_COOKIE_BOOTSTRAP_RETRIES = int(st.secrets.get("AUTH_COOKIE_BOOTSTRAP_RETRIES", 6))
 
 
 def _secret_bool(name: str, default=False) -> bool:
@@ -3203,31 +3205,36 @@ st.set_page_config(layout="wide", page_title="DocumentReportUnified", page_icon=
 cookie_manager = get_manager()
 
 # --- AUTH ---
-query_params_for_auth = _get_query_params_safe()
-if (
-    "auth_cookie_bootstrap_done" not in st.session_state
-    and not query_params_for_auth.get("code")
-    and not st.session_state.get("is_auth")
-):
-    st.session_state.auth_cookie_bootstrap_done = True
-    try:
-        cookie_manager.get_all(key="auth_cookie_bootstrap")
-    except Exception:
-        pass
-    st.rerun()
-
-saved_auth = get_saved_auth_session(cookie_manager)
-
 if 'is_auth' not in st.session_state:
     st.session_state.is_auth  = False
     st.session_state.user_name  = ""
     st.session_state.user_email = ""
     st.session_state.skip_cookie_login = False
 
+query_params_for_auth = _get_query_params_safe()
+saved_auth = get_saved_auth_session(cookie_manager)
+
 if saved_auth and not st.session_state.get('is_auth') and not st.session_state.get('skip_cookie_login'):
     st.session_state.is_auth  = True
     st.session_state.user_name  = saved_auth["name"]
     st.session_state.user_email = saved_auth["email"]
+    st.session_state.auth_cookie_bootstrap_attempts = 0
+
+if (
+    not st.session_state.get("is_auth")
+    and not st.session_state.get("skip_cookie_login")
+    and not query_params_for_auth.get("code")
+):
+    attempts = int(st.session_state.get("auth_cookie_bootstrap_attempts", 0))
+    if attempts < AUTH_COOKIE_BOOTSTRAP_RETRIES:
+        st.session_state.auth_cookie_bootstrap_attempts = attempts + 1
+        try:
+            cookie_manager.get_all(key=f"auth_cookie_bootstrap_{attempts}")
+        except Exception:
+            pass
+        with st.spinner("กำลังตรวจสอบ session ที่บันทึกไว้..."):
+            time.sleep(0.25)
+        st.rerun()
 
 if st.session_state.pop("oauth_close_popup", False):
     render_oauth_popup_complete()
@@ -3297,29 +3304,24 @@ if not st.session_state.is_auth:
         linear-gradient(135deg,#EAF6FF 0%,#EEF4FF 45%,#F7F9FC 100%)!important}
     section[data-testid="stMain"],[data-testid="stMainBlockContainer"]{background:transparent!important}
     [data-testid="stMainBlockContainer"]{max-width:1040px!important;padding:clamp(1.2rem,5vh,3rem) 1rem 2rem!important}
-    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:linear-gradient(180deg,rgba(13,44,112,.82),rgba(18,76,148,.72))!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:30px!important;padding:clamp(1.55rem,4vw,2.15rem)!important;box-shadow:0 28px 90px rgba(6,24,70,.34),inset 0 1px 0 rgba(255,255,255,.12)!important;backdrop-filter:blur(18px) saturate(145%)!important}
+    div[data-testid="column"]>div[data-testid="stVerticalBlock"]{background:rgba(255,255,255,.88)!important;border:1px solid rgba(226,232,240,.95)!important;border-radius:24px!important;padding:clamp(1.55rem,4vw,2.15rem)!important;box-shadow:0 24px 70px rgba(37,99,235,.12),0 4px 18px rgba(15,23,42,.06)!important;backdrop-filter:blur(18px) saturate(145%)!important}
     .oauth-brand{text-align:left;margin-bottom:18px}
-    .oauth-kicker{display:flex;align-items:center;gap:8px;color:#BFD7FF;font-size:.72rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px}
-    .oauth-mark{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#37BDF8,#2563EB);box-shadow:0 14px 32px rgba(37,99,235,.32)}
+    .oauth-kicker{display:flex;align-items:center;gap:8px;color:#1D4ED8;font-size:.72rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px}
+    .oauth-mark{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#37BDF8,#2563EB);box-shadow:0 14px 32px rgba(37,99,235,.22)}
     .oauth-mark svg{width:25px;height:25px;stroke:#fff}
-    .oauth-brand h1{color:#FFFFFF;font-size:clamp(2rem,5vw,2.65rem);font-weight:850;margin:0 0 8px;letter-spacing:0;line-height:1.05;overflow-wrap:normal;word-break:keep-all}
-    .oauth-brand p{color:#D9E9FF;font-size:.9rem;margin:0;line-height:1.55;font-weight:600}
-    .oauth-role-card{display:flex;align-items:center;gap:14px;background:rgba(241,247,255,.96);border-radius:20px;padding:14px 16px;margin:18px 0 22px;color:#12315E;box-shadow:0 12px 30px rgba(4,25,75,.16)}
-    .oauth-role-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#60A5FA,#0EA5E9);display:grid;place-items:center;flex:0 0 auto}
-    .oauth-role-icon svg{width:24px;height:24px;stroke:white}
-    .oauth-role-card b{display:block;font-size:.92rem;margin-bottom:3px}
-    .oauth-role-card span{display:block;color:#5B6E8D;font-size:.78rem;line-height:1.35}
+    .oauth-brand h1{color:#0F172A;font-size:clamp(2rem,5vw,2.65rem);font-weight:850;margin:0 0 8px;letter-spacing:0;line-height:1.05;overflow-wrap:normal;word-break:keep-all}
+    .oauth-brand p{color:#334155;font-size:.92rem;margin:0;line-height:1.55;font-weight:650}
     .oauth-panel{display:grid;gap:16px}
     .oauth-direct-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;border-radius:14px;background:linear-gradient(135deg,#2157F2,#0EA5E9);color:#fff!important;font-weight:800;text-decoration:none!important;border:1px solid rgba(255,255,255,.26);box-shadow:0 16px 34px rgba(5,40,125,.28);font-size:1rem;transition:background .15s ease,box-shadow .15s ease,transform .15s ease}
     .oauth-direct-button:hover{box-shadow:0 22px 46px rgba(5,40,125,.34);transform:translateY(-1px)}
     .oauth-ms-icon{width:20px;height:20px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;flex:0 0 auto}
     .oauth-ms-icon span:nth-child(1){background:#F25022}.oauth-ms-icon span:nth-child(2){background:#7FBA00}.oauth-ms-icon span:nth-child(3){background:#00A4EF}.oauth-ms-icon span:nth-child(4){background:#FFB900}
-    .oauth-meta{border:1px solid rgba(250,204,21,.45);background:rgba(255,255,255,.12);border-radius:18px;padding:14px;color:#EAF4FF;font-size:.86rem;line-height:1.6;text-align:center}
-    .oauth-meta b{color:#FDE68A}
-    .oauth-meta a{color:#BAE6FD;text-decoration:none;font-weight:800}
+    .oauth-meta{border:1px solid rgba(250,204,21,.72);background:rgba(255,251,235,.82);border-radius:18px;padding:14px;color:#334155;font-size:.86rem;line-height:1.6;text-align:center}
+    .oauth-meta b{color:#B45309}
+    .oauth-meta a{color:#1D4ED8;text-decoration:none;font-weight:800}
     .oauth-meta a:hover{text-decoration:underline}
     .oauth-login-error{margin-top:16px;padding:12px 14px;border-radius:10px;color:#991B1B;background:#FEF2F2;border:1px solid #FECACA;font-size:.9rem;line-height:1.55}
-    .oauth-footer{color:#BBD7FF;font-size:.78rem;text-align:center;margin-top:18px}
+    .oauth-footer{color:#64748B;font-size:.78rem;text-align:center;margin-top:18px}
     @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:1rem .75rem 2rem!important}div[data-testid="column"]>div[data-testid="stVerticalBlock"]{border-radius:22px!important;padding:1.25rem!important}.oauth-brand{text-align:left}.oauth-brand h1{font-size:2rem}}
     </style>
     """, unsafe_allow_html=True)
@@ -3333,18 +3335,6 @@ if not st.session_state.is_auth:
             <div class="oauth-kicker"><span>🔐</span><span>Secure Sign In</span></div>
             <h1>ยินดีต้อนรับกลับ</h1>
             <p>เข้าสู่ระบบด้วย Microsoft 365 เพื่อตรวจสิทธิ์และบทบาทของคุณโดยอัตโนมัติ</p>
-            <div class="oauth-role-card">
-                <div class="oauth-role-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3l7 3v5c0 4.4-2.8 8-7 10-4.2-2-7-5.6-7-10V6l7-3z"></path>
-                        <path d="M8.8 12.2l2.1 2.1 4.6-5"></path>
-                    </svg>
-                </div>
-                <div>
-                    <b>Role-based access</b>
-                    <span>Admin, หัวหน้าแผนก และลูกทีม จะเห็นข้อมูลตามสิทธิ์ที่กำหนด</span>
-                </div>
-            </div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown(
