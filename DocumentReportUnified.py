@@ -1521,6 +1521,45 @@ def format_policy_names(policies):
     return ", ".join(sorted({p.get("Policy Internet", "") for p in policies if p.get("Policy Internet")}))
 
 
+# VPN access groups are operational groups, not employee Internet policies.
+# Keep them visible in AD / Firewall Policy, but omit them from NAS exports.
+NAS_EXPORT_EXCLUDED_FIREWALL_POLICIES = {
+    "FW_SSLVPN_Limitime",
+    "FW_SSLVPN_Limitime2",
+    "FW_SSLVPN_Limitime3",
+    "FW_SSLVPN_Limitime4",
+    "FW_SSLVPN_Limitime5",
+    "FW_SSLVPN_ERPLife",
+    "FW_SSLVPN_Alltime",
+    "FW_IPSecVPN_Alltime",
+    "FW_SSLVPN_Alltime-BP",
+}
+_NAS_EXPORT_EXCLUDED_FIREWALL_POLICIES_CASEFOLD = {
+    policy.casefold() for policy in NAS_EXPORT_EXCLUDED_FIREWALL_POLICIES
+}
+
+
+def format_nas_export_policy_names(policies):
+    """Format Firewall Policy for NAS CSV/Excel, excluding VPN access groups."""
+    if not policies:
+        return "-"
+
+    policy_names = set()
+    for policy in policies:
+        if not isinstance(policy, dict):
+            continue
+        name = str(
+            policy.get("Policy Internet")
+            or policy.get("Policy Name")
+            or policy.get("AD Group")
+            or ""
+        ).strip()
+        if name and name.casefold() not in _NAS_EXPORT_EXCLUDED_FIREWALL_POLICIES_CASEFOLD:
+            policy_names.add(name)
+
+    return ", ".join(sorted(policy_names, key=str.casefold)) or "-"
+
+
 def format_policy_descriptions(policies):
     if not policies:
         return "-"
@@ -8060,7 +8099,7 @@ else:
                     user = summary.get("user") or {}
                     company = _nas_first_value(user, "company", "companyName", "Company", "CompanyName")
                     department = _nas_first_value(user, "department", "Department", "departmentName")
-                    policy_names = format_policy_names(summary.get("policies", []))
+                    policy_names = format_nas_export_policy_names(summary.get("policies", []))
                     return {
                         "Company": _nas_company_abbreviation(company),
                         "Department": department or "-",
