@@ -1534,6 +1534,108 @@ def format_policy_blocked(policies):
     return ", ".join(sorted({p.get("Blocked", "") for p in policies if p.get("Blocked")}))
 
 
+@st.cache_data(ttl=900, show_spinner=False)
+def build_nas_permission_matrix(nas_df, include_all_employees=True):
+    """Build the NAS audit workbook in matrix form.
+
+    Rows contain every employee plus any additional user/group found in the NAS
+    ACL.  Each unique share is a column.  Firewall Policy is resolved through
+    the same ``/policy-users`` data flow used by the AD / Firewall Policy page.
+    """
+    source_df = nas_df.copy() if isinstance(nas_df, pd.DataFrame) else pd.DataFrame()
+    shares = sorted({
+        str(value).strip()
+        for value in source_df.get("Share", pd.Series(dtype=str)).tolist()
+        if str(value).strip() and str(value).strip().lower() != "nan"
+    }, key=str.lower)
+
+    # Employee master supplies Company/Department and also keeps employees who
+    # currently have no NAS permission visible in the audit report.
+    employees_df = load_sp_data("Employees")
+    employee_info = {}
+    if isinstance(employees_df, pd.DataFrame) and not employees_df.empty:
+        for _, employee in employees_df.iterrows():
+            name = str(employee.get("field_3", "") or "").strip()
+            if not name or name.lower() == "nan":
+                continue
+            employee_info.setdefault(name.lower(), {
+                "Name": name,
+                "Company": str(employee.get("field_1", "") or "").strip(),
+                "Department": str(employee.get("field_4", "") or "").strip(),
+            })
+
+    permission_rank = {"": 0, "Deny": 1, "R": 2, "R/W": 3}
+    matrix_permissions = {}
+    display_names = (
+        {key: value["Name"] for key, value in employee_info.items()}
+        if include_all_employees else {}
+    )
+
+    for _, nas_row in source_df.iterrows():
+        share = str(nas_row.get("Share", "") or "").strip()
+        raw_acl = str(nas_row.get("ACL Tags (Raw)", "") or "")
+        if not share or not raw_acl or raw_acl.lower() == "nan":
+            continue
+        for item in [part.strip() for part in raw_acl.split(",")]:
+            match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny)\)", item)
+            if not match:
+                continue
+            entity = _clean_nas_principal(match.group(1))
+            if not entity:
+                continue
+            key = entity.lower()
+            display_names.setdefault(key, entity)
+            permission = {"Read/Write": "R/W", "Read": "R", "Deny": "Deny"}[match.group(2)]
+            current = matrix_permissions.setdefault(key, {}).get(share, "")
+            if permission_rank[permission] > permission_rank[current]:
+                matrix_permissions[key][share] = permission
+
+    # Build a user -> policies index with the exact policy lookup used on the
+    # AD / Firewall Policy screen; no separate NAS-side policy mapping is used.
+    policy_by_identity = {}
+    identity_metadata = {}
+    policy_groups = sorted({
+        str(row.get("AD Group", "") or "").strip()
+        for row in load_firewall_policy_mapping()
+        if str(row.get("AD Group", "") or "").strip()
+    }, key=str.lower)
+    for policy_group in policy_groups:
+        policy_result = get_policy_users_summary(policy_group)
+        if not policy_result.get("ok"):
+            continue
+        for user in policy_result.get("users", []) or []:
+            if not isinstance(user, dict):
+                continue
+            aliases = {
+                str(user.get(field, "") or "").strip()
+                for field in ("displayName", "sAMAccountName", "userPrincipalName", "mail")
+            }
+            aliases |= {alias.split("@", 1)[0] for alias in list(aliases) if "@" in alias}
+            aliases = {alias.lower() for alias in aliases if alias}
+            for alias in aliases:
+                policy_by_identity.setdefault(alias, set()).add(policy_group)
+                identity_metadata.setdefault(alias, {
+                    "Company": str(user.get("company", "") or "").strip(),
+                    "Department": str(user.get("department", "") or "").strip(),
+                })
+
+    records = []
+    for key in sorted(display_names, key=lambda item: display_names[item].lower()):
+        employee = employee_info.get(key, {})
+        ad_meta = identity_metadata.get(key, {})
+        record = {
+            "Name": display_names[key],
+            "Company": employee.get("Company", "") or ad_meta.get("Company", ""),
+            "Department": employee.get("Department", "") or ad_meta.get("Department", ""),
+        }
+        for share in shares:
+            record[share] = matrix_permissions.get(key, {}).get(share, "")
+        record["Firewall Policy"] = ", ".join(sorted(policy_by_identity.get(key, set()), key=str.lower))
+        records.append(record)
+
+    return pd.DataFrame(records, columns=["Name", "Company", "Department", *shares, "Firewall Policy"])
+
+
 def get_asset_user_identity(row, asset_list_name: str = ""):
     """Return the best user identifier from an asset row for AD policy lookup."""
     if row is None:
@@ -7950,6 +8052,7 @@ else:
 
                 if st.button("🔄 Refresh", use_container_width=True):
                     load_nas_data.clear()
+                    build_nas_permission_matrix.clear()
                     st.session_state.nas_df = load_nas_data()
                     st.rerun()
 
@@ -8125,47 +8228,10 @@ else:
             # --------------------------------------------------
             # Export CSV / Excel
             # --------------------------------------------------
-            export_rows = []
-
-            for _, row in display_df.iterrows():
-
-                raw_acl = str(row.get('ACL Tags (Raw)', ''))
-
-                if not raw_acl or raw_acl == 'nan':
-                    continue
-
-                for item in [x.strip() for x in raw_acl.split(',')]:
-
-                    m = re.search(r"^(.*?)\s*\((Read(?:/Write)?)\)", item)
-
-                    if not m:
-                        continue
-
-                    entity = _clean_nas_principal(m.group(1))
-                    permission = m.group(2)
-
-                    if search_term:
-                        keyword = search_term.lower().strip()
-
-                        if (
-                            keyword not in row['Share'].lower() and
-                            keyword not in entity.lower()
-                        ):
-                            continue
-
-                    export_rows.append({
-                        "Share Drive": row['Share'],
-                        "Name": entity,
-                        "Permission": permission
-})
-
-            export_df = pd.DataFrame(export_rows)
-
-            if not export_df.empty:
-                export_df = export_df.drop_duplicates()
-                export_df = export_df.sort_values(
-                    by=["Share Drive", "Name"]
-                )
+            export_df = build_nas_permission_matrix(
+                display_df,
+                include_all_employees=not bool(search_term.strip()),
+            )
 
             csv_buf = io.StringIO()
 
@@ -8186,21 +8252,50 @@ else:
                 )
 
                 ws = writer.sheets['NAS Permissions']
+                from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 
-                for col in ws.columns:
+                header_fill = PatternFill("solid", fgColor="D9EAF7")
+                header_font = Font(bold=True, color="1F2937")
+                thin_border = Border(
+                    left=Side(style="thin", color="D1D5DB"),
+                    right=Side(style="thin", color="D1D5DB"),
+                    top=Side(style="thin", color="D1D5DB"),
+                    bottom=Side(style="thin", color="D1D5DB"),
+                )
 
-                    max_length = 0
-                    column = col[0].column_letter
+                # Name / Company / Department are fixed on the left, unique
+                # Sharedrive columns follow, and Firewall Policy is last.
+                share_start_col = 4
+                share_end_col = max(share_start_col - 1, ws.max_column - 1)
+                for cell in ws[1]:
+                    cell.fill = header_fill
+                    cell.font = header_font
+                    cell.border = thin_border
+                    cell.alignment = Alignment(
+                        horizontal="center",
+                        vertical="center",
+                        text_rotation=90 if share_start_col <= cell.column <= share_end_col else 0,
+                        wrap_text=True,
+                    )
 
-                    for cell in col:
-                        try:
-                            max_length = max(max_length, len(str(cell.value)))
-                        except:
-                            pass
+                for row_cells in ws.iter_rows(min_row=2):
+                    for cell in row_cells:
+                        cell.border = thin_border
+                        cell.alignment = Alignment(
+                            horizontal="center" if share_start_col <= cell.column <= share_end_col else "left",
+                            vertical="center",
+                            wrap_text=True,
+                        )
 
-                    ws.column_dimensions[column].width = min(max_length + 5, 50)
+                ws.row_dimensions[1].height = 105
+                ws.column_dimensions['A'].width = 28
+                ws.column_dimensions['B'].width = 14
+                ws.column_dimensions['C'].width = 22
+                for column_index in range(share_start_col, share_end_col + 1):
+                    ws.column_dimensions[ws.cell(1, column_index).column_letter].width = 5
+                ws.column_dimensions[ws.cell(1, ws.max_column).column_letter].width = 26
 
-                ws.freeze_panes = 'A2'
+                ws.freeze_panes = 'D2'
                 ws.auto_filter.ref = ws.dimensions
 
             if admin_mode:
