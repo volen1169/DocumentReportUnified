@@ -297,6 +297,7 @@ import extra_streamlit_components as stx
 import plotly.express as px
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.utils import get_column_letter
 from copy import copy
 try:
     from ldap3 import ALL, SUBTREE, Connection, Server
@@ -1083,15 +1084,29 @@ def get_ad_agent_policy_summary(user_identity: str):
     # 1) {"user": {...}, "groups": [...], "policies": [...]}
     # 2) {"displayName": "...", "mail": "...", "groups": [...], "internet_policy": [...]}
     user_obj = data.get("user") if isinstance(data.get("user"), dict) else {}
+    if not user_obj and isinstance(data.get("User"), dict):
+        user_obj = data.get("User")
     if not user_obj:
+        # AD Agent deployments do not always use the same casing/field names.
+        folded_data = {str(key).casefold(): value for key, value in data.items()}
+        def _agent_value(*names):
+            for name in names:
+                value = data.get(name)
+                if value in (None, ""):
+                    value = folded_data.get(str(name).casefold())
+                if isinstance(value, list):
+                    value = value[0] if value else ""
+                if value not in (None, ""):
+                    return value
+            return ""
         user_obj = {
-            "displayName": data.get("displayName", ""),
-            "userPrincipalName": data.get("userPrincipalName", ""),
-            "mail": data.get("mail", ""),
-            "sAMAccountName": data.get("sAMAccountName", ""),
-            "department": data.get("department", ""),
-            "title": data.get("title", ""),
-            "company": data.get("company", ""),
+            "displayName": _agent_value("displayName", "display_name"),
+            "userPrincipalName": _agent_value("userPrincipalName", "upn"),
+            "mail": _agent_value("mail", "email"),
+            "sAMAccountName": _agent_value("sAMAccountName", "samAccountName", "account"),
+            "department": _agent_value("department", "departmentName"),
+            "title": _agent_value("title", "jobTitle"),
+            "company": _agent_value("company", "companyName"),
         }
 
     policies = data.get("policies") or get_internet_policies_from_groups(groups)
@@ -1498,82 +1513,6 @@ def get_user_internet_policy_summary(user_identity: str):
         "policies": [],
         "error": " | ".join(errors) if errors else "ไม่พบข้อมูลจากทุก source",
     }
-
-
-COMPANY_EXPORT_ABBREVIATIONS = {
-    "optimal tech co.,ltd.": "OPT",
-    "poonyaruk pattana co.,ltd.": "PRP",
-    "purity lab co.,ltd.": "PLC",
-    "everglory international co.,ltd.": "EGI",
-    "siam win industry co.,ltd.": "SWI",
-}
-
-
-def _nas_ad_identity_candidates(identity):
-    """Return safe AD lookup variants for NAS principals such as DOMAIN\\user."""
-    raw = _clean_nas_principal(str(identity or "")).strip()
-    candidates = [raw]
-    if "\\" in raw:
-        candidates.append(raw.rsplit("\\", 1)[-1])
-    if "/" in raw:
-        candidates.append(raw.rsplit("/", 1)[-1])
-    account = candidates[-1].strip()
-    if account and "@" not in account:
-        candidates.extend([account.replace(" ", "."), account.replace(".", " ")])
-    return list(dict.fromkeys(value for value in candidates if value))
-
-
-def _ad_value(user_obj, *keys):
-    for key in keys:
-        value = str((user_obj or {}).get(key, "") or "").strip()
-        if value and value.casefold() not in {"nan", "none", "-"}:
-            return value
-    return ""
-
-
-def _abbreviate_company(value):
-    company = str(value or "").strip()
-    normalized = re.sub(r"[^a-z0-9]", "", company.casefold())
-    aliases = {
-        re.sub(r"[^a-z0-9]", "", full_name.casefold()): abbreviation
-        for full_name, abbreviation in COMPANY_EXPORT_ABBREVIATIONS.items()
-    }
-    return aliases.get(normalized, company)
-
-
-@st.cache_data(ttl=900, show_spinner=False)
-def get_nas_export_ad_summary(identity):
-    """Resolve a NAS name against the same AD/Firewall source used by its page.
-
-    Some ACLs store DOMAIN\\account while AD may expect sAMAccountName, UPN,
-    e-mail, or display name. Try those forms and merge the best real AD result
-    so Company/Department are not lost merely because the first form matched
-    only part of the record.
-    """
-    best = {"ok": False, "user": {}, "policies": [], "groups": [], "error": ""}
-    for candidate in _nas_ad_identity_candidates(identity):
-        result = get_user_internet_policy_summary(candidate)
-        if not result.get("ok"):
-            if result.get("error"):
-                best["error"] = result.get("error")
-            continue
-        if not best.get("ok"):
-            best = dict(result)
-        else:
-            merged_user = dict(best.get("user") or {})
-            for key, value in (result.get("user") or {}).items():
-                if not merged_user.get(key) and value:
-                    merged_user[key] = value
-            best["user"] = merged_user
-            if not best.get("policies") and result.get("policies"):
-                best["policies"] = result.get("policies")
-            if not best.get("groups") and result.get("groups"):
-                best["groups"] = result.get("groups")
-        user = best.get("user") or {}
-        if (_ad_value(user, "company", "companyName", "Company") and
-                _ad_value(user, "department", "Department") and best.get("policies")):
-            break
-    return best
 
 
 def format_policy_names(policies):
@@ -8016,7 +7955,11 @@ else:
 
                 if st.button("🔄 Refresh", use_container_width=True):
                     load_nas_data.clear()
-                    get_nas_export_ad_summary.clear()
+                    ldap_find_user.clear()
+                    get_ldap_group_names_for_user.clear()
+                    get_ad_agent_policy_summary.clear()
+                    graph_find_user.clear()
+                    get_ad_group_names_for_user.clear()
                     st.session_state.nas_df = load_nas_data()
                     st.rerun()
 
@@ -8062,6 +8005,158 @@ else:
                     display_df["Matched Employees"].str.contains(search_term, case=False, na=False) |
                     display_df["ACL Tags (Raw)"].str.contains(search_term, case=False, na=False)
                 ]
+
+            # --------------------------------------------------
+            # Export CSV / Excel (matrix: one Share Drive per column)
+            # --------------------------------------------------
+            def _nas_company_abbreviation(value):
+                """Convert the full AD company name to the agreed abbreviation."""
+                raw = str(value or "").strip()
+                # Ignore punctuation/spacing/case so Co.,Ltd. and Co., Ltd. both match.
+                key = re.sub(r"[^a-z0-9]", "", raw.casefold())
+                company_aliases = {
+                    "optimaltechcoltd": "OPT",
+                    "poonyarukpattanacoltd": "PRP",
+                    "puritylabcoltd": "PLC",
+                    "evergloryinternationalcoltd": "EGI",
+                    "siamwinindustrycoltd": "SWI",
+                }
+                return company_aliases.get(key, raw or "-")
+
+            def _nas_first_value(data, *keys):
+                if not isinstance(data, dict):
+                    return ""
+                folded = {str(k).casefold(): v for k, v in data.items()}
+                for key in keys:
+                    value = data.get(key)
+                    if value in (None, ""):
+                        value = folded.get(str(key).casefold())
+                    if isinstance(value, list):
+                        value = value[0] if value else ""
+                    if value not in (None, ""):
+                        return str(value).strip()
+                return ""
+
+            @st.cache_data(ttl=900, show_spinner=False)
+            def _nas_export_ad_profile(entity):
+                """Use exactly the same AD lookup path as AD / Firewall Policy."""
+                clean_entity = _clean_nas_principal(entity)
+                candidates = []
+                for candidate in (
+                    clean_entity,
+                    clean_entity.split("@")[0] if "@" in clean_entity else "",
+                    clean_entity.replace(" ", ".") if " " in clean_entity else "",
+                ):
+                    candidate = str(candidate or "").strip()
+                    if candidate and candidate.casefold() not in {x.casefold() for x in candidates}:
+                        candidates.append(candidate)
+
+                last_error = ""
+                for candidate in candidates:
+                    summary = get_user_internet_policy_summary(candidate)
+                    if not summary.get("ok"):
+                        last_error = summary.get("error", "")
+                        continue
+                    user = summary.get("user") or {}
+                    company = _nas_first_value(user, "company", "companyName", "Company", "CompanyName")
+                    department = _nas_first_value(user, "department", "Department", "departmentName")
+                    policy_names = format_policy_names(summary.get("policies", []))
+                    return {
+                        "Company": _nas_company_abbreviation(company),
+                        "Department": department or "-",
+                        "Firewall Policy": policy_names or "-",
+                    }
+                return {"Company": "-", "Department": "-", "Firewall Policy": "-", "Error": last_error}
+
+            share_names = []
+            permission_by_user = {}
+            permission_rank = {"R": 1, "R/W": 2, "Deny": 3}
+
+            for _, export_source_row in display_df.iterrows():
+                share_name = str(export_source_row.get("Share", "")).strip()
+                if not share_name:
+                    continue
+                if share_name not in share_names:
+                    share_names.append(share_name)
+                raw_acl = str(export_source_row.get("ACL Tags (Raw)", "") or "")
+                if not raw_acl or raw_acl.casefold() in ("nan", "none"):
+                    continue
+                for item in [part.strip() for part in raw_acl.split(",")]:
+                    match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny)\)", item, flags=re.I)
+                    if not match:
+                        continue
+                    entity = _clean_nas_principal(match.group(1))
+                    if not entity:
+                        continue
+                    raw_permission = match.group(2).casefold()
+                    permission = "Deny" if raw_permission == "deny" else ("R/W" if "write" in raw_permission else "R")
+                    user_key = entity.casefold()
+                    user_record = permission_by_user.setdefault(user_key, {"Name": entity, "Shares": {}})
+                    old_permission = user_record["Shares"].get(share_name, "")
+                    if permission_rank.get(permission, 0) > permission_rank.get(old_permission, 0):
+                        user_record["Shares"][share_name] = permission
+
+            matrix_rows = []
+            if permission_by_user:
+                with st.spinner("กำลังจับคู่ Company, Department และ Firewall Policy จาก AD..."):
+                    for user_record in sorted(permission_by_user.values(), key=lambda item: item["Name"].casefold()):
+                        profile = _nas_export_ad_profile(user_record["Name"])
+                        export_record = {
+                            "Name": user_record["Name"],
+                            "Company": profile.get("Company", "-"),
+                            "Department": profile.get("Department", "-"),
+                        }
+                        export_record.update({share: user_record["Shares"].get(share, "") for share in share_names})
+                        export_record["Firewall Policy"] = profile.get("Firewall Policy", "-")
+                        matrix_rows.append(export_record)
+
+            export_columns = ["Name", "Company", "Department"] + share_names + ["Firewall Policy"]
+            export_df = pd.DataFrame(matrix_rows, columns=export_columns)
+            csv_data = export_df.to_csv(index=False).encode("utf-8-sig")
+            excel_buf = io.BytesIO()
+
+            with pd.ExcelWriter(excel_buf, engine="openpyxl") as writer:
+                export_df.to_excel(writer, index=False, sheet_name="NAS Permissions")
+                ws = writer.sheets["NAS Permissions"]
+                thin = Side(style="thin", color="D9E2F3")
+                header_colors = {
+                    "EGI_": ("166534", "FFFFFF"),  # เขียวเข้ม
+                    "OPG_": ("F97316", "FFFFFF"),  # ส้ม
+                    "OPT_": ("93C5FD", "0F172A"),  # น้ำเงินอ่อน
+                    "PLC_": ("67E8F9", "0F172A"),  # ฟ้าอ่อน
+                    "SWI_": ("86EFAC", "0F172A"),  # เขียวอ่อน
+                }
+                default_fill, default_font_color = "4472C4", "FFFFFF"
+                for col_index, column_name in enumerate(export_columns, start=1):
+                    cell = ws.cell(row=1, column=col_index)
+                    fill_color, font_color = default_fill, default_font_color
+                    if col_index > 3 and column_name != "Firewall Policy":
+                        for prefix, colors in header_colors.items():
+                            if str(column_name).upper().startswith(prefix):
+                                fill_color, font_color = colors
+                                break
+                    cell.fill = PatternFill("solid", fgColor=fill_color)
+                    cell.font = Font(name="Kanit", size=10, bold=True, color=font_color)
+                    cell.alignment = Alignment(horizontal="center", vertical="center", text_rotation=90 if col_index > 3 and column_name != "Firewall Policy" else 0, wrap_text=True)
+                    cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+                    for row_index in range(2, ws.max_row + 1):
+                        body_cell = ws.cell(row=row_index, column=col_index)
+                        body_cell.font = Font(name="Kanit", size=10)
+                        body_cell.alignment = Alignment(horizontal="center" if col_index > 1 else "left", vertical="center")
+                        body_cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+                    ws.column_dimensions[get_column_letter(col_index)].width = 8 if col_index > 3 and column_name != "Firewall Policy" else min(max(len(str(column_name)) + 3, 14), 34)
+                ws.row_dimensions[1].height = 120
+                ws.freeze_panes = "D2"
+                ws.auto_filter.ref = ws.dimensions
+
+            if admin_mode:
+                export_col1, export_col2, _ = st.columns([0.18, 0.18, 0.64])
+                with export_col1:
+                    st.download_button("📥 Export CSV", csv_data, "nas_acl_report.csv", "text/csv", use_container_width=True)
+                with export_col2:
+                    st.download_button("📊 Export Excel", excel_buf.getvalue(), "nas_acl_report.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+            else:
+                st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
 
             for idx, row in display_df.iterrows():
 
@@ -8189,146 +8284,6 @@ else:
 
 
             
-            # --------------------------------------------------
-            # Export CSV / Excel
-            # --------------------------------------------------
-            # Matrix format: one employee/group per row and one unique share per
-            # column.  AD fields come from the exact same resolver as the
-            # AD / Firewall Policy page.
-            permission_rank = {"": 0, "R": 1, "R/W": 2, "Deny": 3}
-            share_names = list(dict.fromkeys(
-                str(value).strip() for value in display_df.get("Share", pd.Series(dtype=str))
-                if str(value).strip() and str(value).strip().casefold() != "nan"
-            ))
-            entity_permissions = {}
-
-            for _, row in display_df.iterrows():
-                share_name = str(row.get("Share", "")).strip()
-                raw_acl = str(row.get("ACL Tags (Raw)", "") or "")
-                if not share_name or not raw_acl or raw_acl.casefold() == "nan":
-                    continue
-                for item in [value.strip() for value in raw_acl.split(",")]:
-                    match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny|No access)\)", item, re.I)
-                    if not match:
-                        continue
-                    entity = _clean_nas_principal(match.group(1)).strip()
-                    if not entity:
-                        continue
-                    raw_permission = match.group(2).casefold()
-                    permission = "R/W" if raw_permission == "read/write" else ("R" if raw_permission == "read" else "Deny")
-                    current = entity_permissions.setdefault(entity, {}).get(share_name, "")
-                    if permission_rank[permission] > permission_rank[current]:
-                        entity_permissions[entity][share_name] = permission
-
-            export_rows = []
-            for entity in sorted(entity_permissions, key=str.casefold):
-                ad_summary = get_nas_export_ad_summary(entity)
-                user_obj = ad_summary.get("user") or {}
-                display_name = _ad_value(user_obj, "displayName", "name", "DisplayName", "Name") or entity
-                export_row = {
-                    "Name": display_name,
-                    "Company": _abbreviate_company(_ad_value(user_obj, "company", "companyName", "Company")),
-                    "Department": _ad_value(user_obj, "department", "Department"),
-                }
-                for share_name in share_names:
-                    export_row[share_name] = entity_permissions[entity].get(share_name, "")
-                export_row["Firewall Policy"] = format_policy_names(ad_summary.get("policies", [])) if ad_summary.get("ok") else ""
-                export_rows.append(export_row)
-
-            export_columns = ["Name", "Company", "Department", *share_names, "Firewall Policy"]
-            export_df = pd.DataFrame(export_rows, columns=export_columns)
-            if not export_df.empty:
-                export_df = export_df.drop_duplicates().sort_values(by=["Name"], key=lambda col: col.astype(str).str.casefold())
-
-            csv_buf = io.StringIO()
-
-            export_df.to_csv(
-                csv_buf,
-                index=False,
-                encoding='utf-8-sig'
-            )
-
-            excel_buf = io.BytesIO()
-
-            with pd.ExcelWriter(excel_buf, engine='openpyxl') as writer:
-
-                export_df.to_excel(
-                    writer,
-                    index=False,
-                    sheet_name='NAS Permissions'
-                )
-
-                ws = writer.sheets['NAS Permissions']
-                thin_gray = Side(style="thin", color="B7B7B7")
-                table_border = Border(left=thin_gray, right=thin_gray, top=thin_gray, bottom=thin_gray)
-                base_header_fill = PatternFill("solid", fgColor="D9EAF7")
-                share_header_styles = {
-                    "EGI_": ("006100", "FFFFFF"),  # dark green
-                    "OPG_": ("F4B183", "000000"),  # orange
-                    "OPT_": ("9DC3E6", "000000"),  # light blue
-                    "PLC_": ("B7DEE8", "000000"),  # light cyan
-                    "SWI_": ("C6E0B4", "000000"),  # light green
-                }
-
-                for cell in ws[1]:
-                    cell.fill = base_header_fill
-                    cell.font = Font(name="Kanit", size=10, bold=True, color="000000")
-                    cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-                    cell.border = table_border
-
-                share_start = 4
-                share_end = share_start + len(share_names) - 1
-                for column_index in range(share_start, share_end + 1):
-                    header_cell = ws.cell(row=1, column=column_index)
-                    share_name = str(header_cell.value or "").upper()
-                    for prefix, (fill_color, font_color) in share_header_styles.items():
-                        if share_name.startswith(prefix):
-                            header_cell.fill = PatternFill("solid", fgColor=fill_color)
-                            header_cell.font = Font(name="Kanit", size=10, bold=True, color=font_color)
-                            break
-
-                for row_cells in ws.iter_rows(min_row=2):
-                    for cell in row_cells:
-                        cell.font = Font(name="Kanit", size=10)
-                        cell.alignment = Alignment(horizontal="center", vertical="center")
-                        cell.border = table_border
-                    row_cells[0].alignment = Alignment(horizontal="left", vertical="center")
-
-                for col in ws.columns:
-                    column = col[0].column_letter
-                    max_length = max((len(str(cell.value or "")) for cell in col), default=0)
-                    ws.column_dimensions[column].width = min(max(max_length + 3, 11), 38)
-
-                ws.row_dimensions[1].height = 32
-                ws.freeze_panes = 'D2'
-                ws.auto_filter.ref = ws.dimensions
-
-            if admin_mode:
-                st.divider()
-
-                ex1, ex2 = st.columns(2)
-
-                with ex1:
-                    st.download_button(
-                        "📥 Export CSV",
-                        csv_buf.getvalue(),
-                        "nas_acl_report.csv",
-                        "text/csv",
-                        use_container_width=True
-                    )
-
-                with ex2:
-                    st.download_button(
-                        "📊 Export Excel",
-                        data=excel_buf.getvalue(),
-                        file_name="nas_acl_report.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        use_container_width=True
-                    )
-            else:
-                st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
-
-
     # -------------------------------------------------------
     # 🔑 Password Information
     # -------------------------------------------------------
