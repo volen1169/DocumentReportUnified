@@ -297,7 +297,6 @@ import extra_streamlit_components as stx
 import plotly.express as px
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
 from copy import copy
 try:
     from ldap3 import ALL, SUBTREE, Connection, Server
@@ -1499,6 +1498,82 @@ def get_user_internet_policy_summary(user_identity: str):
         "policies": [],
         "error": " | ".join(errors) if errors else "ไม่พบข้อมูลจากทุก source",
     }
+
+
+COMPANY_EXPORT_ABBREVIATIONS = {
+    "optimal tech co.,ltd.": "OPT",
+    "poonyaruk pattana co.,ltd.": "PRP",
+    "purity lab co.,ltd.": "PLC",
+    "everglory international co.,ltd.": "EGI",
+    "siam win industry co.,ltd.": "SWI",
+}
+
+
+def _nas_ad_identity_candidates(identity):
+    """Return safe AD lookup variants for NAS principals such as DOMAIN\\user."""
+    raw = _clean_nas_principal(str(identity or "")).strip()
+    candidates = [raw]
+    if "\\" in raw:
+        candidates.append(raw.rsplit("\\", 1)[-1])
+    if "/" in raw:
+        candidates.append(raw.rsplit("/", 1)[-1])
+    account = candidates[-1].strip()
+    if account and "@" not in account:
+        candidates.extend([account.replace(" ", "."), account.replace(".", " ")])
+    return list(dict.fromkeys(value for value in candidates if value))
+
+
+def _ad_value(user_obj, *keys):
+    for key in keys:
+        value = str((user_obj or {}).get(key, "") or "").strip()
+        if value and value.casefold() not in {"nan", "none", "-"}:
+            return value
+    return ""
+
+
+def _abbreviate_company(value):
+    company = str(value or "").strip()
+    normalized = re.sub(r"[^a-z0-9]", "", company.casefold())
+    aliases = {
+        re.sub(r"[^a-z0-9]", "", full_name.casefold()): abbreviation
+        for full_name, abbreviation in COMPANY_EXPORT_ABBREVIATIONS.items()
+    }
+    return aliases.get(normalized, company)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def get_nas_export_ad_summary(identity):
+    """Resolve a NAS name against the same AD/Firewall source used by its page.
+
+    Some ACLs store DOMAIN\\account while AD may expect sAMAccountName, UPN,
+    e-mail, or display name. Try those forms and merge the best real AD result
+    so Company/Department are not lost merely because the first form matched
+    only part of the record.
+    """
+    best = {"ok": False, "user": {}, "policies": [], "groups": [], "error": ""}
+    for candidate in _nas_ad_identity_candidates(identity):
+        result = get_user_internet_policy_summary(candidate)
+        if not result.get("ok"):
+            if result.get("error"):
+                best["error"] = result.get("error")
+            continue
+        if not best.get("ok"):
+            best = dict(result)
+        else:
+            merged_user = dict(best.get("user") or {})
+            for key, value in (result.get("user") or {}).items():
+                if not merged_user.get(key) and value:
+                    merged_user[key] = value
+            best["user"] = merged_user
+            if not best.get("policies") and result.get("policies"):
+                best["policies"] = result.get("policies")
+            if not best.get("groups") and result.get("groups"):
+                best["groups"] = result.get("groups")
+        user = best.get("user") or {}
+        if (_ad_value(user, "company", "companyName", "Company") and
+                _ad_value(user, "department", "Department") and best.get("policies")):
+            break
+    return best
 
 
 def format_policy_names(policies):
@@ -7941,6 +8016,7 @@ else:
 
                 if st.button("🔄 Refresh", use_container_width=True):
                     load_nas_data.clear()
+                    get_nas_export_ad_summary.clear()
                     st.session_state.nas_df = load_nas_data()
                     st.rerun()
 
@@ -8114,117 +8190,55 @@ else:
 
             
             # --------------------------------------------------
-            # Export CSV / Excel (employee x sharedrive matrix)
+            # Export CSV / Excel
             # --------------------------------------------------
-            company_abbreviations = {
-                "optimal tech co.,ltd.": "OPT",
-                "poonyaruk pattana co.,ltd.": "PRP",
-                "purity lab co.,ltd.": "PLC",
-                "everglory international co.,ltd.": "EGI",
-                "siam win industry co.,ltd.": "SWI",
-            }
-
-            def _company_abbreviation(value):
-                company = re.sub(r"\s+", " ", str(value or "").strip())
-                normalized = re.sub(r"\s*,\s*", ",", company).casefold()
-                return company_abbreviations.get(normalized, company or "-")
-
-            def _permission_code(value):
-                text = str(value or "").strip().casefold()
-                if "deny" in text:
-                    return "Deny"
-                if "write" in text:
-                    return "R/W"
-                if "read" in text:
-                    return "R"
-                return ""
-
-            def _identity_keys(*values):
-                keys = set()
-                for value in values:
-                    text = str(value or "").strip().casefold()
-                    if not text or text in {"nan", "none", "-"}:
-                        continue
-                    keys.add(text)
-                    keys.add(text.split("@", 1)[0])
-                    keys.add(text.replace(".", " "))
-                return {key for key in keys if key}
-
-            # ใช้รายชื่อพนักงานจาก SharePoint และเติมข้อมูลที่พบจาก ACL/AD
-            employee_index = {}
-            employee_frames = [load_sp_data("Employees"), load_sp_data("Computers")]
-            for employee_df in employee_frames:
-                if employee_df is None or employee_df.empty:
-                    continue
-                for _, employee in employee_df.iterrows():
-                    name = str(employee.get("DisplayName") or employee.get("displayName") or employee.get("field_3") or "").strip()
-                    login = str(employee.get("LoginAccount") or employee.get("sAMAccountName") or employee.get("mail") or employee.get("userPrincipalName") or "").strip()
-                    if not name and not login:
-                        continue
-                    record = {
-                        "Name": name or login,
-                        "Company": _company_abbreviation(employee.get("Company") or employee.get("companyName") or employee.get("field_1")),
-                        "Department": str(employee.get("Department") or employee.get("department") or employee.get("field_4") or "-").strip() or "-",
-                        "login": login,
-                    }
-                    for key in _identity_keys(name, login):
-                        employee_index.setdefault(key, record)
-
-            share_names = sorted({str(value).strip() for value in display_df.get("Share", pd.Series(dtype=str)).dropna() if str(value).strip()}, key=str.casefold)
-            acl_permissions = {}
-            acl_entities = {}
+            # Matrix format: one employee/group per row and one unique share per
+            # column.  AD fields come from the exact same resolver as the
+            # AD / Firewall Policy page.
             permission_rank = {"": 0, "R": 1, "R/W": 2, "Deny": 3}
+            share_names = list(dict.fromkeys(
+                str(value).strip() for value in display_df.get("Share", pd.Series(dtype=str))
+                if str(value).strip() and str(value).strip().casefold() != "nan"
+            ))
+            entity_permissions = {}
 
             for _, row in display_df.iterrows():
                 share_name = str(row.get("Share", "")).strip()
-                raw_acl = str(row.get("ACL Tags (Raw)", ""))
-                if not share_name or not raw_acl or raw_acl == "nan":
+                raw_acl = str(row.get("ACL Tags (Raw)", "") or "")
+                if not share_name or not raw_acl or raw_acl.casefold() == "nan":
                     continue
                 for item in [value.strip() for value in raw_acl.split(",")]:
-                    match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny)\)", item, re.IGNORECASE)
+                    match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny|No access)\)", item, re.I)
                     if not match:
                         continue
-                    entity = _clean_nas_principal(match.group(1))
+                    entity = _clean_nas_principal(match.group(1)).strip()
                     if not entity:
                         continue
-                    entity_key = str(entity).strip().casefold()
-                    code = _permission_code(match.group(2))
-                    current = acl_permissions.get((entity_key, share_name), "")
-                    if permission_rank[code] > permission_rank[current]:
-                        acl_permissions[(entity_key, share_name)] = code
-                    acl_entities.setdefault(entity_key, str(entity).strip())
-
-            # ทำให้ ACL user/group ที่ไม่มีใน Employee list ยังคงปรากฏในรายงาน
-            report_people = {}
-            for entity_key, entity_name in acl_entities.items():
-                employee = next((employee_index[key] for key in _identity_keys(entity_name) if key in employee_index), None)
-                report_people[entity_key] = dict(employee) if employee else {
-                    "Name": entity_name, "Company": "-", "Department": "-", "login": entity_name
-                }
-            for key, employee in employee_index.items():
-                canonical = str(employee.get("login") or employee.get("Name") or key).strip().casefold()
-                report_people.setdefault(canonical, dict(employee))
+                    raw_permission = match.group(2).casefold()
+                    permission = "R/W" if raw_permission == "read/write" else ("R" if raw_permission == "read" else "Deny")
+                    current = entity_permissions.setdefault(entity, {}).get(share_name, "")
+                    if permission_rank[permission] > permission_rank[current]:
+                        entity_permissions[entity][share_name] = permission
 
             export_rows = []
-            for person_key, person in sorted(report_people.items(), key=lambda item: str(item[1].get("Name", "")).casefold()):
-                identity_candidates = _identity_keys(person_key, person.get("Name"), person.get("login"))
-                matched_acl_keys = {key for key, name in acl_entities.items() if identity_candidates & _identity_keys(key, name)}
-                policy_summary = get_user_internet_policy_summary(person.get("login") or person.get("Name"))
-                user_obj = policy_summary.get("user", {}) if policy_summary.get("ok") else {}
-                company = _company_abbreviation(person.get("Company") if person.get("Company") not in {"", "-"} else user_obj.get("companyName"))
-                department = str(person.get("Department") if person.get("Department") not in {"", "-"} else user_obj.get("department") or "-").strip()
+            for entity in sorted(entity_permissions, key=str.casefold):
+                ad_summary = get_nas_export_ad_summary(entity)
+                user_obj = ad_summary.get("user") or {}
+                display_name = _ad_value(user_obj, "displayName", "name", "DisplayName", "Name") or entity
                 export_row = {
-                    "Name": person.get("Name") or user_obj.get("displayName") or person.get("login") or "-",
-                    "Company": company,
-                    "Department": department or "-",
+                    "Name": display_name,
+                    "Company": _abbreviate_company(_ad_value(user_obj, "company", "companyName", "Company")),
+                    "Department": _ad_value(user_obj, "department", "Department"),
                 }
                 for share_name in share_names:
-                    values = [acl_permissions.get((acl_key, share_name), "") for acl_key in matched_acl_keys]
-                    export_row[share_name] = max(values, key=lambda value: permission_rank[value], default="")
-                export_row["Firewall Policy"] = format_policy_names(policy_summary.get("policies", [])) if policy_summary.get("ok") else "-"
+                    export_row[share_name] = entity_permissions[entity].get(share_name, "")
+                export_row["Firewall Policy"] = format_policy_names(ad_summary.get("policies", [])) if ad_summary.get("ok") else ""
                 export_rows.append(export_row)
 
-            export_df = pd.DataFrame(export_rows, columns=["Name", "Company", "Department", *share_names, "Firewall Policy"])
+            export_columns = ["Name", "Company", "Department", *share_names, "Firewall Policy"]
+            export_df = pd.DataFrame(export_rows, columns=export_columns)
+            if not export_df.empty:
+                export_df = export_df.drop_duplicates().sort_values(by=["Name"], key=lambda col: col.astype(str).str.casefold())
 
             csv_buf = io.StringIO()
 
@@ -8245,31 +8259,47 @@ else:
                 )
 
                 ws = writer.sheets['NAS Permissions']
+                thin_gray = Side(style="thin", color="B7B7B7")
+                table_border = Border(left=thin_gray, right=thin_gray, top=thin_gray, bottom=thin_gray)
+                base_header_fill = PatternFill("solid", fgColor="D9EAF7")
+                share_header_styles = {
+                    "EGI_": ("006100", "FFFFFF"),  # dark green
+                    "OPG_": ("F4B183", "000000"),  # orange
+                    "OPT_": ("9DC3E6", "000000"),  # light blue
+                    "PLC_": ("B7DEE8", "000000"),  # light cyan
+                    "SWI_": ("C6E0B4", "000000"),  # light green
+                }
 
-                header_fill = PatternFill("solid", fgColor="4472C4")
-                header_font = Font(color="FFFFFF", bold=True)
-                thin_gray = Side(style="thin", color="D9E2F3")
                 for cell in ws[1]:
-                    cell.fill = header_fill
-                    cell.font = header_font
-                    cell.alignment = Alignment(horizontal="center", vertical="center", text_rotation=90 if 4 <= cell.column < ws.max_column else 0, wrap_text=True)
-                ws.row_dimensions[1].height = 110
-                for row_cells in ws.iter_rows():
-                    for cell in row_cells:
-                        cell.border = Border(left=thin_gray, right=thin_gray, top=thin_gray, bottom=thin_gray)
-                        if cell.row > 1:
-                            cell.alignment = Alignment(horizontal="center" if cell.column >= 4 else "left", vertical="center")
-                for column_number in range(1, ws.max_column + 1):
-                    letter = get_column_letter(column_number)
-                    if column_number == 1:
-                        ws.column_dimensions[letter].width = 28
-                    elif column_number in (2, 3):
-                        ws.column_dimensions[letter].width = 18
-                    elif column_number == ws.max_column:
-                        ws.column_dimensions[letter].width = 28
-                    else:
-                        ws.column_dimensions[letter].width = 6
+                    cell.fill = base_header_fill
+                    cell.font = Font(name="Kanit", size=10, bold=True, color="000000")
+                    cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+                    cell.border = table_border
 
+                share_start = 4
+                share_end = share_start + len(share_names) - 1
+                for column_index in range(share_start, share_end + 1):
+                    header_cell = ws.cell(row=1, column=column_index)
+                    share_name = str(header_cell.value or "").upper()
+                    for prefix, (fill_color, font_color) in share_header_styles.items():
+                        if share_name.startswith(prefix):
+                            header_cell.fill = PatternFill("solid", fgColor=fill_color)
+                            header_cell.font = Font(name="Kanit", size=10, bold=True, color=font_color)
+                            break
+
+                for row_cells in ws.iter_rows(min_row=2):
+                    for cell in row_cells:
+                        cell.font = Font(name="Kanit", size=10)
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+                        cell.border = table_border
+                    row_cells[0].alignment = Alignment(horizontal="left", vertical="center")
+
+                for col in ws.columns:
+                    column = col[0].column_letter
+                    max_length = max((len(str(cell.value or "")) for cell in col), default=0)
+                    ws.column_dimensions[column].width = min(max(max_length + 3, 11), 38)
+
+                ws.row_dimensions[1].height = 32
                 ws.freeze_panes = 'D2'
                 ws.auto_filter.ref = ws.dimensions
 
