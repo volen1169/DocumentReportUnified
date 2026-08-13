@@ -712,6 +712,7 @@ def format_policy_names(policies):
 # Keep them visible in AD / Firewall Policy, but omit them from NAS exports.
 NAS_EXPORT_EXCLUDED_FIREWALL_POLICIES = {
     "FW_SSLVPN_Limitime",
+    "FW_SSLVPN_Limitime1",
     "FW_SSLVPN_Limitime2",
     "FW_SSLVPN_Limitime3",
     "FW_SSLVPN_Limitime4",
