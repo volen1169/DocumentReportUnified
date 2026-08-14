@@ -178,6 +178,14 @@ from services.ink_stock import (
     ink_adjust_quantity,
 )
 
+from services.display_helpers import (
+    _hw_badge,
+    get_sheet_icon,
+    is_secret_field,
+    ink_stock_color_badge,
+    ink_qty_badge,
+)
+
 from services.ad_directory import (
     AD_AGENT_TOKEN,
     AD_AGENT_URL,
@@ -1003,9 +1011,6 @@ def load_nas_data():
 # SECTION 07 : CARD RENDER
 # หน้าตาการ์ด Computers / Monitors / Printers
 # =============================================================================
-def _hw_badge(status):
-    cls = {"Active":"badge-active","Inactive":"badge-inactive","Spare":"badge-spare","Repair":"badge-repair"}.get(status,"badge-default")
-    return f'<span class="badge {cls}">{status or "โ€”"}</span>' if status else ''
 
 
 # =============================================================================
@@ -1401,16 +1406,7 @@ def add_printer_dialog(list_name):
 # SECTION 11 : PASSWORD MANAGER
 # แสดง Password Card / เพิ่ม / แก้ไข / ลบ
 # =============================================================================
-def get_sheet_icon(sheet_name):
-    icon_map = {"server": "🖥️", "network": "🌐", "sql": "🗄️",
-                "software": "📦", "license": "📦", "domain": "🌍",
-                "email": "📧", "mail": "📧", "internet": "📡",
-                "wifi": "📶", "vpn": "🔒", "firewall": "🔥"}
-    s = sheet_name.lower()
-    return next((v for k, v in icon_map.items() if k in s), "🔑")
 
-def is_secret_field(col_name):
-    return any(k in str(col_name).lower() for k in ['pass', 'pwd', 'secret', 'key', 'รหัส', 'token'])
 
 def render_password_card(row, sheet_name, card_key, admin_mode, df_pw, drive_id, pw_sheets):
     cols_list = list(row.index)
@@ -1526,26 +1522,7 @@ def add_password_dialog(sheet_name, df_pw, drive_id, pw_sheets):
 # SECTION 12 : INK STOCK UI
 # Card และ Dialog ของระบบหมึกพิมพ์
 # =============================================================================
-def ink_stock_color_badge(color):
-    color_map = {
-        "Black":      ("#222", "#fff"),
-        "Cyan":       ("#00b4d8", "#fff"),
-        "Magenta":    ("#c77dff", "#fff"),
-        "Yellow":     ("#f9c74f", "#333"),
-        "Color (Tri)":("#43aa8b", "#fff"),
-        "Other":      ("#adb5bd", "#333"),
-}
-    bg, fg = color_map.get(color, ("#adb5bd", "#333"))
-    return f"<span style='background:{bg};color:{fg};padding:3px 12px;border-radius:12px;font-size:0.82em;font-weight:bold;'>{color}</span>"
 
-def ink_qty_badge(qty, min_qty):
-    qty = int(qty) if str(qty).isdigit() else 0
-    min_qty = int(min_qty) if str(min_qty).isdigit() else INK_LOW_THRESHOLD
-    if qty == 0:
-        return f"<span style='background:#dc3545;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>หมด ❌</span>"
-    elif qty <= min_qty:
-        return f"<span style='background:#fd7e14;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>⚠️ เหลือ {qty}</span>"
-    return f"<span style='background:#198754;color:#fff;padding:3px 14px;border-radius:12px;font-weight:bold;font-size:0.95em;'>โ… {qty}</span>"
 
 def render_ink_card(row, key, admin_mode, requester_name):
     qty     = int(row.get("Quantity", 0)) if str(row.get("Quantity", 0)).lstrip("-").isdigit() else 0
