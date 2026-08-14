@@ -269,6 +269,8 @@ from services.nas_service import (
     get_shares,
     fetch_acl,
     get_nas_connection_status,
+    check_synoacl,
+    load_nas_data,
 )
 
 # =============================================================================
@@ -951,59 +953,12 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
 
 
 
-def check_synoacl():
-    try:
-        ssh = create_ssh()
-        output, _ = run_command(ssh, "ls /usr/syno/bin/synoacltool")
-        ssh.close()
-        return "/usr/syno/bin/synoacltool" in output
-    except Exception as e:
-        st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน SSH ได้: {e}")
-        return False
 
 
 
 
 
 
-@st.cache_data(ttl=1800)
-def load_nas_data():
-    """โหลดข้อมูล NAS โดยเลือก NAS Agent ก่อน แล้ว fallback เป็น DSM API หรือ SSH"""
-    if _nas_agent_enabled():
-        try:
-            return load_nas_data_agent()
-        except Exception as e:
-            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS Agent ได้: {e}")
-            # ถ้าเลือก NAS_MODE=agent ห้าม fallback ไป DSM API route เดิม เพราะจะทำให้ timeout ซ้ำ
-            if AGENT_ONLY_MODE:
-                return None
-            if _nas_api_enabled():
-                try:
-                    return load_nas_data_api()
-                except Exception as api_e:
-                    st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {api_e}")
-                    return None
-            return None
-
-    if _nas_api_enabled():
-        try:
-            return load_nas_data_api()
-        except Exception as e:
-            st.warning(f"⚠️ ไม่สามารถเชื่อมต่อ NAS ผ่าน DSM API ได้: {e}")
-            return None
-
-    if not check_synoacl():
-        return None
-    df_emp = load_sp_data("Employees")
-    employees = df_emp['field_3'].dropna().unique().tolist() if not df_emp.empty and 'field_3' in df_emp.columns else []
-    shares = get_shares()
-    data = []
-    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        futures = [executor.submit(fetch_acl, s, employees) for s in shares]
-        for future in as_completed(futures):
-            share, tags, matched_emps = future.result()
-            data.append({"Share": share, "ACL Tags (Raw)": ", ".join(sorted(tags)), "Matched Employees": ", ".join(sorted(matched_emps))})
-    return pd.DataFrame(data).sort_values("Share")
 
 
 
