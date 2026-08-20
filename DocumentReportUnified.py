@@ -1451,8 +1451,7 @@ def edit_password_dialog(row, row_idx, sheet_name, df_pw, drive_id, pw_sheets):
             load_password_excel.clear()
             st.rerun()
         else:
-            err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
+            st.error("❌ บันทึกไม่สำเร็จ")
 
 @st.dialog("➕ เพิ่ม Password Entry")
 def add_password_dialog(sheet_name, df_pw, drive_id, pw_sheets):
@@ -1473,8 +1472,7 @@ def add_password_dialog(sheet_name, df_pw, drive_id, pw_sheets):
             load_password_excel.clear()
             st.rerun()
         else:
-            err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"❌ เพิ่มไม่สำเร็จ: {err_msg}")
+            st.error("❌ เพิ่มไม่สำเร็จ")
 
 # =============================================================================
 # SECTION 12 : INK STOCK UI
