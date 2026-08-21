@@ -27,7 +27,7 @@ _PERMISSION_RANK = {"R": 1, "R/W": 2, "Deny": 3}
 _NAS_EXPORT_EXCLUDED_NAMES = {"acc01","ActiveBackup","admin","Administrator","administrators","backup","Domain Admins","Domain Users",
                               "EGI_WH","Enterprise Admins","Epicor","erplife1","Firealarm","fortigate","HR","HRHO","HRBR","HRBP","IT","it01","it02","it03",
                               "it04","Local Admin","MD","MicroTap","OPT_PL","OPT_SC","OPT_SF","OPT_WH","OPTWAREHOUSE","Pafun.Ath","PLC_WH",
-                             "PRP_AC","PRP_HR","PRP_IT","SWI_AC","SWI_MD","SWI_PD","SWI_Plan","SWI_SC","SWI_WH","AR"}
+                             "PRP_AC","PRP_HR","PRP_IT","SWI_AC","SWI_MD","SWI_PD","SWI_Plan","SWI_SC","SWI_WH","AR","Patcharin.Su"}
 
 # เพิ่มคอลัมน์แบบค่าคงที่ให้ทั้ง CSV และ Excel
 # ตัวอย่าง:
