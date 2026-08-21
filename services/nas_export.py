@@ -24,7 +24,7 @@ _PERMISSION_RANK = {"R": 1, "R/W": 2, "Deny": 3}
 # -----------------------------------------------------------------------------
 # ตัวอย่าง:
 # _NAS_EXPORT_EXCLUDED_NAMES = {"Administrator", "Guest", "Test.User"}
-_NAS_EXPORT_EXCLUDED_NAMES = set("acc01")
+_NAS_EXPORT_EXCLUDED_NAMES = set("acc01",)
 
 # เพิ่มคอลัมน์แบบค่าคงที่ให้ทั้ง CSV และ Excel
 # ตัวอย่าง:
