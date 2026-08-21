@@ -1,11 +1,8 @@
 import html
-import io
 import re
 
 import pandas as pd
 import streamlit as st
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
 
 from services.ad_directory import (
     format_nas_export_policy_names,
@@ -18,6 +15,13 @@ from services.ad_directory import (
     ldap_find_user,
 )
 from services.microsoft_graph import graph_find_user
+from services.nas_export import (
+    build_nas_csv,
+    build_nas_excel,
+    build_nas_export_dataframe_from_permissions,
+    prepare_nas_export_permissions,
+    resolve_nas_export_profile,
+)
 from services.nas_service import load_nas_data
 
 
@@ -220,152 +224,42 @@ def render_nas_permission_analyzer(
         # --------------------------------------------------
         # Export CSV / Excel (matrix: one Share Drive per column)
         # --------------------------------------------------
-        def _nas_company_abbreviation(value):
-            """Convert the full AD company name to the agreed abbreviation."""
-            raw = str(value or "").strip()
-            # Ignore punctuation/spacing/case so Co.,Ltd. and Co., Ltd. both match.
-            key = re.sub(r"[^a-z0-9]", "", raw.casefold())
-            company_aliases = {
-                "optimaltechcoltd": "OPT",
-                "poonyarukpattanacoltd": "PRP",
-                "puritylabcoltd": "PLC",
-                "evergloryinternationalcoltd": "EGI",
-                "siamwinindustrycoltd": "SWI",
-            }
-            return company_aliases.get(key, raw or "-")
-
-        def _nas_first_value(data, *keys):
-            if not isinstance(data, dict):
-                return ""
-            folded = {str(k).casefold(): v for k, v in data.items()}
-            for key in keys:
-                value = data.get(key)
-                if value in (None, ""):
-                    value = folded.get(str(key).casefold())
-                if isinstance(value, list):
-                    value = value[0] if value else ""
-                if value not in (None, ""):
-                    return str(value).strip()
-            return ""
-
         @st.cache_data(ttl=900, show_spinner=False)
         def _nas_export_ad_profile(entity):
             """Use exactly the same AD lookup path as AD / Firewall Policy."""
-            clean_entity = clean_nas_principal(entity)
-            candidates = []
-            for candidate in (
-                clean_entity,
-                clean_entity.split("@")[0] if "@" in clean_entity else "",
-                clean_entity.replace(" ", ".") if " " in clean_entity else "",
-            ):
-                candidate = str(candidate or "").strip()
-                if candidate and candidate.casefold() not in {x.casefold() for x in candidates}:
-                    candidates.append(candidate)
+            return resolve_nas_export_profile(
+                entity,
+                clean_principal=clean_nas_principal,
+                policy_lookup=get_user_internet_policy_summary,
+                policy_formatter=format_nas_export_policy_names,
+            )
 
-            last_error = ""
-            for candidate in candidates:
-                summary = get_user_internet_policy_summary(candidate)
-                if not summary.get("ok"):
-                    last_error = summary.get("error", "")
-                    continue
-                user = summary.get("user") or {}
-                company = _nas_first_value(user, "company", "companyName", "Company", "CompanyName")
-                department = _nas_first_value(user, "department", "Department", "departmentName")
-                policy_names = format_nas_export_policy_names(summary.get("policies", []))
-                return {
-                    "Company": _nas_company_abbreviation(company),
-                    "Department": department or "-",
-                    "Firewall Policy": policy_names or "-",
-                }
-            return {"Company": "-", "Department": "-", "Firewall Policy": "-", "Error": last_error}
-
-        share_names = []
-        permission_by_user = {}
-        permission_rank = {"R": 1, "R/W": 2, "Deny": 3}
-
-        for _, export_source_row in display_df.iterrows():
-            share_name = str(export_source_row.get("Share", "")).strip()
-            if not share_name:
-                continue
-            if share_name not in share_names:
-                share_names.append(share_name)
-            raw_acl = str(export_source_row.get("ACL Tags (Raw)", "") or "")
-            if not raw_acl or raw_acl.casefold() in ("nan", "none"):
-                continue
-            for item in [part.strip() for part in raw_acl.split(",")]:
-                match = re.search(r"^(.*?)\s*\((Read(?:/Write)?|Deny)\)", item, flags=re.I)
-                if not match:
-                    continue
-                entity = clean_nas_principal(match.group(1))
-                if not entity:
-                    continue
-                raw_permission = match.group(2).casefold()
-                permission = "Deny" if raw_permission == "deny" else ("R/W" if "write" in raw_permission else "R")
-                user_key = entity.casefold()
-                user_record = permission_by_user.setdefault(user_key, {"Name": entity, "Shares": {}})
-                old_permission = user_record["Shares"].get(share_name, "")
-                if permission_rank.get(permission, 0) > permission_rank.get(old_permission, 0):
-                    user_record["Shares"][share_name] = permission
-
-        matrix_rows = []
+        prepared_export = prepare_nas_export_permissions(
+            display_df,
+            clean_principal=clean_nas_principal,
+        )
+        _, permission_by_user = prepared_export
         if permission_by_user:
             with st.spinner("กำลังจับคู่ Company, Department และ Firewall Policy จาก AD..."):
-                for user_record in sorted(permission_by_user.values(), key=lambda item: item["Name"].casefold()):
-                    profile = _nas_export_ad_profile(user_record["Name"])
-                    export_record = {
-                        "Name": user_record["Name"],
-                        "Company": profile.get("Company", "-"),
-                        "Department": profile.get("Department", "-"),
-                    }
-                    export_record.update({share: user_record["Shares"].get(share, "") for share in share_names})
-                    export_record["Firewall Policy"] = profile.get("Firewall Policy", "-")
-                    matrix_rows.append(export_record)
+                export_df = build_nas_export_dataframe_from_permissions(
+                    prepared_export,
+                    profile_lookup=_nas_export_ad_profile,
+                )
+        else:
+            export_df = build_nas_export_dataframe_from_permissions(
+                prepared_export,
+                profile_lookup=_nas_export_ad_profile,
+            )
 
-        export_columns = ["Name", "Company", "Department"] + share_names + ["Firewall Policy"]
-        export_df = pd.DataFrame(matrix_rows, columns=export_columns)
-        csv_data = export_df.to_csv(index=False).encode("utf-8-sig")
-        excel_buf = io.BytesIO()
-
-        with pd.ExcelWriter(excel_buf, engine="openpyxl") as writer:
-            export_df.to_excel(writer, index=False, sheet_name="NAS Permissions")
-            ws = writer.sheets["NAS Permissions"]
-            thin = Side(style="thin", color="D9E2F3")
-            header_colors = {
-                "EGI_": ("166534", "FFFFFF"),  # เขียวเข้ม
-                "OPG_": ("F97316", "FFFFFF"),  # ส้ม
-                "OPT_": ("93C5FD", "0F172A"),  # น้ำเงินอ่อน
-                "PLC_": ("67E8F9", "0F172A"),  # ฟ้าอ่อน
-                "SWI_": ("86EFAC", "0F172A"),  # เขียวอ่อน
-            }
-            default_fill, default_font_color = "4472C4", "FFFFFF"
-            for col_index, column_name in enumerate(export_columns, start=1):
-                cell = ws.cell(row=1, column=col_index)
-                fill_color, font_color = default_fill, default_font_color
-                if col_index > 3 and column_name != "Firewall Policy":
-                    for prefix, colors in header_colors.items():
-                        if str(column_name).upper().startswith(prefix):
-                            fill_color, font_color = colors
-                            break
-                cell.fill = PatternFill("solid", fgColor=fill_color)
-                cell.font = Font(name="Kanit", size=10, bold=True, color=font_color)
-                cell.alignment = Alignment(horizontal="center", vertical="center", text_rotation=90 if col_index > 3 and column_name != "Firewall Policy" else 0, wrap_text=True)
-                cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
-                for row_index in range(2, ws.max_row + 1):
-                    body_cell = ws.cell(row=row_index, column=col_index)
-                    body_cell.font = Font(name="Kanit", size=10)
-                    body_cell.alignment = Alignment(horizontal="center" if col_index > 1 else "left", vertical="center")
-                    body_cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
-                ws.column_dimensions[get_column_letter(col_index)].width = 8 if col_index > 3 and column_name != "Firewall Policy" else min(max(len(str(column_name)) + 3, 14), 34)
-            ws.row_dimensions[1].height = 120
-            ws.freeze_panes = "D2"
-            ws.auto_filter.ref = ws.dimensions
+        csv_data = build_nas_csv(export_df)
+        excel_data = build_nas_excel(export_df)
 
         if admin_mode:
             export_col1, export_col2, _ = st.columns([0.18, 0.18, 0.64])
             with export_col1:
                 st.download_button("📥 Export CSV", csv_data, "nas_acl_report.csv", "text/csv", use_container_width=True)
             with export_col2:
-                st.download_button("📊 Export Excel", excel_buf.getvalue(), "nas_acl_report.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                st.download_button("📊 Export Excel", excel_data, "nas_acl_report.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
         else:
             st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
 
