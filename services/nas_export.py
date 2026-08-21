@@ -94,6 +94,22 @@ def build_nas_export_dataframe(
     profile_lookup,
 ):
     """Build the user-by-share NAS permission matrix in baseline order."""
+    prepared_export = prepare_nas_export_permissions(
+        display_df,
+        clean_principal=clean_principal,
+    )
+    return build_nas_export_dataframe_from_permissions(
+        prepared_export,
+        profile_lookup=profile_lookup,
+    )
+
+
+def prepare_nas_export_permissions(
+    display_df,
+    *,
+    clean_principal,
+):
+    """Parse the share and permission mapping before profile enrichment."""
     share_names = []
     permission_by_user = {}
 
@@ -121,6 +137,16 @@ def build_nas_export_dataframe(
             if _PERMISSION_RANK.get(permission, 0) > _PERMISSION_RANK.get(old_permission, 0):
                 user_record["Shares"][share_name] = permission
 
+    return share_names, permission_by_user
+
+
+def build_nas_export_dataframe_from_permissions(
+    prepared_export,
+    *,
+    profile_lookup,
+):
+    """Enrich a prepared permission mapping and build the export DataFrame."""
+    share_names, permission_by_user = prepared_export
     matrix_rows = []
     for user_record in sorted(permission_by_user.values(), key=lambda item: item["Name"].casefold()):
         profile = profile_lookup(user_record["Name"])

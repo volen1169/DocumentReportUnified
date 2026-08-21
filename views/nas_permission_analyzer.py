@@ -18,7 +18,8 @@ from services.microsoft_graph import graph_find_user
 from services.nas_export import (
     build_nas_csv,
     build_nas_excel,
-    build_nas_export_dataframe,
+    build_nas_export_dataframe_from_permissions,
+    prepare_nas_export_permissions,
     resolve_nas_export_profile,
 )
 from services.nas_service import load_nas_data
@@ -233,19 +234,22 @@ def render_nas_permission_analyzer(
                 policy_formatter=format_nas_export_policy_names,
             )
 
-        if display_df.empty:
-            export_df = build_nas_export_dataframe(
-                display_df,
-                clean_principal=clean_nas_principal,
-                profile_lookup=_nas_export_ad_profile,
-            )
-        else:
+        prepared_export = prepare_nas_export_permissions(
+            display_df,
+            clean_principal=clean_nas_principal,
+        )
+        _, permission_by_user = prepared_export
+        if permission_by_user:
             with st.spinner("กำลังจับคู่ Company, Department และ Firewall Policy จาก AD..."):
-                export_df = build_nas_export_dataframe(
-                    display_df,
-                    clean_principal=clean_nas_principal,
+                export_df = build_nas_export_dataframe_from_permissions(
+                    prepared_export,
                     profile_lookup=_nas_export_ad_profile,
                 )
+        else:
+            export_df = build_nas_export_dataframe_from_permissions(
+                prepared_export,
+                profile_lookup=_nas_export_ad_profile,
+            )
 
         csv_data = build_nas_csv(export_df)
         excel_data = build_nas_excel(export_df)
