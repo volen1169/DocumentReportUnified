@@ -18,6 +18,19 @@ _COMPANY_ALIASES = {
 
 _PERMISSION_RANK = {"R": 1, "R/W": 2, "Deny": 3}
 
+# -----------------------------------------------------------------------------
+# EXPORT CONFIG
+# ปรับรายชื่อที่ไม่ต้องการ Export และเพิ่มคอลัมน์ใหม่ได้จากจุดเดียว
+# -----------------------------------------------------------------------------
+# ตัวอย่าง:
+# _NAS_EXPORT_EXCLUDED_NAMES = {"Administrator", "Guest", "Test.User"}
+_NAS_EXPORT_EXCLUDED_NAMES = set()
+
+# เพิ่มคอลัมน์แบบค่าคงที่ให้ทั้ง CSV และ Excel
+# ตัวอย่าง:
+# _NAS_EXPORT_EXTRA_COLUMNS = {"Status": "Active", "Remark": ""}
+_NAS_EXPORT_EXTRA_COLUMNS = {}
+
 _SHARE_HEADER_COLORS = {
     "EGI_": ("166534", "FFFFFF"),
     "OPG_": ("F97316", "FFFFFF"),
@@ -92,8 +105,20 @@ def build_nas_export_dataframe(
     *,
     clean_principal,
     profile_lookup,
+    exclude_names=None,
+    extra_columns=None,
 ):
-    """Build the user-by-share NAS permission matrix in baseline order."""
+    """Build the user-by-share NAS permission matrix in baseline order.
+
+    Parameters
+    ----------
+    exclude_names : iterable[str] | None
+        Exact principal names to remove from the final CSV/Excel export.
+        Matching is case-insensitive. If omitted, _NAS_EXPORT_EXCLUDED_NAMES is used.
+    extra_columns : dict | None
+        Extra constant columns to insert after Department. If omitted,
+        _NAS_EXPORT_EXTRA_COLUMNS is used.
+    """
     prepared_export = prepare_nas_export_permissions(
         display_df,
         clean_principal=clean_principal,
@@ -101,6 +126,8 @@ def build_nas_export_dataframe(
     return build_nas_export_dataframe_from_permissions(
         prepared_export,
         profile_lookup=profile_lookup,
+        exclude_names=exclude_names,
+        extra_columns=extra_columns,
     )
 
 
@@ -144,22 +171,58 @@ def build_nas_export_dataframe_from_permissions(
     prepared_export,
     *,
     profile_lookup,
+    exclude_names=None,
+    extra_columns=None,
 ):
-    """Enrich a prepared permission mapping and build the export DataFrame."""
+    """Enrich a prepared permission mapping and build the export DataFrame.
+
+    Filtering and extra columns are applied here so CSV and Excel always receive
+    the exact same final DataFrame.
+    """
     share_names, permission_by_user = prepared_export
+
+    excluded = _NAS_EXPORT_EXCLUDED_NAMES if exclude_names is None else exclude_names
+    excluded_keys = {
+        str(name or "").strip().casefold()
+        for name in excluded
+        if str(name or "").strip()
+    }
+
+    configured_extra_columns = (
+        _NAS_EXPORT_EXTRA_COLUMNS if extra_columns is None else extra_columns
+    )
+    if not isinstance(configured_extra_columns, dict):
+        raise TypeError("extra_columns must be a dict, for example {'Status': 'Active'}")
+
     matrix_rows = []
     for user_record in sorted(permission_by_user.values(), key=lambda item: item["Name"].casefold()):
-        profile = profile_lookup(user_record["Name"])
+        user_name = str(user_record.get("Name", "")).strip()
+
+        # Remove names that should not appear in either CSV or Excel.
+        if user_name.casefold() in excluded_keys:
+            continue
+
+        profile = profile_lookup(user_name)
         export_record = {
-            "Name": user_record["Name"],
+            "Name": user_name,
             "Company": profile.get("Company", "-"),
             "Department": profile.get("Department", "-"),
         }
+
+        # Extra columns are inserted after Department.
+        for column_name, value in configured_extra_columns.items():
+            export_record[str(column_name)] = value
+
         export_record.update({share: user_record["Shares"].get(share, "") for share in share_names})
         export_record["Firewall Policy"] = profile.get("Firewall Policy", "-")
         matrix_rows.append(export_record)
 
-    export_columns = ["Name", "Company", "Department"] + share_names + ["Firewall Policy"]
+    export_columns = (
+        ["Name", "Company", "Department"]
+        + [str(column_name) for column_name in configured_extra_columns]
+        + share_names
+        + ["Firewall Policy"]
+    )
     return pd.DataFrame(matrix_rows, columns=export_columns)
 
 
