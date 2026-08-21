@@ -94,13 +94,21 @@ def resolve_nas_export_profile(
         user = summary.get("user") or {}
         company = _nas_first_value(user, "company", "companyName", "Company", "CompanyName")
         department = _nas_first_value(user, "department", "Department", "departmentName")
+        job_title = _nas_first_value(user, "title", "jobTitle", "Title", "JobTitle")
         policy_names = policy_formatter(summary.get("policies", []))
         return {
             "Company": _nas_company_abbreviation(company),
-            "Department": department or "-",
+            "Division": department or "-",
+            "Position": job_title or "-",
             "Firewall Policy": policy_names or "-",
         }
-    return {"Company": "-", "Department": "-", "Firewall Policy": "-", "Error": last_error}
+    return {
+        "Company": "-",
+        "Division": "-",
+        "Position": "-",
+        "Firewall Policy": "-",
+        "Error": last_error,
+    }
 
 
 def build_nas_export_dataframe(
@@ -208,8 +216,9 @@ def build_nas_export_dataframe_from_permissions(
         profile = profile_lookup(user_name)
         export_record = {
             "Name": user_name,
+            "Position": profile.get("Position", "-"),
+            "Division": profile.get("Division", "-"),
             "Company": profile.get("Company", "-"),
-            "Department": profile.get("Department", "-"),
         }
 
         # Extra columns are inserted after Department.
@@ -221,12 +230,25 @@ def build_nas_export_dataframe_from_permissions(
         matrix_rows.append(export_record)
 
     export_columns = (
-        ["Name", "Company", "Department"]
+        ["Name", "Position", "Division", "Company"]
         + [str(column_name) for column_name in configured_extra_columns]
         + share_names
         + ["Firewall Policy"]
     )
-    return pd.DataFrame(matrix_rows, columns=export_columns)
+
+    export_df = pd.DataFrame(matrix_rows, columns=export_columns)
+
+    # Sort Company A-Z first, then Name A-Z within each company.
+    if not export_df.empty:
+        export_df = export_df.sort_values(
+            by=["Company", "Name"],
+            key=lambda col: col.astype(str).str.casefold(),
+            kind="stable",
+        ).reset_index(drop=True)
+
+    # Generate No. after sorting so numbering follows the final export order.
+    export_df.insert(0, "No.", range(1, len(export_df) + 1))
+    return export_df
 
 
 def build_nas_csv(export_df) -> bytes:
@@ -244,38 +266,63 @@ def build_nas_excel(export_df) -> bytes:
         ws = writer.sheets["NAS Permissions"]
         thin = Side(style="thin", color="D9E2F3")
         default_fill, default_font_color = "4472C4", "FFFFFF"
+        metadata_columns = {
+            "No.",
+            "Name",
+            "Position",
+            "Division",
+            "Company",
+            "Firewall Policy",
+            *[str(column_name) for column_name in _NAS_EXPORT_EXTRA_COLUMNS],
+        }
+
         for col_index, column_name in enumerate(export_columns, start=1):
             cell = ws.cell(row=1, column=col_index)
+            is_share_column = column_name not in metadata_columns
+
             fill_color, font_color = default_fill, default_font_color
-            if col_index > 3 and column_name != "Firewall Policy":
+            if is_share_column:
                 for prefix, colors in _SHARE_HEADER_COLORS.items():
                     if str(column_name).upper().startswith(prefix):
                         fill_color, font_color = colors
                         break
+
             cell.fill = PatternFill("solid", fgColor=fill_color)
             cell.font = Font(name="Kanit", size=10, bold=True, color=font_color)
             cell.alignment = Alignment(
                 horizontal="center",
                 vertical="center",
-                text_rotation=90 if col_index > 3 and column_name != "Firewall Policy" else 0,
+                text_rotation=90 if is_share_column else 0,
                 wrap_text=True,
             )
             cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
             for row_index in range(2, ws.max_row + 1):
                 body_cell = ws.cell(row=row_index, column=col_index)
                 body_cell.font = Font(name="Kanit", size=10)
                 body_cell.alignment = Alignment(
-                    horizontal="center" if col_index > 1 else "left",
+                    horizontal="left" if column_name == "Name" else "center",
                     vertical="center",
                 )
                 body_cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
-            ws.column_dimensions[get_column_letter(col_index)].width = (
-                8
-                if col_index > 3 and column_name != "Firewall Policy"
-                else min(max(len(str(column_name)) + 3, 14), 34)
-            )
+
+            if column_name == "No.":
+                column_width = 7
+            elif is_share_column:
+                column_width = 8
+            elif column_name == "Name":
+                column_width = 24
+            elif column_name in ("Position", "Division"):
+                column_width = 22
+            elif column_name == "Company":
+                column_width = 12
+            else:
+                column_width = min(max(len(str(column_name)) + 3, 14), 34)
+
+            ws.column_dimensions[get_column_letter(col_index)].width = column_width
+
         ws.row_dimensions[1].height = 120
-        ws.freeze_panes = "D2"
+        ws.freeze_panes = "F2"
         ws.auto_filter.ref = ws.dimensions
 
     excel_buf.seek(0)
