@@ -161,7 +161,7 @@ def render_computer_asset(
     with _ca_nav[1]:
         if st.button("<<",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
     with _ca_nav[2]:
-        if st.button("<",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
+        if st.button("◀️",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
     with _ca_nav[3]:
         st.button(str(_ca_page),use_container_width=True,type="primary",key="ca_current",disabled=True)
     with _ca_nav[4]:
