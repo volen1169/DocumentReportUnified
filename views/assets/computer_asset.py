@@ -159,15 +159,15 @@ def render_computer_asset(
 
     _ca_nav=st.columns([7,.52,.52,.52,.52,.52])
     with _ca_nav[1]:
-        if st.button("ยซ",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
+        if st.button("<<",use_container_width=True,key="ca_first",disabled=_ca_page<=1): st.session_state["ca_page"]=1; st.rerun()
     with _ca_nav[2]:
-        if st.button("โ€น",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
+        if st.button("<",use_container_width=True,key="ca_prev",disabled=_ca_page<=1): st.session_state["ca_page"]=_ca_page-1; st.rerun()
     with _ca_nav[3]:
         st.button(str(_ca_page),use_container_width=True,type="primary",key="ca_current",disabled=True)
     with _ca_nav[4]:
-        if st.button("โ€บ",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
+        if st.button(">",use_container_width=True,key="ca_next",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page+1; st.rerun()
     with _ca_nav[5]:
-        if st.button("ยป",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
+        if st.button(">>",use_container_width=True,key="ca_last",disabled=_ca_page>=_ca_page_count): st.session_state["ca_page"]=_ca_page_count; st.rerun()
 
     _ca_types={"Desktop":0,"All-in-One":0,"Notebook":0}; _ca_windows={"Windows 11":0,"Windows 10":0,"Windows 7":0}; _ca_depts={}
     for _,r in df_hw.iterrows():
