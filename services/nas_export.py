@@ -49,6 +49,28 @@ _NAS_EXPORT_REQUIRED_COMPANY_SHARES = {
     "SWI": {"SWI_Data_Center": "R/W"},
 }
 
+# OPG_Information_Technology:
+# อนุญาต R/W เฉพาะรายชื่อด้านล่างเท่านั้น ส่วนคนอื่นต้องเป็นค่าว่างใน Export
+_NAS_EXPORT_OPG_IT_RW_USERS = {
+    "teerapat.po",
+    "cholticha.ma",
+    "itsupport",
+    "it_network",
+    "sompong.po",
+}
+
+# OPT_ISO:
+# พนักงาน OPT ทุกคนได้ R ยกเว้นรายชื่อด้านล่างให้เป็นค่าว่างใน Export
+_NAS_EXPORT_OPT_ISO_EXCLUDED_USERS = {
+    "teerapat.po",
+    "cholticha.ma",
+    "sompong.po",
+    "sirinapa.ru",
+    "supanee.na",
+    "surattana.ch",
+    "sirikorn.ph",
+}
+
 _SHARE_HEADER_COLORS = {
     "EGI_": ("166534", "FFFFFF"),
     "OPG_": ("F97316", "FFFFFF"),
@@ -200,17 +222,41 @@ def _nas_export_required_share_names():
         for share_name in company_rules:
             if share_name not in required:
                 required.append(share_name)
+
+    if "OPG_Information_Technology" not in required:
+        required.append("OPG_Information_Technology")
+
+    if "OPT_ISO" not in required:
+        required.append("OPT_ISO")
+
     return required
 
 
-def _apply_nas_export_required_permissions(export_record, company):
-    """Apply mandatory export-only permissions based on Company."""
+def _apply_nas_export_required_permissions(export_record, company, user_name):
+    """Apply mandatory export-only permissions based on Company and user."""
     for share_name, permission in _NAS_EXPORT_REQUIRED_GLOBAL_SHARES.items():
         export_record[share_name] = permission
 
     company_key = str(company or "").strip().upper()
     for share_name, permission in _NAS_EXPORT_REQUIRED_COMPANY_SHARES.get(company_key, {}).items():
         export_record[share_name] = permission
+
+    # OPG_Information_Technology is restricted to the approved users only.
+    # Everyone else must be blank in the exported report, regardless of source ACL.
+    normalized_user = str(user_name or "").strip().casefold()
+    export_record["OPG_Information_Technology"] = (
+        "R/W" if normalized_user in _NAS_EXPORT_OPG_IT_RW_USERS else ""
+    )
+
+    # OPT_ISO: พนักงาน OPT ทุกคนได้ R ยกเว้นผู้ใช้ที่ระบุไว้ให้เป็นค่าว่าง
+    if company_key == "OPT":
+        export_record["OPT_ISO"] = (
+            ""
+            if normalized_user in _NAS_EXPORT_OPT_ISO_EXCLUDED_USERS
+            else "R"
+        )
+    else:
+        export_record["OPT_ISO"] = ""
 
     return export_record
 
@@ -275,6 +321,7 @@ def build_nas_export_dataframe_from_permissions(
         export_record = _apply_nas_export_required_permissions(
             export_record,
             profile.get("Company", "-"),
+            user_name,
         )
 
         export_record["Firewall Policy"] = profile.get("Firewall Policy", "-")
