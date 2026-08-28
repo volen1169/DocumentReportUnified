@@ -27,7 +27,7 @@ _PERMISSION_RANK = {"R": 1, "R/W": 2, "Deny": 3}
 _NAS_EXPORT_EXCLUDED_NAMES = {"acc01","ActiveBackup","admin","Administrator","administrators","backup","Domain Admins","Domain Users",
                               "EGI_WH","Enterprise Admins","Epicor","erplife1","Firealarm","fortigate","HR","HRHO","HRBR","HRBP","IT","it01","it02","it03",
                               "it04","Local Admin","MD","MicroTap","OPT_PL","OPT_SC","OPT_SF","OPT_WH","OPTWAREHOUSE","Pafun.Ath","PLC_WH",
-                             "PRP_AC","PRP_HR","PRP_IT","SWI_AC","SWI_MD","SWI_PD","SWI_Plan","SWI_SC","SWI_WH","Patcharin.Su","Veerapat.Ch","Voratat.Ch",}
+                             "PRP_AC","PRP_HR","PRP_IT","SWI_AC","SWI_MD","SWI_PD","SWI_Plan","SWI_SC","SWI_WH",}
 
 # เพิ่มคอลัมน์แบบค่าคงที่ให้ทั้ง CSV และ Excel
 # ตัวอย่าง:
@@ -373,13 +373,13 @@ def build_nas_csv(export_df) -> bytes:
 
 
 def build_nas_excel(export_df) -> bytes:
-    """Serialize a NAS export DataFrame as the formatted baseline workbook."""
+    """Serialize NAS permissions plus Policy Mapping as a formatted workbook."""
     excel_buf = io.BytesIO()
     export_columns = list(export_df.columns)
 
     with pd.ExcelWriter(excel_buf, engine="openpyxl") as writer:
-        export_df.to_excel(writer, index=False, sheet_name="Permissions")
-        ws = writer.sheets["Permissions"]
+        export_df.to_excel(writer, index=False, sheet_name="NAS Permissions")
+        ws = writer.sheets["NAS Permissions"]
         thin = Side(style="thin", color="D9E2F3")
         default_fill, default_font_color = "4472C4", "FFFFFF"
         metadata_columns = {
@@ -440,6 +440,77 @@ def build_nas_excel(export_df) -> bytes:
         ws.row_dimensions[1].height = 120
         ws.freeze_panes = "F2"
         ws.auto_filter.ref = ws.dimensions
+
+        # ---------------------------------------------------------------------
+        # Sheet 2: Policy Mapping
+        # Static policy reference sheet based on the company's mapping format.
+        # ---------------------------------------------------------------------
+        policy_ws = writer.book.create_sheet("Policy Mapping")
+
+        # Column widths similar to the reference workbook.
+        policy_ws.column_dimensions["A"].width = 4
+        policy_ws.column_dimensions["B"].width = 24
+        policy_ws.column_dimensions["C"].width = 20
+        policy_ws.column_dimensions["D"].width = 34
+        policy_ws.column_dimensions["E"].width = 26
+        policy_ws.column_dimensions["F"].width = 4
+
+        title_font = Font(name="Kanit", size=11, bold=True, underline="single")
+        normal_font = Font(name="Kanit", size=10)
+        table_header_font = Font(name="Kanit", size=10, bold=True)
+        table_header_fill = PatternFill("solid", fgColor="B7B7B7")
+
+        # Procedure section
+        policy_ws["B2"] = "Procedure"
+        policy_ws["B2"].font = title_font
+        policy_ws["B3"] = "ใบแจ้งขอ/ใบแจ้งพนักงานใหม่ > file: check list user > file: permission share drive"
+        policy_ws["B3"].font = normal_font
+
+        # Firewall policy section
+        policy_ws["B5"] = "Policy Internet - Firewall"
+        policy_ws["B5"].font = title_font
+
+        headers = ["Policy Name", "Level", "Description", "Limit"]
+        for idx, header in enumerate(headers, start=2):
+            cell = policy_ws.cell(row=7, column=idx, value=header)
+            cell.font = table_header_font
+            cell.fill = table_header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+        firewall_rows = [
+            ["MD", "MD", "ใช้ได้เฉพาะ MD", "Unlimit"],
+            ["Conference", "Conference", "ใช้ได้เฉพาะเครื่อง Conference", "Unlimit + Bypass Authen"],
+            ["IT", "IT", "ใช้ได้เฉพาะ IT", "400Mbps"],
+            ["Officer_A", "C1-C5", "Allow All", "400Mbps"],
+            ["Officer_B", "C1-C5", "Block All", "400Mbps"],
+            ["Officer_C", "C1-C5", "Allow Youtube", "400Mbps"],
+            ["Officer_D", "C1-C5", "Allow Facebook", "400Mbps"],
+            ["Officer_E", "C1-C5", "Allow Youtube + Facebook", "400Mbps"],
+            ["Supervisor_A", "C6-C10", "Allow All", "600Mbps"],
+            ["Supervisor_B", "C6-C10", "Block All", "600Mbps"],
+            ["Supervisor_C", "C6-C10", "Allow Youtube", "600Mbps"],
+            ["Supervisor_D", "C6-C10", "Allow Facebook", "600Mbps"],
+            ["Supervisor_E", "C6-C10", "Allow Youtube + Facebook", "600Mbps"],
+        ]
+
+        for row_offset, values in enumerate(firewall_rows, start=8):
+            for col_offset, value in enumerate(values, start=2):
+                cell = policy_ws.cell(row=row_offset, column=col_offset, value=value)
+                cell.font = normal_font
+                cell.alignment = Alignment(
+                    horizontal="center" if col_offset in (3, 5) else "left",
+                    vertical="center",
+                )
+                cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+        # Bitdefender section header, matching the supplied reference.
+        policy_ws["B22"] = "Policy Internet - Bitdefender"
+        policy_ws["B22"].font = title_font
+
+        # Keep the sheet visually similar to the reference.
+        policy_ws.sheet_view.showGridLines = True
+        policy_ws.freeze_panes = None
 
     excel_buf.seek(0)
     return excel_buf.getvalue()
