@@ -336,6 +336,24 @@ def build_nas_export_dataframe_from_permissions(
 
     export_df = pd.DataFrame(matrix_rows, columns=export_columns)
 
+    # FINAL EXPORT GUARD:
+    # บังคับ OPG_Information_Technology อีกครั้งที่ DataFrame สุดท้าย
+    # เพื่อป้องกันค่า ACL เดิม R/W หลุดกลับเข้ามาใน CSV / Excel
+    # ไม่ว่าค่าใน source NAS จะเป็นอะไร คนที่ไม่อยู่ใน allowlist ต้องว่างเสมอ
+    if "OPG_Information_Technology" in export_df.columns and "Name" in export_df.columns:
+        allowed_it_users = {
+            str(name).strip().casefold()
+            for name in _NAS_EXPORT_OPG_IT_RW_USERS
+        }
+
+        export_df["OPG_Information_Technology"] = export_df["Name"].apply(
+            lambda value: (
+                "R/W"
+                if str(value or "").strip().casefold() in allowed_it_users
+                else ""
+            )
+        )
+
     # Sort Company A-Z first, then Name A-Z within each company.
     if not export_df.empty:
         export_df = export_df.sort_values(
