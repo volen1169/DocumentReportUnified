@@ -437,6 +437,22 @@ def build_nas_excel(export_df) -> bytes:
 
             ws.column_dimensions[get_column_letter(col_index)].width = column_width
 
+        # บังคับกรอบตาราง NAS Permissions ให้ครบทุกช่อง
+        # ครอบคลุมตั้งแต่ Header ถึงข้อมูลแถว/คอลัมน์สุดท้าย
+        for row in ws.iter_rows(
+            min_row=1,
+            max_row=ws.max_row,
+            min_col=1,
+            max_col=ws.max_column,
+        ):
+            for cell in row:
+                cell.border = Border(
+                    left=thin,
+                    right=thin,
+                    top=thin,
+                    bottom=thin,
+                )
+
         ws.row_dimensions[1].height = 120
         ws.freeze_panes = "F2"
         ws.auto_filter.ref = ws.dimensions
@@ -507,6 +523,17 @@ def build_nas_excel(export_df) -> bytes:
                     vertical="center",
                 )
                 cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+        # ใส่กรอบตาราง Firewall ให้ครบทุกช่อง B7:E20
+        # เพื่อให้ตารางชัดเจนทั้ง Header และ Data
+        for row in policy_ws.iter_rows(min_row=7, max_row=20, min_col=2, max_col=5):
+            for cell in row:
+                cell.border = Border(
+                    left=thin,
+                    right=thin,
+                    top=thin,
+                    bottom=thin,
+                )
 
         # Bitdefender section header, matching the supplied reference.
         policy_ws["B22"] = "Policy Internet - Bitdefender"
