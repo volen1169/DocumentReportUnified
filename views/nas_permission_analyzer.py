@@ -257,9 +257,9 @@ def render_nas_permission_analyzer(
         if admin_mode:
             export_col1, export_col2, _ = st.columns([0.18, 0.18, 0.64])
             with export_col1:
-                st.download_button("📥 Export CSV", csv_data, "nas_acl_report.csv", "text/csv", use_container_width=True)
+                st.download_button("📥 Export CSV", csv_data, "User_permission_listt.csv", "text/csv", use_container_width=True)
             with export_col2:
-                st.download_button("📊 Export Excel", excel_data, "nas_acl_report.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                st.download_button("📊 Export Excel", excel_data, "User_permission_listt.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
         else:
             st.info("🔒 Export ข้อมูล NAS ได้เฉพาะผู้ดูแลระบบ")
 
