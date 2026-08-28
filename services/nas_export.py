@@ -380,7 +380,7 @@ def build_nas_excel(export_df) -> bytes:
     with pd.ExcelWriter(excel_buf, engine="openpyxl") as writer:
         export_df.to_excel(writer, index=False, sheet_name="NAS Permissions")
         ws = writer.sheets["NAS Permissions"]
-        thin = Side(style="thin", color="D9E2F3")
+        thin = Side(style="thin", color="000000")
         default_fill, default_font_color = "4472C4", "FFFFFF"
         metadata_columns = {
             "No.",
@@ -524,9 +524,15 @@ def build_nas_excel(export_df) -> bytes:
                 )
                 cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-        # ใส่กรอบตาราง Firewall ให้ครบทุกช่อง B7:E20
-        # เพื่อให้ตารางชัดเจนทั้ง Header และ Data
-        for row in policy_ws.iter_rows(min_row=7, max_row=20, min_col=2, max_col=5):
+        # ใส่กรอบสีดำให้ตาราง Firewall ครบทุกช่อง
+        # คำนวณแถวสุดท้ายจากจำนวน Policy จริง เพื่อไม่ให้ตกหล่นเมื่อเพิ่ม Policy ใหม่
+        firewall_last_row = 7 + len(firewall_rows)
+        for row in policy_ws.iter_rows(
+            min_row=7,
+            max_row=firewall_last_row,
+            min_col=2,
+            max_col=5,
+        ):
             for cell in row:
                 cell.border = Border(
                     left=thin,
