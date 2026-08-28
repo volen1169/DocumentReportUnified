@@ -3323,6 +3323,13 @@ else:
     _nav_leaf("vendor_list", "🏢", "Vendor List")
     _nav_leaf("ink_stock", "💧", "Ink Stock")
 
+    if admin_mode:
+        _group_toggle("open_grp_admin", "🛠️", "Administration")
+        if st.session_state.open_grp_admin:
+            _nav_leaf("admin_users", "👥", "Users")
+            _nav_leaf("admin_settings", "⚙️", "Settings")
+            _nav_leaf("admin_logs", "🕘", "Activity Logs")
+
     st.sidebar.markdown("---")
 
     st.sidebar.markdown('<div class="nav-signout">', unsafe_allow_html=True)
