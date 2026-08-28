@@ -81,6 +81,15 @@ from views.nas_permission_analyzer import render_nas_permission_analyzer
 from views.ad_firewall_policy import render_ad_firewall_policy
 from views.assets.computer_asset import render_computer_asset
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
+from views.administration import render_administration
+from services.bitdefender_service import (
+    BitdefenderAPIError,
+    build_mapping_diagnostics as build_bitdefender_mapping_diagnostics,
+    build_endpoint_diagnostics as build_bitdefender_diagnostics,
+    get_managed_endpoint_inventory as get_bitdefender_endpoint_inventory,
+    map_computers_with_inventory_loader as map_computers_with_bitdefender_inventory,
+    test_connection as test_bitdefender_connection,
+)
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 
@@ -5250,23 +5259,19 @@ else:
     # 🖨️ Stock หมึกพิมพ์
     # -------------------------------------------------------
     elif main_menu == "โ Administration":
-        _admin_pages = {
-            "admin_users": ("👥", "Users", "จัดการผู้ใช้และสิทธิ์การเข้าถึง"),
-            "admin_settings": ("⚙", "Settings", "การตั้งค่าระบบและการเชื่อมต่อ"),
-            "admin_logs": ("📜", "Activity Logs", "บันทึกกิจกรรมและการตรวจสอบ"),
-        }
-        _ap = _admin_pages.get(_nav, ("โ", "Administration", ""))
-        page_header(_ap[0], _ap[1], _ap[2])
-        st.markdown("""
-        <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-radius:16px;
-            padding:2rem 2.2rem;border:1px solid #e2e8f0;box-shadow:0 8px 32px rgba(99,102,241,.08);">
-            <div style="font-size:2.5rem;margin-bottom:12px;">🚧</div>
-            <h3 style="color:#201f1e;margin:0 0 8px;font-size:1.1rem;">Coming soon</h3>
-            <p style="color:#605e5c;margin:0;font-size:0.9rem;">
-                ส่วนนี้อยู่ระหว่างพัฒนา — ฟีเจอร์จะเปิดใช้งานในรุ่นถัดไป
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_administration(
+            nav_key=_nav,
+            admin_mode=admin_mode,
+            page_header=page_header,
+            test_bitdefender_connection=test_bitdefender_connection,
+            get_bitdefender_endpoint_inventory=get_bitdefender_endpoint_inventory,
+            build_bitdefender_diagnostics=build_bitdefender_diagnostics,
+            load_computer_assets=load_sp_data,
+            computer_asset_list_name="Computer Asset",
+            map_computers_with_inventory=map_computers_with_bitdefender_inventory,
+            build_computer_mapping_diagnostics=build_bitdefender_mapping_diagnostics,
+            bitdefender_error_type=BitdefenderAPIError,
+        )
 
     elif main_menu == "🖨️ Stock หมึกพิมพ์":
         if _nav == "consumables":
