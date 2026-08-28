@@ -378,8 +378,8 @@ def build_nas_excel(export_df) -> bytes:
     export_columns = list(export_df.columns)
 
     with pd.ExcelWriter(excel_buf, engine="openpyxl") as writer:
-        export_df.to_excel(writer, index=False, sheet_name="NAS Permissions")
-        ws = writer.sheets["NAS Permissions"]
+        export_df.to_excel(writer, index=False, sheet_name="Permissions")
+        ws = writer.sheets["Permissions"]
         thin = Side(style="thin", color="D9E2F3")
         default_fill, default_font_color = "4472C4", "FFFFFF"
         metadata_columns = {
