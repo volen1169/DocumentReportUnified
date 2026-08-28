@@ -490,6 +490,7 @@ def build_nas_excel(export_df) -> bytes:
             ["Supervisor_A", "C6-C10", "Allow All", "600Mbps"],
             ["Supervisor_B", "C6-C10", "Block All", "600Mbps"],
             ["Supervisor_C", "C6-C10", "Allow Youtube", "600Mbps"],
+            ["Supervisor_C_Allow_Google_AI_Studio", "C6-C10", "Allow Youtube", "600Mbps"],
             ["Supervisor_D", "C6-C10", "Allow Facebook", "600Mbps"],
             ["Supervisor_E", "C6-C10", "Allow Youtube + Facebook", "600Mbps"],
         ]
