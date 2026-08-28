@@ -27,12 +27,27 @@ _PERMISSION_RANK = {"R": 1, "R/W": 2, "Deny": 3}
 _NAS_EXPORT_EXCLUDED_NAMES = {"acc01","ActiveBackup","admin","Administrator","administrators","backup","Domain Admins","Domain Users",
                               "EGI_WH","Enterprise Admins","Epicor","erplife1","Firealarm","fortigate","HR","HRHO","HRBR","HRBP","IT","it01","it02","it03",
                               "it04","Local Admin","MD","MicroTap","OPT_PL","OPT_SC","OPT_SF","OPT_WH","OPTWAREHOUSE","Pafun.Ath","PLC_WH",
-                             "PRP_AC","PRP_HR","PRP_IT","SWI_AC","SWI_MD","SWI_PD","SWI_Plan","SWI_SC","SWI_WH","AR","Patcharin.Su","Veerapat.Ch"}
+                             "PRP_AC","PRP_HR","PRP_IT","SWI_AC","SWI_MD","SWI_PD","SWI_Plan","SWI_SC","SWI_WH",}
 
 # เพิ่มคอลัมน์แบบค่าคงที่ให้ทั้ง CSV และ Excel
 # ตัวอย่าง:
 # _NAS_EXPORT_EXTRA_COLUMNS = {"Status": "Active", "Remark": ""}
 _NAS_EXPORT_EXTRA_COLUMNS = {}
+
+# -----------------------------------------------------------------------------
+# EXPORT-ONLY REQUIRED NAS PERMISSIONS
+# มีผลเฉพาะ CSV / Excel ที่ Export ออกมา ไม่ได้แก้ ACL จริงบน NAS
+# -----------------------------------------------------------------------------
+_NAS_EXPORT_REQUIRED_GLOBAL_SHARES = {
+    "OPG_Data_Center": "R/W",
+}
+
+_NAS_EXPORT_REQUIRED_COMPANY_SHARES = {
+    "EGI": {"EGI_Data_Center": "R/W"},
+    "OPT": {"OPT_Data_Center": "R/W"},
+    "PLC": {"PLC_Data_Center": "R/W"},
+    "SWI": {"SWI_Data_Center": "R/W"},
+}
 
 _SHARE_HEADER_COLORS = {
     "EGI_": ("166534", "FFFFFF"),
@@ -178,6 +193,28 @@ def prepare_nas_export_permissions(
     return share_names, permission_by_user
 
 
+def _nas_export_required_share_names():
+    """Return all mandatory export-only share columns in stable order."""
+    required = list(_NAS_EXPORT_REQUIRED_GLOBAL_SHARES.keys())
+    for company_rules in _NAS_EXPORT_REQUIRED_COMPANY_SHARES.values():
+        for share_name in company_rules:
+            if share_name not in required:
+                required.append(share_name)
+    return required
+
+
+def _apply_nas_export_required_permissions(export_record, company):
+    """Apply mandatory export-only permissions based on Company."""
+    for share_name, permission in _NAS_EXPORT_REQUIRED_GLOBAL_SHARES.items():
+        export_record[share_name] = permission
+
+    company_key = str(company or "").strip().upper()
+    for share_name, permission in _NAS_EXPORT_REQUIRED_COMPANY_SHARES.get(company_key, {}).items():
+        export_record[share_name] = permission
+
+    return export_record
+
+
 def build_nas_export_dataframe_from_permissions(
     prepared_export,
     *,
@@ -191,6 +228,12 @@ def build_nas_export_dataframe_from_permissions(
     the exact same final DataFrame.
     """
     share_names, permission_by_user = prepared_export
+
+    # เพิ่ม Mandatory Share เป็นคอลัมน์เสมอ แม้ source ACL ปัจจุบันยังไม่มีคอลัมน์นั้น
+    share_names = list(share_names)
+    for required_share in _nas_export_required_share_names():
+        if required_share not in share_names:
+            share_names.append(required_share)
 
     excluded = _NAS_EXPORT_EXCLUDED_NAMES if exclude_names is None else exclude_names
     excluded_keys = {
@@ -226,6 +269,14 @@ def build_nas_export_dataframe_from_permissions(
             export_record[str(column_name)] = value
 
         export_record.update({share: user_record["Shares"].get(share, "") for share in share_names})
+
+        # บังคับสิทธิ์เฉพาะในรายงาน Export ตามกฎของบริษัท
+        # ค่า R/W นี้ตั้งใจให้ override ค่าเดิม (R / Deny / ว่าง) ในไฟล์ Export
+        export_record = _apply_nas_export_required_permissions(
+            export_record,
+            profile.get("Company", "-"),
+        )
+
         export_record["Firewall Policy"] = profile.get("Firewall Policy", "-")
         matrix_rows.append(export_record)
 
