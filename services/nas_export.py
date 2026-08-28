@@ -446,6 +446,9 @@ def build_nas_excel(export_df) -> bytes:
         # Static policy reference sheet based on the company's mapping format.
         # ---------------------------------------------------------------------
         policy_ws = writer.book.create_sheet("Policy Mapping")
+        # ให้ Policy Mapping เป็น Sheet แรก และ NAS Permissions เป็น Sheet ถัดไป
+        writer.book._sheets.remove(policy_ws)
+        writer.book._sheets.insert(0, policy_ws)
 
         # Column widths similar to the reference workbook.
         policy_ws.column_dimensions["A"].width = 4
@@ -490,7 +493,7 @@ def build_nas_excel(export_df) -> bytes:
             ["Supervisor_A", "C6-C10", "Allow All", "600Mbps"],
             ["Supervisor_B", "C6-C10", "Block All", "600Mbps"],
             ["Supervisor_C", "C6-C10", "Allow Youtube", "600Mbps"],
-            ["Supervisor_C_Allow_Google_AI_Studio", "C6-C10", "Allow Youtube", "600Mbps"],
+            ["Supervisor_C_Allow_Google_AI_Studio", "C6-C10", "Allow AI", "600Mbps"],
             ["Supervisor_D", "C6-C10", "Allow Facebook", "600Mbps"],
             ["Supervisor_E", "C6-C10", "Allow Youtube + Facebook", "600Mbps"],
         ]
