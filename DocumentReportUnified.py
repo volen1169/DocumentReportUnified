@@ -81,6 +81,7 @@ from views.nas_permission_analyzer import render_nas_permission_analyzer
 from views.ad_firewall_policy import render_ad_firewall_policy
 from views.assets.computer_asset import render_computer_asset
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
+from views.assets.monitor_asset import render_monitor_asset
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 
@@ -5215,15 +5216,24 @@ else:
             )
             st.stop()
 
-        render_generic_hardware_asset(
-            df_hw=df_hw,
-            list_name=sub,
-            hardware_name=hardware_name,
-            admin_mode=admin_mode,
-            show_pop_computer=show_pop_computer,
-            add_computer_dialog=add_computer_dialog,
-            edit_computer_dialog=edit_computer_dialog,
-        )
+        if sub == "Asset Monitor":
+            render_monitor_asset(
+                df_hw=df_hw,
+                admin_mode=admin_mode,
+                show_pop_computer=show_pop_computer,
+                add_computer_dialog=add_computer_dialog,
+                edit_computer_dialog=edit_computer_dialog,
+            )
+        else:
+            render_generic_hardware_asset(
+                df_hw=df_hw,
+                list_name=sub,
+                hardware_name=hardware_name,
+                admin_mode=admin_mode,
+                show_pop_computer=show_pop_computer,
+                add_computer_dialog=add_computer_dialog,
+                edit_computer_dialog=edit_computer_dialog,
+            )
 
 
 
