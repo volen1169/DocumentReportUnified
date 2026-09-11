@@ -7,9 +7,10 @@ def render_generic_hardware_asset(
     list_name,
     hardware_name,
     admin_mode,
-    show_pop_computer,
-    add_computer_dialog,
-    edit_computer_dialog,
+    card_renderer,
+    add_handler,
+    add_button_label,
+    search_fields,
 ):
     st.markdown(f"""
         <div class="asset-hero">
@@ -51,11 +52,13 @@ def render_generic_hardware_asset(
 
     with col_add:
         if admin_mode:
-            if st.button("➕ เพิ่มคอมพิวเตอร์", use_container_width=True, type="primary"):
-                add_computer_dialog(list_name)
+            if st.button(add_button_label, use_container_width=True, type="primary"):
+                add_handler(list_name)
 
     if search and not df_hw.empty:
-        df_hw = df_hw[df_hw.astype(str).apply(
+        searchable_columns = [field for field in search_fields if field in df_hw.columns]
+        searchable_df = df_hw[searchable_columns] if searchable_columns else df_hw.iloc[:, 0:0]
+        df_hw = df_hw[searchable_df.astype(str).apply(
             lambda x: x.str.contains(search, case=False)
         ).any(axis=1)]
 
@@ -64,30 +67,4 @@ def render_generic_hardware_asset(
     for i, (idx, row) in enumerate(df_hw.iterrows()):
 
         with cols[i % 3]:
-
-            name = row.get("field_3", "Unknown")
-            initials = "".join([x[0] for x in name.split()[:2]]).upper()
-
-            status = row.get("Status", "Active")
-            badge_class = "badge-active" if status == "Active" else "badge-inactive"
-
-            with st.container(border=True):
-                st.markdown(f"### 👤 {name}")
-                st.caption(f"🏢 {row.get('field_1','-')}  |  Status: {status}")
-                st.write(f"💻 Hostname: {row.get('field_6','-')}")
-                st.write(f"🏷️ Model: {row.get('field_7','-')}")
-                st.write(f"💾 RAM: {row.get('field_13','-')}")
-                st.write(f"🔢 Serial: {row.get('field_8','-')}")
-
-            if admin_mode:
-                b1, b2 = st.columns(2)
-
-                with b1:
-                    if st.button("🔍 ดูข้อมูล", key=f"view_{idx}", use_container_width=True):
-                        show_pop_computer(row.to_dict())
-
-                with b2:
-                    if st.button("✏️ แก้ไข", key=f"edit_{idx}", use_container_width=True):
-                        edit_computer_dialog(row.to_dict(), list_name)
-            else:
-                st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
+            card_renderer(row, idx, admin_mode)

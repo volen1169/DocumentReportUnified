@@ -82,6 +82,7 @@ from views.ad_firewall_policy import render_ad_firewall_policy
 from views.assets.computer_asset import render_computer_asset
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
 from views.assets.monitor_asset import render_monitor_asset
+from views.assets.printer_asset import render_printer_asset
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 
@@ -337,24 +338,6 @@ COMPUTER_FIELDS = {
     "field_15": "Storage C:",
     "field_16": "Storage D:",
     "Status": "Status",
-}
-
-# Field mapping สำหรับ Monitor
-MONITOR_FIELDS = {
-    "field_1": "บริษัท",
-    "field_3": "ชื่อพนักงาน",
-    "field_2": "Brand/Model",
-    "field_4": "Serial No.",
-    "Status": "Status",
-}
-
-# Field mapping สำหรับ Printer
-PRINTER_FIELDS = {
-    "Company": "บริษัท",
-    "User": "User",
-    "Brand_x0020__x002f__x0020_Model": "Brand/Model",
-    "S_x002f_N_x0020_No_x002e_": "Serial No.",
-    "field_3": "IP Address",
 }
 
 COMPANY_OPTIONS = ["OPT", "SWI", "PRP", "PLC", "EGI", "THK"]
@@ -1011,68 +994,33 @@ def render_card_computer(row, key, admin_mode):
 
 
 # =============================================================================
-# FUNCTION : render_card_monitor
-# UI OWNER   : Asset Management > Monitors
-# PURPOSE    : สร้างการ์ดแสดงข้อมูล Monitor 1 รายการ
-# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
-# CSS OWNER  : HARDWARE_THEME / Card CSS
+# FUNCTION : render_temporary_legacy_hardware_card
+# UI OWNER   : Pending-schema hardware compatibility
+# PURPOSE    : รักษา UI เดิมโดยไม่ให้ Generic renderer เป็นเจ้าของ schema
+# DATA FLOW  : SharePoint -> caller-owned compatibility card -> Streamlit
+# SCHEMA     : PENDING CONFIRMATION
 # =============================================================================
-def render_card_monitor(row, key, admin_mode):
-    status = row.get('Status', '')
-    with st.container():
-        st.markdown(f"""
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-            <div>
-                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
-            </div>
-            {_hw_badge(status)}
-        </div>
-        <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
-        """, unsafe_allow_html=True)
-        if admin_mode:
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🔍 ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
-                    show_pop_monitor(row.to_dict(), admin_mode=True)
-            with c2:
-                if st.button("✏️ แก้ไข", key=f"mon_edit_{key}", use_container_width=True):
-                    st.session_state[f"edit_monitor_{key}"] = True
-                    st.rerun()
-        else:
-            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
-
-
-# =============================================================================
-# FUNCTION : render_card_printer
-# UI OWNER   : Asset Management > Printers
-# PURPOSE    : สร้างการ์ดแสดงข้อมูล Printer 1 รายการ
-# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
-# CSS OWNER  : HARDWARE_THEME / Card CSS
-# =============================================================================
-def render_card_printer(row, key, admin_mode):
-    with st.container():
-        st.markdown(f"""
-        <div style="margin-bottom:6px;">
-            <div class="hw-card-title">🖨️ {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
-            <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
-        </div>
-        <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
-        {'<div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
-        """, unsafe_allow_html=True)
-        if admin_mode:
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🔍 ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
-                    show_pop_printer(row.to_dict(), admin_mode=True)
-            with c2:
-                if st.button("✏️ แก้ไข", key=f"prn_edit_{key}", use_container_width=True):
-                    st.session_state[f"edit_printer_{key}"] = True
-                    st.rerun()
-        else:
-            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
+def render_temporary_legacy_hardware_card(row, key, admin_mode, *, list_name):
+    """Preserve the pre-refactor UI for pages whose schemas remain unconfirmed."""
+    name = row.get("field_3", "Unknown")
+    status = row.get("Status", "Active")
+    with st.container(border=True):
+        st.markdown(f"### 👤 {name}")
+        st.caption(f"🏢 {row.get('field_1','-')}  |  Status: {status}")
+        st.write(f"💻 Hostname: {row.get('field_6','-')}")
+        st.write(f"🏷️ Model: {row.get('field_7','-')}")
+        st.write(f"💾 RAM: {row.get('field_13','-')}")
+        st.write(f"🔢 Serial: {row.get('field_8','-')}")
+    if admin_mode:
+        b1, b2 = st.columns(2)
+        with b1:
+            if st.button("🔍 ดูข้อมูล", key=f"view_{key}", use_container_width=True):
+                show_pop_computer(row.to_dict())
+        with b2:
+            if st.button("✏️ แก้ไข", key=f"edit_{key}", use_container_width=True):
+                edit_computer_dialog(row.to_dict(), list_name)
+    else:
+        st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
 
 # =============================================================================
 # SECTION 08 : VIEW DIALOGS
@@ -5220,19 +5168,33 @@ else:
             render_monitor_asset(
                 df_hw=df_hw,
                 admin_mode=admin_mode,
-                show_pop_computer=show_pop_computer,
-                add_computer_dialog=add_computer_dialog,
-                edit_computer_dialog=edit_computer_dialog,
+                show_pop_monitor=show_pop_monitor,
+                add_monitor_dialog=add_monitor_dialog,
+                edit_monitor_dialog=edit_monitor_dialog,
+                badge_renderer=_hw_badge,
+            )
+        elif sub == "Asset Printer":
+            render_printer_asset(
+                df_hw=df_hw,
+                admin_mode=admin_mode,
+                show_pop_printer=show_pop_printer,
+                add_printer_dialog=add_printer_dialog,
+                edit_printer_dialog=edit_printer_dialog,
             )
         else:
+            # SCHEMA PENDING CONFIRMATION: preserve the exact legacy card/dialog
+            # behavior for Projector, UPS, Misc, CCTV and Access Control.
             render_generic_hardware_asset(
                 df_hw=df_hw,
                 list_name=sub,
                 hardware_name=hardware_name,
                 admin_mode=admin_mode,
-                show_pop_computer=show_pop_computer,
-                add_computer_dialog=add_computer_dialog,
-                edit_computer_dialog=edit_computer_dialog,
+                card_renderer=lambda row, key, is_admin: render_temporary_legacy_hardware_card(
+                    row, key, is_admin, list_name=sub
+                ),
+                add_handler=add_computer_dialog,
+                add_button_label="➕ เพิ่มคอมพิวเตอร์",
+                search_fields=tuple(df_hw.columns),
             )
 
 
