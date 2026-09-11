@@ -11,7 +11,7 @@ def render_generic_hardware_asset(
     add_handler,
     add_button_label,
     search_fields,
-    metric_config,
+    metric_config=(),
     search_placeholder="ค้นหาข้อมูล...",
 ):
     st.markdown(f"""
@@ -24,10 +24,11 @@ def render_generic_hardware_asset(
         """, unsafe_allow_html=True)
 
     # ใช้ Streamlit metric แทน HTML เพื่อป้องกัน HTML render เป็น text
-    metric_columns = st.columns(len(metric_config))
-    for column, (label, resolver) in zip(metric_columns, metric_config):
-        with column:
-            st.metric(label, resolver(df_hw))
+    if metric_config:
+        metric_columns = st.columns(len(metric_config))
+        for column, (label, resolver) in zip(metric_columns, metric_config):
+            with column:
+                st.metric(label, resolver(df_hw))
 
     col_search, col_add = st.columns([0.82, 0.18])
 

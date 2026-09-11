@@ -30,6 +30,7 @@ class FakeStreamlit:
         self.metrics = []
         self.captions = []
         self.placeholders = []
+        self.column_specs = []
 
     def markdown(self, value, **_kwargs):
         self.markdowns.append(value)
@@ -38,6 +39,7 @@ class FakeStreamlit:
         self.metrics.append((label, value))
 
     def columns(self, spec):
+        self.column_specs.append(spec)
         count = spec if isinstance(spec, int) else len(spec)
         return [_Context() for _ in range(count)]
 
@@ -94,6 +96,44 @@ def test_generic_metrics_and_search_placeholder_are_page_owned():
     )
     assert fake.metrics == [("ITEMS", 1)]
     assert fake.placeholders == ["ค้นหาข้อมูล..."]
+
+
+def test_generic_omitted_metric_config_skips_metrics_and_continues():
+    fake = FakeStreamlit()
+    generic_hardware_asset.st = fake
+    rendered = []
+    generic_hardware_asset.render_generic_hardware_asset(
+        df_hw=pd.DataFrame([{"Name": "one"}]),
+        list_name="Asset Example",
+        hardware_name="Example",
+        admin_mode=False,
+        card_renderer=lambda row, key, is_admin: rendered.append((row["Name"], key, is_admin)),
+        add_handler=None,
+        add_button_label="",
+        search_fields=("Name",),
+    )
+    assert fake.metrics == []
+    assert 0 not in fake.column_specs
+    assert rendered == [("one", 0, False)]
+
+
+def test_generic_empty_metric_config_skips_metrics_without_zero_columns():
+    fake = FakeStreamlit()
+    generic_hardware_asset.st = fake
+    generic_hardware_asset.render_generic_hardware_asset(
+        df_hw=pd.DataFrame(),
+        list_name="Asset Example",
+        hardware_name="Example",
+        admin_mode=False,
+        card_renderer=lambda *_args: None,
+        add_handler=None,
+        add_button_label="",
+        search_fields=(),
+        metric_config=(),
+    )
+    assert fake.metrics == []
+    assert 0 not in fake.column_specs
+    assert fake.column_specs == [[0.82, 0.18], 3]
 
 
 def test_monitor_owns_schema_search_card_and_callbacks():
