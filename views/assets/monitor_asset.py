@@ -12,6 +12,14 @@ MONITOR_FIELDS = {
 }
 
 
+MONITOR_METRICS = (
+    ("TOTAL ASSETS", lambda frame: len(frame)),
+    ("ACTIVE", lambda frame: int(frame["Status"].eq("Active").sum()) if "Status" in frame else 0),
+    ("INACTIVE", lambda frame: int(frame["Status"].eq("Inactive").sum()) if "Status" in frame else 0),
+    ("REPAIR", lambda frame: int(frame["Status"].eq("Repair").sum()) if "Status" in frame else 0),
+)
+
+
 def render_card_monitor(
     row,
     key,
@@ -79,4 +87,6 @@ def render_monitor_asset(
         add_handler=add_monitor_dialog,
         add_button_label="➕ เพิ่ม Monitor",
         search_fields=tuple(MONITOR_FIELDS),
+        metric_config=MONITOR_METRICS,
+        search_placeholder="🔍 ค้นหาบริษัท, ชื่อพนักงาน, รุ่น, Serial No....",
     )

@@ -1001,26 +1001,10 @@ def render_card_computer(row, key, admin_mode):
 # SCHEMA     : PENDING CONFIRMATION
 # =============================================================================
 def render_temporary_legacy_hardware_card(row, key, admin_mode, *, list_name):
-    """Preserve the pre-refactor UI for pages whose schemas remain unconfirmed."""
-    name = row.get("field_3", "Unknown")
-    status = row.get("Status", "Active")
+    """Render a schema-neutral placeholder for an unconfirmed hardware page."""
     with st.container(border=True):
-        st.markdown(f"### 👤 {name}")
-        st.caption(f"🏢 {row.get('field_1','-')}  |  Status: {status}")
-        st.write(f"💻 Hostname: {row.get('field_6','-')}")
-        st.write(f"🏷️ Model: {row.get('field_7','-')}")
-        st.write(f"💾 RAM: {row.get('field_13','-')}")
-        st.write(f"🔢 Serial: {row.get('field_8','-')}")
-    if admin_mode:
-        b1, b2 = st.columns(2)
-        with b1:
-            if st.button("🔍 ดูข้อมูล", key=f"view_{key}", use_container_width=True):
-                show_pop_computer(row.to_dict())
-        with b2:
-            if st.button("✏️ แก้ไข", key=f"edit_{key}", use_container_width=True):
-                edit_computer_dialog(row.to_dict(), list_name)
-    else:
-        st.caption("🔒 ดูรายละเอียดเพิ่มเติมได้เฉพาะผู้ดูแลระบบ")
+        st.markdown(f"### {list_name.replace('Asset ', '')}")
+        st.caption("Schema pending confirmation — detailed fields are temporarily unavailable.")
 
 # =============================================================================
 # SECTION 08 : VIEW DIALOGS
@@ -5182,8 +5166,7 @@ else:
                 edit_printer_dialog=edit_printer_dialog,
             )
         else:
-            # SCHEMA PENDING CONFIRMATION: preserve the exact legacy card/dialog
-            # behavior for Projector, UPS, Misc, CCTV and Access Control.
+            # SCHEMA PENDING CONFIRMATION: do not infer fields or CRUD dialogs.
             render_generic_hardware_asset(
                 df_hw=df_hw,
                 list_name=sub,
@@ -5192,9 +5175,10 @@ else:
                 card_renderer=lambda row, key, is_admin: render_temporary_legacy_hardware_card(
                     row, key, is_admin, list_name=sub
                 ),
-                add_handler=add_computer_dialog,
-                add_button_label="➕ เพิ่มคอมพิวเตอร์",
-                search_fields=tuple(df_hw.columns),
+                add_handler=None,
+                add_button_label="",
+                search_fields=(),
+                metric_config=(("TOTAL ASSETS", lambda frame: len(frame)),),
             )
 
 

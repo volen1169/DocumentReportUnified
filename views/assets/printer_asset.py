@@ -4,12 +4,17 @@ from views.assets.generic_hardware_asset import render_generic_hardware_asset
 
 
 PRINTER_FIELDS = {
-    "Company": "บริษัท",
+    "field_1": "บริษัท",
     "User": "User",
     "Brand_x0020__x002f__x0020_Model": "Brand/Model",
     "S_x002f_N_x0020_No_x002e_": "Serial No.",
     "field_3": "IP Address",
 }
+
+
+PRINTER_METRICS = (
+    ("TOTAL ASSETS", lambda frame: len(frame)),
+)
 
 
 def render_card_printer(
@@ -73,4 +78,6 @@ def render_printer_asset(
         add_handler=add_printer_dialog,
         add_button_label="➕ เพิ่ม Printer",
         search_fields=tuple(PRINTER_FIELDS),
+        metric_config=PRINTER_METRICS,
+        search_placeholder="🔍 ค้นหาบริษัท, User, รุ่น, Serial No., IP...",
     )
