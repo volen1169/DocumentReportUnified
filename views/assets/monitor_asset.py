@@ -1,13 +1,14 @@
 import streamlit as st
+import pandas as pd
 
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
 
 
 MONITOR_FIELDS = {
-    "field_1": "บริษัท",
-    "field_3": "ชื่อพนักงาน",
-    "field_2": "Brand/Model",
-    "field_4": "Serial No.",
+    "Company": "บริษัท",
+    "User": "ชื่อพนักงาน",
+    "Brand_x002f_Model": "Brand/Model",
+    "S_x002f_NNo_x002e_": "Serial No.",
     "Status": "Status",
 }
 
@@ -20,6 +21,19 @@ MONITOR_METRICS = (
 )
 
 
+def _display_value(value, default="-"):
+    """Return a presentation-safe value without changing the source row."""
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    text = str(value).strip()
+    return text if text else default
+
+
 def render_card_monitor(
     row,
     key,
@@ -30,18 +44,22 @@ def render_card_monitor(
     edit_monitor_dialog,
     badge_renderer,
 ):
-    status = row.get("Status", "")
+    status = _display_value(row.get("Status"), default="")
+    employee = _display_value(row.get("User"), default="N/A")
+    company = _display_value(row.get("Company"))
+    model = _display_value(row.get("Brand_x002f_Model"))
+    serial = _display_value(row.get("S_x002f_NNo_x002e_"))
     with st.container():
         st.markdown(f"""
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
             <div>
-                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
+                <div class="hw-card-title">👤 {employee}</div>
+                <div class="hw-card-sub">🏢 {company}</div>
             </div>
             {badge_renderer(status)}
         </div>
-        <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
+        <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{model}</div>
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % serial if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)

@@ -138,16 +138,16 @@ def test_generic_empty_metric_config_skips_metrics_without_zero_columns():
 
 def test_monitor_owns_schema_search_card_and_callbacks():
     frame = pd.DataFrame([
-        {"field_1": "OPT", "field_2": "Dell P2422H", "field_3": "Alice", "field_4": "MON-1", "Status": "Active"},
-        {"field_1": "PRP", "field_2": "LG 24", "field_3": "Bob", "field_4": "MON-2", "Status": "Repair"},
+        {"Company": "OPT", "Brand_x002f_Model": "Dell P2422H", "User": "Alice", "S_x002f_NNo_x002e_": "MON-1", "Status": "Active"},
+        {"Company": "PRP", "Brand_x002f_Model": "LG 24", "User": "Bob", "S_x002f_NNo_x002e_": "MON-2", "Status": "Repair"},
     ], index=[7, 3])
     calls = []
     fake = FakeStreamlit(search="dell", clicked_key="mon_view_7")
     _render(
         monitor_asset, fake, frame, admin_mode=True,
-        show_pop_monitor=lambda data, admin_mode=False: calls.append(("view", data["field_4"], admin_mode)),
+        show_pop_monitor=lambda data, admin_mode=False: calls.append(("view", data["S_x002f_NNo_x002e_"], admin_mode)),
         add_monitor_dialog=lambda name: calls.append(("add", name)),
-        edit_monitor_dialog=lambda data, name: calls.append(("edit", data["field_4"], name)),
+        edit_monitor_dialog=lambda data, name: calls.append(("edit", data["S_x002f_NNo_x002e_"], name)),
         badge_renderer=lambda status: f"badge:{status}",
     )
     rendered = "\n".join(fake.markdowns)
@@ -155,12 +155,12 @@ def test_monitor_owns_schema_search_card_and_callbacks():
     assert "LG 24" not in rendered
     assert calls == [("view", "MON-1", True)]
     assert fake.metrics == [("TOTAL ASSETS", 2), ("ACTIVE", 1), ("INACTIVE", 0), ("REPAIR", 1)]
-    assert tuple(monitor_asset.MONITOR_FIELDS) == ("field_1", "field_3", "field_2", "field_4", "Status")
+    assert tuple(monitor_asset.MONITOR_FIELDS) == ("Company", "User", "Brand_x002f_Model", "S_x002f_NNo_x002e_", "Status")
     assert fake.placeholders == ["🔍 ค้นหาบริษัท, ชื่อพนักงาน, รุ่น, Serial No...."]
 
 
 def test_monitor_add_and_edit_callbacks_are_monitor_owned():
-    frame = pd.DataFrame([{"field_1": "OPT", "field_2": "Dell", "field_3": "Alice", "field_4": "MON-1", "Status": "Active"}], index=[7])
+    frame = pd.DataFrame([{"Company": "OPT", "Brand_x002f_Model": "Dell", "User": "Alice", "S_x002f_NNo_x002e_": "MON-1", "Status": "Active"}], index=[7])
     calls = []
     for fake in (
         FakeStreamlit(clicked_label="➕ เพิ่ม Monitor"),
@@ -170,10 +170,38 @@ def test_monitor_add_and_edit_callbacks_are_monitor_owned():
             monitor_asset, fake, frame, admin_mode=True,
             show_pop_monitor=lambda *_args, **_kwargs: calls.append("view"),
             add_monitor_dialog=lambda name: calls.append(("add", name)),
-            edit_monitor_dialog=lambda data, name: calls.append(("edit", data["field_4"], name)),
+            edit_monitor_dialog=lambda data, name: calls.append(("edit", data["S_x002f_NNo_x002e_"], name)),
             badge_renderer=lambda status: status,
         )
     assert calls == [("add", "Asset Monitor"), ("edit", "MON-1", "Asset Monitor")]
+
+
+def test_monitor_card_uses_runtime_fields_and_hides_nan_status():
+    frame = pd.DataFrame([{
+        "Company": "OPT",
+        "User": "Alice",
+        "Brand_x002f_Model": "Dell P2422H",
+        "S_x002f_NNo_x002e_": "MON-1",
+        "Status": float("nan"),
+        "field_6": "COMPUTER-HOST",
+        "field_7": "COMPUTER-MODEL",
+        "field_8": "COMPUTER-SERIAL",
+        "field_13": "COMPUTER-RAM",
+    }], index=[7])
+    fake = FakeStreamlit()
+    badge_values = []
+    _render(
+        monitor_asset, fake, frame, admin_mode=True,
+        show_pop_monitor=lambda *_args, **_kwargs: None,
+        add_monitor_dialog=lambda *_args: None,
+        edit_monitor_dialog=lambda *_args: None,
+        badge_renderer=lambda status: badge_values.append(status) or f"badge:{status}",
+    )
+    rendered = "\n".join(fake.markdowns)
+    assert all(value in rendered for value in ("OPT", "Alice", "Dell P2422H", "MON-1"))
+    assert all(value not in rendered for value in ("COMPUTER-HOST", "COMPUTER-MODEL", "COMPUTER-SERIAL", "COMPUTER-RAM"))
+    assert badge_values == [""]
+    assert "nan" not in rendered.lower()
 
 
 def test_printer_owns_schema_search_card_and_callbacks():
