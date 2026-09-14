@@ -1006,6 +1006,12 @@ def render_temporary_legacy_hardware_card(row, key, admin_mode, *, list_name):
         st.markdown(f"### {list_name.replace('Asset ', '')}")
         st.caption("Schema pending confirmation — detailed fields are temporarily unavailable.")
 
+
+def render_temporary_legacy_hardware_empty_state(*, list_name):
+    """Render the caller-owned empty state for an unconfirmed hardware page."""
+    st.markdown(f"### {list_name.replace('Asset ', '')}")
+    st.caption("Schema pending confirmation — detailed fields are temporarily unavailable.")
+
 # =============================================================================
 # SECTION 08 : VIEW DIALOGS
 # Popup แสดงรายละเอียด Asset
@@ -5176,6 +5182,9 @@ else:
                 add_button_label="",
                 search_fields=(),
                 metric_config=(("TOTAL ASSETS", lambda frame: len(frame)),),
+                empty_state_renderer=lambda: render_temporary_legacy_hardware_empty_state(
+                    list_name=sub
+                ),
             )
 
 

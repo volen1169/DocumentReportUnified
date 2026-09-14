@@ -56,6 +56,9 @@ class FakeStreamlit:
     def caption(self, value):
         self.captions.append(value)
 
+    def info(self, value):
+        self.captions.append(value)
+
 
 def _render(module, fake_st, frame, *, admin_mode=False, **handlers):
     generic_hardware_asset.st = fake_st
@@ -133,7 +136,43 @@ def test_generic_empty_metric_config_skips_metrics_without_zero_columns():
     )
     assert fake.metrics == []
     assert 0 not in fake.column_specs
-    assert fake.column_specs == [[0.82, 0.18], 3]
+    assert fake.column_specs == [[0.82, 0.18]]
+
+
+def test_generic_empty_frame_calls_page_owned_empty_state_not_card_renderer():
+    fake = FakeStreamlit()
+    generic_hardware_asset.st = fake
+    calls = []
+    generic_hardware_asset.render_generic_hardware_asset(
+        df_hw=pd.DataFrame(),
+        list_name="Asset CCTV",
+        hardware_name="CCTV",
+        admin_mode=False,
+        card_renderer=lambda *_args: calls.append("card"),
+        add_handler=None,
+        add_button_label="",
+        search_fields=(),
+        empty_state_renderer=lambda: calls.append("empty"),
+    )
+    assert calls == ["empty"]
+    assert 3 not in fake.column_specs
+
+
+def test_generic_empty_frame_without_custom_state_uses_neutral_fallback():
+    fake = FakeStreamlit()
+    generic_hardware_asset.st = fake
+    generic_hardware_asset.render_generic_hardware_asset(
+        df_hw=pd.DataFrame(),
+        list_name="Asset Example",
+        hardware_name="Example",
+        admin_mode=False,
+        card_renderer=lambda *_args: None,
+        add_handler=None,
+        add_button_label="",
+        search_fields=(),
+    )
+    assert fake.captions == ["ยังไม่มีข้อมูล"]
+    assert 3 not in fake.column_specs
 
 
 def test_monitor_owns_schema_search_card_and_callbacks():
@@ -321,6 +360,7 @@ def test_entrypoint_routes_specific_pages_and_marks_pending_compatibility():
     assert 'sub == "Asset Printer"' in source and "show_pop_printer=show_pop_printer" in source
     assert "SCHEMA PENDING CONFIRMATION" in source
     assert "render_temporary_legacy_hardware_card" in source
+    assert "render_temporary_legacy_hardware_empty_state" in source
     pending = source[source.index("def render_temporary_legacy_hardware_card"):source.index("# SECTION 08")]
     for forbidden in (
         "show_pop_computer", "edit_computer_dialog", "Hostname", "Model", "RAM", "Serial",
@@ -330,6 +370,7 @@ def test_entrypoint_routes_specific_pages_and_marks_pending_compatibility():
     route = source[source.index('if sub == "Asset Monitor"'):source.index("# 🌐 AD / Firewall Policy")]
     assert "add_handler=None" in route
     assert "search_fields=()" in route
+    assert "empty_state_renderer=" in route
 
 
 def test_pending_page_renderer_is_schema_neutral_for_each_pending_page():
@@ -355,6 +396,27 @@ def test_pending_page_renderer_is_schema_neutral_for_each_pending_page():
         assert list_name.replace("Asset ", "") in rendered
         assert "Schema pending confirmation" in rendered
         assert "SECRET-COMPANY" not in rendered and "SECRET-HOST" not in rendered
+
+
+def test_pending_empty_state_is_schema_neutral_for_each_pending_page():
+    source = (ROOT / "DocumentReportUnified.py").read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    function = next(
+        node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "render_temporary_legacy_hardware_empty_state"
+    )
+    namespace = {"st": FakeStreamlit()}
+    exec(compile(ast.Module(body=[function], type_ignores=[]), "pending_empty_state", "exec"), namespace)
+    renderer = namespace["render_temporary_legacy_hardware_empty_state"]
+    for list_name in ("Asset Projector", "Asset UPS", "Asset CCTV", "Asset Access Control"):
+        fake = FakeStreamlit()
+        namespace["st"] = fake
+        renderer(list_name=list_name)
+        rendered = "\n".join(fake.markdowns + fake.captions)
+        assert list_name.replace("Asset ", "") in rendered
+        assert "Schema pending confirmation" in rendered
+        assert "Hostname" not in rendered and "RAM" not in rendered
 
 
 def test_computer_asset_source_is_unchanged_from_base():

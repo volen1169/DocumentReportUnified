@@ -13,6 +13,7 @@ def render_generic_hardware_asset(
     search_fields,
     metric_config=(),
     search_placeholder="ค้นหาข้อมูล...",
+    empty_state_renderer=None,
 ):
     st.markdown(f"""
         <div class="asset-hero">
@@ -50,6 +51,13 @@ def render_generic_hardware_asset(
         df_hw = df_hw[searchable_df.astype(str).apply(
             lambda x: x.str.contains(search, case=False)
         ).any(axis=1)]
+
+    if df_hw.empty:
+        if empty_state_renderer is not None:
+            empty_state_renderer()
+        else:
+            st.info("ยังไม่มีข้อมูล")
+        return
 
     cols = st.columns(3)
 
