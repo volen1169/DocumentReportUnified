@@ -82,7 +82,7 @@ from views.ad_firewall_policy import render_ad_firewall_policy
 from views.assets.computer_asset import render_computer_asset
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
 from views.assets.monitor_asset import render_monitor_asset
-from views.assets.printer_asset import render_printer_asset
+from views.assets.printer_asset import printer_display_value, render_printer_asset
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 
@@ -1044,15 +1044,14 @@ def show_pop_monitor(data, admin_mode=False):
 
 @st.dialog("📋 รายละเอียด Printer")
 def show_pop_printer(data, admin_mode=False):
-    st.markdown(f"### 🖨️ {data.get('field_2', 'Printer')}")
-    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
-    st.write(f"**👤 User:** {data.get('User', '-')}")
+    st.markdown(f"### 🖨️ {printer_display_value(data.get('Brand_x0020__x002f__x0020_Model'), 'Printer')}")
+    st.write(f"**🏢 บริษัท:** {printer_display_value(data.get('Company'))}")
+    st.write(f"**👤 User:** {printer_display_value(data.get('User'))}")
     if admin_mode:
-        st.write(f"**🔢 Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
-        st.write(f"**🌐 IP Address:** {data.get('field_3', '-')}")
+        st.write(f"**🔢 Serial No.:** {printer_display_value(data.get('S_x002f_N_x0020_No_x002e_'))}")
     else:
         st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
-        st.write("**🌐 IP Address:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+    st.write(f"**✅ สถานะ:** {printer_display_value(data.get('Status'))}")
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
@@ -1186,17 +1185,16 @@ def edit_monitor_dialog(row, list_name):
 def edit_printer_dialog(row, list_name):
     st.markdown(f"### ✏️ แก้ไข Printer")
     item_id = row.get('_item_id')
-    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('Company', 'OPT')) if row.get('Company') in COMPANY_OPTIONS else 0)
     user = st.text_input("👤 User", value=row.get('User', ''))
     model = st.text_input("🏷️ Brand/Model", value=row.get('Brand_x0020__x002f__x0020_Model', ''))
     serial = st.text_input("🔢 Serial No.", value=row.get('S_x002f_N_x0020_No_x002e_', ''))
-    ip = st.text_input("🌐 IP Address", value=row.get('field_3', ''))
     col_save, col_del = st.columns(2)
     with col_save:
         if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-            fields = {"field_1": company, "User": user,
+            fields = {"Company": company, "User": user,
                       "Brand_x0020__x002f__x0020_Model": model,
-                      "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
+                      "S_x002f_N_x0020_No_x002e_": serial}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
                 st.success("✅ บันทึกสำเร็จ")
@@ -1282,11 +1280,10 @@ def add_printer_dialog(list_name):
     user = st.text_input("👤 User")
     model = st.text_input("🏷️ Brand/Model")
     serial = st.text_input("🔢 Serial No.")
-    ip = st.text_input("🌐 IP Address")
     if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-        fields = {"field_1": company, "User": user,
+        fields = {"Company": company, "User": user,
                   "Brand_x0020__x002f__x0020_Model": model,
-                  "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
+                  "S_x002f_N_x0020_No_x002e_": serial}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
             st.success("✅ เพิ่มสำเร็จ")

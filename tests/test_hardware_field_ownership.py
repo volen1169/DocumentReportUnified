@@ -206,24 +206,26 @@ def test_monitor_card_uses_runtime_fields_and_hides_nan_status():
 
 def test_printer_owns_schema_search_card_and_callbacks():
     frame = pd.DataFrame([
-        {"field_1": "OPT", "User": "Alice", "Brand_x0020__x002f__x0020_Model": "Canon A", "S_x002f_N_x0020_No_x002e_": "PRN-1", "field_3": "10.0.0.1", "Status": "Active"},
-        {"field_1": "PRP", "User": "Bob", "Brand_x0020__x002f__x0020_Model": "Ricoh B", "S_x002f_N_x0020_No_x002e_": "PRN-2", "field_3": "10.0.0.2", "Status": "Inactive"},
+        {"Company": "OPT", "User": "Alice", "Brand_x0020__x002f__x0020_Model": "Canon A", "S_x002f_N_x0020_No_x002e_": "PRN-1", "Status": "Active", "_item_id": "1", "field_1": "WRONG-COMPANY", "field_3": "WRONG-IP"},
+        {"Company": "PRP", "User": "Bob", "Brand_x0020__x002f__x0020_Model": "Ricoh B", "S_x002f_N_x0020_No_x002e_": "PRN-2", "Status": "Inactive", "_item_id": "2", "field_1": "WRONG-COMPANY", "field_3": "WRONG-IP"},
     ], index=[4, 9])
     calls = []
     fake = FakeStreamlit(search="CANON", clicked_key="prn_edit_4")
     _render(
         printer_asset, fake, frame, admin_mode=True,
-        show_pop_printer=lambda data, admin_mode=False: calls.append(("view", data["field_3"], admin_mode)),
+        show_pop_printer=lambda data, admin_mode=False: calls.append(("view", data["S_x002f_N_x0020_No_x002e_"], admin_mode)),
         add_printer_dialog=lambda name: calls.append(("add", name)),
-        edit_printer_dialog=lambda data, name: calls.append(("edit", data["field_3"], name)),
+        edit_printer_dialog=lambda data, name: calls.append(("edit", data["S_x002f_N_x0020_No_x002e_"], name)),
     )
     rendered = "\n".join(fake.markdowns)
     assert "Canon A" in rendered and "PRN-1" in rendered
     assert "Ricoh B" not in rendered
-    assert calls == [("edit", "10.0.0.1", "Asset Printer")]
+    assert "OPT" in rendered and "WRONG-COMPANY" not in rendered
+    assert "IP" not in rendered and "WRONG-IP" not in rendered
+    assert calls == [("edit", "PRN-1", "Asset Printer")]
     assert tuple(printer_asset.PRINTER_FIELDS) == (
-        "field_1", "User", "Brand_x0020__x002f__x0020_Model",
-        "S_x002f_N_x0020_No_x002e_", "field_3",
+        "Company", "User", "Brand_x0020__x002f__x0020_Model",
+        "S_x002f_N_x0020_No_x002e_", "Status",
     )
     company_search = FakeStreamlit(search="prp")
     _render(
@@ -237,7 +239,7 @@ def test_printer_owns_schema_search_card_and_callbacks():
 
 
 def test_printer_view_add_edit_and_non_admin_callbacks():
-    frame = pd.DataFrame([{"field_1": "OPT", "User": "Alice", "Brand_x0020__x002f__x0020_Model": "Canon", "S_x002f_N_x0020_No_x002e_": "PRN-1", "field_3": "10.0.0.1"}], index=[4])
+    frame = pd.DataFrame([{"Company": "OPT", "User": "Alice", "Brand_x0020__x002f__x0020_Model": "Canon", "S_x002f_N_x0020_No_x002e_": "PRN-1", "Status": "Active", "_item_id": "1"}], index=[4])
     calls = []
     for fake, admin_mode in (
         (FakeStreamlit(clicked_key="prn_view_4"), True),
@@ -247,15 +249,56 @@ def test_printer_view_add_edit_and_non_admin_callbacks():
     ):
         _render(
             printer_asset, fake, frame, admin_mode=admin_mode,
-            show_pop_printer=lambda data, admin_mode=False: calls.append(("view", data["field_3"], admin_mode)),
+            show_pop_printer=lambda data, admin_mode=False: calls.append(("view", data["S_x002f_N_x0020_No_x002e_"], admin_mode)),
             add_printer_dialog=lambda name: calls.append(("add", name)),
-            edit_printer_dialog=lambda data, name: calls.append(("edit", data["field_3"], name)),
+            edit_printer_dialog=lambda data, name: calls.append(("edit", data["S_x002f_N_x0020_No_x002e_"], name)),
         )
     assert calls == [
-        ("view", "10.0.0.1", True),
+        ("view", "PRN-1", True),
         ("add", "Asset Printer"),
-        ("edit", "10.0.0.1", "Asset Printer"),
+        ("edit", "PRN-1", "Asset Printer"),
     ]
+
+
+def test_printer_runtime_fields_hide_nan_and_unverified_ip():
+    frame = pd.DataFrame([{
+        "Company": "EGI",
+        "User": "Graphic",
+        "Brand_x0020__x002f__x0020_Model": "EPSON L3150",
+        "S_x002f_N_x0020_No_x002e_": float("nan"),
+        "Status": "Active",
+        "_item_id": "1",
+        "field_1": "WRONG-COMPANY",
+        "field_3": "10.0.0.1",
+    }], index=[4])
+    fake = FakeStreamlit()
+    _render(
+        printer_asset, fake, frame, admin_mode=True,
+        show_pop_printer=lambda *_args, **_kwargs: None,
+        add_printer_dialog=lambda *_args: None,
+        edit_printer_dialog=lambda *_args: None,
+    )
+    rendered = "\n".join(fake.markdowns)
+    assert all(value in rendered for value in ("EGI", "Graphic", "EPSON L3150"))
+    assert "nan" not in rendered.lower()
+    assert "WRONG-COMPANY" not in rendered and "10.0.0.1" not in rendered
+    assert "IP Address" not in rendered and "🌐 IP" not in rendered
+
+
+def test_printer_dialogs_use_runtime_payload_without_ip_guess():
+    source = (ROOT / "DocumentReportUnified.py").read_text(encoding="utf-8")
+    view_start = source.index("def show_pop_printer")
+    edit_start = source.index("def edit_printer_dialog")
+    add_start = source.index("def add_printer_dialog")
+    view = source[view_start:source.index("# SECTION 09", view_start)]
+    edit = source[edit_start:source.index("# SECTION 10", edit_start)]
+    add = source[add_start:source.index("# SECTION 11", add_start)]
+    for section in (view, edit, add):
+        assert "Brand_x0020__x002f__x0020_Model" in section
+        assert "S_x002f_N_x0020_No_x002e_" in section
+        assert "field_1" not in section and "field_3" not in section
+        assert "IP Address" not in section
+    assert '"Company": company' in edit and '"Company": company' in add
 
 
 def test_empty_and_non_admin_paths_do_not_call_mutations():

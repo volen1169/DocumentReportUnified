@@ -1,20 +1,34 @@
 import streamlit as st
+import pandas as pd
 
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
 
 
 PRINTER_FIELDS = {
-    "field_1": "บริษัท",
+    "Company": "บริษัท",
     "User": "User",
     "Brand_x0020__x002f__x0020_Model": "Brand/Model",
     "S_x002f_N_x0020_No_x002e_": "Serial No.",
-    "field_3": "IP Address",
+    "Status": "Status",
 }
 
 
 PRINTER_METRICS = (
     ("TOTAL ASSETS", lambda frame: len(frame)),
 )
+
+
+def printer_display_value(value, default="-"):
+    """Return a presentation-safe value without changing the source row."""
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    text = str(value).strip()
+    return text if text else default
 
 
 def render_card_printer(
@@ -26,15 +40,18 @@ def render_card_printer(
     show_pop_printer,
     edit_printer_dialog,
 ):
+    company = printer_display_value(row.get("Company"))
+    user = printer_display_value(row.get("User"))
+    model = printer_display_value(row.get("Brand_x0020__x002f__x0020_Model"), default="Printer")
+    serial = printer_display_value(row.get("S_x002f_N_x0020_No_x002e_"))
     with st.container():
         st.markdown(f"""
         <div style="margin-bottom:6px;">
-            <div class="hw-card-title">🖨️ {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
-            <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
+            <div class="hw-card-title">🖨️ {model}</div>
+            <div class="hw-card-sub">🏢 {company}</div>
         </div>
-        <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
-        {'<div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
+        <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{user}</div>
+        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % serial if admin_mode else ''}
         """, unsafe_allow_html=True)
         if admin_mode:
             c1, c2 = st.columns(2)
@@ -79,5 +96,5 @@ def render_printer_asset(
         add_button_label="➕ เพิ่ม Printer",
         search_fields=tuple(PRINTER_FIELDS),
         metric_config=PRINTER_METRICS,
-        search_placeholder="🔍 ค้นหาบริษัท, User, รุ่น, Serial No., IP...",
+        search_placeholder="🔍 ค้นหาบริษัท, User, รุ่น, Serial No....",
     )
