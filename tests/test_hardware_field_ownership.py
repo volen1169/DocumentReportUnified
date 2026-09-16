@@ -430,3 +430,152 @@ def test_computer_asset_source_is_unchanged_from_base():
         capture_output=True,
     ).stdout
     assert current == baseline
+
+
+class MonitorDialogStreamlit:
+    def __init__(self, *, clicked_label=None):
+        self.clicked_label = clicked_label
+        self.markdowns = []
+        self.writes = []
+        self.input_values = {}
+        self.session_state = {}
+
+    def markdown(self, value, **_kwargs):
+        self.markdowns.append(value)
+
+    def write(self, value):
+        self.writes.append(value)
+
+    def expander(self, *_args, **_kwargs):
+        return _Context()
+
+    def json(self, _value):
+        return None
+
+    def selectbox(self, label, options, *, index=0, **_kwargs):
+        value = options[index]
+        self.input_values[label] = value
+        return value
+
+    def text_input(self, label, *, value="", **_kwargs):
+        self.input_values[label] = value
+        return value
+
+    def columns(self, spec):
+        count = spec if isinstance(spec, int) else len(spec)
+        return [_Context() for _ in range(count)]
+
+    def button(self, label, **_kwargs):
+        return label == self.clicked_label
+
+    def success(self, _value):
+        return None
+
+    def error(self, _value):
+        return None
+
+    def warning(self, _value):
+        return None
+
+    def rerun(self):
+        return None
+
+
+def _load_monitor_dialog_functions(fake_st, *, update=None, create=None):
+    source = (ROOT / "DocumentReportUnified.py").read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    names = {
+        "_monitor_display_value", "show_pop_monitor",
+        "edit_monitor_dialog", "add_monitor_dialog",
+    }
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
+    for function in functions:
+        function.decorator_list = []
+    namespace = {
+        "pd": pd,
+        "st": fake_st,
+        "COMPANY_OPTIONS": ["OPT", "SWI", "PRP", "PLC", "EGI", "THK"],
+        "STATUS_OPTIONS": ["Active", "Inactive", "Spare", "Repair"],
+        "sp_update_item": update or (lambda *_args: (True, {})),
+        "sp_create_item": create or (lambda *_args: (True, {})),
+        "sp_delete_item": lambda *_args: True,
+        "clear_sp_cache": lambda: None,
+    }
+    exec(compile(ast.Module(body=functions, type_ignores=[]), "monitor_dialogs", "exec"), namespace)
+    return namespace
+
+
+def test_monitor_view_dialog_uses_runtime_schema_and_hides_nan():
+    fake = MonitorDialogStreamlit()
+    functions = _load_monitor_dialog_functions(fake)
+    functions["show_pop_monitor"]({
+        "Company": "OPT",
+        "User": "Alice",
+        "Brand_x002f_Model": "Dell P2422H",
+        "S_x002f_NNo_x002e_": "MON-1",
+        "Status": float("nan"),
+        "field_1": "LEGACY-COMPANY",
+        "field_2": "LEGACY-MODEL",
+        "field_3": "LEGACY-USER",
+        "field_4": "LEGACY-SERIAL",
+    }, admin_mode=True)
+    rendered = "\n".join(fake.markdowns + fake.writes)
+    assert all(value in rendered for value in ("OPT", "Alice", "Dell P2422H", "MON-1"))
+    assert all(value not in rendered for value in (
+        "LEGACY-COMPANY", "LEGACY-MODEL", "LEGACY-USER", "LEGACY-SERIAL", "nan",
+    ))
+    assert "**✅ สถานะ:** -" in rendered
+
+
+def test_monitor_edit_dialog_uses_runtime_initial_values_and_payload():
+    fake = MonitorDialogStreamlit(clicked_label="💾 บันทึก")
+    updates = []
+    functions = _load_monitor_dialog_functions(
+        fake,
+        update=lambda list_name, item_id, fields: updates.append((list_name, item_id, fields)) or (True, {}),
+    )
+    functions["edit_monitor_dialog"]({
+        "_item_id": "42",
+        "Company": "OPT",
+        "User": "Alice",
+        "Brand_x002f_Model": "Dell P2422H",
+        "S_x002f_NNo_x002e_": "MON-1",
+        "Status": "Active",
+        "field_1": "LEGACY-COMPANY",
+        "field_2": "LEGACY-MODEL",
+        "field_3": "LEGACY-USER",
+        "field_4": "LEGACY-SERIAL",
+    }, "Asset Monitor")
+    assert fake.input_values == {
+        "🏢 บริษัท": "OPT",
+        "👤 ชื่อพนักงาน": "Alice",
+        "🏷️ Brand/Model": "Dell P2422H",
+        "🔢 Serial No.": "MON-1",
+        "โ… Status": "Active",
+    }
+    assert updates == [("Asset Monitor", "42", {
+        "Company": "OPT",
+        "User": "Alice",
+        "Brand_x002f_Model": "Dell P2422H",
+        "S_x002f_NNo_x002e_": "MON-1",
+        "Status": "Active",
+    })]
+    assert not any(key.startswith("field_") for key in updates[0][2])
+
+
+def test_monitor_add_dialog_uses_runtime_payload_only():
+    fake = MonitorDialogStreamlit(clicked_label="💾 บันทึก")
+    creates = []
+    functions = _load_monitor_dialog_functions(
+        fake,
+        create=lambda list_name, fields: creates.append((list_name, fields)) or (True, {}),
+    )
+    functions["add_monitor_dialog"]("Asset Monitor")
+    assert creates == [("Asset Monitor", {
+        "Company": "OPT",
+        "User": "",
+        "Brand_x002f_Model": "",
+        "S_x002f_NNo_x002e_": "",
+        "Status": "Active",
+    })]
+    assert not any(key.startswith("field_") for key in creates[0][1])
