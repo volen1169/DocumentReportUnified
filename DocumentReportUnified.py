@@ -82,6 +82,7 @@ from views.ad_firewall_policy import render_ad_firewall_policy
 from views.assets.computer_asset import render_computer_asset
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
 from views.assets.monitor_asset import render_monitor_asset
+from views.assets.printer_asset import printer_display_value, render_printer_asset
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 
@@ -337,24 +338,6 @@ COMPUTER_FIELDS = {
     "field_15": "Storage C:",
     "field_16": "Storage D:",
     "Status": "Status",
-}
-
-# Field mapping สำหรับ Monitor
-MONITOR_FIELDS = {
-    "field_1": "บริษัท",
-    "field_3": "ชื่อพนักงาน",
-    "field_2": "Brand/Model",
-    "field_4": "Serial No.",
-    "Status": "Status",
-}
-
-# Field mapping สำหรับ Printer
-PRINTER_FIELDS = {
-    "Company": "บริษัท",
-    "User": "User",
-    "Brand_x0020__x002f__x0020_Model": "Brand/Model",
-    "S_x002f_N_x0020_No_x002e_": "Serial No.",
-    "field_3": "IP Address",
 }
 
 COMPANY_OPTIONS = ["OPT", "SWI", "PRP", "PLC", "EGI", "THK"]
@@ -1011,68 +994,36 @@ def render_card_computer(row, key, admin_mode):
 
 
 # =============================================================================
-# FUNCTION : render_card_monitor
-# UI OWNER   : Asset Management > Monitors
-# PURPOSE    : สร้างการ์ดแสดงข้อมูล Monitor 1 รายการ
-# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
-# CSS OWNER  : HARDWARE_THEME / Card CSS
+# FUNCTION : render_temporary_legacy_hardware_card
+# UI OWNER   : Pending-schema hardware compatibility
+# PURPOSE    : รักษา UI เดิมโดยไม่ให้ Generic renderer เป็นเจ้าของ schema
+# DATA FLOW  : SharePoint -> caller-owned compatibility card -> Streamlit
+# SCHEMA     : PENDING CONFIRMATION
 # =============================================================================
-def render_card_monitor(row, key, admin_mode):
-    status = row.get('Status', '')
-    with st.container():
-        st.markdown(f"""
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-            <div>
-                <div class="hw-card-title">👤 {row.get('field_3','N/A')}</div>
-                <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
-            </div>
-            {_hw_badge(status)}
-        </div>
-        <div class="hw-field"><strong>🖥️ Model</strong>&nbsp;&nbsp;{row.get('field_2','-')}</div>
-        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('field_4','-') if admin_mode else ''}
-        """, unsafe_allow_html=True)
-        if admin_mode:
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🔍 ดูข้อมูล", key=f"mon_view_{key}", use_container_width=True):
-                    show_pop_monitor(row.to_dict(), admin_mode=True)
-            with c2:
-                if st.button("✏️ แก้ไข", key=f"mon_edit_{key}", use_container_width=True):
-                    st.session_state[f"edit_monitor_{key}"] = True
-                    st.rerun()
-        else:
-            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
+def render_temporary_legacy_hardware_card(row, key, admin_mode, *, list_name):
+    """Render a schema-neutral placeholder for an unconfirmed hardware page."""
+    with st.container(border=True):
+        st.markdown(f"### {list_name.replace('Asset ', '')}")
+        st.caption("Schema pending confirmation — detailed fields are temporarily unavailable.")
 
 
-# =============================================================================
-# FUNCTION : render_card_printer
-# UI OWNER   : Asset Management > Printers
-# PURPOSE    : สร้างการ์ดแสดงข้อมูล Printer 1 รายการ
-# DATA FLOW  : SharePoint -> row -> HTML Card -> Streamlit
-# CSS OWNER  : HARDWARE_THEME / Card CSS
-# =============================================================================
-def render_card_printer(row, key, admin_mode):
-    with st.container():
-        st.markdown(f"""
-        <div style="margin-bottom:6px;">
-            <div class="hw-card-title">🖨️ {row.get('Brand_x0020__x002f__x0020_Model','Printer')}</div>
-            <div class="hw-card-sub">🏢 {row.get('field_1','-')}</div>
-        </div>
-        <div class="hw-field"><strong>👤 User</strong>&nbsp;&nbsp;{row.get('User','-')}</div>
-        {'<div class="hw-field"><strong>🔢 Serial No.</strong>&nbsp;&nbsp;%s</div>' % row.get('S_x002f_N_x0020_No_x002e_','-') if admin_mode else ''}
-        {'<div class="hw-field"><strong>🌐 IP</strong>&nbsp;&nbsp;%s</div>' % row.get('field_3','-') if admin_mode else ''}
-        """, unsafe_allow_html=True)
-        if admin_mode:
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🔍 ดูข้อมูล", key=f"prn_view_{key}", use_container_width=True):
-                    show_pop_printer(row.to_dict(), admin_mode=True)
-            with c2:
-                if st.button("✏️ แก้ไข", key=f"prn_edit_{key}", use_container_width=True):
-                    st.session_state[f"edit_printer_{key}"] = True
-                    st.rerun()
-        else:
-            st.caption("🔒 ดูข้อมูลเชิงลึกและแก้ไขเฉพาะผู้ดูแลระบบ")
+def render_temporary_legacy_hardware_empty_state(*, list_name):
+    """Render the caller-owned empty state for an unconfirmed hardware page."""
+    st.markdown(f"### {list_name.replace('Asset ', '')}")
+    st.caption("Schema pending confirmation — detailed fields are temporarily unavailable.")
+
+
+def _monitor_display_value(value, default="-"):
+    """Return a presentation-safe Monitor value without changing source data."""
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    text = str(value).strip()
+    return text if text else default
 
 # =============================================================================
 # SECTION 08 : VIEW DIALOGS
@@ -1099,28 +1050,27 @@ def show_pop_computer(data, admin_mode=False):
 
 @st.dialog("📋 รายละเอียด Monitor")
 def show_pop_monitor(data, admin_mode=False):
-    st.markdown(f"### 🖥️ {data.get('field_2', 'Monitor')}")
-    st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
-    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
+    st.markdown(f"### 🖥️ {_monitor_display_value(data.get('Brand_x002f_Model'), 'Monitor')}")
+    st.write(f"**👤 พนักงาน:** {_monitor_display_value(data.get('User'))}")
+    st.write(f"**🏢 บริษัท:** {_monitor_display_value(data.get('Company'))}")
     if admin_mode:
-        st.write(f"**🔢 Serial No.:** {data.get('field_4', '-')}")
+        st.write(f"**🔢 Serial No.:** {_monitor_display_value(data.get('S_x002f_NNo_x002e_'))}")
     else:
         st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
-    st.write(f"**✅ สถานะ:** {data.get('Status', '-')}")
+    st.write(f"**✅ สถานะ:** {_monitor_display_value(data.get('Status'))}")
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
 @st.dialog("📋 รายละเอียด Printer")
 def show_pop_printer(data, admin_mode=False):
-    st.markdown(f"### 🖨️ {data.get('field_2', 'Printer')}")
-    st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
-    st.write(f"**👤 User:** {data.get('User', '-')}")
+    st.markdown(f"### 🖨️ {printer_display_value(data.get('Brand_x0020__x002f__x0020_Model'), 'Printer')}")
+    st.write(f"**🏢 บริษัท:** {printer_display_value(data.get('Company'))}")
+    st.write(f"**👤 User:** {printer_display_value(data.get('User'))}")
     if admin_mode:
-        st.write(f"**🔢 Serial No.:** {data.get('S_x002f_N_x0020_No_x002e_', '-')}")
-        st.write(f"**🌐 IP Address:** {data.get('field_3', '-')}")
+        st.write(f"**🔢 Serial No.:** {printer_display_value(data.get('S_x002f_N_x0020_No_x002e_'))}")
     else:
         st.write("**🔢 Serial No.:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
-        st.write("**🌐 IP Address:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
+    st.write(f"**✅ สถานะ:** {printer_display_value(data.get('Status'))}")
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
@@ -1216,17 +1166,21 @@ def delete_computer_dialog(row, list_name):
 
 @st.dialog("✏️ แก้ไข Monitor")
 def edit_monitor_dialog(row, list_name):
-    st.markdown(f"### ✏️ แก้ไข: {row.get('field_2', '')}")
+    st.markdown(f"### ✏️ แก้ไข: {_monitor_display_value(row.get('Brand_x002f_Model'), '')}")
     item_id = row.get('_item_id')
-    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
-    emp_name = st.text_input("👤 ชื่อพนักงาน", value=row.get('field_3', ''))
-    model = st.text_input("🏷️ Brand/Model", value=row.get('field_2', ''))
-    serial = st.text_input("🔢 Serial No.", value=row.get('field_4', ''))
-    status = st.selectbox("โ… Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(row.get('Status', 'Active')) if row.get('Status') in STATUS_OPTIONS else 0)
+    company_value = _monitor_display_value(row.get('Company'), '')
+    status_value = _monitor_display_value(row.get('Status'), '')
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(company_value) if company_value in COMPANY_OPTIONS else 0)
+    emp_name = st.text_input("👤 ชื่อพนักงาน", value=_monitor_display_value(row.get('User'), ''))
+    model = st.text_input("🏷️ Brand/Model", value=_monitor_display_value(row.get('Brand_x002f_Model'), ''))
+    serial = st.text_input("🔢 Serial No.", value=_monitor_display_value(row.get('S_x002f_NNo_x002e_'), ''))
+    status = st.selectbox("โ… Status", STATUS_OPTIONS, index=STATUS_OPTIONS.index(status_value) if status_value in STATUS_OPTIONS else 0)
     col_save, col_del = st.columns(2)
     with col_save:
         if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-            fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
+            fields = {"Company": company, "User": emp_name,
+                      "Brand_x002f_Model": model,
+                      "S_x002f_NNo_x002e_": serial, "Status": status}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
                 st.success("✅ บันทึกสำเร็จ")
@@ -1234,7 +1188,7 @@ def edit_monitor_dialog(row, list_name):
                 st.rerun()
             else:
                 err_msg = res_data.get("error", {}).get("message", str(res_data)) if isinstance(res_data, dict) else str(res_data)
-            st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
+                st.error(f"❌ บันทึกไม่สำเร็จ: {err_msg}")
     with col_del:
         if st.button("🗑️ ลบรายการนี้", use_container_width=True):
             st.session_state['confirm_delete'] = item_id
@@ -1254,17 +1208,16 @@ def edit_monitor_dialog(row, list_name):
 def edit_printer_dialog(row, list_name):
     st.markdown(f"### ✏️ แก้ไข Printer")
     item_id = row.get('_item_id')
-    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('field_1', 'OPT')) if row.get('field_1') in COMPANY_OPTIONS else 0)
+    company = st.selectbox("🏢 บริษัท", COMPANY_OPTIONS, index=COMPANY_OPTIONS.index(row.get('Company', 'OPT')) if row.get('Company') in COMPANY_OPTIONS else 0)
     user = st.text_input("👤 User", value=row.get('User', ''))
     model = st.text_input("🏷️ Brand/Model", value=row.get('Brand_x0020__x002f__x0020_Model', ''))
     serial = st.text_input("🔢 Serial No.", value=row.get('S_x002f_N_x0020_No_x002e_', ''))
-    ip = st.text_input("🌐 IP Address", value=row.get('field_3', ''))
     col_save, col_del = st.columns(2)
     with col_save:
         if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-            fields = {"field_1": company, "User": user,
+            fields = {"Company": company, "User": user,
                       "Brand_x0020__x002f__x0020_Model": model,
-                      "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
+                      "S_x002f_N_x0020_No_x002e_": serial}
             ok, res_data = sp_update_item(list_name, item_id, fields)
             if ok:
                 st.success("✅ บันทึกสำเร็จ")
@@ -1333,7 +1286,9 @@ def add_monitor_dialog(list_name):
     serial = st.text_input("🔢 Serial No.")
     status = st.selectbox("โ… Status", STATUS_OPTIONS)
     if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-        fields = {"field_1": company, "field_3": emp_name, "field_2": model, "field_4": serial, "Status": status}
+        fields = {"Company": company, "User": emp_name,
+                  "Brand_x002f_Model": model,
+                  "S_x002f_NNo_x002e_": serial, "Status": status}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
             st.success("✅ เพิ่มสำเร็จ")
@@ -1350,11 +1305,10 @@ def add_printer_dialog(list_name):
     user = st.text_input("👤 User")
     model = st.text_input("🏷️ Brand/Model")
     serial = st.text_input("🔢 Serial No.")
-    ip = st.text_input("🌐 IP Address")
     if st.button("💾 บันทึก", use_container_width=True, type="primary"):
-        fields = {"field_1": company, "User": user,
+        fields = {"Company": company, "User": user,
                   "Brand_x0020__x002f__x0020_Model": model,
-                  "S_x002f_N_x0020_No_x002e_": serial, "field_3": ip}
+                  "S_x002f_N_x0020_No_x002e_": serial}
         ok, res_data = sp_create_item(list_name, fields)
         if ok:
             st.success("✅ เพิ่มสำเร็จ")
@@ -5220,19 +5174,36 @@ else:
             render_monitor_asset(
                 df_hw=df_hw,
                 admin_mode=admin_mode,
-                show_pop_computer=show_pop_computer,
-                add_computer_dialog=add_computer_dialog,
-                edit_computer_dialog=edit_computer_dialog,
+                show_pop_monitor=show_pop_monitor,
+                add_monitor_dialog=add_monitor_dialog,
+                edit_monitor_dialog=edit_monitor_dialog,
+                badge_renderer=_hw_badge,
+            )
+        elif sub == "Asset Printer":
+            render_printer_asset(
+                df_hw=df_hw,
+                admin_mode=admin_mode,
+                show_pop_printer=show_pop_printer,
+                add_printer_dialog=add_printer_dialog,
+                edit_printer_dialog=edit_printer_dialog,
             )
         else:
+            # SCHEMA PENDING CONFIRMATION: do not infer fields or CRUD dialogs.
             render_generic_hardware_asset(
                 df_hw=df_hw,
                 list_name=sub,
                 hardware_name=hardware_name,
                 admin_mode=admin_mode,
-                show_pop_computer=show_pop_computer,
-                add_computer_dialog=add_computer_dialog,
-                edit_computer_dialog=edit_computer_dialog,
+                card_renderer=lambda row, key, is_admin: render_temporary_legacy_hardware_card(
+                    row, key, is_admin, list_name=sub
+                ),
+                add_handler=None,
+                add_button_label="",
+                search_fields=(),
+                metric_config=(("TOTAL ASSETS", lambda frame: len(frame)),),
+                empty_state_renderer=lambda: render_temporary_legacy_hardware_empty_state(
+                    list_name=sub
+                ),
             )
 
 
