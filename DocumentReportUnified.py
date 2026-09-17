@@ -1029,22 +1029,35 @@ def _monitor_display_value(value, default="-"):
 # SECTION 08 : VIEW DIALOGS
 # Popup แสดงรายละเอียด Asset
 # =============================================================================
+def _computer_view_value(value):
+    """Format missing values for the Computer detail dialog only."""
+    if value is None:
+        return "-"
+    try:
+        if pd.isna(value):
+            return "-"
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, str) and not value.strip():
+        return "-"
+    return value
+
 @st.dialog("📋 รายละเอียด Computer")
 def show_pop_computer(data, admin_mode=False):
-    st.markdown(f"### 💻 {data.get('field_7', 'Computer')}")
+    st.markdown(f"### 💻 {_computer_view_value(data.get('field_7'))}")
     c1, c2 = st.columns(2)
     with c1:
-        st.write(f"**👤 พนักงาน:** {data.get('field_3', '-')}")
-        st.write(f"**🏢 บริษัท:** {data.get('field_1', '-')}")
-        st.write(f"**💻 Hostname:** {data.get('field_6', '-')}")
+        st.write(f"**👤 พนักงาน:** {_computer_view_value(data.get('field_3'))}")
+        st.write(f"**🏢 บริษัท:** {_computer_view_value(data.get('field_1'))}")
+        st.write(f"**💻 Hostname:** {_computer_view_value(data.get('field_6'))}")
     with c2:
         if admin_mode:
-            st.write(f"**🔢 Serial No:** {data.get('field_8', '-')}")
+            st.write(f"**🔢 Serial No:** {_computer_view_value(data.get('field_8'))}")
         else:
             st.write("**🔢 Serial No:** 🔒 ซ่อนสำหรับผู้ใช้ทั่วไป")
-        st.write(f"**✳️ สถานะ:** {data.get('Status', '-')}")
-        st.write(f"**💾 RAM:** {data.get('field_13', '-')}")
-        st.write(f"**💿 Storage C:** {data.get('field_15', '-')}  D: {data.get('field_16', '-')}")
+        st.write(f"**✳️ สถานะ:** {_computer_view_value(data.get('Status'))}")
+        st.write(f"**💾 RAM:** {_computer_view_value(data.get('field_13'))}")
+        st.write(f"**💿 Storage C:** {_computer_view_value(data.get('field_15'))}  D: {_computer_view_value(data.get('field_16'))}")
     with st.expander("📊 ดูข้อมูลดิบ"):
         st.json(data)
 
