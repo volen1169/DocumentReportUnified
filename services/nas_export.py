@@ -132,14 +132,17 @@ def resolve_nas_export_profile(
         company = _nas_first_value(user, "company", "companyName", "Company", "CompanyName")
         department = _nas_first_value(user, "department", "Department", "departmentName")
         job_title = _nas_first_value(user, "title", "jobTitle", "Title", "JobTitle")
+        display_name = _nas_first_value(user, "displayName", "DisplayName", "display_name")
         policy_names = policy_formatter(summary.get("policies", []))
         return {
+            "Display Name": display_name or clean_entity,
             "Company": _nas_company_abbreviation(company),
             "Division": department or "-",
             "Position": job_title or "-",
             "Firewall Policy": policy_names or "-",
         }
     return {
+        "Display Name": clean_entity or "-",
         "Company": "-",
         "Division": "-",
         "Position": "-",
@@ -304,7 +307,9 @@ def build_nas_export_dataframe_from_permissions(
 
         profile = profile_lookup(user_name)
         export_record = {
-            "Name": user_name,
+            # Display Name is presentation-only. Keep user_name as the identity key
+            # for NAS permission rules and AD lookup.
+            "Name": profile.get("Display Name") or user_name,
             "Position": profile.get("Position", "-"),
             "Division": profile.get("Division", "-"),
             "Company": profile.get("Company", "-"),
@@ -340,19 +345,9 @@ def build_nas_export_dataframe_from_permissions(
     # บังคับ OPG_Information_Technology อีกครั้งที่ DataFrame สุดท้าย
     # เพื่อป้องกันค่า ACL เดิม R/W หลุดกลับเข้ามาใน CSV / Excel
     # ไม่ว่าค่าใน source NAS จะเป็นอะไร คนที่ไม่อยู่ใน allowlist ต้องว่างเสมอ
-    if "OPG_Information_Technology" in export_df.columns and "Name" in export_df.columns:
-        allowed_it_users = {
-            str(name).strip().casefold()
-            for name in _NAS_EXPORT_OPG_IT_RW_USERS
-        }
-
-        export_df["OPG_Information_Technology"] = export_df["Name"].apply(
-            lambda value: (
-                "R/W"
-                if str(value or "").strip().casefold() in allowed_it_users
-                else ""
-            )
-        )
+    # Permission rules above already use the original NAS username (user_name).
+    # Do not re-evaluate this rule from the exported Name because Name may now be
+    # an AD Display Name (for example: itsupport -> Ratchaphruek Rodphai).
 
     # Sort Company A-Z first, then Name A-Z within each company.
     if not export_df.empty:
