@@ -85,6 +85,7 @@ from views.assets.monitor_asset import render_monitor_asset
 from views.assets.printer_asset import printer_display_value, render_printer_asset
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
+from views.reports.report_view import render_report_view
 
 
 # =============================================================================
@@ -3093,7 +3094,8 @@ else:
     _NAV_MATERIAL_ICONS = {
         "overview": "space_dashboard", "ad_policy": "policy",
         "hardware_dashboard": "devices", "software_dashboard": "apps",
-        "permission_dashboard": "verified_user", "vendor_list": "storefront",
+        "permission_dashboard": "verified_user", "report": "bar_chart",
+        "vendor_list": "storefront",
         "computers": "computer", "monitors": "desktop_windows",
         "printers": "print", "projector": "videocam",
         "ups": "battery_charging_full", "misc": "devices_other",
@@ -3108,7 +3110,7 @@ else:
     _NAV_FALLBACK_ICONS = {
         "overview": "🏠", "ad_policy": "🛡️", "computers": "💻", "monitors": "🖥️",
         "hardware_dashboard": "🖥️", "software_dashboard": "💿",
-        "permission_dashboard": "🔐", "vendor_list": "🏢",
+        "permission_dashboard": "🔐", "report": "📊", "vendor_list": "🏢",
         "printers": "🖨️", "projector": "📽️", "ups": "🔋", "misc": "📦",
         "password": "🔐", "user_perm": "📂", "ink_stock": "💧",
         "admin_users": "👥", "admin_settings": "⚙️", "admin_logs": "🕘",
@@ -3278,6 +3280,7 @@ else:
     _nav_leaf("hardware_dashboard", "🖥", "Hardware")
     _nav_leaf("software_dashboard", "💿", "Software")
     _nav_leaf("permission_dashboard", "🔐", "Permission")
+    _nav_leaf("report", "📊", "Report")
     _nav_leaf("password", "🔑", "Password")
     _nav_leaf("vendor_list", "🏢", "Vendor List")
     _nav_leaf("ink_stock", "💧", "Ink Stock")
@@ -3638,6 +3641,7 @@ else:
         "hardware_dashboard": ("🖥 Hardware Dashboard", None),
         "software_dashboard": ("💿 Software Dashboard", None),
         "permission_dashboard": ("🔐 Permission Dashboard", None),
+        "report": ("📊 Report", None),
         "computers":  ("💻 Hardware Asset",       "Computer Asset"),
         "monitors":   ("💻 Hardware Asset",       "Asset Monitor"),
         "projector":  ("💻 Hardware Asset",       "Asset Projector"),
@@ -4974,6 +4978,9 @@ else:
 
     elif main_menu == "🔐 Permission Dashboard":
         render_permission_dashboard()
+
+    elif main_menu == "📊 Report":
+        render_report_view()
 
     elif main_menu == "💿 Software Module":
         _software_config = {
