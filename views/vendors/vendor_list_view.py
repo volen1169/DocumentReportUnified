@@ -216,9 +216,12 @@ def _input_for_header(header, value=None, key=None):
 @st.dialog("Vendor Details")
 def _view_vendor_dialog(record, headers):
     for header in headers:
-        value = _clean(record.get(header)) or "-"
+        value = _clean(record.get(header))
         st.markdown(f"**{html.escape(str(header))}**")
-        st.write(value)
+        if value:
+            st.write(value)
+        else:
+            st.text("-")
 
 
 @st.dialog("+ Add Vendor")
