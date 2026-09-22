@@ -86,6 +86,7 @@ from views.assets.printer_asset import printer_display_value, render_printer_ass
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 from views.reports.report_view import render_report_view
+from views.vendors.vendor_list_view import render_vendor_list_page
 
 
 # =============================================================================
@@ -3672,49 +3673,12 @@ else:
     main_menu, _hw_sub_override = _ROUTE.get(_nav, ("📊 Overview Dashboard", None))
     show_ink_history_only = (_nav in ("ink_history", "consumables"))
 
-    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "🖥 Hardware Dashboard", "💻 Hardware Asset"):
+    if not admin_mode and main_menu not in ("📊 Overview Dashboard", "🖥 Hardware Dashboard", "💻 Hardware Asset", "🏢 Vendor List"):
         st.session_state.active_nav = "overview"
         _nav = "overview"
         main_menu, _hw_sub_override = _ROUTE["overview"]
         show_ink_history_only = False
         st.warning("🔒 สิทธิ์การใช้งานถูกจำกัด: ผู้ใช้ทั่วไปสามารถเข้าถึงได้เฉพาะ Dashboard และ Hardware Asset เท่านั้น")
-
-    def _render_password_sheet_module(title, subtitle, icon, keywords):
-        """Reuse the existing password workbook safely for software/vendor modules."""
-        page_header(icon, title, subtitle)
-        with st.spinner("กำลังโหลดข้อมูล..."):
-            _module_result = load_password_excel()
-            _module_sheets, _module_drive_id = _module_result if isinstance(_module_result, tuple) else ({}, None)
-        if not _module_sheets or "_error" in _module_sheets:
-            st.error("ไม่สามารถโหลดข้อมูลจาก SharePoint ได้")
-            return
-        _module_sheet_name = None
-        for _candidate in _module_sheets:
-            _candidate_key = str(_candidate).lower().replace("_", " ").replace("-", " ")
-            if any(str(_keyword).lower() in _candidate_key for _keyword in keywords):
-                _module_sheet_name = _candidate
-                break
-        if not _module_sheet_name:
-            st.info(f"ยังไม่พบหมวดข้อมูลสำหรับ {title} ในไฟล์ปัจจุบัน")
-            return
-        _module_df = _module_sheets[_module_sheet_name].copy()
-        _module_header, _module_add = st.columns([0.8, 0.2])
-        with _module_header:
-            st.subheader(f"{get_sheet_icon(_module_sheet_name)} {_module_sheet_name}")
-            st.caption(f"พบข้อมูลทั้งหมด {len(_module_df)} รายการ")
-        with _module_add:
-            if admin_mode and st.button("➕ เพิ่มรายการ", key=f"module_add_{_nav}", use_container_width=True, type="primary"):
-                add_password_dialog(_module_sheet_name, _module_df, _module_drive_id, _module_sheets)
-        if _module_df.empty:
-            st.info("ยังไม่มีข้อมูลในหมวดนี้")
-            return
-        _module_cols = st.columns(2)
-        for _module_pos, (_module_idx, _module_row) in enumerate(_module_df.iterrows()):
-            with _module_cols[_module_pos % 2]:
-                render_password_card(_module_row, _module_sheet_name, _module_idx, admin_mode, _module_df, _module_drive_id, _module_sheets)
-                if admin_mode and st.session_state.get(f"pw_edit_row_{_module_sheet_name}_{_module_idx}"):
-                    st.session_state.pop(f"pw_edit_row_{_module_sheet_name}_{_module_idx}")
-                    edit_password_dialog(_module_row, _module_idx, _module_sheet_name, _module_df, _module_drive_id, _module_sheets)
 
     def _render_group_email_dashboard(group_df, expected_file):
         """Enterprise Group E-mail dashboard backed only by its dedicated workbook."""
@@ -4999,7 +4963,7 @@ else:
         )
 
     elif main_menu == "🏢 Vendor List":
-        _render_password_sheet_module("Vendor List", "ข้อมูลผู้ขาย ผู้ให้บริการ และช่องทางติดต่อ", "🏢", ["vendor", "supplier", "ผู้ขาย"])
+        render_vendor_list_page(admin_mode=admin_mode)
 
     # -------------------------------------------------------
     # 💻 Hardware Asset
