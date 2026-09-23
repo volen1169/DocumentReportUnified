@@ -174,6 +174,11 @@ from services.excel_storage import (
     _software_ws_headers,
     _software_form_value,
 )
+from services.license_expiry import (
+    build_license_expiry_records,
+    group_license_expiry_records,
+    summarize_license_expiry,
+)
 
 from services.ink_stock import (
     INK_STOCK_LIST,
@@ -4641,6 +4646,7 @@ else:
         .db-main-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,2fr);gap:14px;margin-top:14px}.db-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.db-panel{min-width:0;padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}.db-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.db-panel-title{font-size:16px;font-weight:800;color:#172554}.db-panel-link{font-size:11px;font-weight:700;color:#2563EB}
         .db-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.db-action-card{position:relative;min-height:108px;padding:13px;border:1px solid #E2E8F0;border-radius:16px;background:#FFF;transition:.18s ease}.db-action-card:hover{transform:translateY(-2px);border-color:#C7D2FE;box-shadow:0 10px 22px rgba(79,70,229,.09)}.db-action-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#8B5CF6);color:#FFF}.db-action-icon svg{width:21px;height:21px;stroke:currentColor}.db-action-title{margin-top:8px;padding-right:24px;font-size:14px;font-weight:800;color:#172554}.db-action-desc{margin-top:3px;padding-right:18px;font-size:11px;line-height:1.4;color:#64748B}.db-action-arrow{position:absolute;right:11px;bottom:11px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid #C7D2FE;border-radius:50%;background:#FFF;color:#4F46E5;font-size:12px;font-weight:800}
         .db-health-list,.db-attention-list,.db-activity-list{border:1px solid #E8EDF4;border-radius:14px;overflow:hidden}.db-health-row,.db-list-row{display:flex;align-items:center;gap:11px;min-height:56px;padding:9px 11px;border-bottom:1px solid #E8EDF4}.db-health-row:last-child,.db-list-row:last-child{border-bottom:0}.db-row-icon{display:flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(255,255,255,.85);border-radius:13px;box-shadow:0 6px 14px rgba(15,23,42,.06)}.db-row-icon svg{width:21px;height:21px;stroke:currentColor}.db-row-copy{min-width:0;flex:1}.db-row-title{font-size:12px;font-weight:800;color:#24324A}.db-row-sub{margin-top:2px;font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db-status-online{padding:5px 10px;border-radius:999px;background:#E7F8EE;color:#16A34A;font-size:10px;font-weight:800}.db-status-warning{padding:5px 10px;border-radius:999px;background:#FFF4E5;color:#EA580C;font-size:10px;font-weight:800}.db-time{font-size:10px;color:#64748B;white-space:nowrap}.db-empty-state{padding:18px;text-align:center;color:#94A3B8;font-size:12px}
+        .db-expiry-panel{margin-top:14px}.db-expiry-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}.db-expiry-summary>div{padding:11px 13px;border:1px solid #E2E8F0;border-radius:13px;background:#F8FAFC}.db-expiry-summary b{display:block;font-size:22px;color:#172554}.db-expiry-summary span{font-size:10px;color:#64748B}.db-expiry-list{display:grid;gap:9px}.db-expiry-subhead{margin:7px 2px 0;color:#B91C1C;font-size:11px;font-weight:850}.db-expiry-item{display:grid;grid-template-columns:6px minmax(180px,1.4fr) repeat(3,minmax(105px,.75fr)) auto;align-items:center;gap:12px;padding:12px 13px;border:1px solid #E8EDF4;border-radius:14px;background:#FFF}.db-expiry-bar{align-self:stretch;border-radius:99px;background:#94A3B8}.db-expiry-green .db-expiry-bar{background:#22C55E}.db-expiry-yellow .db-expiry-bar{background:#F59E0B}.db-expiry-red .db-expiry-bar,.db-expiry-expired .db-expiry-bar{background:#EF4444}.db-expiry-product b,.db-expiry-detail b{display:block;font-size:11px;color:#24324A}.db-expiry-product span,.db-expiry-detail span{display:block;margin-top:2px;font-size:9px;color:#64748B}.db-expiry-badge{padding:6px 10px;border-radius:999px;font-size:9px;font-weight:850;white-space:nowrap}.db-expiry-green .db-expiry-badge{color:#15803D;background:#DCFCE7}.db-expiry-yellow .db-expiry-badge{color:#B45309;background:#FEF3C7}.db-expiry-red .db-expiry-badge,.db-expiry-expired .db-expiry-badge{color:#B91C1C;background:#FEE2E2}.db-expiry-neutral .db-expiry-badge{color:#475569;background:#F1F5F9}
         [class*="st-key-db_quick_panel"]{padding:18px;border:1px solid #E2E8F0;border-radius:18px;background:#FFF;box-shadow:0 7px 22px rgba(15,23,42,.045)}
         [class*="st-key-db_quick_panel"] [data-testid="stVerticalBlock"]{gap:8px!important}
         [class*="st-key-db_card_action_"] .stButton>button{position:relative!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;width:100%!important;min-height:126px!important;padding:16px 48px 16px 16px!important;border:1px solid #E2E8F0!important;border-radius:16px!important;background:#FFF!important;color:#172554!important;box-shadow:none!important;text-align:left!important;white-space:pre-line!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
@@ -4651,7 +4657,7 @@ else:
         [class*="st-key-db_card_action_"] .stButton>button p:first-line{font-size:15px!important;font-weight:800!important;color:#172554!important}
         [data-testid="stAppViewContainer"]{background:radial-gradient(circle at 8% 8%,rgba(56,189,248,.26),transparent 28rem),radial-gradient(circle at 92% 88%,rgba(139,92,246,.23),transparent 31rem),linear-gradient(145deg,#EFF8FF,#EEF2FF 48%,#F5F3FF)!important}section[data-testid="stMain"]{background:transparent!important}section[data-testid="stMain"] [data-testid="stMainBlockContainer"]{padding-top:6px!important}
         @media(max-width:1100px){.db-overview-grid{grid-template-columns:repeat(3,1fr)}.db-main-grid,.db-bottom-grid{grid-template-columns:1fr}.db-hero-visual{opacity:.75}.db-action-grid{grid-template-columns:repeat(3,1fr)}}
-        @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}}
+        @media(max-width:700px){.db-topbar{justify-content:flex-start}.db-hero{min-height:170px;padding:23px}.db-hero-title{font-size:27px}.db-hero-visual{display:none}.db-overview-grid{grid-template-columns:repeat(2,1fr)}.db-action-grid{grid-template-columns:1fr}.db-main-grid{grid-template-columns:1fr}.db-panel{padding:14px}.db-expiry-item{grid-template-columns:6px 1fr auto}.db-expiry-detail{display:none}}
         @media(max-width:430px){.db-overview-grid{grid-template-columns:1fr}.db-top-card span.db-date-label{display:none}}
         </style>
         """, unsafe_allow_html=True)
@@ -4669,6 +4675,15 @@ else:
             df_prn = load_sp_data("Asset Printer")
             df_ink = load_sp_data(INK_STOCK_LIST)
             df_nas = load_nas_data()
+            try:
+                _db_software_result = load_software_excels()
+                _db_software_sheets = _db_software_result[0] if isinstance(_db_software_result, tuple) else _db_software_result
+            except Exception:
+                _db_software_sheets = {}
+
+        _db_license_records = build_license_expiry_records(_db_software_sheets)
+        _db_license_groups = group_license_expiry_records(_db_license_records)
+        _db_license_summary = summarize_license_expiry(_db_license_records)
 
         _comp_count = len(df_comp) if df_comp is not None else 0
         _mon_count = len(df_mon) if df_mon is not None else 0
@@ -4802,6 +4817,31 @@ else:
             st.markdown("".join(_attention_html), unsafe_allow_html=True)
         with _bottom_cols[1]:
             st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div></div><div class="db-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div></div>', unsafe_allow_html=True)
+
+        _expiry_html = [
+            '<div class="db-panel db-expiry-panel"><div class="db-panel-head"><div class="db-panel-title">Expiring Soon</div><div class="db-panel-link">Microsoft licenses · date-only (Asia/Bangkok)</div></div>',
+            f'<div class="db-expiry-summary"><div><b>{_db_license_summary["expiring_within_90"]}</b><span>Expiring records within 90 days</span></div><div><b>{_db_license_summary["renewal_due_within_30"]}</b><span>Renewal due within 30 days</span></div></div>',
+            '<div class="db-expiry-list">',
+        ]
+        _expired_heading_added = False
+        for _license_group in _db_license_groups:
+            if _license_group["urgency"] == "expired" and not _expired_heading_added:
+                _expiry_html.append('<div class="db-expiry-subhead">Expired records</div>')
+                _expired_heading_added = True
+            _expiry_date = _license_group["expiration_date"]
+            _renewal_target = _license_group["renewal_target"]
+            _days_remaining = _license_group["days_remaining"]
+            if _expiry_date is None:
+                _expiry_detail = '<div class="db-expiry-detail"><b>Expiry date unavailable</b><span>Not included in 90-day metrics</span></div><div class="db-expiry-detail"><b>Renewal unavailable</b><span>No date inferred</span></div><div class="db-expiry-detail"><b>—</b><span>Days remaining</span></div>'
+            else:
+                _expiry_detail = f'<div class="db-expiry-detail"><b>{_expiry_date.strftime("%d %b %Y")}</b><span>Expires</span></div><div class="db-expiry-detail"><b>{_renewal_target.strftime("%d %b %Y")}</b><span>Renew by</span></div><div class="db-expiry-detail"><b>{_days_remaining}</b><span>Days remaining</span></div>'
+            _expiry_html.append(
+                f'<div class="db-expiry-item db-expiry-{html.escape(_license_group["tone"])}"><div class="db-expiry-bar"></div><div class="db-expiry-product"><b>{html.escape(_license_group["product"])}</b><span>{_license_group["record_count"]} subscriptions / accounts</span></div>{_expiry_detail}<div class="db-expiry-badge">{html.escape(_license_group["status_label"])}</div></div>'
+            )
+        if not _db_license_groups:
+            _expiry_html.append('<div class="db-empty-state">ไม่พบข้อมูล Microsoft license ที่ต้องติดตาม</div>')
+        _expiry_html.append('</div></div>')
+        st.markdown("".join(_expiry_html), unsafe_allow_html=True)
 
         # Stop here so the legacy dashboard remains unreachable and other routes are untouched.
         st.stop()
