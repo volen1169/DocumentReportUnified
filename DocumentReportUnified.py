@@ -4793,31 +4793,6 @@ else:
             _health_html.append('</div></div>')
             st.markdown("".join(_health_html), unsafe_allow_html=True)
 
-        _attention_items = []
-        if _low_ink_count:
-            _attention_items.append(("♢", "หมึกพิมพ์ใกล้หมด", f"พบ {_low_ink_count} รายการ", f"{_low_ink_count} รายการ", "#FFECEF", "#F43F5E"))
-        if not _nas_ok:
-            _attention_items.append(("▤", "NAS Connection Issue", "ไม่สามารถโหลดข้อมูล NAS", "1 รายการ", "#FFF4E5", "#F59E0B"))
-        if not _ad_ok:
-            _attention_items.append(("!", "AD Agent Warning", "ยังไม่พบการตั้งค่า Agent", "1 รายการ", "#FFF4E5", "#F59E0B"))
-        if _unassigned_assets:
-            _attention_items.append(("i", "Asset ไม่มีผู้ใช้งาน", f"พบ {_unassigned_assets} รายการ", f"{_unassigned_assets} รายการ", "#EAF3FF", "#2563EB"))
-
-        _bottom_cols = st.columns(2, gap="medium")
-        with _bottom_cols[0]:
-            _attention_html = ['<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Needs Attention</div></div>']
-            if _attention_items:
-                _attention_html.append('<div class="db-attention-list">')
-                for _icon, _title, _sub, _badge, _bg, _color in _attention_items:
-                    _attention_html.append(f'<div class="db-list-row"><div class="db-row-icon" style="background:{_bg};color:{_color}">{_icon}</div><div class="db-row-copy"><div class="db-row-title">{_title}</div><div class="db-row-sub">{_sub}</div></div><div class="db-status-warning">{_badge}</div></div>')
-                _attention_html.append('</div>')
-            else:
-                _attention_html.append('<div class="db-empty-state">ไม่พบรายการที่ต้องตรวจสอบ</div>')
-            _attention_html.append('</div>')
-            st.markdown("".join(_attention_html), unsafe_allow_html=True)
-        with _bottom_cols[1]:
-            st.markdown('<div class="db-panel"><div class="db-panel-head"><div class="db-panel-title">Recent Activity</div></div><div class="db-empty-state">ยังไม่มีข้อมูลกิจกรรมล่าสุด</div></div></div>', unsafe_allow_html=True)
-
         _expiry_html = [
             '<div class="db-panel db-expiry-panel"><div class="db-panel-head"><div class="db-panel-title">Expiring Soon</div><div class="db-panel-link">Microsoft licenses · date-only (Asia/Bangkok)</div></div>',
             f'<div class="db-expiry-summary"><div><b>{_db_license_summary["expiring_within_90"]}</b><span>Expiring records within 90 days</span></div><div><b>{_db_license_summary["renewal_due_within_30"]}</b><span>Renewal due within 30 days</span></div></div>',
