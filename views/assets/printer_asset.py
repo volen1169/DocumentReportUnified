@@ -1,6 +1,7 @@
 
 import html
 import math
+import textwrap
 
 import pandas as pd
 import streamlit as st
@@ -51,7 +52,7 @@ def render_printer_asset(
     frame = df_hw.copy() if isinstance(df_hw, pd.DataFrame) else pd.DataFrame()
 
     st.markdown(
-        """
+        textwrap.dedent("""
         <div class="pa-page"></div>
         <style>
         .stApp:has(.pa-page) [data-testid="stMainBlockContainer"]{
@@ -219,7 +220,7 @@ def render_printer_asset(
             .pa-metrics{grid-template-columns:1fr}
         }
         </style>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
