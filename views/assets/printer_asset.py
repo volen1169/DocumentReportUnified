@@ -51,10 +51,9 @@ def render_printer_asset(
     list_name = "Asset Printer"
     frame = df_hw.copy() if isinstance(df_hw, pd.DataFrame) else pd.DataFrame()
 
-    st.markdown(
-        textwrap.dedent("""
-        <div class="pa-page"></div>
-        <style>
+    # Inject CSS as raw HTML so Streamlit Markdown cannot render it as a code block.
+    st.html(textwrap.dedent("""
+<style>
         .stApp:has(.pa-page) [data-testid="stMainBlockContainer"]{
             background:transparent!important;
             padding-top:6px!important;
@@ -220,9 +219,8 @@ def render_printer_asset(
             .pa-metrics{grid-template-columns:1fr}
         }
         </style>
-        """),
-        unsafe_allow_html=True,
-    )
+    """))
+    st.markdown('<div class="pa-page"></div>', unsafe_allow_html=True)
 
     total = len(frame)
     company_count = (
