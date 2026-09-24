@@ -25,11 +25,10 @@ _ASSET_SOURCES = (
     ("Access Control Asset", "Asset Access Control", "🔐"),
 )
 
-_ALL_EXPORT_LABELS = tuple(item[0] for item in _ASSET_SOURCES) + ("NAS Permission",)
+_NAS_LABEL = "NAS Permission"
 
 
 def _resolve_main_callable(name: str):
-    """Resolve an existing application helper from Streamlit's main module."""
     main_module = sys.modules.get("__main__")
     if main_module is None:
         return None
@@ -38,7 +37,6 @@ def _resolve_main_callable(name: str):
 
 
 def _load_nas_export_module():
-    """Load the existing NAS export helper without coupling this view to one repo layout."""
     for module_name in ("services.nas_export", "nas_export"):
         try:
             return importlib.import_module(module_name)
@@ -52,7 +50,6 @@ def _safe_frame(value) -> pd.DataFrame:
 
 
 def _clean_asset_export_frame(frame: pd.DataFrame) -> pd.DataFrame:
-    """Remove internal transport-only columns while preserving the source schema."""
     frame = _safe_frame(frame)
     internal_columns = [
         column
@@ -64,11 +61,10 @@ def _clean_asset_export_frame(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def _build_asset_csv(frame: pd.DataFrame) -> bytes:
-    return _clean_asset_export_frame(frame).to_csv(index=False).encode("utf-8-sig")
+    return frame.to_csv(index=False).encode("utf-8-sig")
 
 
 def _style_asset_sheet(ws) -> None:
-    """Apply a lightweight enterprise table format without changing any values."""
     if ws.max_column < 1:
         return
 
@@ -90,7 +86,10 @@ def _style_asset_sheet(ws) -> None:
             cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
     for col_idx in range(1, ws.max_column + 1):
-        values = [str(ws.cell(row=row_idx, column=col_idx).value or "") for row_idx in range(1, min(ws.max_row, 120) + 1)]
+        values = [
+            str(ws.cell(row=row_idx, column=col_idx).value or "")
+            for row_idx in range(1, min(ws.max_row, 120) + 1)
+        ]
         width = min(max(max((len(value) for value in values), default=8) + 2, 11), 36)
         ws.column_dimensions[get_column_letter(col_idx)].width = width
 
@@ -101,23 +100,10 @@ def _style_asset_sheet(ws) -> None:
 
 
 def _build_asset_excel(frame: pd.DataFrame, sheet_name: str) -> bytes:
-    frame = _clean_asset_export_frame(frame)
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         frame.to_excel(writer, index=False, sheet_name=sheet_name[:31])
         _style_asset_sheet(writer.sheets[sheet_name[:31]])
-    buffer.seek(0)
-    return buffer.getvalue()
-
-
-def _build_all_assets_excel(frames: dict[str, pd.DataFrame]) -> bytes:
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-        for label, frame in frames.items():
-            clean = _clean_asset_export_frame(frame)
-            sheet_name = label.replace(" Asset", "")[:31]
-            clean.to_excel(writer, index=False, sheet_name=sheet_name)
-            _style_asset_sheet(writer.sheets[sheet_name])
     buffer.seek(0)
     return buffer.getvalue()
 
@@ -137,35 +123,149 @@ def _render_styles() -> None:
         }
         .ex-header h1{margin:0;color:#0f172a;font-size:24px;font-weight:850}
         .ex-header p{margin:4px 0 0;color:#64748b;font-size:12px}
-        .ex-grid{
-            display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0 14px
+
+        .ex-section-title{margin:10px 0 8px;color:#0f172a;font-size:13px;font-weight:850}
+        .ex-section-sub{margin:-4px 0 10px;color:#64748b;font-size:10.5px}
+
+        .stApp [class*="st-key-export_card_"] button{
+            min-height:112px!important;
+            padding:12px 10px!important;
+            border:1px solid #e2e8f0!important;
+            border-radius:17px!important;
+            background:#fff!important;
+            box-shadow:0 7px 18px rgba(15,23,42,.04)!important;
+            font-size:13px!important;
+            font-weight:800!important;
+            white-space:pre-line!important;
         }
-        .ex-source{
-            min-height:88px;padding:13px 14px;background:#fff;border:1px solid #e2e8f0;
+        .stApp [class*="st-key-export_card_"] button:hover{
+            border-color:#a5b4fc!important;
+            background:#f8faff!important;
+            transform:translateY(-1px);
+        }
+        .stApp [class*="st-key-export_card_selected_"] button{
+            min-height:112px!important;
+            padding:12px 10px!important;
+            border:2px solid #6366f1!important;
+            border-radius:17px!important;
+            background:linear-gradient(180deg,#f5f3ff,#eef2ff)!important;
+            box-shadow:0 10px 24px rgba(99,102,241,.13)!important;
+            color:#3730a3!important;
+            font-size:13px!important;
+            font-weight:850!important;
+            white-space:pre-line!important;
+        }
+
+        .ex-selected{
+            margin:14px 0 10px;padding:13px 15px;background:#fff;border:1px solid #dfe5ef;
             border-radius:16px;box-shadow:0 6px 16px rgba(15,23,42,.035)
         }
-        .ex-source b{display:block;color:#0f172a;font-size:12px}
-        .ex-source span{display:block;margin-top:5px;color:#64748b;font-size:10px}
-        .ex-source i{font-style:normal;font-size:20px}
-        .ex-panel{
-            padding:16px 17px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;
-            box-shadow:0 8px 20px rgba(15,23,42,.04)
+        .ex-selected b{color:#0f172a;font-size:13px}
+        .ex-selected span{display:block;margin-top:3px;color:#64748b;font-size:10.5px}
+
+        .ex-column-shell{
+            margin-top:10px;padding:15px 16px;background:#fff;border:1px solid #e2e8f0;
+            border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.04)
         }
-        .ex-panel-title{font-size:13px;font-weight:850;color:#0f172a;margin-bottom:3px}
-        .ex-panel-sub{font-size:10.5px;color:#64748b;margin-bottom:12px}
-        .ex-summary{
-            display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0
+        .ex-column-title{color:#0f172a;font-size:13px;font-weight:850}
+        .ex-column-sub{margin-top:3px;color:#64748b;font-size:10.5px}
+        .ex-count{
+            display:inline-flex;margin-top:8px;padding:4px 9px;border-radius:999px;
+            background:#eef2ff;color:#4338ca;font-size:10px;font-weight:800
         }
-        .ex-stat{
-            padding:11px 12px;border:1px solid #e5e7eb;border-radius:13px;background:#f8fafc
+
+        .ex-export-box{
+            margin-top:12px;padding:15px 16px;background:#fff;border:1px solid #e2e8f0;
+            border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.04)
         }
-        .ex-stat span{display:block;color:#64748b;font-size:9.5px}
-        .ex-stat b{display:block;margin-top:3px;color:#0f172a;font-size:18px}
-        @media(max-width:1100px){.ex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-        @media(max-width:700px){.ex-grid,.ex-summary{grid-template-columns:1fr}}
+        .ex-empty{
+            padding:18px;text-align:center;color:#64748b;background:#fff;
+            border:1px dashed #cbd5e1;border-radius:16px
+        }
         </style>
         """
     )
+
+
+def _card_button(label: str, icon: str, selected: bool, key: str) -> bool:
+    button_key = f"export_card_selected_{key}" if selected else f"export_card_{key}"
+    caption = f"{icon}\n{label}"
+    return st.button(caption, key=button_key, use_container_width=True)
+
+
+def _render_source_cards(selected_label: str) -> str:
+    cards = list(_ASSET_SOURCES) + [(_NAS_LABEL, "", "🗂️")]
+    rows = [cards[:4], cards[4:]]
+
+    current = selected_label
+    for row_index, row_cards in enumerate(rows):
+        cols = st.columns(len(row_cards), gap="small")
+        for idx, (label, _, icon) in enumerate(row_cards):
+            with cols[idx]:
+                safe_key = f"{row_index}_{idx}_{label.lower().replace(' ', '_')}"
+                if _card_button(label, icon, current == label, safe_key):
+                    st.session_state["export_center_selected"] = label
+                    st.session_state.pop("export_center_ready_bytes", None)
+                    st.session_state.pop("export_center_ready_name", None)
+                    st.session_state.pop("export_center_ready_mime", None)
+                    st.rerun()
+    return current
+
+
+def _render_column_selector(columns: list[str], prefix: str) -> list[str]:
+    if not columns:
+        return []
+
+    state_key = f"{prefix}_selected_columns"
+    default_selected = st.session_state.get(state_key)
+    if not isinstance(default_selected, list):
+        default_selected = list(columns)
+        st.session_state[state_key] = list(columns)
+
+    valid_selected = [column for column in default_selected if column in columns]
+    if valid_selected != default_selected:
+        st.session_state[state_key] = valid_selected
+
+    c1, c2, c3 = st.columns([1.0, 1.0, 4.0])
+    with c1:
+        if st.button("✓ เลือกทั้งหมด", use_container_width=True, key=f"{prefix}_select_all"):
+            st.session_state[state_key] = list(columns)
+            for column in columns:
+                st.session_state[f"{prefix}_col_{column}"] = True
+            st.rerun()
+    with c2:
+        if st.button("ล้างทั้งหมด", use_container_width=True, key=f"{prefix}_clear_all"):
+            st.session_state[state_key] = []
+            for column in columns:
+                st.session_state[f"{prefix}_col_{column}"] = False
+            st.rerun()
+
+    selected = []
+    per_row = 3
+    for start in range(0, len(columns), per_row):
+        row_columns = columns[start:start + per_row]
+        ui_cols = st.columns(per_row, gap="small")
+        for idx, column in enumerate(row_columns):
+            with ui_cols[idx]:
+                checkbox_key = f"{prefix}_col_{column}"
+                if checkbox_key not in st.session_state:
+                    st.session_state[checkbox_key] = column in st.session_state[state_key]
+                checked = st.checkbox(
+                    str(column),
+                    key=checkbox_key,
+                )
+                if checked:
+                    selected.append(column)
+
+    st.session_state[state_key] = selected
+    return selected
+
+
+def _nas_group_columns(export_df: pd.DataFrame):
+    metadata = ["No.", "Name", "Position", "Division", "Company", "Firewall Policy"]
+    metadata = [column for column in metadata if column in export_df.columns]
+    share_columns = [column for column in export_df.columns if column not in metadata]
+    return metadata, share_columns
 
 
 def render_report_view(
@@ -176,10 +276,13 @@ def render_report_view(
     nas_profile_lookup: Optional[Callable] = None,
 ) -> None:
     """
-    Render the centralized Export page.
+    Render a card-driven Export Center.
 
-    Existing calls to render_report_view() remain valid. When callbacks are not
-    supplied explicitly, the view reuses helpers already defined by the main app.
+    Flow:
+    1) Click an Asset/NAS card.
+    2) Tick the columns to include.
+    3) Choose Excel or CSV.
+    4) Export.
     """
     load_sp_data = load_sp_data or _resolve_main_callable("load_sp_data")
     load_nas_data = load_nas_data or _resolve_main_callable("load_nas_data")
@@ -212,51 +315,34 @@ def render_report_view(
             <div class="ex-icon">⇩</div>
             <div>
                 <h1>Export Center</h1>
-                <p>ศูนย์กลางสำหรับ Export Hardware Asset และ NAS Permission</p>
+                <p>เลือกประเภทข้อมูล กำหนดคอลัมน์ แล้ว Export เป็น Excel หรือ CSV</p>
             </div>
         </section>
         """,
         unsafe_allow_html=True,
     )
 
-    cards = [
-        ("💻", "Computer Asset", "SharePoint"),
-        ("🖥️", "Monitor Asset", "SharePoint"),
-        ("🖨️", "Printer Asset", "SharePoint"),
-        ("📽️", "Projector Asset", "SharePoint"),
-        ("🔋", "UPS Asset", "SharePoint"),
-        ("📹", "CCTV Asset", "SharePoint"),
-        ("🔐", "Access Control", "SharePoint"),
-        ("🗂️", "NAS Permission", "NAS + AD"),
-    ]
+    st.markdown('<div class="ex-section-title">เลือกประเภทข้อมูล</div>', unsafe_allow_html=True)
+    st.markdown('<div class="ex-section-sub">กดที่การ์ดเพื่อเลือกข้อมูลที่ต้องการ Export</div>', unsafe_allow_html=True)
+
+    if "export_center_selected" not in st.session_state:
+        st.session_state["export_center_selected"] = "Computer Asset"
+
+    selected = _render_source_cards(st.session_state["export_center_selected"])
+    selected = st.session_state["export_center_selected"]
+
     st.markdown(
-        '<div class="ex-grid">'
-        + "".join(
-            f'<div class="ex-source"><i>{icon}</i><b>{html.escape(name)}</b><span>{html.escape(source)}</span></div>'
-            for icon, name, source in cards
-        )
-        + "</div>",
+        f'<div class="ex-selected"><b>✓ {html.escape(selected)}</b>'
+        f'<span>เลือกคอลัมน์ที่ต้องการในไฟล์ Export ด้านล่าง</span></div>',
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        '<div class="ex-panel"><div class="ex-panel-title">เลือกข้อมูลที่ต้องการ Export</div>'
-        '<div class="ex-panel-sub">โหลดเฉพาะชุดข้อมูลที่เลือก เพื่อลดเวลาในการเปิดหน้า Export</div></div>',
-        unsafe_allow_html=True,
-    )
-
-    selected = st.selectbox(
-        "ประเภทข้อมูล",
-        _ALL_EXPORT_LABELS,
-        key="export_center_source",
-    )
-
-    if selected == "NAS Permission":
+    if selected == _NAS_LABEL:
         if load_nas_data is None:
             st.error("ไม่พบ load_nas_data จากแอปหลัก")
             return
         if nas_module is None:
-            st.error("ไม่พบโมดูล NAS export (รองรับ services.nas_export หรือ nas_export)")
+            st.error("ไม่พบโมดูล NAS export (services.nas_export หรือ nas_export)")
             return
         if clean_nas_principal is None or nas_profile_lookup is None:
             st.error("ยังไม่พร้อม Export NAS: ไม่พบ clean principal / AD profile lookup")
@@ -266,11 +352,7 @@ def render_report_view(
             nas_source = _safe_frame(load_nas_data())
 
         if nas_source.empty:
-            st.info("ไม่พบข้อมูล NAS Permission สำหรับ Export")
-            return
-
-        if not hasattr(nas_module, "build_nas_export_dataframe"):
-            st.error("NAS export module ไม่มี build_nas_export_dataframe")
+            st.info("ไม่พบข้อมูล NAS Permission")
             return
 
         export_df = nas_module.build_nas_export_dataframe(
@@ -279,115 +361,117 @@ def render_report_view(
             profile_lookup=nas_profile_lookup,
         )
 
+        metadata_cols, share_cols = _nas_group_columns(export_df)
+
         st.markdown(
-            f'<div class="ex-summary">'
-            f'<div class="ex-stat"><span>Users</span><b>{len(export_df):,}</b></div>'
-            f'<div class="ex-stat"><span>Columns</span><b>{len(export_df.columns):,}</b></div>'
-            f'<div class="ex-stat"><span>Source Shares</span><b>{nas_source["Share"].nunique() if "Share" in nas_source else 0:,}</b></div>'
-            f'</div>',
+            f'<div class="ex-column-shell"><div class="ex-column-title">ข้อมูลพนักงาน</div>'
+            f'<div class="ex-column-sub">เลือก Metadata ที่ต้องการใส่ในรายงาน</div>'
+            f'<span class="ex-count">{len(metadata_cols)} คอลัมน์</span></div>',
             unsafe_allow_html=True,
         )
+        selected_metadata = _render_column_selector(metadata_cols, "nas_meta")
 
-        preview_rows = min(len(export_df), 20)
-        st.dataframe(export_df.head(preview_rows), use_container_width=True, hide_index=True)
+        st.markdown(
+            f'<div class="ex-column-shell"><div class="ex-column-title">Shared Folder Permissions</div>'
+            f'<div class="ex-column-sub">เลือก Share ที่ต้องการใส่ในรายงาน</div>'
+            f'<span class="ex-count">{len(share_cols)} คอลัมน์</span></div>',
+            unsafe_allow_html=True,
+        )
+        selected_shares = _render_column_selector(share_cols, "nas_share")
+        selected_columns = selected_metadata + selected_shares
 
-        c1, c2 = st.columns(2)
-        with c1:
-            st.download_button(
-                "⬇️ Export NAS Permission.xlsx",
-                data=nas_module.build_nas_excel(export_df),
-                file_name="NAS_Permission.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True,
-                type="primary",
-                key="export_nas_excel",
-            )
-        with c2:
-            st.download_button(
-                "⬇️ Export NAS Permission.csv",
-                data=nas_module.build_nas_csv(export_df),
-                file_name="NAS_Permission.csv",
-                mime="text/csv",
-                use_container_width=True,
-                key="export_nas_csv",
-            )
+        export_format = st.radio(
+            "รูปแบบไฟล์",
+            ["Excel (.xlsx)", "CSV (.csv)"],
+            horizontal=True,
+            key="nas_export_format",
+        )
+
+        if not selected_columns:
+            st.warning("กรุณาเลือกอย่างน้อย 1 คอลัมน์")
+            return
+
+        final_df = export_df[selected_columns].copy()
+
+        st.markdown('<div class="ex-export-box">', unsafe_allow_html=True)
+        if export_format.startswith("Excel"):
+            # Keep the existing NAS Excel formatter, but only with selected columns.
+            file_bytes = nas_module.build_nas_excel(final_df)
+            file_name = "NAS_Permission.xlsx"
+            mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        else:
+            file_bytes = nas_module.build_nas_csv(final_df)
+            file_name = "NAS_Permission.csv"
+            mime = "text/csv"
+
+        st.download_button(
+            f"⬇️ Export {selected}",
+            data=file_bytes,
+            file_name=file_name,
+            mime=mime,
+            use_container_width=True,
+            type="primary",
+            key="nas_final_download",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
         return
 
+    source_lookup = {label: list_name for label, list_name, _ in _ASSET_SOURCES}
     if load_sp_data is None:
         st.error("ไม่พบ load_sp_data จากแอปหลัก")
         return
 
-    source_lookup = {label: list_name for label, list_name, _ in _ASSET_SOURCES}
     list_name = source_lookup[selected]
 
     with st.spinner(f"กำลังโหลด {selected}..."):
-        frame = _safe_frame(load_sp_data(list_name))
+        source_df = _clean_asset_export_frame(_safe_frame(load_sp_data(list_name)))
 
-    clean_frame = _clean_asset_export_frame(frame)
+    if source_df.empty:
+        st.info(f"ไม่พบข้อมูล {selected}")
+        return
+
+    columns = [str(column) for column in source_df.columns]
 
     st.markdown(
-        f'<div class="ex-summary">'
-        f'<div class="ex-stat"><span>Dataset</span><b>{html.escape(selected)}</b></div>'
-        f'<div class="ex-stat"><span>Records</span><b>{len(clean_frame):,}</b></div>'
-        f'<div class="ex-stat"><span>Columns</span><b>{len(clean_frame.columns):,}</b></div>'
-        f'</div>',
+        f'<div class="ex-column-shell"><div class="ex-column-title">เลือกคอลัมน์ที่ต้องการ Export</div>'
+        f'<div class="ex-column-sub">เลือกเฉพาะข้อมูลที่ต้องการ ไม่แสดงตาราง Preview</div>'
+        f'<span class="ex-count">{len(columns)} คอลัมน์ · {len(source_df):,} รายการ</span></div>',
         unsafe_allow_html=True,
     )
 
-    if clean_frame.empty:
-        st.info(f"ไม่พบข้อมูล {selected}")
+    prefix = "asset_" + selected.lower().replace(" ", "_")
+    selected_columns = _render_column_selector(columns, prefix)
+
+    export_format = st.radio(
+        "รูปแบบไฟล์",
+        ["Excel (.xlsx)", "CSV (.csv)"],
+        horizontal=True,
+        key=f"{prefix}_format",
+    )
+
+    if not selected_columns:
+        st.warning("กรุณาเลือกอย่างน้อย 1 คอลัมน์")
+        return
+
+    final_df = source_df[selected_columns].copy()
+
+    st.markdown('<div class="ex-export-box">', unsafe_allow_html=True)
+    if export_format.startswith("Excel"):
+        file_bytes = _build_asset_excel(final_df, selected)
+        file_name = f"{selected.replace(' ', '_')}.xlsx"
+        mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     else:
-        st.dataframe(clean_frame.head(20), use_container_width=True, hide_index=True)
+        file_bytes = _build_asset_csv(final_df)
+        file_name = f"{selected.replace(' ', '_')}.csv"
+        mime = "text/csv"
 
-    c1, c2 = st.columns(2)
-    with c1:
-        st.download_button(
-            f"⬇️ Export {selected}.xlsx",
-            data=_build_asset_excel(clean_frame, selected),
-            file_name=f"{selected.replace(' ', '_')}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True,
-            type="primary",
-            key="export_asset_excel",
-        )
-    with c2:
-        st.download_button(
-            f"⬇️ Export {selected}.csv",
-            data=_build_asset_csv(clean_frame),
-            file_name=f"{selected.replace(' ', '_')}.csv",
-            mime="text/csv",
-            use_container_width=True,
-            key="export_asset_csv",
-        )
-
-    st.divider()
-    with st.expander("Export Hardware Asset ทั้งหมดเป็น Excel เดียว", expanded=False):
-        st.caption("สร้าง Workbook 7 Sheet: Computer, Monitor, Printer, Projector, UPS, CCTV และ Access Control")
-        if st.button("เตรียม Hardware Asset Workbook", use_container_width=True, key="prepare_all_asset_export"):
-            frames = {}
-            progress = st.progress(0)
-            for index, (label, asset_list_name, _) in enumerate(_ASSET_SOURCES, start=1):
-                frames[label] = _safe_frame(load_sp_data(asset_list_name))
-                progress.progress(index / len(_ASSET_SOURCES))
-            workbook = _build_all_assets_excel(frames)
-            st.session_state["all_asset_export_workbook"] = workbook
-            st.session_state["all_asset_export_counts"] = {
-                label: len(frame) for label, frame in frames.items()
-            }
-
-        workbook = st.session_state.get("all_asset_export_workbook")
-        if workbook:
-            counts = st.session_state.get("all_asset_export_counts", {})
-            st.success(
-                "พร้อมดาวน์โหลด — "
-                + " | ".join(f"{label}: {count:,}" for label, count in counts.items())
-            )
-            st.download_button(
-                "⬇️ Export All Hardware Assets.xlsx",
-                data=workbook,
-                file_name="Hardware_Assets_All.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True,
-                type="primary",
-                key="download_all_assets",
-            )
+    st.download_button(
+        f"⬇️ Export {selected}",
+        data=file_bytes,
+        file_name=file_name,
+        mime=mime,
+        use_container_width=True,
+        type="primary",
+        key=f"{prefix}_download",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
