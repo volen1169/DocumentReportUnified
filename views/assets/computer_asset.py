@@ -87,8 +87,27 @@ def render_computer_asset(
         '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>'
     ]
     st.markdown(f'<section class="ca-header"><div class="ca-header-icon">{_ca_monitor}</div><div><h1>Computer Asset</h1><p>จัดการข้อมูลคอมพิวเตอร์ทั้งหมดในองค์กร</p></div></section>',unsafe_allow_html=True)
-    _ca_metrics=[("คอมพิวเตอร์ทั้งหมด",_ca_total,"#2563EB","#EFF6FF"),("Active",_ca_active,"#10B981","#ECFDF5"),("Spare",_ca_spare,"#F59E0B","#FFF7ED"),("บริษัท",_ca_companies,"#8B5CF6","#F5F3FF"),("Windows 11",_ca_win11,"#38BDF8","#F0F9FF"),("Windows 10",_ca_win10,"#3B82F6","#EFF6FF")]
-    st.markdown('<div class="ca-metric-grid">'+''.join(f'<div class="ca-card" style="--tone:{tone};--soft:{soft}"><div class="ca-card-label">{label}</div><div class="ca-card-value">{value:,}</div><div class="ca-card-icon">{_ca_icons[i]}</div><div class="ca-card-foot"><span>เครื่อง</span><strong>{_ca_pct(value,_ca_total):.2f}%</strong></div></div>' for i,(label,value,tone,soft) in enumerate(_ca_metrics))+'</div>',unsafe_allow_html=True)
+    _ca_metrics=[
+        ("คอมพิวเตอร์ทั้งหมด",_ca_total,"#2563EB","#EFF6FF","เครื่อง",True),
+        ("Active",_ca_active,"#10B981","#ECFDF5","เครื่อง",True),
+        ("Spare",_ca_spare,"#F59E0B","#FFF7ED","เครื่อง",True),
+        ("บริษัท",_ca_companies,"#8B5CF6","#F5F3FF","บริษัท",False),
+        ("Windows 11",_ca_win11,"#38BDF8","#F0F9FF","เครื่อง",True),
+        ("Windows 10",_ca_win10,"#3B82F6","#EFF6FF","เครื่อง",True),
+    ]
+    st.markdown(
+        '<div class="ca-metric-grid">'+''.join(
+            f'<div class="ca-card" style="--tone:{tone};--soft:{soft}">'
+            f'<div class="ca-card-label">{label}</div>'
+            f'<div class="ca-card-value">{value:,}</div>'
+            f'<div class="ca-card-icon">{_ca_icons[i]}</div>'
+            f'<div class="ca-card-foot"><span>{unit}</span>'
+            f'{f"<strong>{_ca_pct(value,_ca_total):.2f}%</strong>" if show_pct else ""}'
+            f'</div></div>'
+            for i,(label,value,tone,soft,unit,show_pct) in enumerate(_ca_metrics)
+        )+'</div>',
+        unsafe_allow_html=True,
+    )
 
     _ca_companies_options=sorted({_ca_value(r,"field_1") for _,r in df_hw.iterrows() if _ca_value(r,"field_1") not in ("", "-")})
     _ca_departments=sorted({_ca_value(r,"field_4") for _,r in df_hw.iterrows() if _ca_value(r,"field_4") not in ("", "-")})
