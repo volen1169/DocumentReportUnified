@@ -4,13 +4,13 @@ import datetime as dt
 import unittest
 
 import pandas as pd
-
 from services.license_expiry import (
     SAFE_RECORD_FIELDS,
     build_license_expiry_records,
     classify_expiry,
     group_license_expiry_records,
     normalize_product_name,
+    parse_expiration_date,
     summarize_license_expiry,
 )
 
@@ -69,6 +69,28 @@ class LicenseExpiryTests(unittest.TestCase):
         record = build_license_expiry_records({"Office 365": frame}, today=TODAY)[0]
         self.assertEqual(record["expiration_date"], dt.date(2026, 11, 12))
         self.assertEqual(record["days_remaining"], 50)
+
+    def test_excel_datetime_loader_and_shared_expiry_parser_agree_with_overview(self):
+        # The workbook loader converts Excel cells using str(value).strip().
+        frame = pd.DataFrame([{"License Type": "Microsoft 365 Business Basic",
+                               "Expiry Date": str(dt.datetime(2026, 11, 12)).strip()}])
+        self.assertEqual(frame.loc[0, "Expiry Date"], "2026-11-12 00:00:00")
+        overview = build_license_expiry_records({"Group Email": frame}, today=TODAY)[0]
+        group_email_expiry = parse_expiration_date(frame.loc[0, "Expiry Date"])
+        software_dashboard_expiry = parse_expiration_date(frame.loc[0, "Expiry Date"])
+        self.assertEqual(overview["expiration_date"], group_email_expiry)
+        self.assertEqual(overview["expiration_date"], software_dashboard_expiry)
+        self.assertEqual(overview["expiration_date"].strftime("%d %b %Y"), "12 Nov 2026")
+        self.assertEqual(overview["days_remaining"], (group_email_expiry - TODAY).days)
+        self.assertEqual(overview["days_remaining"], (software_dashboard_expiry - TODAY).days)
+
+    def test_date_only_inputs_and_ambiguous_text_follow_overview_contract(self):
+        expected = dt.date(2026, 11, 12)
+        for value in (dt.datetime(2026, 11, 12), pd.Timestamp("2026-11-12"),
+                      expected, "2026-11-12", "2026-11-12 00:00:00", "12/11/2026"):
+            with self.subTest(value=value):
+                self.assertEqual(parse_expiration_date(value), expected)
+        self.assertIsNone(parse_expiration_date(pd.NaT))
 
     def test_same_product_expiry_and_urgency_are_grouped(self):
         frame = pd.DataFrame(

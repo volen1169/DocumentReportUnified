@@ -177,6 +177,7 @@ from services.excel_storage import (
 from services.license_expiry import (
     build_license_expiry_records,
     group_license_expiry_records,
+    parse_expiration_date,
     summarize_license_expiry,
 )
 
@@ -3723,8 +3724,8 @@ else:
         records = []
         for row_index, row in group_df.iterrows():
             status_text = _ge_norm(row.get(status_col, "")) if status_col else ""
-            expiry = _ge_date(row.get(expiry_col)) if expiry_col else None
-            days_left = (expiry.date() - now_bkk.date()).days if expiry else None
+            expiry = parse_expiration_date(row.get(expiry_col)) if expiry_col else None
+            days_left = (expiry - now_bkk.date()).days if expiry else None
             if days_left is not None and days_left < 0:
                 state = "expired"
             elif any(token in status_text for token in ("inactive", "disabled", "ไม่ได้ใช้งาน", "ยกเลิก")):
@@ -3824,7 +3825,7 @@ else:
         for record in visible:
             status_label, status_tone = status_colors[record["state"]]
             start_text = record["start"].strftime("%d/%m/%Y") if record["start"] else "-"
-            expiry_text = record["expiry"].strftime("%d/%m/%Y") if record["expiry"] else "-"
+            expiry_text = record["expiry"].strftime("%d %b %Y") if record["expiry"] else "-"
             users_text = f"{int(record['users']):,}" if pd.notna(record["users"]) else "-"
             table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td></tr>''')
         rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="10"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
@@ -3856,7 +3857,7 @@ else:
         company_panel = f'<div class="ge-company-panel"><div class="ge-panel-title">Top Companies</div>{company_body}</div>'
 
         expiring_records = sorted([record for record in records if record["days"] is not None and 0 <= record["days"] <= 90], key=lambda record: record["days"])[:5]
-        expiring_html = ''.join(f'''<div class="ge-expiring-row"><div class="ge-expiring-icon">{search_svg}</div><div><b>{html.escape(record["company"])}</b><span>{html.escape(record["license"])}</span></div><div><b>{record["expiry"].strftime("%d/%m/%Y")}</b><span>เหลือ {record["days"]} วัน</span></div></div>''' for record in expiring_records)
+        expiring_html = ''.join(f'''<div class="ge-expiring-row"><div class="ge-expiring-icon">{search_svg}</div><div><b>{html.escape(record["company"])}</b><span>{html.escape(record["license"])}</span></div><div><b>{record["expiry"].strftime("%d %b %Y")}</b><span>เหลือ {record["days"]} วัน</span></div></div>''' for record in expiring_records)
         expiring_body = expiring_html or '<div class="ge-empty-state">ไม่พบรายการที่ใกล้หมดอายุ</div>'
         expiring_panel = f'<div class="ge-expiring-panel"><div class="ge-panel-title">กำลังจะหมดอายุ <small>ภายใน 90 วัน</small></div>{expiring_body}</div>'
 
@@ -3923,8 +3924,8 @@ else:
             _o365_active = int(_software_df[_status_col].fillna("").astype(str).str.strip().str.lower().isin(["active", "licensed", "valid"]).sum()) if _status_col else 0
             _o365_users = pd.to_numeric(_software_df[_users_col], errors="coerce").sum(min_count=1) if _users_col else None
             _o365_cost = pd.to_numeric(_software_df[_cost_col], errors="coerce").sum(min_count=1) if _cost_col else None
-            _expiry_values = pd.to_datetime(_software_df[_expiry_col], errors="coerce", dayfirst=True) if _expiry_col else pd.Series(dtype="datetime64[ns]")
-            _days_left = (_expiry_values.dt.normalize() - pd.Timestamp(_o365_now.date())).dt.days if not _expiry_values.empty else pd.Series(dtype="float64")
+            _expiry_values = _software_df[_expiry_col].map(parse_expiration_date) if _expiry_col else pd.Series(dtype="object")
+            _days_left = _expiry_values.map(lambda value: (value - _o365_now.date()).days if value else None)
             _o365_expiring = int(_days_left.between(0, 90, inclusive="both").sum()) if not _days_left.empty else 0
 
             _office_svg = '''<svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="officeLogoGradient" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB020"/><stop offset=".48" stop-color="#F97316"/><stop offset="1" stop-color="#EA3A2F"/></linearGradient></defs><path fill="url(#officeLogoGradient)" d="M18.5 2.8 28 7.1v17.8l-9.5 4.3-14.5-5V7.8l14.5-5Zm0 5.1-8.7 2.4v11.4l8.7 2.4V7.9Zm3.3 1.3v13.6l2.4-1.1V10.3l-2.4-1.1Z"/><path fill="#FFF" fill-opacity=".92" d="M18.5 7.9v16.2l-8.7-2.4V10.3l8.7-2.4Z"/></svg>'''
@@ -3993,8 +3994,8 @@ else:
                 _status_key = _status.strip().lower()
                 _status_class = "active" if _status_key in ("active", "licensed", "valid") else "inactive"
                 _expiry_raw = _row.get(_expiry_col) if _expiry_col else None
-                _expiry_date = pd.to_datetime(_expiry_raw, errors="coerce", dayfirst=True)
-                _expiry = _expiry_date.strftime("%d/%m/%Y") if pd.notna(_expiry_date) else "-"
+                _expiry_date = parse_expiration_date(_expiry_raw)
+                _expiry = _expiry_date.strftime("%d %b %Y") if _expiry_date else "-"
                 _password = html.escape(str(_row.get(_password_col, "") or "")) if _password_col and _show_password and admin_mode else "โ€ขโ€ขโ€ขโ€ขโ€ขโ€ขโ€ขโ€ข"
                 _table_rows.append(f'''<tr><td><div class="o365-account"><span>{_account[:1].upper() if _account else "O"}</span><div><b>{_account}</b><small>{_publisher_col and html.escape(str(_row.get(_publisher_col, ""))) or "Microsoft 365"}</small></div></div></td><td><span class="o365-company">{_company}</span></td><td>{_plan}</td><td class="o365-users">{_users}<small>{_user_list}</small></td><td><span class="o365-status { _status_class }">{html.escape(_status)}</span></td><td>{_expiry}</td><td><code>{_password}</code></td></tr>''')
 
@@ -4035,8 +4036,8 @@ else:
         days_values = []
         for _, detail_row in detail_df.iterrows():
             status_text = str(detail_row.get(status_column, "")).strip().lower() if status_column else ""
-            expiry_value = pd.to_datetime(detail_row.get(expiry_column), errors="coerce", dayfirst=True) if expiry_column else pd.NaT
-            days_left = (expiry_value.date() - now_detail.date()).days if pd.notna(expiry_value) else None
+            expiry_value = parse_expiration_date(detail_row.get(expiry_column)) if expiry_column else None
+            days_left = (expiry_value - now_detail.date()).days if expiry_value else None
             if days_left is not None and days_left < 0:
                 state = "expired"
             elif any(token in status_text for token in ("inactive", "disabled", "offboard", "resigned", "ลาออก", "ยกเลิก")):
@@ -4100,9 +4101,16 @@ else:
 
         display_columns = [column for column in _software_df.columns if column not in ("Source File", "Source Sheet", "Source Row")][:10]
         header_html = ''.join(f'<th>{html.escape(str(column))}</th>' for column in display_columns)
+        def _detail_cell(row, column):
+            value = row.get(column)
+            if column == expiry_column:
+                expiry_date = parse_expiration_date(value)
+                return expiry_date.strftime("%d %b %Y") if expiry_date else "-"
+            return str(value) if pd.notna(value) else "-"
+
         body_rows = []
         for row_index, row in visible_df.iterrows():
-            cells = ''.join(f'<td>{html.escape(str(row.get(column, "-") if pd.notna(row.get(column)) else "-"))}</td>' for column in display_columns)
+            cells = ''.join(f'<td>{html.escape(_detail_cell(row, column))}</td>' for column in display_columns)
             state = row.get("_Dashboard State", "unknown")
             state_label = {"active":"Active","expiring":"Expiring","expired":"Expired","inactive":"Inactive","unknown":"ไม่ระบุ"}.get(state, "ไม่ระบุ")
             body_rows.append(f'<tr>{cells}<td><span class="sd-status sd-{state}">{state_label}</span></td></tr>')
@@ -4247,8 +4255,8 @@ else:
                     _modified_col = _field(_columns, ["Modified", "Updated", "Last Modified", "Created"], ("modified", "updated", "created", "วันที่แก้ไข"))
                     _name_col = _field(_columns, ["Software", "Software Name", "Product", "Application", "Name", "Title", "Account"], ("software name", "product", "application", "name", "title"))
                     _status_text = _norm(_row.get(_status_col, "")) if _status_col else ""
-                    _expiry = _date(_row.get(_expiry_col)) if _expiry_col else None
-                    _days = (_expiry.date() - _today.date()).days if _expiry else None
+                    _expiry = parse_expiration_date(_row.get(_expiry_col)) if _expiry_col else None
+                    _days = (_expiry - _today.date()).days if _expiry else None
                     if _days is not None and 0 <= _days <= 90:
                         _state = "expiring"
                     elif any(x in _status_text for x in ("inactive", "disabled", "ไม่ได้ใช้งาน", "ยกเลิกใช้งาน")):
@@ -4367,7 +4375,7 @@ else:
         with _bottom_center:
             _expiry_rows = sorted([r for r in _visible_rows if r["expiry"] and r["days"] is not None and 0 <= r["days"] <= 90], key=lambda r: r["days"])[:6]
             if _expiry_rows:
-                _expiry_html = "".join(f'<tr><td>{html.escape(r["name"] or "-")}</td><td>{html.escape(r["publisher"] or "-")}</td><td>{r["expiry"].strftime("%d/%m/%Y")}</td><td>{r["days"]}</td></tr>' for r in _expiry_rows)
+                _expiry_html = "".join(f'<tr><td>{html.escape(r["name"] or "-")}</td><td>{html.escape(r["publisher"] or "-")}</td><td>{r["expiry"].strftime("%d %b %Y")}</td><td>{r["days"]}</td></tr>' for r in _expiry_rows)
                 st.markdown(f'<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><table class="sw-expiring-table"><thead><tr><th>Software</th><th>Publisher</th><th>Expire Date</th><th>Days Left</th></tr></thead><tbody>{_expiry_html}</tbody></table></div>', unsafe_allow_html=True)
             else:
                 st.markdown('<div class="sw-expiring-panel"><div class="sw-panel-title">Expiring Soon</div><div class="sw-empty-state">ไม่พบรายการที่ใกล้หมดอายุ</div></div>', unsafe_allow_html=True)
