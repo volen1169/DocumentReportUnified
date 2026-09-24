@@ -56,6 +56,8 @@ def normalize_product_name(value) -> str | None:
 
 def parse_expiration_date(value) -> dt.date | None:
     """Parse an Excel/pandas date as a date-only value."""
+    if isinstance(value, (dt.datetime, dt.date, pd.Timestamp)) and not pd.isna(value):
+        return value.date() if isinstance(value, (dt.datetime, pd.Timestamp)) else value
     text = _clean_text(value)
     if not text:
         return None
