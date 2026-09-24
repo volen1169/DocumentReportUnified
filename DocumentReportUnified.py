@@ -180,6 +180,7 @@ from services.license_expiry import (
     parse_expiration_date,
     summarize_license_expiry,
 )
+from services.group_email import account_counts, email_key, group_email_payload, REQUIRED_HEADERS
 
 from services.ink_stock import (
     INK_STOCK_LIST,
@@ -673,6 +674,22 @@ def get_asset_user_identity(row, asset_list_name: str = ""):
 # SECTION 05 : PASSWORD EXCEL
 # อ่าน/เขียนไฟล์ Password.xlsx บน SharePoint
 # =============================================================================
+@st.dialog("รายละเอียด Group E-mail")
+def view_group_email_record_dialog(row):
+    expiry = parse_expiration_date(row.get("Expiry Date"))
+    fields = (
+        ("Display Name", _software_form_value(row.get("Display Name"))),
+        ("Email", _software_form_value(row.get("Email"))),
+        ("Assigned Users", _software_form_value(row.get("Assigned Users"))),
+        ("Login Devices", _software_form_value(row.get("Login Devices"))),
+        ("Company", _software_form_value(row.get("Company"))),
+        ("License Type", _software_form_value(row.get("License Type"))),
+        ("Expiry Date", expiry.strftime("%d %b %Y") if expiry else ""),
+        ("Status", _software_form_value(row.get("Status"))),
+    )
+    for label, value in fields:
+        st.text(f"{label}: {value or '—'}")
+
 @st.dialog("✏️ แก้ไขข้อมูล Software")
 def edit_software_record_dialog(category_name, row):
     sheet_name, excel_row = _software_row_to_sheet_position(row)
@@ -686,6 +703,9 @@ def edit_software_record_dialog(category_name, row):
         return
     ws = workbook[sheet_name]
     headers = _software_ws_headers(ws)
+    if category_name == "Group Email" and not all(header in headers for header in REQUIRED_HEADERS):
+        st.error("Group E-mail workbook ยังไม่มี Email, Assigned Users หรือ Login Devices")
+        return
     st.markdown(
         f"""
         <div style="padding:12px 14px;margin-bottom:12px;border:1px solid #E2E8F0;
@@ -705,7 +725,9 @@ def edit_software_record_dialog(category_name, row):
         current_value = ws.cell(excel_row, col_index).value
         label = str(header)
         with form_cols[field_number % 2]:
-            if any(token in label.lower() for token in ("pass", "pwd", "secret", "key", "token", "รหัส")):
+            if category_name == "Group Email" and header == "Login Devices":
+                new_values[header] = st.text_input(label, value=_software_form_value(current_value), help="จำนวนเต็มตั้งแต่ 0 ขึ้นไป หรือเว้นว่าง")
+            elif any(token in label.lower() for token in ("pass", "pwd", "secret", "key", "token", "รหัส")):
                 new_values[header] = st.text_input(label, value=_software_form_value(current_value), type="password")
             elif "date" in label.lower() or "วันที่" in label:
                 new_values[header] = st.text_input(label, value=_software_form_value(current_value))
@@ -715,8 +737,19 @@ def edit_software_record_dialog(category_name, row):
     save_col, delete_col = st.columns(2)
     with save_col:
         if st.button("💾 บันทึก", type="primary", use_container_width=True):
+            if category_name == "Group Email":
+                try:
+                    other_emails = (sheet.cell(r, _software_ws_headers(sheet).index("Email") + 1).value
+                                    for sheet in workbook.worksheets if "Email" in _software_ws_headers(sheet)
+                                    for r in range(2, sheet.max_row + 1) if sheet != ws or r != excel_row)
+                    new_values = group_email_payload(headers, new_values, other_emails, ws.cell(excel_row, headers.index("Email") + 1).value)
+                except ValueError as error:
+                    st.error(str(error))
+                    return
             for col_index, header in enumerate(headers, start=1):
                 value = new_values.get(header, "")
+                if category_name == "Group Email" and _software_form_value(ws.cell(excel_row, col_index).value) == _software_form_value(value):
+                    continue
                 ws.cell(excel_row, col_index, value=value if str(value).strip() else None)
             ok, message = upload_software_workbook(category_name, workbook)
             if ok:
@@ -772,14 +805,24 @@ def add_software_record_dialog(category_name):
     if not headers:
         st.error("ไม่พบ header ในแถวแรก")
         return
+    if category_name == "Group Email" and not all(header in headers for header in REQUIRED_HEADERS):
+        st.error("Group E-mail workbook ยังไม่มี Email, Assigned Users หรือ Login Devices")
+        return
     new_values = {}
     form_cols = st.columns(2, gap="medium")
     for field_number, header in enumerate(headers):
         label = str(header)
         input_type = "password" if any(token in label.lower() for token in ("pass", "pwd", "secret", "key", "token", "รหัส")) else "default"
         with form_cols[field_number % 2]:
-            new_values[header] = st.text_input(label, type=input_type)
+            new_values[header] = st.text_input(label, type=input_type, help="จำนวนเต็มตั้งแต่ 0 ขึ้นไป หรือเว้นว่าง" if category_name == "Group Email" and header == "Login Devices" else None)
     if st.button("➕ เพิ่มรายการ", type="primary", use_container_width=True):
+        if category_name == "Group Email":
+            try:
+                other_emails = (sheet.cell(r, headers.index("Email") + 1).value for sheet in workbook.worksheets if "Email" in _software_ws_headers(sheet) for r in range(2, sheet.max_row + 1))
+                new_values = group_email_payload(headers, new_values, other_emails)
+            except ValueError as error:
+                st.error(str(error))
+                return
         next_row = ws.max_row + 1
         for col_index, header in enumerate(headers, start=1):
             value = new_values.get(header, "")
@@ -792,7 +835,7 @@ def add_software_record_dialog(category_name):
         else:
             st.error(f"เพิ่มรายการไม่สำเร็จ: {message}")
 
-def render_software_edit_panel(category_name, source_df, display_columns, key_prefix, title="รายการ", page_size_options=(10, 20, 30)):
+def render_software_edit_panel(category_name, source_df, display_columns, key_prefix, title="รายการ", page_size_options=(10, 20, 30), allow_edit=True):
     """Polished searchable editor panel for software workbooks."""
     if source_df is None or source_df.empty:
         return
@@ -826,8 +869,8 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                 <div class="sw-editor-head">
                     <div class="sw-editor-mark">✎</div>
                     <div>
-                        <b>จัดการข้อมูล {html.escape(str(title))}</b>
-                        <span>เลือกรายการจากตารางด้านล่าง แล้วกดไอคอนเพื่อแก้ไข</span>
+                        <b>{('รายการ' if not allow_edit else 'จัดการข้อมูล') if category_name == 'Group Email' else 'จัดการข้อมูล'} {html.escape(str(title))}</b>
+                        <span>{('เลือกรายการจากตารางด้านล่างเพื่อดูรายละเอียด' + ('' if not allow_edit else 'หรือแก้ไข')) if category_name == 'Group Email' else 'เลือกรายการจากตารางด้านล่าง แล้วกดไอคอนเพื่อแก้ไข'}</span>
                     </div>
                     <strong>{len(source_df):,} รายการ</strong>
                 </div>
@@ -856,7 +899,7 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
         start = (current_page - 1) * int(page_size)
         page_df = edit_df.iloc[start:start + int(page_size)]
         st.markdown(
-            '<div class="sw-edit-table-head"><span>รายการ</span><span>รายละเอียด</span><span>ประเภท / สถานะ</span><span>License</span><span>แก้ไข</span></div>',
+            '<div class="sw-edit-table-head"><span>รายการ</span><span>รายละเอียด</span><span>ประเภท / สถานะ</span><span>License</span><span>ดู / แก้ไข</span></div>' if category_name == "Group Email" else '<div class="sw-edit-table-head"><span>รายการ</span><span>รายละเอียด</span><span>ประเภท / สถานะ</span><span>License</span><span>แก้ไข</span></div>',
             unsafe_allow_html=True,
         )
 
@@ -877,7 +920,9 @@ def render_software_edit_panel(category_name, source_df, display_columns, key_pr
                     st.markdown(f'<div class="sw-row-badge">{html.escape(badge)}</div>', unsafe_allow_html=True)
                 with row_cols[4]:
                     source_row = str(row.get("Source Row", row_index))
-                    if st.button("✎", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True, help="แก้ไขรายการนี้"):
+                    if category_name == "Group Email" and st.button("ดู", key=f"{safe_key}_view_{row_index}_{source_row}_{row_number}", use_container_width=True):
+                        view_group_email_record_dialog(row.copy())
+                    if allow_edit and st.button("✎", key=f"{safe_key}_edit_{row_index}_{source_row}_{row_number}", use_container_width=True, help="แก้ไขรายการนี้"):
                         edit_software_record_dialog(category_name, row.copy())
 
         st.markdown('<div class="sw-edit-footer">', unsafe_allow_html=True)
@@ -3709,20 +3754,26 @@ else:
             return None if pd.isna(parsed) else parsed.to_pydatetime()
 
         record_col = _ge_column("Record ID", "ID", "No.")
-        group_col = _ge_column("Group E-mail", "Group Email", "Group Mail", "Name", "Account")
-        display_col = _ge_column("Display Name", "Group Name", "Title")
-        email_col = _ge_column("Email", "Mail", "Owner Email")
+        group_col = _ge_column("Software Name")
+        display_col = _ge_column("Display Name")
+        email_col = _ge_column("Email")
+        assigned_col = _ge_column("Assigned Users")
+        devices_col = _ge_column("Login Devices")
         company_col = _ge_column("Company", "Organization")
         license_col = _ge_column("License Type", "License Plan", "Plan", "Product Name")
-        start_col = _ge_column("Start Date", "Created Date", "Purchase Date")
         expiry_col = _ge_column("Expiry Date", "Expire Date", "License Expiry", "End Date")
-        users_col = _ge_column("Users", "Number of Users", "User Count", "Members", "Member Count")
         status_col = _ge_column("Status", "License Status", "State")
         modified_col = _ge_column("Modified", "Updated", "Last Modified", "Created")
 
         now_bkk = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7))).replace(tzinfo=None)
+        raw_rows, populated_rows, unique_accounts = account_counts(group_df)
         records = []
+        seen_emails = set()
         for row_index, row in group_df.iterrows():
+            identity = email_key(row.get(email_col)) if email_col else ""
+            if not identity or identity in seen_emails:
+                continue
+            seen_emails.add(identity)
             status_text = _ge_norm(row.get(status_col, "")) if status_col else ""
             expiry = parse_expiration_date(row.get(expiry_col)) if expiry_col else None
             days_left = (expiry - now_bkk.date()).days if expiry else None
@@ -3736,19 +3787,18 @@ else:
                 state = "active"
             else:
                 state = "unknown"
-            users_value = pd.to_numeric(pd.Series([row.get(users_col)]), errors="coerce").iloc[0] if users_col else None
             records.append({
                 "index": row_index,
                 "record_id": row.get(record_col, len(records) + 1) if record_col else len(records) + 1,
                 "group": str(row.get(group_col, "") or "-") if group_col else "-",
                 "display": str(row.get(display_col, "") or "-") if display_col else "-",
                 "email": str(row.get(email_col, "") or "-") if email_col else "-",
+                "assigned_users": _software_form_value(row.get(assigned_col)) if assigned_col else "",
+                "login_devices": _software_form_value(row.get(devices_col)) if devices_col else "",
                 "company": str(row.get(company_col, "") or "-") if company_col else "-",
                 "license": str(row.get(license_col, "") or "-") if license_col else "-",
-                "start": _ge_date(row.get(start_col)) if start_col else None,
                 "expiry": expiry,
                 "days": days_left,
-                "users": users_value,
                 "status": str(row.get(status_col, "") or "-") if status_col else "-",
                 "state": state,
                 "modified": _ge_date(row.get(modified_col)) if modified_col else None,
@@ -3756,13 +3806,11 @@ else:
                 "search": " ".join(str(value) for value in row.tolist()),
             })
 
-        total = len(records)
+        total = unique_accounts
         active = sum(record["state"] == "active" for record in records)
         expiring = sum(record["state"] == "expiring" for record in records)
         expired = sum(record["state"] == "expired" for record in records)
         inactive = sum(record["state"] == "inactive" for record in records)
-        users_values = [record["users"] for record in records if pd.notna(record["users"])]
-        total_users = int(sum(users_values)) if users_values else None
 
         mail_svg = '<svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><defs><linearGradient id="geMailGradient" x1="3" y1="4" x2="25" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#60A5FA"/><stop offset=".48" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs><rect x="2.5" y="5" width="23" height="18" rx="5" fill="url(#geMailGradient)"/><path d="m4.5 8 9.5 7 9.5-7" stroke="#FFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21.5" cy="20.5" r="4.2" fill="#FFF"/><circle cx="20.3" cy="19.5" r="1.25" fill="#6366F1"/><path d="M18.6 22.7c.25-1.35 1-2.15 1.75-2.15s1.5.8 1.75 2.15" stroke="#6366F1" stroke-width="1.2" stroke-linecap="round"/><circle cx="23.3" cy="19.7" r=".9" fill="#8B5CF6"/></svg>'
         search_svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>'
@@ -3774,11 +3822,11 @@ else:
                 add_software_record_dialog("Group Email")
 
         kpi_items = [
-            ("รายการทั้งหมด", str(total), "รายการ", "records", "#7C3AED", "#F3E8FF"),
+            ("บัญชี E-mail", str(total), "Email ไม่ซ้ำ", "records", "#7C3AED", "#F3E8FF"),
             ("Active / Licensed", str(active) if status_col else "-", "พร้อมใช้งาน", "active", "#10B981", "#E7F8EF"),
             ("Expiring Soon", str(expiring) if expiry_col else "-", "ภายใน 90 วัน", "clock", "#F59E0B", "#FFF4E5"),
             ("Expired / Inactive", str(expired + inactive) if (expiry_col or status_col) else "-", "หมดอายุหรือปิดใช้งาน", "warning", "#EF4444", "#FEECEF"),
-            ("จำนวนผู้ใช้งาน", f"{total_users:,}" if total_users is not None else "-", "ผู้ใช้งานรวม", "users", "#3B82F6", "#EAF3FF"),
+            ("แถว Email ที่มีข้อมูล", str(populated_rows), f"โหลด {raw_rows} แถว", "users", "#3B82F6", "#EAF3FF"),
         ]
         icon_paths = {
             "records": '<rect x="5" y="4" width="12" height="15" rx="2"/><path d="M9 8h5M9 12h5M9 16h3"/><path d="M17 8h3v12H9v-1"/>',
@@ -3824,11 +3872,9 @@ else:
         table_rows = []
         for record in visible:
             status_label, status_tone = status_colors[record["state"]]
-            start_text = record["start"].strftime("%d/%m/%Y") if record["start"] else "-"
             expiry_text = record["expiry"].strftime("%d %b %Y") if record["expiry"] else "-"
-            users_text = f"{int(record['users']):,}" if pd.notna(record["users"]) else "-"
-            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["group"])}</b></td><td>{html.escape(record["display"])}</td><td>{html.escape(record["email"])}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{start_text}</td><td>{expiry_text}</td><td>{users_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td></tr>''')
-        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="10"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
+            table_rows.append(f'''<tr><td>{html.escape(str(record["record_id"]))}</td><td><b>{html.escape(record["display"])}</b></td><td>{html.escape(record["email"])}</td><td>{html.escape(record["assigned_users"] or "—")}</td><td>{html.escape(record["login_devices"] or "—")}</td><td><span class="ge-company-badge">{html.escape(record["company"])}</span></td><td>{html.escape(record["license"])}</td><td>{expiry_text}</td><td><span class="ge-status ge-status-{status_tone}">{status_label}</span></td></tr>''')
+        rows_html = ''.join(table_rows) if table_rows else '<tr><td colspan="9"><div class="ge-empty-state">ยังไม่มีข้อมูลสำหรับแสดงผล</div></td></tr>'
 
         known_total = active + expiring + expired + inactive
         if known_total:
@@ -3846,13 +3892,11 @@ else:
             company = record["company"]
             if company in ("", "-"):
                 continue
-            company_stats.setdefault(company, {"records": 0, "users": 0})
+            company_stats.setdefault(company, {"records": 0})
             company_stats[company]["records"] += 1
-            if pd.notna(record["users"]):
-                company_stats[company]["users"] += int(record["users"])
         top_companies = sorted(company_stats.items(), key=lambda item: item[1]["records"], reverse=True)[:5]
         max_company = max((value["records"] for _, value in top_companies), default=1)
-        company_html = ''.join(f'''<div class="ge-company-row"><div><b>{html.escape(company)}</b><span>{stats["users"]:,} Users</span></div><div class="ge-company-bar"><i style="width:{stats["records"] / max_company * 100:.1f}%"></i></div><strong>{stats["records"]} Group</strong></div>''' for company, stats in top_companies)
+        company_html = ''.join(f'''<div class="ge-company-row"><div><b>{html.escape(company)}</b><span>{stats["records"]} accounts</span></div><div class="ge-company-bar"><i style="width:{stats["records"] / max_company * 100:.1f}%"></i></div><strong>{stats["records"]} Group</strong></div>''' for company, stats in top_companies)
         company_body = company_html or '<div class="ge-empty-state">ยังไม่มีข้อมูล Company</div>'
         company_panel = f'<div class="ge-company-panel"><div class="ge-panel-title">Top Companies</div>{company_body}</div>'
 
@@ -3863,12 +3907,11 @@ else:
 
         main_left, main_right = st.columns([0.72, 0.28], gap="medium")
         with main_left:
-            if admin_mode and visible:
+            if visible:
                 _visible_indices = [record["index"] for record in visible]
-                _ge_edit_columns = [col for col in (group_col, display_col, email_col, company_col, license_col) if col]
-                render_software_edit_panel("Group Email", group_df.loc[_visible_indices].copy(), _ge_edit_columns, "ge", "Group E-mail")
-            if not admin_mode:
-                st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} รายการ</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Group E-mail</th><th>Display Name</th><th>Email</th><th>Company</th><th>License Type</th><th>Start Date</th><th>Expiry Date</th><th>Users</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
+                _ge_edit_columns = [col for col in (display_col, email_col, assigned_col, devices_col) if col]
+                render_software_edit_panel("Group Email", group_df.loc[_visible_indices].copy(), _ge_edit_columns, "ge", "Group E-mail", allow_edit=admin_mode)
+            st.markdown(f'''<div class="ge-table-panel"><div class="ge-table-head"><div><b>รายการ Group E-mail ทั้งหมด</b><span>แสดง {len(visible)} จาก {total} บัญชี · โหลด {raw_rows} แถว · Email มีข้อมูล {populated_rows} แถว</span></div></div><div class="ge-table-scroll"><table class="ge-table"><thead><tr><th>Record ID</th><th>Display Name</th><th>Email</th><th>Assigned Users</th><th>Login Devices</th><th>Company</th><th>License Type</th><th>Expiry Date</th><th>Status</th></tr></thead><tbody>{rows_html}</tbody></table></div></div>''', unsafe_allow_html=True)
             activities = sorted([record for record in records if record["modified"]], key=lambda record: record["modified"], reverse=True)[:6]
             if activities:
                 activity_html = ''.join(f'''<div class="ge-activity-row"><div class="ge-activity-icon">{mail_svg}</div><div><b>{html.escape(record["group"])}</b><span>{html.escape(record["company"])}</span></div><time>{record["modified"].strftime("%d/%m/%Y %H:%M")}</time></div>''' for record in activities)
