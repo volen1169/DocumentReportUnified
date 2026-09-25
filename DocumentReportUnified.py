@@ -674,6 +674,11 @@ def get_asset_user_identity(row, asset_list_name: str = ""):
 # SECTION 05 : PASSWORD EXCEL
 # อ่าน/เขียนไฟล์ Password.xlsx บน SharePoint
 # =============================================================================
+def _group_email_display_name(value):
+    text = _software_form_value(value)
+    return text if text.strip() else "-"
+
+
 @st.dialog("รายละเอียด Group E-mail")
 def view_group_email_record_dialog(row):
     expiry = parse_expiration_date(row.get("Expiry Date"))
@@ -3791,7 +3796,7 @@ else:
                 "index": row_index,
                 "record_id": row.get(record_col, len(records) + 1) if record_col else len(records) + 1,
                 "group": str(row.get(group_col, "") or "-") if group_col else "-",
-                "display": str(row.get(display_col, "") or "-") if display_col else "-",
+                "display": _group_email_display_name(row.get(display_col)) if display_col else "-",
                 "email": str(row.get(email_col, "") or "-") if email_col else "-",
                 "assigned_users": _software_form_value(row.get(assigned_col)) if assigned_col else "",
                 "login_devices": _software_form_value(row.get(devices_col)) if devices_col else "",

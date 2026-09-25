@@ -178,6 +178,20 @@ class GroupEmailTests(unittest.TestCase):
                                  "Company: SWI", "License Type: Business Basic",
                                  "Expiry Date: 12 Nov 2026", "Status: Active"])
 
+    def test_group_email_table_display_name_missing_values(self):
+        app = ast.parse(Path(__file__).resolve().parents[1].joinpath("DocumentReportUnified.py").read_text())
+        helper = next(node for node in app.body if isinstance(node, ast.FunctionDef)
+                      and node.name == "_group_email_display_name")
+        storage = ast.parse(Path(__file__).resolve().parents[1].joinpath("services/excel_storage.py").read_text())
+        form_value = next(node for node in storage.body if isinstance(node, ast.FunctionDef)
+                          and node.name == "_software_form_value")
+        scope = {}
+        exec(compile(ast.Module(body=[form_value, helper], type_ignores=[]), "group_email_display", "exec"), scope)
+        for value, expected in ((None, "-"), (float("nan"), "-"), ("", "-"), (" ", "-"), ("PD", "PD")):
+            with self.subTest(value=value):
+                self.assertEqual(scope["_group_email_display_name"](value), expected)
+        self.assertEqual(scope["_group_email_display_name"](" PD "), " PD ")
+
 
 if __name__ == "__main__":
     unittest.main()
