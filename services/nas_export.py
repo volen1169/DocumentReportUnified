@@ -60,8 +60,8 @@ _NAS_EXPORT_OPG_IT_RW_USERS = {
 }
 
 # OPT_ISO:
-# พนักงาน OPT ทุกคนได้ R ยกเว้นรายชื่อด้านล่างให้เป็นค่าว่างใน Export
-_NAS_EXPORT_OPT_ISO_EXCLUDED_USERS = {
+# พนักงาน OPT ทุกคนได้ R ยกเว้นรายชื่อด้านล่างให้เป็น R/W ใน Export
+_NAS_EXPORT_OPT_ISO_RW_USERS = {
     "teerapat.po",
     "cholticha.ma",
     "sompong.po",
@@ -251,11 +251,11 @@ def _apply_nas_export_required_permissions(export_record, company, user_name):
         "R/W" if normalized_user in _NAS_EXPORT_OPG_IT_RW_USERS else ""
     )
 
-    # OPT_ISO: พนักงาน OPT ทุกคนได้ R ยกเว้นผู้ใช้ที่ระบุไว้ให้เป็นค่าว่าง
+    # OPT_ISO: พนักงาน OPT ทุกคนได้ R ยกเว้นผู้ใช้ที่ระบุไว้ให้เป็น R/W
     if company_key == "OPT":
         export_record["OPT_ISO"] = (
-            ""
-            if normalized_user in _NAS_EXPORT_OPT_ISO_EXCLUDED_USERS
+            "R/W"
+            if normalized_user in _NAS_EXPORT_OPT_ISO_RW_USERS
             else "R"
         )
     else:
