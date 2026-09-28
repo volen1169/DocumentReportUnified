@@ -97,6 +97,10 @@ def load_software_excels():
                 workbook = load_workbook(io.BytesIO(file_res.content), data_only=True)
                 frames = []
                 for worksheet in workbook.worksheets:
+                    if category_name == "Group Email" and "Email" not in {
+                        str(cell.value).strip() for cell in worksheet[1] if cell.value is not None
+                    }:
+                        continue
                     frame = parse_password_sheet(worksheet)
                     if not frame.empty:
                         frame = frame.copy()
