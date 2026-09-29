@@ -132,7 +132,6 @@ import io
 import msal
 import requests
 import urllib3
-from urllib.parse import urlsplit
 import extra_streamlit_components as stx
 import plotly.express as px
 from openpyxl import load_workbook
@@ -507,14 +506,6 @@ def _clear_query_params_safe():
         except Exception:
             pass
 
-def _projector_preview_oauth_diag(flag: str, value: bool) -> None:
-    """Temporary Preview-only boolean diagnostics; never emit OAuth values."""
-    try:
-        if urlsplit(str(st.context.url)).hostname == "documentreportunified-projector-preview.streamlit.app":
-            print(f"PROJECTOR_OAUTH_DIAG {flag}={bool(value)}", flush=True)
-    except Exception:
-        pass
-
 def build_ms_oauth_login_url(popup=False):
     """Build Microsoft interactive OAuth login URL that supports MFA."""
     oauth_state = f"popup-{uuid.uuid4().hex}" if popup else uuid.uuid4().hex
@@ -533,7 +524,6 @@ def build_ms_oauth_login_url(popup=False):
 
 def handle_ms_oauth_callback(cookie_manager):
     """Process Microsoft OAuth callback and populate existing app session/cookies."""
-    _projector_preview_oauth_diag("callback_reached", True)
     params = _get_query_params_safe()
     error = _query_value(params, "error")
     if error:
@@ -543,7 +533,6 @@ def handle_ms_oauth_callback(cookie_manager):
         return False
 
     code = _query_value(params, "code")
-    _projector_preview_oauth_diag("code_present", bool(code))
     if not code:
         return False
 
@@ -564,13 +553,11 @@ def handle_ms_oauth_callback(cookie_manager):
         authority=AUTHORITY,
         client_credential=CLIENT_SECRET,
     )
-    _projector_preview_oauth_diag("token_exchange_attempted", True)
     result = app.acquire_token_by_authorization_code(
         code,
         scopes=OAUTH_LOGIN_SCOPES,
         redirect_uri=OAUTH_REDIRECT_URI,
     )
-    _projector_preview_oauth_diag("token_exchange_success", "access_token" in result)
 
     if "access_token" not in result:
         description = result.get(
@@ -607,15 +594,12 @@ def handle_ms_oauth_callback(cookie_manager):
     name = name or email
 
     st.session_state.is_auth = True
-    _projector_preview_oauth_diag("is_auth_set", bool(st.session_state.is_auth))
     st.session_state.skip_cookie_login = False
     st.session_state.user_name = name
     st.session_state.user_email = email
     st.session_state.pop("login_error", None)
     st.session_state.pop("oauth_state", None)
-    _projector_preview_oauth_diag("cookie_write_completed", False)
     set_persistent_auth_cookies(cookie_manager, name, email)
-    _projector_preview_oauth_diag("cookie_write_completed", True)
     if popup_flow:
         st.session_state["oauth_close_popup"] = True
     _clear_query_params_safe()
@@ -1834,7 +1818,6 @@ if (
             pass
         with st.spinner("กำลังตรวจสอบ session ที่บันทึกไว้..."):
             time.sleep(0.25)
-        _projector_preview_oauth_diag("rerun_triggered", True)
         st.rerun()
 
 if st.session_state.pop("oauth_close_popup", False):
