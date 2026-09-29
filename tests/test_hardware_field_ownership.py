@@ -358,6 +358,7 @@ def test_entrypoint_routes_specific_pages_and_marks_pending_compatibility():
     source = (ROOT / "DocumentReportUnified.py").read_text(encoding="utf-8")
     assert 'sub == "Asset Monitor"' in source and "show_pop_monitor=show_pop_monitor" in source
     assert 'sub == "Asset Printer"' in source and "show_pop_printer=show_pop_printer" in source
+    assert 'sub == "Asset Projector"' in source and "render_projector_asset(" in source
     assert "SCHEMA PENDING CONFIRMATION" in source
     assert "render_temporary_legacy_hardware_card" in source
     assert "render_temporary_legacy_hardware_empty_state" in source
@@ -383,7 +384,7 @@ def test_pending_page_renderer_is_schema_neutral_for_each_pending_page():
     namespace = {"st": FakeStreamlit()}
     exec(compile(ast.Module(body=[function], type_ignores=[]), "pending_renderer", "exec"), namespace)
     renderer = namespace["render_temporary_legacy_hardware_card"]
-    for list_name in ("Asset Projector", "Asset UPS", "Asset CCTV", "Asset Access Control"):
+    for list_name in ("Asset UPS", "Asset CCTV", "Asset Access Control"):
         fake = FakeStreamlit(clicked_key="view_1")
         namespace["st"] = fake
         renderer(
@@ -409,7 +410,7 @@ def test_pending_empty_state_is_schema_neutral_for_each_pending_page():
     namespace = {"st": FakeStreamlit()}
     exec(compile(ast.Module(body=[function], type_ignores=[]), "pending_empty_state", "exec"), namespace)
     renderer = namespace["render_temporary_legacy_hardware_empty_state"]
-    for list_name in ("Asset Projector", "Asset UPS", "Asset CCTV", "Asset Access Control"):
+    for list_name in ("Asset UPS", "Asset CCTV", "Asset Access Control"):
         fake = FakeStreamlit()
         namespace["st"] = fake
         renderer(list_name=list_name)

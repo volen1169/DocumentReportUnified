@@ -83,6 +83,7 @@ from views.assets.computer_asset import render_computer_asset
 from views.assets.generic_hardware_asset import render_generic_hardware_asset
 from views.assets.monitor_asset import render_monitor_asset
 from views.assets.printer_asset import printer_display_value, render_printer_asset
+from views.assets.projector_asset import render_projector_asset
 from views.password_information import render_password_information
 from views.permission_dashboard import render_permission_dashboard
 from views.reports.report_view import render_report_view
@@ -5241,6 +5242,14 @@ else:
                 show_pop_printer=show_pop_printer,
                 add_printer_dialog=add_printer_dialog,
                 edit_printer_dialog=edit_printer_dialog,
+            )
+        elif sub == "Asset Projector":
+            render_projector_asset(
+                df_hw=df_hw,
+                admin_mode=admin_mode,
+                create_item=sp_create_item,
+                update_item=sp_update_item,
+                clear_cache=clear_sp_cache,
             )
         else:
             # SCHEMA PENDING CONFIRMATION: do not infer fields or CRUD dialogs.
